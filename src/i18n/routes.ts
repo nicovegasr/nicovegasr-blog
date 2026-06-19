@@ -1,10 +1,8 @@
 import type { Locale } from '@/i18n/locale';
-import { LOCALES } from '@/i18n/locale';
+import { LOCALES, DEFAULT_LOCALE } from '@/i18n/locale';
 
-/**
- * Logical page identifiers, decoupled from their localized URL segment.
- * Use these everywhere in the code; never hardcode "/sobre-mi" or "/about".
- */
+// Logical page identifiers, decoupled from their localized URL segment.
+// Never hardcode "/sobre-mi" or "/about"; resolve URLs through buildPagePath.
 export type PageKey = 'blog' | 'about' | 'work' | 'contact';
 
 const PATH_SEGMENT_BY_PAGE: Record<PageKey, Record<Locale, string>> = {
@@ -16,37 +14,38 @@ const PATH_SEGMENT_BY_PAGE: Record<PageKey, Record<Locale, string>> = {
 
 const joinPath = (...segments: string[]): string => {
   const path = segments.filter((segment) => segment.length > 0).join('/');
-  return `/${path}/`;
+  return path.length > 0 ? `/${path}/` : '/';
 };
 
+// Default locale lives at the root with no prefix; others are prefixed
+// (matches astro.config `prefixDefaultLocale: false`).
+const localePathSegment = (locale: Locale): string =>
+  locale === DEFAULT_LOCALE ? '' : locale;
+
 export const buildPagePath = (page: PageKey, locale: Locale): string =>
-  joinPath(locale, PATH_SEGMENT_BY_PAGE[page][locale]);
+  joinPath(localePathSegment(locale), PATH_SEGMENT_BY_PAGE[page][locale]);
 
 export const buildBlogPostPath = (locale: Locale, slug: string): string =>
-  joinPath(locale, 'blog', slug);
+  joinPath(localePathSegment(locale), 'blog', slug);
 
-/**
- * Given the current pathname, returns the equivalent path in the other
- * locale, preserving the logical page. Used by the language switcher.
- *
- * Static pages (blog index, about, work, contact) map cleanly. Individual
- * blog posts have different slugs per locale, so without an explicit
- * translation link we cannot know the counterpart: we fall back to the
- * blog index of the target locale (safe, never a 404).
- */
+// Maps the current path to its equivalent in another locale (language switcher).
+// Blog posts have different slugs per locale, so they cannot be mapped and fall
+// back to the target blog index (safe, never a 404).
 export const buildAlternateLocalePath = (
   currentPathname: string,
   currentLocale: Locale,
   targetLocale: Locale,
 ): string => {
-  const [, ...pathAfterLocale] = currentPathname.split('/').filter(Boolean);
-  const firstSegment = pathAfterLocale[0] ?? '';
+  const segments = currentPathname.split('/').filter(Boolean);
+  const pageSegments =
+    currentLocale === DEFAULT_LOCALE ? segments : segments.slice(1);
+  const firstSegment = pageSegments[0] ?? '';
 
   const matchingPage = (Object.keys(PATH_SEGMENT_BY_PAGE) as PageKey[]).find(
     (page) => PATH_SEGMENT_BY_PAGE[page][currentLocale] === firstSegment,
   );
 
-  if (matchingPage !== undefined && pathAfterLocale.length <= 1) {
+  if (matchingPage !== undefined && pageSegments.length <= 1) {
     return buildPagePath(matchingPage, targetLocale);
   }
 

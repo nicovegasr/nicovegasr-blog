@@ -9,5 +9,5 @@
     }
   },
   "include": ["src/**/*", ".astro/types.d.ts", "astro.config.mjs"],
-  "exclude": ["dist", "node_modules", "worker", "functions"]
+  "exclude": ["dist", "node_modules"]
 }
