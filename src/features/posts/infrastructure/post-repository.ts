@@ -1,0 +1,46 @@
+import { getCollection, type CollectionEntry } from 'astro:content';
+import type { Locale } from '@/features/shared/domain/locale';
+import {
+  calculateReadingTimeInMinutes,
+  isPublished,
+  sortByPublicationDateDescending,
+  type Post,
+} from '@/features/posts/domain/post';
+import { parseLocalizedEntryIdentifier } from '@/features/shared/infrastructure/entry-identifier';
+
+const toPost = (entry: CollectionEntry<'posts'>): Post | null => {
+  const identifier = parseLocalizedEntryIdentifier(entry.id);
+  if (identifier === null) {
+    return null;
+  }
+
+  return {
+    slug: identifier.slug,
+    locale: identifier.locale,
+    title: entry.data.title,
+    summary: entry.data.summary,
+    publicationDate: entry.data.publicationDate,
+    lastUpdateDate: entry.data.lastUpdateDate,
+    tags: entry.data.tags,
+    readingTimeInMinutes: calculateReadingTimeInMinutes(entry.body),
+  };
+};
+
+export const findAllPosts = async (locale: Locale): Promise<readonly Post[]> => {
+  const entries = await getCollection('posts');
+  const posts = entries
+    .map(toPost)
+    .filter((post): post is Post => post !== null)
+    .filter((post) => post.locale === locale)
+    .filter((post) => isPublished(post));
+
+  return sortByPublicationDateDescending(posts);
+};
+
+export const findPostBySlug = async (
+  locale: Locale,
+  slug: string,
+): Promise<Post | null> => {
+  const posts = await findAllPosts(locale);
+  return posts.find((post) => post.slug === slug) ?? null;
+};
