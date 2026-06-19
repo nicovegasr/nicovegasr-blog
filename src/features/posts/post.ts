@@ -20,10 +20,3 @@ export const calculateReadingTimeInMinutes = (rawText: string): number => {
 
 export const isPublished = (post: Post, now: Date = new Date()): boolean =>
   post.publicationDate.getTime() <= now.getTime();
-
-export const sortByPublicationDateDescending = (
-  posts: readonly Post[],
-): readonly Post[] =>
-  [...posts].sort(
-    (a, b) => b.publicationDate.getTime() - a.publicationDate.getTime(),
-  );

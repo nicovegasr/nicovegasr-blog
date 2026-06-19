@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import {
   calculateReadingTimeInMinutes,
   isPublished,
-  sortByPublicationDateDescending,
   type Post,
 } from '@/features/posts/post';
 
@@ -49,27 +48,5 @@ describe('isPublished', () => {
   it('is not published when the publication date is in the future', () => {
     const post = buildPost({ publicationDate: new Date('2030-01-01') });
     expect(isPublished(post, new Date('2026-01-01'))).toBe(false);
-  });
-});
-
-describe('sortByPublicationDateDescending', () => {
-  it('orders posts from newest to oldest', () => {
-    const older = buildPost({ slug: 'older', publicationDate: new Date('2024-01-01') });
-    const newer = buildPost({ slug: 'newer', publicationDate: new Date('2026-01-01') });
-
-    const sorted = sortByPublicationDateDescending([older, newer]);
-
-    expect(sorted.map((post) => post.slug)).toEqual(['newer', 'older']);
-  });
-
-  it('does not mutate the input array', () => {
-    const input = [
-      buildPost({ slug: 'a', publicationDate: new Date('2024-01-01') }),
-      buildPost({ slug: 'b', publicationDate: new Date('2026-01-01') }),
-    ];
-
-    sortByPublicationDateDescending(input);
-
-    expect(input.map((post) => post.slug)).toEqual(['a', 'b']);
   });
 });
