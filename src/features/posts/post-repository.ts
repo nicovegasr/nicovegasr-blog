@@ -1,4 +1,4 @@
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
 import type { Locale } from '@/i18n/locale';
 import {
   calculateReadingTimeInMinutes,
@@ -39,10 +39,31 @@ export const findAllPosts = async (locale: Locale): Promise<readonly Post[]> => 
     .sort(byNewestFirst);
 };
 
-export const findPostBySlug = async (
+type RenderablePost = {
+  post: Post;
+  Content: Awaited<ReturnType<typeof render>>['Content'];
+};
+
+// Returns the post entity plus its rendered markdown body. The only place that
+// touches astro:content's render(); the detail page consumes both together.
+export const findRenderablePost = async (
   locale: Locale,
   slug: string,
-): Promise<Post | null> => {
-  const posts = await findAllPosts(locale);
-  return posts.find((post) => post.slug === slug) ?? null;
+): Promise<RenderablePost | null> => {
+  const entries = await getCollection('posts');
+  const entry = entries.find((candidate) => {
+    const identifier = parseLocalizedEntryIdentifier(candidate.id);
+    return identifier?.locale === locale && identifier.slug === slug;
+  });
+  if (entry === undefined) {
+    return null;
+  }
+
+  const post = toPost(entry);
+  if (post === null || !isPublished(post)) {
+    return null;
+  }
+
+  const { Content } = await render(entry);
+  return { post, Content };
 };

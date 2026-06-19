@@ -1,0 +1,37 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PostMeta from '@/features/posts/components/PostMeta.astro';
+import { getTranslator } from '@/i18n/translator';
+import { buildPagePath } from '@/i18n/routes';
+import { findAllPosts, findRenderablePost } from '@/features/posts/post-repository';
+
+const locale = 'es';
+
+export async function getStaticPaths() {
+  const posts = await findAllPosts('es');
+  return posts.map((post) => ({ params: { slug: post.slug } }));
+}
+
+const { slug } = Astro.params;
+const renderable = slug ? await findRenderablePost(locale, slug) : null;
+if (renderable === null) {
+  throw new Error(`Post not found: ${locale}/${slug}`);
+}
+
+const { post, Content } = renderable;
+const translate = getTranslator(locale);
+const blogPath = buildPagePath('blog', locale);
+---
+
+<BaseLayout locale={locale} title={post.title} description={post.summary}>
+  <article>
+    <header>
+      <nav aria-label="breadcrumb">
+        <a href={blogPath}>{translate('navigation.blog')}</a> / {post.title}
+      </nav>
+      <h1>{post.title}</h1>
+      <PostMeta post={post} />
+    </header>
+    <Content />
+  </article>
+</BaseLayout>
