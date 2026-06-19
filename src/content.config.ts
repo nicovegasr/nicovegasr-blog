@@ -1,7 +1,19 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
+import { glob } from 'astro/loaders';
+import { z } from 'astro:schema';
+
+// Markdown lives under src/content/<collection>/<locale>/<slug>.md.
+// generateId keeps the "<locale>/<slug>" shape (extension stripped) so the
+// locale and slug can be parsed from the entry id downstream.
+const localizedMarkdown = (collection: string) =>
+  glob({
+    pattern: '**/*.md',
+    base: `./src/content/${collection}`,
+    generateId: ({ entry }) => entry.replace(/\.mdx?$/, ''),
+  });
 
 const posts = defineCollection({
-  type: 'content',
+  loader: localizedMarkdown('posts'),
   schema: z.object({
     title: z.string().min(1).max(120),
     publicationDate: z.coerce.date(),
@@ -12,7 +24,7 @@ const posts = defineCollection({
 });
 
 const projects = defineCollection({
-  type: 'content',
+  loader: localizedMarkdown('projects'),
   schema: z.object({
     title: z.string().min(1).max(80),
     pitch: z.string().min(20).max(280),
@@ -23,7 +35,7 @@ const projects = defineCollection({
 });
 
 const values = defineCollection({
-  type: 'content',
+  loader: localizedMarkdown('values'),
   schema: z.object({
     title: z.string().min(1).max(80),
     order: z.number().int().default(0),
@@ -31,7 +43,7 @@ const values = defineCollection({
 });
 
 const timeline = defineCollection({
-  type: 'content',
+  loader: localizedMarkdown('timeline'),
   schema: z.object({
     company: z.string().min(1),
     role: z.string().min(1),
@@ -43,7 +55,7 @@ const timeline = defineCollection({
 });
 
 const work = defineCollection({
-  type: 'content',
+  loader: localizedMarkdown('work'),
   schema: z.object({
     company: z.string().min(1),
     headline: z.string().min(10),

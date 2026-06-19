@@ -1,15 +1,15 @@
 # Blog / Portfolio de Nicolás Vegas
 
-Sitio personal construido con **Astro 5** + **TypeScript** (strict), totalmente estático. La home es el **blog**; el portfolio vive en `/sobre-mi`.
+Sitio personal construido con **Astro 6** + **TypeScript** (strict), totalmente estático. La home es el **blog**; el portfolio vive en `/sobre-mi`.
 
 > **Mantenimiento de este documento:** cada vez que cambie la arquitectura, la estructura de carpetas, las convenciones o las decisiones técnicas, hay que reflejarlo aquí en el mismo cambio. El README es la fuente de verdad de "cómo está montado esto".
 
 ## Stack
 
-- **Astro 5** en modo estático (`output: static`).
+- **Astro 6** en modo estático (`output: static`). Requiere **Node ≥ 22.12**.
 - **TypeScript** en modo `strict`.
 - **i18n nativo de Astro** con prefijos simétricos `/es` (idioma por defecto) y `/en` (`prefixDefaultLocale: true`).
-- **Content Collections** + **Zod** como fuente de verdad de la forma del contenido.
+- **Content Collections** (Content Layer API, `loader: glob()`) + **Zod** como fuente de verdad de la forma del contenido.
 
 ## Convenciones
 
@@ -24,8 +24,8 @@ Estructura **vertical / feature-based**: cada concepto agrupa sus propias capas 
 
 ```
 src/
-├── content/                 ← territorio de Astro (NO tocar la ubicación)
-│   ├── config.ts            ← schemas Zod de cada colección
+├── content.config.ts        ← schemas Zod + loaders glob (Content Layer API)
+├── content/                 ← markdown, territorio de Astro (NO tocar la ubicación)
 │   └── <coleccion>/{es,en}/*.md
 ├── i18n/                    ← concern transversal de internacionalización
 │   ├── locale.ts            ← tipo Locale, LOCALES, isLocale, DEFAULT_LOCALE
@@ -52,7 +52,7 @@ Los tests viven junto al código que prueban (`post.test.ts` al lado de `post.ts
 
 Son dos carpetas padre por una razón concreta: **`content/` es de Astro, `features/` es nuestro.**
 
-- `src/content/` es una ruta **impuesta por el framework**. A partir de `src/content/config.ts` Astro genera el módulo virtual `astro:content` y los tipos `CollectionEntry<'x'>`. No se puede mover dentro de `features/`.
+- `src/content.config.ts` (ubicación **impuesta por el framework** en Astro 6) define las colecciones; a partir de ahí Astro genera el módulo virtual `astro:content` y los tipos `CollectionEntry<'x'>`. El markdown vive en `src/content/<coleccion>/`. No se puede mover dentro de `features/`.
 - `src/features/` es donde mandamos nosotros, con la estructura vertical.
 
 > Se llama `features/` y no `lib/` a propósito: `lib` es abreviatura de *library* (rompe la regla de no abreviar) y no describe el contenido —no son utilidades genéricas, son los módulos de negocio.
