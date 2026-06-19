@@ -1,6 +1,6 @@
 # Blog / Portfolio de Nicolás Vegas
 
-Sitio personal construido con **Astro 6** + **TypeScript** (strict), totalmente estático. La home es el **blog**; el portfolio vive en `/sobre-mi`.
+Sitio personal construido con **Astro 6** + **TypeScript** (strict), totalmente estático. La home es el **blog**; el portfolio vive en `/sobre-mi`. Pensado para alojarse en cualquier hosting estático (GitHub Pages, Netlify…): sin servidor, sin funciones, sin backend.
 
 > **Mantenimiento de este documento:** cada vez que cambie la arquitectura, la estructura de carpetas, las convenciones o las decisiones técnicas, hay que reflejarlo aquí en el mismo cambio. El README es la fuente de verdad de "cómo está montado esto".
 
@@ -8,7 +8,7 @@ Sitio personal construido con **Astro 6** + **TypeScript** (strict), totalmente 
 
 - **Astro 6** en modo estático (`output: static`). Requiere **Node ≥ 22.12**.
 - **TypeScript** en modo `strict`.
-- **i18n nativo de Astro** con prefijos simétricos `/es` (idioma por defecto) y `/en` (`prefixDefaultLocale: true`).
+- **i18n nativo de Astro**: el idioma por defecto (`es`) se sirve en la raíz sin prefijo (`/`, `/sobre-mi`) y el resto con prefijo (`/en`, `/en/about`) vía `prefixDefaultLocale: false`. Así no hay un `/` vacío que redirigir y el sitio es estático puro.
 - **Content Collections** (Content Layer API, `loader: glob()`) + **Zod** como fuente de verdad de la forma del contenido.
 
 ## Convenciones
@@ -38,20 +38,16 @@ src/
 │   │   ├── post.ts                  ← entidad + funciones puras (testeable sin Astro)
 │   │   └── post-repository.ts       ← astro:content → Post
 │   ├── projects/{project.ts, project-repository.ts}
-│   ├── values/{value.ts, value-repository.ts}
+│   ├── principles/{principle.ts, principle-repository.ts}  ← valores/principios (sección de sobre-mí)
 │   ├── timeline/{timeline-entry.ts, timeline-repository.ts}
-│   ├── work/{work.ts, work-repository.ts}
-│   └── contact/contact-message.ts   ← solo dominio (aún sin repo)
+│   └── work/{work.ts, work-repository.ts}
 ├── components/
 │   └── layout/{Navigation, Footer, LanguageSwitcher}.astro
 ├── layouts/
 │   └── BaseLayout.astro     ← shell HTML + <head> SEO + hreflang alternates
 └── pages/
-    ├── es/index.astro       ← blog index (idioma por defecto)
-    └── en/index.astro
-
-functions/                   ← Cloudflare Pages Functions (deploy de Astro aparte)
-└── index.ts                 ← redirige "/" a /es o /en según Accept-Language
+    ├── index.astro          ← blog index en español (raíz, idioma por defecto)
+    └── en/index.astro       ← blog index en inglés
 ```
 
 Los tests viven junto al código que prueban (`post.test.ts` al lado de `post.ts`).
@@ -90,8 +86,9 @@ i18n es un concern transversal de primera clase, por eso vive en `src/i18n/` (no
 
 - El locale vive en el **path del archivo** (`posts/es/slug.md`), no en el frontmatter.
 - `i18n/entry-identifier.ts` parsea el id de Astro (`"es/mi-post.md"`) → `{ locale, slug }`. Lo usan todos los repos; vive en `i18n/` porque su trabajo es extraer el locale del path.
-- Las strings de UI viven en diccionarios TS (`i18n/es.ts`, y `en.ts` pendiente).
+- Las strings de UI viven en diccionarios TS (`i18n/es.ts`, `i18n/en.ts`).
 - Las rutas lógicas se resuelven con `PageKey` en `i18n/routes.ts` (`about` ↔ `sobre-mi`, `work` ↔ `trabajo`, `contact` ↔ `contacto`). Nunca se hardcodean URLs.
+- El idioma por defecto no lleva prefijo en la URL: `routes.ts` lo omite (`localePathSegment`) para que el español viva en `/` y el inglés en `/en`. El switcher (`buildAlternateLocalePath`) tiene esto en cuenta al mapear la ruta equivalente.
 
 ## Verificación
 
@@ -104,8 +101,10 @@ npm run build                        # build estático
 
 ### Tests
 
-[Vitest](https://vitest.dev/) para el **dominio puro** (cálculo de tiempo de lectura, parser de identificadores, publicación de posts, validación de contacto). No se testean los repositorios (ACL fino sobre `astro:content`) ni la UI. Los tests se co-localizan como `*.test.ts` junto al fichero que prueban.
+[Vitest](https://vitest.dev/) para el **dominio puro** (cálculo de tiempo de lectura, parser de identificadores, publicación de posts). No se testean los repositorios (ACL fino sobre `astro:content`) ni la UI. Los tests se co-localizan como `*.test.ts` junto al fichero que prueban.
 
 ## Estado
 
-En construcción. **Fase 1 completa**: cimientos (entidades de dominio, repositorios, schemas de contenido, tests de dominio), i18n completo (diccionarios + translator), layout con nav/footer/switcher y hreflang, páginas índice por idioma y la Function de redirect de `/`. Falta el contenido real y las pantallas (blog, artículo, portfolio, trabajo, contacto). Sin estilos todavía: primero estructura y arquitectura.
+En construcción. **Fase 1 completa**: cimientos (entidades de dominio, repositorios, schemas de contenido, tests de dominio), i18n completo (diccionarios + translator), layout con nav/footer/switcher y hreflang, y páginas índice por idioma (español en la raíz, inglés en `/en`). Falta el contenido real y las pantallas (blog, artículo, portfolio, trabajo, contacto). Sin estilos todavía: primero estructura y arquitectura.
+
+> **Contacto sin backend:** se descartó el formulario con envío de email (necesitaría servidor). La página de contacto será estática: enlaces directos (`mailto:`, redes). Por eso ya no existe el dominio `ContactMessage`/validación.
