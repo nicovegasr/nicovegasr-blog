@@ -1,5 +1,5 @@
-import type { Locale } from '@/features/shared/domain/locale';
-import { isLocale } from '@/features/shared/domain/locale';
+import type { Locale } from '@/i18n/locale';
+import { isLocale } from '@/i18n/locale';
 
 export type LocalizedEntryIdentifier = {
   readonly locale: Locale;

@@ -1,7 +1,7 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import type { Locale } from '@/features/shared/domain/locale';
-import { sortByOrder, type Project } from '@/features/projects/domain/project';
-import { parseLocalizedEntryIdentifier } from '@/features/shared/infrastructure/entry-identifier';
+import type { Locale } from '@/i18n/locale';
+import { sortByOrder, type Project } from '@/features/projects/project';
+import { parseLocalizedEntryIdentifier } from '@/i18n/entry-identifier';
 
 type ProjectEntry = CollectionEntry<'projects'>;
 

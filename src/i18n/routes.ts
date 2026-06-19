@@ -1,5 +1,5 @@
-import type { Locale } from '@/features/shared/domain/locale';
-import { LOCALES } from '@/features/shared/domain/locale';
+import type { Locale } from '@/i18n/locale';
+import { LOCALES } from '@/i18n/locale';
 
 /**
  * Logical page identifiers, decoupled from their localized URL segment.

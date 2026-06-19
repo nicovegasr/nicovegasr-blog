@@ -1,7 +1,7 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import type { Locale } from '@/features/shared/domain/locale';
-import { sortValuesByOrder, type Value } from '@/features/values/domain/value';
-import { parseLocalizedEntryIdentifier } from '@/features/shared/infrastructure/entry-identifier';
+import type { Locale } from '@/i18n/locale';
+import { sortValuesByOrder, type Value } from '@/features/values/value';
+import { parseLocalizedEntryIdentifier } from '@/i18n/entry-identifier';
 
 type ValueEntry = CollectionEntry<'values'>;
 

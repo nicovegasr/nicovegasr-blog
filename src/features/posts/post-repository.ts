@@ -1,12 +1,12 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import type { Locale } from '@/features/shared/domain/locale';
+import type { Locale } from '@/i18n/locale';
 import {
   calculateReadingTimeInMinutes,
   isPublished,
   sortByPublicationDateDescending,
   type Post,
-} from '@/features/posts/domain/post';
-import { parseLocalizedEntryIdentifier } from '@/features/shared/infrastructure/entry-identifier';
+} from '@/features/posts/post';
+import { parseLocalizedEntryIdentifier } from '@/i18n/entry-identifier';
 
 const toPost = (entry: CollectionEntry<'posts'>): Post | null => {
   const identifier = parseLocalizedEntryIdentifier(entry.id);

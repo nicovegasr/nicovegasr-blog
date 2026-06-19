@@ -1,7 +1,7 @@
 import { getCollection, render, type CollectionEntry } from 'astro:content';
-import type { Locale } from '@/features/shared/domain/locale';
-import type { Work } from '@/features/work/domain/work';
-import { parseLocalizedEntryIdentifier } from '@/features/shared/infrastructure/entry-identifier';
+import type { Locale } from '@/i18n/locale';
+import type { Work } from '@/features/work/work';
+import { parseLocalizedEntryIdentifier } from '@/i18n/entry-identifier';
 
 type WorkEntry = CollectionEntry<'work'>;
 

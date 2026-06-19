@@ -1,10 +1,10 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import type { Locale } from '@/features/shared/domain/locale';
+import type { Locale } from '@/i18n/locale';
 import {
   sortByStartDateDescending,
   type TimelineEntry,
-} from '@/features/timeline/domain/timeline-entry';
-import { parseLocalizedEntryIdentifier } from '@/features/shared/infrastructure/entry-identifier';
+} from '@/features/timeline/timeline-entry';
+import { parseLocalizedEntryIdentifier } from '@/i18n/entry-identifier';
 
 type TimelineCollectionEntry = CollectionEntry<'timeline'>;
 

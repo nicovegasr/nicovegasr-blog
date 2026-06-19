@@ -1,4 +1,4 @@
-import type { Locale } from '@/features/shared/domain/locale';
+import type { Locale } from '@/i18n/locale';
 
 export type Project = {
   readonly slug: string;
