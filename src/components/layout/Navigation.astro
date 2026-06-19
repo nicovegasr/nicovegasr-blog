@@ -1,0 +1,44 @@
+---
+import type { Locale } from '@/i18n/locale';
+import type { PageKey } from '@/i18n/routes';
+import { buildPagePath } from '@/i18n/routes';
+import { getTranslator } from '@/i18n/translator';
+import LanguageSwitcher from '@/components/layout/LanguageSwitcher.astro';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const translate = getTranslator(locale);
+
+const navigationItems: { page: PageKey; label: string }[] = [
+  { page: 'blog', label: translate('navigation.blog') },
+  { page: 'about', label: translate('navigation.about') },
+  { page: 'work', label: translate('navigation.work') },
+  { page: 'contact', label: translate('navigation.contact') },
+];
+
+const currentPathname = Astro.url.pathname;
+---
+
+<header>
+  <nav>
+    <ul>
+      {
+        navigationItems.map(({ page, label }) => {
+          const href = buildPagePath(page, locale);
+          const isCurrentPage = currentPathname === href;
+          return (
+            <li>
+              <a href={href} aria-current={isCurrentPage ? 'page' : undefined}>
+                {label}
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+    <LanguageSwitcher locale={locale} />
+  </nav>
+</header>
