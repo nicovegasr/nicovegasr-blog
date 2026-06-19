@@ -34,8 +34,8 @@ const projects = defineCollection({
   }),
 });
 
-const values = defineCollection({
-  loader: localizedMarkdown('values'),
+const principles = defineCollection({
+  loader: localizedMarkdown('principles'),
   schema: z.object({
     title: z.string().min(1).max(80),
     order: z.number().int().default(0),
@@ -63,4 +63,4 @@ const work = defineCollection({
   }),
 });
 
-export const collections = { posts, projects, values, timeline, work };
+export const collections = { posts, projects, principles, timeline, work };
