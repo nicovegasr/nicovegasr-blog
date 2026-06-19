@@ -1,12 +1,12 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import type { Locale } from '@/i18n/locale';
-import {
-  sortByStartDateDescending,
-  type TimelineEntry,
-} from '@/features/timeline/timeline-entry';
+import { type TimelineEntry } from '@/features/timeline/timeline-entry';
 import { parseLocalizedEntryIdentifier } from '@/i18n/entry-identifier';
 
 type TimelineCollectionEntry = CollectionEntry<'timeline'>;
+
+const byStartDateDescending = (a: TimelineEntry, b: TimelineEntry): number =>
+  b.startDate.getTime() - a.startDate.getTime();
 
 const toTimelineEntry = (
   entry: TimelineCollectionEntry,
@@ -32,10 +32,10 @@ export const findAllTimelineEntries = async (
   locale: Locale,
 ): Promise<readonly TimelineEntry[]> => {
   const entries = await getCollection('timeline');
-  const timelineEntries = entries
+
+  return entries
     .map(toTimelineEntry)
     .filter((entry): entry is TimelineEntry => entry !== null)
-    .filter((entry) => entry.locale === locale);
-
-  return sortByStartDateDescending(timelineEntries);
+    .filter((entry) => entry.locale === locale)
+    .sort(byStartDateDescending);
 };

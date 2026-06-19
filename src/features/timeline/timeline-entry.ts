@@ -13,8 +13,3 @@ export type TimelineEntry = {
 
 export const isCurrentRole = (entry: TimelineEntry): boolean =>
   entry.endDate === undefined;
-
-export const sortByStartDateDescending = (
-  entries: readonly TimelineEntry[],
-): readonly TimelineEntry[] =>
-  [...entries].sort((a, b) => b.startDate.getTime() - a.startDate.getTime());

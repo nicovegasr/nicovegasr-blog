@@ -9,6 +9,3 @@ export type Project = {
   readonly learnings: readonly string[];
   readonly order: number;
 };
-
-export const sortByOrder = (projects: readonly Project[]): readonly Project[] =>
-  [...projects].sort((a, b) => a.order - b.order);
