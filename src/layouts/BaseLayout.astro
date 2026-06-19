@@ -3,8 +3,8 @@ import type { Locale } from '@/i18n/locale';
 import { LOCALES, DEFAULT_LOCALE } from '@/i18n/locale';
 import { getTranslator } from '@/i18n/translator';
 import { buildAlternateLocalePath } from '@/i18n/routes';
-import Navigation from '@/components/layout/Navigation.astro';
-import Footer from '@/components/layout/Footer.astro';
+import Navigation from '@/layouts/Navigation.astro';
+import Footer from '@/layouts/Footer.astro';
 
 interface Props {
   locale: Locale;
