@@ -1,8 +1,32 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import PostPreview from '@/features/posts/components/PostPreview.astro';
+import { getTranslator } from '@/i18n/translator';
+import { findAllPosts } from '@/features/posts/post-repository';
+
+const locale = 'es';
+const translate = getTranslator(locale);
+const posts = await findAllPosts(locale);
 ---
 
-<BaseLayout locale="es">
-  <h1>Blog</h1>
-  <p>Próximamente: artículos sobre backend, arquitectura y el oficio.</p>
+<BaseLayout locale={locale}>
+  <section>
+    <h1>{translate('blog.introTitle')}</h1>
+    <p>{translate('blog.introText')}</p>
+  </section>
+  <section>
+    {
+      posts.length > 0 ? (
+        <ul>
+          {posts.map((post) => (
+            <li>
+              <PostPreview post={post} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>{translate('blog.empty')}</p>
+      )
+    }
+  </section>
 </BaseLayout>

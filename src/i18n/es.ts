@@ -11,6 +11,13 @@ export const spanish = {
   'language.switchTo': 'English',
   'language.current': 'Español',
 
+  'blog.introTitle': 'Hola, soy Nicolás',
+  'blog.introText':
+    'Ingeniero informático. Aquí escribo sobre desarrollo de software y comparto lo que voy aprendiendo por el camino.',
+  'blog.readingTime': 'min de lectura',
+  'blog.readMore': 'Leer →',
+  'blog.empty': 'Aún no hay artículos publicados.',
+
   'footer.rights': 'Todos los derechos reservados',
 } as const;
 

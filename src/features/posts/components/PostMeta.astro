@@ -1,0 +1,24 @@
+---
+import type { Post } from '@/features/posts/post';
+import ReadingTime from '@/features/posts/components/ReadingTime.astro';
+import TagList from '@/features/posts/components/TagList.astro';
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+
+const publicationDateLabel = new Intl.DateTimeFormat(post.locale, {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+}).format(post.publicationDate);
+const publicationDateMachine = post.publicationDate.toISOString().slice(0, 10);
+---
+
+<div>
+  <time datetime={publicationDateMachine}>{publicationDateLabel}</time>
+  <ReadingTime minutes={post.readingTimeInMinutes} locale={post.locale} />
+  <TagList tags={post.tags} />
+</div>

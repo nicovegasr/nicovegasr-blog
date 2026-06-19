@@ -1,0 +1,23 @@
+---
+import type { Post } from '@/features/posts/post';
+import { getTranslator } from '@/i18n/translator';
+import { buildBlogPostPath } from '@/i18n/routes';
+import PostMeta from '@/features/posts/components/PostMeta.astro';
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+const translate = getTranslator(post.locale);
+const postPath = buildBlogPostPath(post.locale, post.slug);
+---
+
+<article>
+  <header>
+    <h2><a href={postPath}>{post.title}</a></h2>
+    <PostMeta post={post} />
+  </header>
+  <p>{post.summary}</p>
+  <a href={postPath}>{translate('blog.readMore')}</a>
+</article>

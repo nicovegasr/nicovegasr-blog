@@ -13,5 +13,12 @@ export const english: Dictionary = {
   'language.switchTo': 'Español',
   'language.current': 'English',
 
+  'blog.introTitle': "Hi, I'm Nicolás",
+  'blog.introText':
+    "Software engineer. Here I write about software development and share what I'm learning along the way.",
+  'blog.readingTime': 'min read',
+  'blog.readMore': 'Read →',
+  'blog.empty': 'No articles published yet.',
+
   'footer.rights': 'All rights reserved',
 };
