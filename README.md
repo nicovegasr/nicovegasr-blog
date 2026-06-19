@@ -29,7 +29,8 @@ src/
 │   └── <coleccion>/{es,en}/*.md
 ├── i18n/                    ← concern transversal de internacionalización
 │   ├── locale.ts            ← tipo Locale, LOCALES, isLocale, DEFAULT_LOCALE
-│   ├── es.ts                ← diccionario de strings de UI (en.ts pendiente)
+│   ├── es.ts · en.ts        ← diccionarios de strings de UI (en.ts tipado como Dictionary)
+│   ├── translator.ts        ← getTranslator(locale) → translate(key) tipado
 │   ├── routes.ts            ← PageKey (about↔sobre-mi, work↔trabajo, contact↔contacto)
 │   └── entry-identifier.ts  ← parsea "es/slug.md" → { locale, slug }
 ├── features/                ← nuestro código, una carpeta plana por feature
@@ -41,9 +42,16 @@ src/
 │   ├── timeline/{timeline-entry.ts, timeline-repository.ts}
 │   ├── work/{work.ts, work-repository.ts}
 │   └── contact/contact-message.ts   ← solo dominio (aún sin repo)
-├── components/              ← (pendiente) componentes Astro de UI
-├── layouts/                ← (pendiente) BaseLayout, ArticleLayout
-└── pages/                  ← (pendiente) rutas /es y /en
+├── components/
+│   └── layout/{Navigation, Footer, LanguageSwitcher}.astro
+├── layouts/
+│   └── BaseLayout.astro     ← shell HTML + <head> SEO + hreflang alternates
+└── pages/
+    ├── es/index.astro       ← blog index (idioma por defecto)
+    └── en/index.astro
+
+functions/                   ← Cloudflare Pages Functions (deploy de Astro aparte)
+└── index.ts                 ← redirige "/" a /es o /en según Accept-Language
 ```
 
 Los tests viven junto al código que prueban (`post.test.ts` al lado de `post.ts`).
@@ -96,8 +104,8 @@ npm run build                        # build estático
 
 ### Tests
 
-[Vitest](https://vitest.dev/) para el **dominio puro** (cálculo de tiempo de lectura, parser de identificadores, orden y publicación de posts, validación de contacto). No se testean los repositorios (ACL fino sobre `astro:content`) ni la UI. Los tests se co-localizan como `*.test.ts` junto al fichero que prueban.
+[Vitest](https://vitest.dev/) para el **dominio puro** (cálculo de tiempo de lectura, parser de identificadores, publicación de posts, validación de contacto). No se testean los repositorios (ACL fino sobre `astro:content`) ni la UI. Los tests se co-localizan como `*.test.ts` junto al fichero que prueban.
 
 ## Estado
 
-En construcción. La capa de cimientos (entidades de dominio, repositorios, schemas de contenido, i18n base, tests de dominio) está hecha; faltan layouts, componentes y páginas. Sin estilos todavía: primero estructura y arquitectura.
+En construcción. **Fase 1 completa**: cimientos (entidades de dominio, repositorios, schemas de contenido, tests de dominio), i18n completo (diccionarios + translator), layout con nav/footer/switcher y hreflang, páginas índice por idioma y la Function de redirect de `/`. Falta el contenido real y las pantallas (blog, artículo, portfolio, trabajo, contacto). Sin estilos todavía: primero estructura y arquitectura.
