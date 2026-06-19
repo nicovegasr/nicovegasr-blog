@@ -9,12 +9,8 @@ export type LocalizedEntryIdentifier = {
 const removeMarkdownExtension = (path: string): string =>
   path.replace(/\.mdx?$/, '');
 
-/**
- * Astro exposes content entry ids as "<locale>/<slug>.md"
- * (e.g. "es/mi-post.md"). This translates that raw identifier into
- * the locale and clean slug that the domain understands.
- * Returns null when the prefix is not a known locale.
- */
+// Astro exposes content ids as "<locale>/<slug>.md" (e.g. "es/mi-post.md").
+// Returns null when the prefix is not a known locale.
 export const parseLocalizedEntryIdentifier = (
   entryId: string,
 ): LocalizedEntryIdentifier | null => {

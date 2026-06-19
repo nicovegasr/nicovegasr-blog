@@ -9,11 +9,8 @@ const DICTIONARY_BY_LOCALE: Record<Locale, Dictionary> = {
 
 export type Translate = (key: TranslationKey) => string;
 
-/**
- * Returns a translate function bound to the given locale. Keys are checked at
- * compile time against the dictionary, so a missing or misspelled key fails
- * the build rather than rendering an empty string at runtime.
- */
+// Keys are checked at compile time: a missing key fails the build instead of
+// silently rendering an empty string at runtime.
 export const getTranslator = (locale: Locale): Translate => {
   const dictionary = DICTIONARY_BY_LOCALE[locale];
   return (key) => dictionary[key];
