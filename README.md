@@ -33,18 +33,19 @@ src/
 │   ├── translator.ts        ← getTranslator(locale) → translate(key) tipado
 │   ├── routes.ts            ← PageKey (about↔sobre-mi, work↔trabajo, contact↔contacto)
 │   └── entry-identifier.ts  ← parsea "es/slug.md" → { locale, slug }
-├── features/                ← nuestro código, una carpeta plana por feature
+├── features/                ← nuestro código, un slice vertical por feature
 │   ├── posts/
 │   │   ├── post.ts                  ← entidad + funciones puras (testeable sin Astro)
-│   │   └── post-repository.ts       ← astro:content → Post
+│   │   ├── post-repository.ts       ← astro:content → Post
+│   │   └── components/              ← UI propia del feature (se agrupa al crecer)
+│   │       └── {PostPreview, PostMeta, TagList, ReadingTime}.astro
 │   ├── projects/{project.ts, project-repository.ts}
 │   ├── principles/{principle.ts, principle-repository.ts}  ← valores/principios (sección de sobre-mí)
 │   ├── timeline/{timeline-entry.ts, timeline-repository.ts}
 │   └── work/{work.ts, work-repository.ts}
-├── components/
-│   └── layout/{Navigation, Footer, LanguageSwitcher}.astro
-├── layouts/
-│   └── BaseLayout.astro     ← shell HTML + <head> SEO + hreflang alternates
+├── layouts/                 ← shell transversal de toda página (no es un feature)
+│   ├── BaseLayout.astro     ← <head> SEO + hreflang alternates
+│   └── {Navigation, Footer, LanguageSwitcher}.astro
 └── pages/
     ├── index.astro          ← blog index en español (raíz, idioma por defecto)
     └── en/index.astro       ← blog index en inglés
@@ -61,14 +62,21 @@ Son dos carpetas padre por una razón concreta: **`content/` es de Astro, `featu
 
 > Se llama `features/` y no `lib/` a propósito: `lib` es abreviatura de *library* (rompe la regla de no abreviar) y no describe el contenido —no son utilidades genéricas, son los módulos de negocio.
 
-### Dos ficheros por feature: núcleo puro vs acceso a Astro
+### Slice vertical: un feature agrupa dominio, datos y su UI
 
-Cada feature mantiene separados dos roles (dos ficheros, sin subcarpetas):
+Cada feature reúne todo lo suyo. Los roles se distinguen por **fichero**, no por subcarpetas de capa:
 
-- **`<feature>.ts`** — entidad pura: `type`s + funciones puras. No importa nada de Astro/Cloudflare/HTTP. Por eso es **testeable sin arrancar Astro** (los tests de dominio corren en milisegundos). Excepción: `ContactMessageRules` es una clase con constantes `static` y validación, porque encapsula reglas de negocio que Zod no cubre.
+- **`<feature>.ts`** — entidad pura: `type`s + funciones puras. No importa nada de Astro/HTTP. Por eso es **testeable sin arrancar Astro** (los tests de dominio corren en milisegundos).
 - **`<feature>-repository.ts`** — adapter. Funciones `async` sueltas (`findAllPosts`, `findPostBySlug`...), no clases.
+- **`components/`** — los `.astro` propios del feature. **Solo se crea cuando hay volumen** (posts tiene 4 componentes; el resto aún no tiene UI).
 
-> No usamos subcarpetas `domain/`/`infrastructure/`: para un blog estático eran dos carpetas para dos ficheros. La frontera que importa (puro ↔ framework) se mantiene con la separación en dos ficheros.
+> No usamos subcarpetas `domain/`/`infrastructure/`: el dominio y el acceso a datos son **un fichero cada uno**, así que serían carpetas para un fichero. La frontera que importa (puro ↔ framework) ya la marca el sufijo `-repository`. Regla general: **se segmenta solo lo que crece** (hoy, la UI). El día que el dominio sean varios ficheros, se abrirá `domain/` —no antes.
+
+### Componentes: en el feature o en `layouts/`
+
+- Los componentes **propios de un feature** viven en `features/<x>/components/` (vertical slice: no hay un `components/` global por capa técnica).
+- El **chrome transversal** (`Navigation`, `Footer`, `LanguageSwitcher`) vive en `layouts/` junto a `BaseLayout`: es el shell de toda página, no pertenece a ningún feature.
+- Markup trivial de una página (p. ej. la intro del blog: un `h1`+`p` desde el diccionario) va **inline** en la propia page; no merece componente.
 
 ### Los repositorios hacen de ACL (anti-corruption layer)
 
