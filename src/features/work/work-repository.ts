@@ -1,4 +1,4 @@
-import { getCollection, render, type CollectionEntry } from 'astro:content';
+import { getCollection, type CollectionEntry } from 'astro:content';
 import type { Locale } from '@/i18n/locale';
 import type { Work } from '@/features/work/work';
 import { parseLocalizedEntryIdentifier } from '@/i18n/entry-identifier';
@@ -19,22 +19,12 @@ const toWork = (entry: WorkEntry): Work | null => {
   };
 };
 
-const findWorkEntry = async (locale: Locale): Promise<WorkEntry | null> => {
-  const entries = await getCollection('work');
-  return (
-    entries.find((entry) => {
-      const identifier = parseLocalizedEntryIdentifier(entry.id);
-      return identifier?.locale === locale;
-    }) ?? null
-  );
-};
-
 export const findWork = async (locale: Locale): Promise<Work | null> => {
-  const entry = await findWorkEntry(locale);
-  return entry === null ? null : toWork(entry);
-};
+  const entries = await getCollection('work');
+  const entry = entries.find((candidate) => {
+    const identifier = parseLocalizedEntryIdentifier(candidate.id);
+    return identifier?.locale === locale;
+  });
 
-export const renderWorkContent = async (locale: Locale) => {
-  const entry = await findWorkEntry(locale);
-  return entry === null ? null : render(entry);
+  return entry === undefined ? null : toWork(entry);
 };
