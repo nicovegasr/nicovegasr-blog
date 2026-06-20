@@ -1,6 +1,7 @@
 ---
 import type { Locale } from '@/i18n/locale';
 import { getTranslator } from '@/i18n/translator';
+import SocialLinks from '@/layouts/SocialLinks.astro';
 
 interface Props {
   locale: Locale;
@@ -11,6 +12,62 @@ const translate = getTranslator(locale);
 const currentYear = new Date().getFullYear();
 ---
 
-<footer>
-  <p>© {currentYear} Nicolás Vegas — {translate('footer.rights')}</p>
+<footer class="site-footer">
+  <div class="bar">
+    <span class="monogram">NV</span>
+    <p>© {currentYear} Nicolás Vegas — {translate('footer.rights')}</p>
+    <div class="social">
+      <SocialLinks />
+    </div>
+  </div>
 </footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--color-rule);
+    margin-top: var(--space-24);
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    max-width: var(--content-width-wide);
+    margin-inline: auto;
+    padding: var(--space-8) var(--space-6);
+  }
+
+  .monogram {
+    display: inline-grid;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: var(--radius-small);
+    background: var(--color-ink);
+    color: var(--color-paper);
+    font-family: var(--font-family-display);
+    font-weight: 700;
+    font-size: 0.65rem;
+  }
+
+  .bar p {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-meta);
+    color: var(--color-text-muted);
+  }
+
+  .social {
+    margin-inline-start: auto;
+  }
+
+  @media (max-width: 540px) {
+    .bar {
+      flex-wrap: wrap;
+    }
+
+    .social {
+      margin-inline-start: 0;
+      width: 100%;
+    }
+  }
+</style>

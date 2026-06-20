@@ -11,12 +11,16 @@ export const spanish = {
   'language.switchTo': 'English',
   'language.current': 'Español',
 
+  'theme.toggle': 'Cambiar tema',
+
   'blog.introTitle': 'Hola, soy Nicolás',
   'blog.introText':
     'Ingeniero informático. Aquí escribo sobre desarrollo de software y comparto lo que voy aprendiendo por el camino.',
   'blog.readingTime': 'min de lectura',
   'blog.readMore': 'Leer →',
   'blog.empty': 'Aún no hay artículos publicados.',
+  'blog.searchPlaceholder': 'Buscar artículos…',
+  'blog.searchEmpty': 'Ningún artículo coincide con la búsqueda.',
 
   'about.metaDescription':
     'Nicolás Vegas, ingeniero informático: a qué me dedico, mis principios, mi stack y mi trayectoria.',
@@ -32,15 +36,11 @@ export const spanish = {
   'about.projectsEmpty': 'Aún no hay proyectos publicados.',
   'about.present': 'Actualidad',
 
-  'work.metaDescription':
-    'Dónde trabajo ahora: Lean Mind, una consultora de software en Tenerife donde el oficio va primero.',
   'work.since': 'Desde',
   'work.valuesPrefix': 'Es ',
   'work.valuesLink': 'lo que creo',
   'work.valuesSuffix': ': más rápido no es mejor; lo son los conceptos bien aplicados.',
 
-  'contact.metaDescription':
-    'Cómo escribirme: correo directo, LinkedIn, GitHub y Medium. Sin formularios.',
   'contact.heroTitle': 'Contacto',
   'contact.lead':
     '¿Tienes algo entre manos o solo quieres saludar? El correo es lo más directo, pero me encontrarás también por aquí.',

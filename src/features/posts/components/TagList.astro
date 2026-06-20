@@ -8,10 +8,30 @@ const { tags } = Astro.props;
 
 {
   tags.length > 0 && (
-    <ul>
+    <ul class="tag-list">
       {tags.map((tag) => (
         <li>{tag}</li>
       ))}
     </ul>
   )
 }
+
+<style>
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .tag-list li {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-meta);
+    color: var(--color-accent-ink);
+    background: var(--color-accent);
+    padding: 0.1em 0.5em;
+    border-radius: var(--radius-small);
+  }
+</style>

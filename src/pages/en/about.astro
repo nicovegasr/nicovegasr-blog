@@ -1,10 +1,13 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import SocialLinks from '@/layouts/SocialLinks.astro';
+import LeanMindMark from '@/features/work/components/LeanMindMark.astro';
 import TimelineEntry from '@/features/timeline/components/TimelineEntry.astro';
 import { getTranslator } from '@/i18n/translator';
 import { findAllPrinciples } from '@/features/principles/principle-repository';
 import { findAllTimelineEntries } from '@/features/timeline/timeline-repository';
 import { findAllProjects } from '@/features/projects/project-repository';
+import { findRenderableWork } from '@/features/work/work-repository';
 
 const locale = 'en';
 const translate = getTranslator(locale);
@@ -12,6 +15,16 @@ const translate = getTranslator(locale);
 const principles = await findAllPrinciples(locale);
 const timeline = await findAllTimelineEntries(locale);
 const projects = await findAllProjects(locale);
+
+const renderableWork = await findRenderableWork(locale);
+if (renderableWork === null) {
+  throw new Error(`Work entry not found for locale: ${locale}`);
+}
+const { work, Content: WorkContent } = renderableWork;
+const workSinceLabel = new Intl.DateTimeFormat(locale, {
+  month: 'long',
+  year: 'numeric',
+}).format(work.startDate);
 
 // Stack a pelo: technology names untranslated, categories in English.
 const stack = [
@@ -30,22 +43,22 @@ const stack = [
   title={`${translate('about.heroTitle')} — ${translate('site.title')}`}
   description={translate('about.metaDescription')}
 >
-  <section>
+  <section class="intro reveal">
     <h1>{translate('about.heroTitle')}</h1>
-    <p>{translate('about.lead')}</p>
-    <p>{translate('about.approach')}</p>
+    <p class="lead">{translate('about.lead')}</p>
+    <p class="lead">{translate('about.approach')}</p>
   </section>
 
-  <section id="principles">
+  <section id="principles" class="reveal">
     <h2>{translate('about.principlesTitle')}</h2>
-    <ul>
+    <ul class="principles">
       {principles.map((principle) => <li>{principle.title}</li>)}
     </ul>
   </section>
 
-  <section>
+  <section class="reveal">
     <h2>{translate('about.stackTitle')}</h2>
-    <dl>
+    <dl class="stack">
       {
         stack.map((group) => (
           <div>
@@ -57,9 +70,29 @@ const stack = [
     </dl>
   </section>
 
-  <section>
+  <section id="work" class="reveal">
+    <h2>{translate('navigation.work')}</h2>
+    <a class="work-now" href={work.companyUrl} target="_blank" rel="noopener">
+      <LeanMindMark />
+      <span class="work-now-text">
+        <span class="work-now-company">{work.company}</span>
+        <span class="work-now-meta label"
+          >{work.role} · {translate('work.since')} {workSinceLabel} · {work.location}</span
+        >
+      </span>
+    </a>
+    <div class="prose work-now-body">
+      <WorkContent />
+      <p>
+        {translate('work.valuesPrefix')}<a href="#principles">{translate('work.valuesLink')}</a
+        >{translate('work.valuesSuffix')}
+      </p>
+    </div>
+  </section>
+
+  <section class="reveal">
     <h2>{translate('about.timelineTitle')}</h2>
-    <ul>
+    <ul class="timeline">
       {
         timeline.map((entry) => (
           <li>
@@ -70,11 +103,11 @@ const stack = [
     </ul>
   </section>
 
-  <section>
+  <section class="reveal">
     <h2>{translate('about.projectsTitle')}</h2>
     {
       projects.length > 0 ? (
-        <ul>
+        <ul class="projects">
           {projects.map((project) => (
             <li>
               <h3>{project.title}</h3>
@@ -83,8 +116,14 @@ const stack = [
           ))}
         </ul>
       ) : (
-        <p>{translate('about.projectsEmpty')}</p>
+        <p class="lead">{translate('about.projectsEmpty')}</p>
       )
     }
+  </section>
+
+  <section id="contact" class="reveal">
+    <h2>{translate('contact.heroTitle')}</h2>
+    <p class="lead">{translate('contact.lead')}</p>
+    <SocialLinks />
   </section>
 </BaseLayout>

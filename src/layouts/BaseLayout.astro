@@ -6,6 +6,13 @@ import { buildAlternateLocalePath, localesOtherThan, buildRssFeedPath } from '@/
 import Navigation from '@/layouts/Navigation.astro';
 import Footer from '@/layouts/Footer.astro';
 
+import '@fontsource-variable/space-grotesk/wght.css';
+import '@fontsource-variable/inter/wght.css';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import '@/styles/tokens.css';
+import '@/styles/base.css';
+
 interface Props {
   locale: Locale;
   title?: string;
@@ -34,6 +41,15 @@ const pathForLocale = (target: Locale): string =>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      // Antes del primer pintado: marca que hay JS (gatea las animaciones de
+      // aparición; sin JS el contenido se ve) y fija el tema para evitar parpadeo.
+      document.documentElement.classList.add('js');
+      const storedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = storedTheme ?? (prefersDark ? 'dark' : 'light');
+      document.documentElement.dataset.theme = theme;
+    </script>
     <title>{documentTitle}</title>
     <meta name="description" content={documentDescription} />
     <link rel="canonical" href={canonicalUrl} />
@@ -73,5 +89,26 @@ const pathForLocale = (target: Locale): string =>
       <slot />
     </main>
     <Footer locale={locale} />
+
+    <script>
+      // Aparición al entrar en viewport. Si no hay soporte, todo queda visible.
+      const revealItems = document.querySelectorAll('.reveal');
+      if ('IntersectionObserver' in window && revealItems.length > 0) {
+        const observer = new IntersectionObserver(
+          (entries, self) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                self.unobserve(entry.target);
+              }
+            }
+          },
+          { rootMargin: '0px 0px -10% 0px' },
+        );
+        revealItems.forEach((item) => observer.observe(item));
+      } else {
+        revealItems.forEach((item) => item.classList.add('is-visible'));
+      }
+    </script>
   </body>
 </html>

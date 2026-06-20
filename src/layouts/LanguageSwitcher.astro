@@ -11,7 +11,7 @@ const { locale } = Astro.props;
 const currentPathname = Astro.url.pathname;
 ---
 
-<ul>
+<ul class="language-switcher">
   {
     localesOtherThan(locale).map((target) => {
       const translateTarget = getTranslator(target);
@@ -25,3 +25,34 @@ const currentPathname = Astro.url.pathname;
     })
   }
 </ul>
+
+<style>
+  .language-switcher {
+    display: flex;
+    gap: var(--space-2);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .language-switcher a {
+    display: inline-block;
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-meta);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    color: var(--color-text-muted);
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-medium);
+    transition:
+      color var(--motion-duration-fast) var(--motion-easing),
+      border-color var(--motion-duration-fast) var(--motion-easing);
+  }
+
+  .language-switcher a:hover {
+    color: var(--color-ink);
+    border-color: var(--color-ink);
+  }
+</style>

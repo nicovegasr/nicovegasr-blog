@@ -24,14 +24,16 @@ const blogPath = buildPagePath('blog', locale);
 ---
 
 <BaseLayout locale={locale} title={post.title} description={post.summary} openGraphType="article">
-  <article>
-    <header>
-      <nav aria-label="breadcrumb">
+  <article class="reveal">
+    <header class="article-header">
+      <nav class="breadcrumb" aria-label="breadcrumb">
         <a href={blogPath}>{translate('navigation.blog')}</a> / {post.title}
       </nav>
       <h1>{post.title}</h1>
       <PostMeta post={post} />
     </header>
-    <Content />
+    <div class="prose">
+      <Content />
+    </div>
   </article>
 </BaseLayout>

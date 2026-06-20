@@ -21,8 +21,8 @@ const endLabel =
 const endMachine = entry.endDate?.toISOString().slice(0, 10);
 ---
 
-<article>
-  <p>
+<article class="timeline-entry">
+  <p class="period">
     <time datetime={startMachine}>{startLabel}</time>
     {' – '}
     {
@@ -35,6 +35,50 @@ const endMachine = entry.endDate?.toISOString().slice(0, 10);
     {entry.sector !== undefined && <span>{' · '}{entry.sector}</span>}
   </p>
   <h3>{entry.company}</h3>
-  <p>{entry.role}</p>
-  <p>{entry.summary}</p>
+  <p class="role">{entry.role}</p>
+  <p class="summary">{entry.summary}</p>
 </article>
+
+<style>
+  .timeline-entry {
+    position: relative;
+    padding-left: var(--space-6);
+    border-left: 2px solid var(--color-rule);
+    padding-bottom: var(--space-8);
+  }
+
+  .timeline-entry::before {
+    content: '';
+    position: absolute;
+    left: -7px;
+    top: 6px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    border: 2px solid var(--color-paper);
+  }
+
+  .period {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-meta);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-muted);
+  }
+
+  .timeline-entry h3 {
+    margin-top: var(--space-2);
+    font-size: var(--font-size-heading-3);
+  }
+
+  .role {
+    color: var(--color-text-soft);
+    font-size: var(--font-size-small);
+  }
+
+  .summary {
+    margin-top: var(--space-3);
+    color: var(--color-text-soft);
+  }
+</style>

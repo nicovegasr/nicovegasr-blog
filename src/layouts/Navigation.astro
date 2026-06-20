@@ -1,9 +1,9 @@
 ---
 import type { Locale } from '@/i18n/locale';
-import type { PageKey } from '@/i18n/routes';
 import { buildPagePath } from '@/i18n/routes';
 import { getTranslator } from '@/i18n/translator';
 import LanguageSwitcher from '@/layouts/LanguageSwitcher.astro';
+import ThemeToggle from '@/layouts/ThemeToggle.astro';
 
 interface Props {
   locale: Locale;
@@ -12,33 +12,156 @@ interface Props {
 const { locale } = Astro.props;
 const translate = getTranslator(locale);
 
-const navigationItems: { page: PageKey; label: string }[] = [
-  { page: 'blog', label: translate('navigation.blog') },
-  { page: 'about', label: translate('navigation.about') },
-  { page: 'work', label: translate('navigation.work') },
-  { page: 'contact', label: translate('navigation.contact') },
+// "Dónde trabajo" y "Contacto" no son páginas propias: son secciones de
+// "sobre mí" (anclas #work y #contact).
+const aboutPath = buildPagePath('about', locale);
+const navigationItems: { href: string; label: string }[] = [
+  { href: buildPagePath('blog', locale), label: translate('navigation.blog') },
+  { href: aboutPath, label: translate('navigation.about') },
+  { href: `${aboutPath}#work`, label: translate('navigation.work') },
+  { href: `${aboutPath}#contact`, label: translate('navigation.contact') },
 ];
 
+const homePath = buildPagePath('blog', locale);
 const currentPathname = Astro.url.pathname;
 ---
 
-<header>
-  <nav>
-    <ul>
-      {
-        navigationItems.map(({ page, label }) => {
-          const href = buildPagePath(page, locale);
-          const isCurrentPage = currentPathname === href;
-          return (
-            <li>
-              <a href={href} aria-current={isCurrentPage ? 'page' : undefined}>
-                {label}
-              </a>
-            </li>
-          );
-        })
-      }
-    </ul>
-    <LanguageSwitcher locale={locale} />
-  </nav>
+<header class="site-header">
+  <div class="bar">
+    <a class="brand" href={homePath} aria-label={translate('site.title')}>
+      <span class="monogram">NV</span>
+      <span class="brand-name">{translate('site.title')}</span>
+    </a>
+
+    <nav class="primary" aria-label="Primary">
+      <ul>
+        {
+          navigationItems.map(({ href, label }) => {
+            const isCurrentPage = currentPathname === href;
+            return (
+              <li>
+                <a
+                  href={href}
+                  class={isCurrentPage ? 'current' : undefined}
+                  aria-current={isCurrentPage ? 'page' : undefined}
+                >
+                  {label}
+                </a>
+              </li>
+            );
+          })
+        }
+      </ul>
+    </nav>
+
+    <div class="actions">
+      <LanguageSwitcher locale={locale} />
+      <ThemeToggle locale={locale} />
+    </div>
+  </div>
 </header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: color-mix(in srgb, var(--color-paper) 85%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    max-width: var(--content-width-wide);
+    margin-inline: auto;
+    padding: var(--space-3) var(--space-6);
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    text-decoration: none;
+    font-family: var(--font-family-display);
+    font-weight: 700;
+  }
+
+  .monogram {
+    display: inline-grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: var(--radius-small);
+    background: var(--color-ink);
+    color: var(--color-paper);
+    font-size: var(--font-size-meta);
+    letter-spacing: 0.02em;
+  }
+
+  .brand-name {
+    font-size: var(--font-size-small);
+  }
+
+  .primary {
+    margin-inline-start: auto;
+  }
+
+  .primary ul {
+    display: flex;
+    gap: var(--space-6);
+    list-style: none;
+    padding: 0;
+  }
+
+  .primary a {
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-small);
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--color-text-soft);
+    padding-bottom: 2px;
+    transition: color var(--motion-duration-fast) var(--motion-easing);
+  }
+
+  .primary a:hover {
+    color: var(--color-ink);
+  }
+
+  .primary a.current {
+    color: var(--color-accent-ink);
+    background: var(--color-accent);
+    padding: 0.3em 0.7em;
+    border-radius: var(--radius-medium);
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  @media (max-width: 640px) {
+    .bar {
+      flex-wrap: wrap;
+      gap: var(--space-3) var(--space-4);
+    }
+
+    .brand-name {
+      display: none;
+    }
+
+    .primary {
+      order: 3;
+      width: 100%;
+      margin-inline-start: 0;
+    }
+
+    .primary ul {
+      gap: var(--space-4);
+      flex-wrap: wrap;
+    }
+  }
+</style>

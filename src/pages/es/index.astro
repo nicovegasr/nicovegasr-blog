@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PostPreview from '@/features/posts/components/PostPreview.astro';
+import PostSearch from '@/features/posts/components/PostSearch.astro';
 import { getTranslator } from '@/i18n/translator';
 import { findAllPosts } from '@/features/posts/post-repository';
 
@@ -10,22 +11,25 @@ const posts = await findAllPosts(locale);
 ---
 
 <BaseLayout locale={locale}>
-  <section>
+  <section class="intro reveal">
     <h1>{translate('blog.introTitle')}</h1>
-    <p>{translate('blog.introText')}</p>
+    <p class="lead">{translate('blog.introText')}</p>
   </section>
-  <section>
+  <section class="reveal">
     {
       posts.length > 0 ? (
-        <ul>
-          {posts.map((post) => (
-            <li>
-              <PostPreview post={post} />
-            </li>
-          ))}
-        </ul>
+        <>
+          <PostSearch locale={locale} posts={posts} />
+          <ul class="post-list">
+            {posts.map((post) => (
+              <li>
+                <PostPreview post={post} />
+              </li>
+            ))}
+          </ul>
+        </>
       ) : (
-        <p>{translate('blog.empty')}</p>
+        <p class="lead">{translate('blog.empty')}</p>
       )
     }
   </section>

@@ -10,6 +10,7 @@ Sitio personal construido con **Astro 6** + **TypeScript** (strict), totalmente 
 - **TypeScript** en modo `strict`.
 - **i18n nativo de Astro**: todos los idiomas van prefijados de forma simétrica (`/es/sobre-mi`, `/en/about`) vía `prefixDefaultLocale: true`, de modo que `src/pages/` refleja el árbol de URLs 1:1 (`pages/es` + `pages/en`). El `/` raíz no tiene página propia: un `redirects: { '/': '/es' }` en la config lo manda al idioma por defecto. En build estático Astro emite `/index.html` con un `<meta http-equiv="refresh">` (funciona en cualquier hosting estático; `redirectToDefaultLocale` solo aplica en SSR).
 - **Content Collections** (Content Layer API, `loader: glob()`) + **Zod** como fuente de verdad de la forma del contenido.
+- **Estilos: CSS a pelo** (sin framework de utilidades) con **custom properties como tokens** (`src/styles/`); cada componente lleva su `<style>` scoped de Astro. **Multi-tema** claro (de fábrica) + oscuro vía `[data-theme]`, fijado antes de pintar por un script inline (sin parpadeo). **Fuentes self-hosted** con `@fontsource` (Space Grotesk, Inter, IBM Plex Mono).
 
 ## Convenciones
 
@@ -27,11 +28,14 @@ src/
 ├── content.config.ts        ← schemas Zod + loaders glob (Content Layer API)
 ├── content/                 ← markdown, territorio de Astro (NO tocar la ubicación)
 │   └── <coleccion>/{es,en}/*.md
+├── styles/                  ← CSS global a pelo (se importa una vez en BaseLayout)
+│   ├── tokens.css           ← custom properties: color (claro + [data-theme=dark]), tipo, espacio, motion
+│   └── base.css             ← reset, tipografía, prosa de artículos y patrones de página
 ├── i18n/                    ← concern transversal de internacionalización
 │   ├── locale.ts            ← tipo Locale, LOCALES, isLocale, DEFAULT_LOCALE
 │   ├── es.ts · en.ts        ← diccionarios de strings de UI (en.ts tipado como Dictionary)
 │   ├── translator.ts        ← getTranslator(locale) → translate(key) tipado
-│   ├── routes.ts            ← PageKey (about↔sobre-mi, work↔trabajo, contact↔contacto)
+│   ├── routes.ts            ← PageKey (blog↔'', about↔sobre-mi); "trabajo"/"contacto" son anclas de sobre-mí
 │   └── entry-identifier.ts  ← parsea "es/slug.md" → { locale, slug }
 ├── features/                ← nuestro código, un slice vertical por feature
 │   ├── posts/
@@ -39,19 +43,21 @@ src/
 │   │   ├── post-repository.ts       ← astro:content → Post
 │   │   ├── post-feed.ts             ← arma el RSS (@astrojs/rss) desde findAllPosts
 │   │   └── components/              ← UI propia del feature (se agrupa al crecer)
-│   │       └── {PostPreview, PostMeta, TagList, ReadingTime}.astro
+│   │       └── {PostPreview, PostMeta, TagList, ReadingTime, PostSearch}.astro
 │   ├── projects/{project.ts, project-repository.ts}
 │   ├── principles/{principle.ts, principle-repository.ts}  ← valores/principios (sección de sobre-mí)
 │   ├── timeline/
 │   │   ├── {timeline-entry.ts, timeline-repository.ts}
 │   │   └── components/TimelineEntry.astro   ← una entrada (fechas mes+año, "Actualidad/Present")
-│   └── work/{work.ts, work-repository.ts}
+│   └── work/
+│       ├── {work.ts, work-repository.ts}
+│       └── components/LeanMindMark.astro    ← isotipo de Lean Mind (asset en public/)
 ├── layouts/                 ← shell transversal de toda página (no es un feature)
-│   ├── BaseLayout.astro     ← <head> SEO: title/description, canonical, hreflang + Open Graph/Twitter Card
-│   └── {Navigation, Footer, LanguageSwitcher}.astro
+│   ├── BaseLayout.astro     ← importa estilos+fuentes; <head> SEO (canonical, hreflang, OG/Twitter); script inline de tema (sin parpadeo) + observer de aparición
+│   └── {Navigation, Footer, LanguageSwitcher, ThemeToggle, SocialLinks}.astro
 └── pages/                   ← árbol simétrico: una carpeta por idioma (URL = carpeta)
-    ├── es/{index, sobre-mi, trabajo, contacto, blog/[slug]}.astro · es/rss.xml.ts
-    └── en/{index, about, work, contact, blog/[slug]}.astro · en/rss.xml.ts
+    ├── es/{index, sobre-mi, blog/[slug]}.astro · es/rss.xml.ts
+    └── en/{index, about, blog/[slug]}.astro · en/rss.xml.ts
     (el `/` raíz no tiene page: lo redirige `redirects` en astro.config a `/es`)
 ```
 
@@ -99,8 +105,14 @@ i18n es un concern transversal de primera clase, por eso vive en `src/i18n/` (no
 - El locale vive en el **path del archivo** (`posts/es/slug.md`), no en el frontmatter.
 - `i18n/entry-identifier.ts` parsea el id de Astro (`"es/mi-post.md"`) → `{ locale, slug }`. Lo usan todos los repos; vive en `i18n/` porque su trabajo es extraer el locale del path.
 - Las strings de UI viven en diccionarios TS (`i18n/es.ts`, `i18n/en.ts`).
-- Las rutas lógicas se resuelven con `PageKey` en `i18n/routes.ts` (`about` ↔ `sobre-mi`, `work` ↔ `trabajo`, `contact` ↔ `contacto`). Nunca se hardcodean URLs.
+- Las rutas lógicas se resuelven con `PageKey` en `i18n/routes.ts` (`blog` ↔ `''`, `about` ↔ `sobre-mi`). **"Dónde trabajo" y "Contacto" no son páginas**: son secciones de sobre-mí, enlazadas por ancla (`#work`, `#contact`). Nunca se hardcodean segmentos de URL.
 - Todos los idiomas van prefijados por igual: `buildPagePath` antepone el locale siempre (`/es/...`, `/en/...`). `buildAlternateLocalePath` quita ese prefijo, busca la `PageKey` por el primer segmento y reconstruye la ruta en el idioma destino. Astro no empareja páginas entre idiomas por su cuenta: ese mapeo es nuestro, en `routes.ts`.
+
+### Estilos y tema
+
+CSS a pelo, sin framework de utilidades. `src/styles/tokens.css` define los **tokens** como custom properties (color, tipografía, espacio, radios, motion) y se importa —junto a `base.css` y las fuentes `@fontsource`— una sola vez en `BaseLayout`. Cada componente lleva su `<style>` scoped; los patrones compartidos entre las páginas ES/EN (de markup idéntico) viven como clases globales en `base.css` para no duplicar.
+
+Multi-tema: el claro es el de fábrica; el oscuro solo redefine los tokens de color en `[data-theme="dark"]`, así los componentes no conocen el tema, solo consumen `var(--color-*)`. Un script inline en `<head>` fija `data-theme` (y una clase `.js`) **antes del primer pintado** → sin parpadeo; las animaciones de aparición se gatean tras `.js` para que sin JS el contenido se vea igual.
 
 ## Verificación
 
@@ -117,8 +129,15 @@ npm run build                        # build estático
 
 ## Estado
 
-En construcción. Hecho hasta ahora: cimientos (entidades de dominio, repositorios, schemas de contenido, tests de dominio), i18n completo (diccionarios + translator), layout con nav/footer/switcher y hreflang, **índice de blog**, **detalle de artículo** (`/blog/[slug]`), **portfolio** (`/sobre-mi` · `/en/about`: hero, principios, stack inline, trayectoria y proyectos con estado vacío) **"dónde trabajo"** (`/trabajo` · `/en/work`: empresa actual con cuerpo markdown renderizado vía `findRenderableWork`, enlace a la web y cierre que enlaza a los principios) y **contacto** (`/contacto` · `/en/contact`: página estática con enlaces a pelo —`mailto:`, LinkedIn, GitHub, Medium— sin backend ni formulario). **Pulido en curso (fase 7):** ✅ SEO meta (Open Graph + Twitter Card en `BaseLayout`; `openGraphType` distingue `article` en el detalle de post de `website` en el resto; `og:locale`/`og:locale:alternate` desde `OPEN_GRAPH_LOCALE`). ✅ Sitemap (`@astrojs/sitemap` con opción `i18n`; el redirect raíz `/` se excluye con `filter`). **Nota:** la integración solo empareja alternates entre URLs con el mismo sub-path tras el prefijo de idioma; como los segmentos están localizados (`/es/sobre-mi` ≠ `/en/about`), solo la home queda emparejada en el sitemap. El emparejamiento completo vive en el `<head>` (hreflang vía `routes.ts`), que es la señal canónica que usa Google. ✅ RSS (`@astrojs/rss`): un feed por idioma (`/es/rss.xml` · `/en/rss.xml`) como endpoints en `pages/<locale>/rss.xml.ts` que delegan en `features/posts/post-feed.ts`; link de descubrimiento en el `<head>` apuntando al feed del locale (`buildRssFeedPath`). ✅ `robots.txt` estático en `public/` (allow all + referencia al `sitemap-index.xml`). **Fase 7 cerrada.** Siguiente: estilos (ahí entran `og:image`, logo, 404 custom). Sin estilos todavía: primero estructura y arquitectura.
+En construcción. **Hecho:** cimientos (entidades de dominio, repositorios, schemas, tests de dominio), i18n completo (diccionarios + translator), shell (nav/footer/switcher/toggle de tema) con hreflang.
+
+- **Blog:** índice con **buscador** (filtro en cliente sobre un índice serializado desde el repositorio en build-time, no scrapeando el DOM) y **detalle de artículo** (`/blog/[slug]`).
+- **Portfolio** (`/sobre-mi` · `/en/about`): hero, principios, stack inline, trayectoria y proyectos (estado vacío). **"Dónde trabajo"** (Lean Mind, con isotipo y cuerpo markdown vía `findRenderableWork`) y **Contacto** (iconos a las plataformas vía `SocialLinks`) son ahora **secciones de sobre-mí** (anclas `#work`/`#contact`), ya no páginas propias.
+- **SEO/feeds (fase 7):** Open Graph + Twitter Card, sitemap i18n, RSS por idioma, `robots.txt`.
+- **Estilos (fase 8):** CSS a pelo con tokens (`src/styles/`), multi-tema claro/oscuro con toggle y sin parpadeo, fuentes self-hosted, tarjetas de post que invierten al hover, aparición al hacer scroll.
+
+**Fase 8 cerrada.** Siguiente: **Projects** como fase propia (página dedicada, cada proyecto interactivo, con contenido real). Backlog: `og:image`, logo, 404 custom, posts relacionados por tags. Fase final: "Apuntes" y "Píldoras formativas" como subpáginas del blog.
 
 > **Stack en el portfolio:** la lista de tecnologías va *a pelo* (array inline en cada page), sin colección ni feature: son nombres, no contenido editorial. Categorías en inglés en ambos idiomas; los nombres de tech no se traducen.
 
-> **Contacto sin backend:** se descartó el formulario con envío de email (necesitaría servidor). La página de contacto será estática: enlaces directos (`mailto:`, redes). Por eso ya no existe el dominio `ContactMessage`/validación.
+> **Contacto sin backend:** sin formulario ni envío de email (necesitaría servidor). Es una **sección de sobre-mí** (`#contact`) con enlaces directos a las plataformas (`mailto:`, redes) vía el componente `SocialLinks`. Por eso no existe el dominio `ContactMessage`/validación.

@@ -13,11 +13,76 @@ const translate = getTranslator(post.locale);
 const postPath = buildBlogPostPath(post.locale, post.slug);
 ---
 
-<article>
+<article class="post-preview" data-slug={post.slug}>
   <header>
     <h2><a href={postPath}>{post.title}</a></h2>
     <PostMeta post={post} />
   </header>
-  <p>{post.summary}</p>
-  <a href={postPath}>{translate('blog.readMore')}</a>
+  <p class="summary">{post.summary}</p>
+  <a class="read-more" href={postPath}>{translate('blog.readMore')}</a>
 </article>
+
+<style>
+  .post-preview {
+    position: relative;
+    padding: var(--space-6) var(--space-8);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-large);
+    background: var(--color-paper);
+    transition:
+      transform var(--motion-duration-base) var(--motion-easing),
+      box-shadow var(--motion-duration-base) var(--motion-easing),
+      background var(--motion-duration-base) var(--motion-easing),
+      border-color var(--motion-duration-base) var(--motion-easing);
+  }
+
+  /* Al hover la tarjeta invierte a tinta. Remapear los tokens de color hace
+     que la meta y las etiquetas (componentes scoped) inviertan por cascada. */
+  .post-preview:hover,
+  .post-preview:focus-within {
+    background: var(--color-invert-surface);
+    border-color: var(--color-invert-surface);
+    box-shadow: 8px 8px 0 0 var(--color-accent);
+    transform: translate(-3px, -3px);
+    --color-ink: var(--color-invert-text);
+    --color-text-soft: var(--color-invert-text);
+    --color-text-muted: var(--color-invert-muted);
+    --color-rule: var(--color-invert-muted);
+  }
+
+  .post-preview h2 {
+    font-size: var(--font-size-heading-2);
+    margin-bottom: var(--space-3);
+    color: var(--color-ink);
+  }
+
+  .post-preview h2 a {
+    text-decoration: none;
+  }
+
+  .post-preview h2 a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .summary {
+    margin-top: var(--space-3);
+    color: var(--color-text-soft);
+    max-width: var(--content-width-reading);
+  }
+
+  .read-more {
+    display: inline-block;
+    margin-top: var(--space-4);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-small);
+    text-decoration: none;
+    color: var(--color-text-muted);
+  }
+
+  /* invert-text, no lima: el lima como texto no contrasta en el tema oscuro */
+  .post-preview:hover .read-more {
+    color: var(--color-invert-text);
+  }
+</style>

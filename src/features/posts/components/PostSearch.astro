@@ -1,0 +1,104 @@
+---
+import type { Locale } from '@/i18n/locale';
+import type { Post } from '@/features/posts/post';
+import { getTranslator } from '@/i18n/translator';
+
+interface Props {
+  locale: Locale;
+  posts: readonly Post[];
+}
+
+const { locale, posts } = Astro.props;
+const translate = getTranslator(locale);
+const placeholder = translate('blog.searchPlaceholder');
+
+// Índice de búsqueda derivado del repositorio en build-time (no del DOM).
+// Se serializa al cliente; el navegador filtra sobre estos datos, no scrapeando.
+const searchIndex = posts.map((post) => ({
+  slug: post.slug,
+  text: [post.title, post.summary, ...post.tags].join(' ').toLowerCase(),
+}));
+---
+
+<div class="post-search">
+  <svg class="icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+    <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"></circle>
+    <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line>
+  </svg>
+  <input type="search" class="input" placeholder={placeholder} aria-label={placeholder} />
+</div>
+<p class="post-search-empty" hidden>{translate('blog.searchEmpty')}</p>
+
+<script type="application/json" id="post-search-index" set:html={JSON.stringify(searchIndex)}
+></script>
+
+<script>
+  type SearchEntry = { slug: string; text: string };
+
+  const indexElement = document.getElementById('post-search-index');
+  const searchIndex: SearchEntry[] = indexElement
+    ? JSON.parse(indexElement.textContent ?? '[]')
+    : [];
+
+  const input = document.querySelector<HTMLInputElement>('.post-search .input');
+  const list = document.querySelector<HTMLUListElement>('.post-list');
+  const empty = document.querySelector<HTMLParagraphElement>('.post-search-empty');
+
+  if (input && list) {
+    input.addEventListener('input', () => {
+      const query = input.value.trim().toLowerCase();
+      const matchingSlugs = new Set(
+        searchIndex.filter((entry) => entry.text.includes(query)).map((entry) => entry.slug),
+      );
+
+      list.querySelectorAll<HTMLElement>('[data-slug]').forEach((card) => {
+        const item = card.closest('li');
+        if (item) item.hidden = !matchingSlugs.has(card.dataset.slug ?? '');
+      });
+
+      if (empty) empty.hidden = matchingSlugs.size > 0;
+    });
+  }
+</script>
+
+<style>
+  .post-search {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-8);
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-medium);
+    color: var(--color-text-muted);
+    transition: border-color var(--motion-duration-fast) var(--motion-easing);
+  }
+
+  .post-search:focus-within {
+    border-color: var(--color-ink);
+    color: var(--color-ink);
+  }
+
+  .input {
+    flex: 1;
+    border: none;
+    background: none;
+    color: var(--color-ink);
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-base);
+  }
+
+  .input:focus {
+    outline: none;
+  }
+
+  .input::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  .post-search-empty {
+    margin-top: var(--space-6);
+    color: var(--color-text-soft);
+    font-size: var(--font-size-lead);
+  }
+</style>

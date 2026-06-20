@@ -3,13 +3,11 @@ import { LOCALES } from '@/i18n/locale';
 
 // Logical page identifiers, decoupled from their localized URL segment.
 // Never hardcode "/sobre-mi" or "/about"; resolve URLs through buildPagePath.
-export type PageKey = 'blog' | 'about' | 'work' | 'contact';
+export type PageKey = 'blog' | 'about';
 
 const PATH_SEGMENT_BY_PAGE: Record<PageKey, Record<Locale, string>> = {
   blog: { es: '', en: '' },
   about: { es: 'sobre-mi', en: 'about' },
-  work: { es: 'trabajo', en: 'work' },
-  contact: { es: 'contacto', en: 'contact' },
 };
 
 const joinPath = (...segments: string[]): string => {

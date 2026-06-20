@@ -13,12 +13,16 @@ export const english: Dictionary = {
   'language.switchTo': 'Español',
   'language.current': 'English',
 
+  'theme.toggle': 'Toggle theme',
+
   'blog.introTitle': "Hi, I'm Nicolás",
   'blog.introText':
     "Software engineer. Here I write about software development and share what I'm learning along the way.",
   'blog.readingTime': 'min read',
   'blog.readMore': 'Read →',
   'blog.empty': 'No articles published yet.',
+  'blog.searchPlaceholder': 'Search articles…',
+  'blog.searchEmpty': 'No articles match your search.',
 
   'about.metaDescription':
     'Nicolás Vegas, software engineer: what I do, my principles, my stack and my journey.',
@@ -34,15 +38,11 @@ export const english: Dictionary = {
   'about.projectsEmpty': 'No projects published yet.',
   'about.present': 'Present',
 
-  'work.metaDescription':
-    'Where I work now: Lean Mind, a software consultancy in Tenerife where the craft comes first.',
   'work.since': 'Since',
   'work.valuesPrefix': "It's ",
   'work.valuesLink': 'what I believe',
   'work.valuesSuffix': ': faster isn\'t better — the right concepts, well applied, are.',
 
-  'contact.metaDescription':
-    'How to reach me: direct email, LinkedIn, GitHub and Medium. No forms.',
   'contact.heroTitle': 'Contact',
   'contact.lead':
     "Working on something or just want to say hi? Email is the most direct route, but you'll find me around here too.",

@@ -1,0 +1,79 @@
+/*
+ * Tokens de diseño: única fuente de verdad de color, tipografía, espacio y movimiento.
+ * Los componentes consumen var(--token), nunca valores literales.
+ * El tema oscuro solo redefine color; el resto es invariante.
+ */
+
+:root {
+  /* Familias tipográficas */
+  --font-family-display: 'Space Grotesk Variable', system-ui, sans-serif;
+  --font-family-body: 'Inter Variable', system-ui, sans-serif;
+  --font-family-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* Escala tipográfica */
+  --font-size-meta: 0.75rem; /* 12px */
+  --font-size-small: 0.875rem; /* 14px */
+  --font-size-base: 1.125rem; /* 18px, cuerpo de lectura */
+  --font-size-lead: 1.1875rem; /* 19px */
+  --font-size-heading-3: 1.4375rem; /* 23px */
+  --font-size-heading-2: 1.75rem; /* 28px */
+  --font-size-heading-1: 2.625rem; /* 42px */
+  --font-size-display: 3.875rem; /* 62px, hero de la home */
+
+  --line-height-body: 1.8;
+  --line-height-heading: 1.2;
+  --line-height-tight: 1.05;
+
+  /* Espaciado, escala de 4px */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
+
+  /* Forma y profundidad */
+  --radius-small: 5px;
+  --radius-medium: 10px;
+  --radius-large: 14px;
+
+  /* Movimiento */
+  --motion-duration-fast: 0.2s;
+  --motion-duration-base: 0.35s;
+  --motion-easing: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  /* Anchos de contenido */
+  --content-width-reading: 42rem;
+  --content-width-wide: 62rem;
+
+  /* Color, tema claro (de fábrica) */
+  --color-paper: #ffffff;
+  --color-ink: #0a0a0a;
+  --color-accent: #d8ff3e;
+  --color-accent-ink: #0a0a0a;
+  --color-text-soft: #555555;
+  --color-text-muted: #8a8a8a;
+  --color-rule: #e6e6e6;
+
+  /* Superficie invertida (tarjetas al hover): tinta de fondo, papel de texto */
+  --color-invert-surface: #0a0a0a;
+  --color-invert-text: #ffffff;
+  --color-invert-muted: #9a9a9a;
+}
+
+:root[data-theme='dark'] {
+  --color-paper: #0c0c0d;
+  --color-ink: #f2f2f2;
+  --color-accent: #d8ff3e;
+  --color-accent-ink: #0a0a0a;
+  --color-text-soft: #b5b5b5;
+  --color-text-muted: #8a8a8a;
+  --color-rule: #242424;
+
+  --color-invert-surface: #f2f2f2;
+  --color-invert-text: #0c0c0d;
+  --color-invert-muted: #6a6a6a;
+}
