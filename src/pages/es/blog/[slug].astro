@@ -23,7 +23,7 @@ const translate = getTranslator(locale);
 const blogPath = buildPagePath('blog', locale);
 ---
 
-<BaseLayout locale={locale} title={post.title} description={post.summary}>
+<BaseLayout locale={locale} title={post.title} description={post.summary} openGraphType="article">
   <article>
     <header>
       <nav aria-label="breadcrumb">

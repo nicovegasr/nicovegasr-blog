@@ -1,8 +1,8 @@
 ---
 import type { Locale } from '@/i18n/locale';
-import { LOCALES, DEFAULT_LOCALE } from '@/i18n/locale';
+import { LOCALES, DEFAULT_LOCALE, OPEN_GRAPH_LOCALE } from '@/i18n/locale';
 import { getTranslator } from '@/i18n/translator';
-import { buildAlternateLocalePath } from '@/i18n/routes';
+import { buildAlternateLocalePath, localesOtherThan } from '@/i18n/routes';
 import Navigation from '@/layouts/Navigation.astro';
 import Footer from '@/layouts/Footer.astro';
 
@@ -10,16 +10,19 @@ interface Props {
   locale: Locale;
   title?: string;
   description?: string;
+  openGraphType?: 'website' | 'article';
 }
 
-const { locale, title, description } = Astro.props;
+const { locale, title, description, openGraphType = 'website' } = Astro.props;
 const translate = getTranslator(locale);
 
 const documentTitle = title ?? translate('site.title');
 const documentDescription = description ?? translate('site.description');
+const siteName = translate('site.title');
 
 const currentPathname = Astro.url.pathname;
 const toAbsoluteUrl = (path: string): string => new URL(path, Astro.site).toString();
+const canonicalUrl = toAbsoluteUrl(currentPathname);
 const pathForLocale = (target: Locale): string =>
   target === locale
     ? currentPathname
@@ -33,13 +36,29 @@ const pathForLocale = (target: Locale): string =>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{documentTitle}</title>
     <meta name="description" content={documentDescription} />
-    <link rel="canonical" href={toAbsoluteUrl(currentPathname)} />
+    <link rel="canonical" href={canonicalUrl} />
     {
       LOCALES.map((target) => (
         <link rel="alternate" hreflang={target} href={toAbsoluteUrl(pathForLocale(target))} />
       ))
     }
     <link rel="alternate" hreflang="x-default" href={toAbsoluteUrl(pathForLocale(DEFAULT_LOCALE))} />
+
+    <meta property="og:type" content={openGraphType} />
+    <meta property="og:title" content={documentTitle} />
+    <meta property="og:description" content={documentDescription} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:locale" content={OPEN_GRAPH_LOCALE[locale]} />
+    {
+      localesOtherThan(locale).map((target) => (
+        <meta property="og:locale:alternate" content={OPEN_GRAPH_LOCALE[target]} />
+      ))
+    }
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={documentTitle} />
+    <meta name="twitter:description" content={documentDescription} />
   </head>
   <body>
     <Navigation locale={locale} />

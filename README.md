@@ -46,7 +46,7 @@ src/
 │   │   └── components/TimelineEntry.astro   ← una entrada (fechas mes+año, "Actualidad/Present")
 │   └── work/{work.ts, work-repository.ts}
 ├── layouts/                 ← shell transversal de toda página (no es un feature)
-│   ├── BaseLayout.astro     ← <head> SEO + hreflang alternates
+│   ├── BaseLayout.astro     ← <head> SEO: title/description, canonical, hreflang + Open Graph/Twitter Card
 │   └── {Navigation, Footer, LanguageSwitcher}.astro
 └── pages/                   ← árbol simétrico: una carpeta por idioma (URL = carpeta)
     ├── es/{index, sobre-mi, trabajo, contacto, blog/[slug]}.astro
@@ -116,7 +116,7 @@ npm run build                        # build estático
 
 ## Estado
 
-En construcción. Hecho hasta ahora: cimientos (entidades de dominio, repositorios, schemas de contenido, tests de dominio), i18n completo (diccionarios + translator), layout con nav/footer/switcher y hreflang, **índice de blog**, **detalle de artículo** (`/blog/[slug]`), **portfolio** (`/sobre-mi` · `/en/about`: hero, principios, stack inline, trayectoria y proyectos con estado vacío) **"dónde trabajo"** (`/trabajo` · `/en/work`: empresa actual con cuerpo markdown renderizado vía `findRenderableWork`, enlace a la web y cierre que enlaza a los principios) y **contacto** (`/contacto` · `/en/contact`: página estática con enlaces a pelo —`mailto:`, LinkedIn, GitHub, Medium— sin backend ni formulario). Falta el pulido (sitemap/RSS/SEO). Sin estilos todavía: primero estructura y arquitectura.
+En construcción. Hecho hasta ahora: cimientos (entidades de dominio, repositorios, schemas de contenido, tests de dominio), i18n completo (diccionarios + translator), layout con nav/footer/switcher y hreflang, **índice de blog**, **detalle de artículo** (`/blog/[slug]`), **portfolio** (`/sobre-mi` · `/en/about`: hero, principios, stack inline, trayectoria y proyectos con estado vacío) **"dónde trabajo"** (`/trabajo` · `/en/work`: empresa actual con cuerpo markdown renderizado vía `findRenderableWork`, enlace a la web y cierre que enlaza a los principios) y **contacto** (`/contacto` · `/en/contact`: página estática con enlaces a pelo —`mailto:`, LinkedIn, GitHub, Medium— sin backend ni formulario). **Pulido en curso (fase 7):** ✅ SEO meta (Open Graph + Twitter Card en `BaseLayout`; `openGraphType` distingue `article` en el detalle de post de `website` en el resto; `og:locale`/`og:locale:alternate` desde `OPEN_GRAPH_LOCALE`). Falta sitemap, RSS y robots.txt. Sin estilos todavía: primero estructura y arquitectura.
 
 > **Stack en el portfolio:** la lista de tecnologías va *a pelo* (array inline en cada page), sin colección ni feature: son nombres, no contenido editorial. Categorías en inglés en ambos idiomas; los nombres de tech no se traducen.
 
