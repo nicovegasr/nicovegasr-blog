@@ -22,15 +22,22 @@ export const spanish = {
     'Nicolás Vegas, ingeniero informático: a qué me dedico, mis principios, mi stack y mi trayectoria.',
   'about.heroTitle': 'Sobre mí',
   'about.lead':
-    'Soy Nicolás, ingeniero informático. Vengo del backend, pero me cuesta quedarme en una sola etiqueta: me muevo con comodidad por datos, infraestructura y front cuando hace falta.',
+    'Soy Nicolás, ingeniero informático. Empecé en el backend y nunca me quedé ahí: bases de datos, infraestructura, frontend — voy donde el problema lo pida.',
   'about.approach':
-    'Intento entender los problemas por completo antes de tocar nada —medir el impacto, mirar las alternativas, plantear soluciones— y avanzar siempre en equipo, porque el buen software se hace en equipo.',
+    'Antes de escribir una línea entiendo el problema entero: qué impacto tiene, qué alternativas hay, qué solución encaja de verdad. Y lo construyo con el equipo, porque el buen software no sale de una sola cabeza.',
   'about.principlesTitle': 'Principios',
   'about.stackTitle': 'Stack',
   'about.timelineTitle': 'Trayectoria',
   'about.projectsTitle': 'Proyectos',
   'about.projectsEmpty': 'Aún no hay proyectos publicados.',
   'about.present': 'Actualidad',
+
+  'work.metaDescription':
+    'Dónde trabajo ahora: Lean Mind, una consultora de software en Tenerife donde el oficio va primero.',
+  'work.since': 'Desde',
+  'work.valuesPrefix': 'Es ',
+  'work.valuesLink': 'lo que creo',
+  'work.valuesSuffix': ': más rápido no es mejor; lo son los conceptos bien aplicados.',
 
   'footer.rights': 'Todos los derechos reservados',
 } as const;

@@ -58,7 +58,10 @@ const work = defineCollection({
   loader: localizedMarkdown('work'),
   schema: z.object({
     company: z.string().min(1),
-    headline: z.string().min(10),
+    companyUrl: z.string().url(),
+    role: z.string().min(1),
+    location: z.string().min(1),
+    startDate: z.coerce.date(),
     lastUpdateDate: z.coerce.date(),
   }),
 });
