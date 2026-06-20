@@ -8,7 +8,7 @@ Sitio personal construido con **Astro 6** + **TypeScript** (strict), totalmente 
 
 - **Astro 6** en modo estático (`output: static`). Requiere **Node ≥ 22.12**.
 - **TypeScript** en modo `strict`.
-- **i18n nativo de Astro**: el idioma por defecto (`es`) se sirve en la raíz sin prefijo (`/`, `/sobre-mi`) y el resto con prefijo (`/en`, `/en/about`) vía `prefixDefaultLocale: false`. Así no hay un `/` vacío que redirigir y el sitio es estático puro.
+- **i18n nativo de Astro**: todos los idiomas van prefijados de forma simétrica (`/es/sobre-mi`, `/en/about`) vía `prefixDefaultLocale: true`, de modo que `src/pages/` refleja el árbol de URLs 1:1 (`pages/es` + `pages/en`). El `/` raíz no tiene página propia: un `redirects: { '/': '/es' }` en la config lo manda al idioma por defecto. En build estático Astro emite `/index.html` con un `<meta http-equiv="refresh">` (funciona en cualquier hosting estático; `redirectToDefaultLocale` solo aplica en SSR).
 - **Content Collections** (Content Layer API, `loader: glob()`) + **Zod** como fuente de verdad de la forma del contenido.
 
 ## Convenciones
@@ -48,12 +48,10 @@ src/
 ├── layouts/                 ← shell transversal de toda página (no es un feature)
 │   ├── BaseLayout.astro     ← <head> SEO + hreflang alternates
 │   └── {Navigation, Footer, LanguageSwitcher}.astro
-└── pages/
-    ├── index.astro          ← blog index en español (raíz, idioma por defecto)
-    ├── sobre-mi.astro       ← portfolio en español
-    ├── trabajo.astro        ← "dónde trabajo" en español
-    ├── contacto.astro       ← contacto (enlaces estáticos) en español
-    └── en/{index, about, work, contact}.astro   ← versiones en inglés
+└── pages/                   ← árbol simétrico: una carpeta por idioma (URL = carpeta)
+    ├── es/{index, sobre-mi, trabajo, contacto, blog/[slug]}.astro
+    └── en/{index, about, work, contact, blog/[slug]}.astro
+    (el `/` raíz no tiene page: lo redirige `redirects` en astro.config a `/es`)
 ```
 
 Los tests viven junto al código que prueban (`post.test.ts` al lado de `post.ts`).
@@ -101,7 +99,7 @@ i18n es un concern transversal de primera clase, por eso vive en `src/i18n/` (no
 - `i18n/entry-identifier.ts` parsea el id de Astro (`"es/mi-post.md"`) → `{ locale, slug }`. Lo usan todos los repos; vive en `i18n/` porque su trabajo es extraer el locale del path.
 - Las strings de UI viven en diccionarios TS (`i18n/es.ts`, `i18n/en.ts`).
 - Las rutas lógicas se resuelven con `PageKey` en `i18n/routes.ts` (`about` ↔ `sobre-mi`, `work` ↔ `trabajo`, `contact` ↔ `contacto`). Nunca se hardcodean URLs.
-- El idioma por defecto no lleva prefijo en la URL: `routes.ts` lo omite (`localePathSegment`) para que el español viva en `/` y el inglés en `/en`. El switcher (`buildAlternateLocalePath`) tiene esto en cuenta al mapear la ruta equivalente.
+- Todos los idiomas van prefijados por igual: `buildPagePath` antepone el locale siempre (`/es/...`, `/en/...`). `buildAlternateLocalePath` quita ese prefijo, busca la `PageKey` por el primer segmento y reconstruye la ruta en el idioma destino. Astro no empareja páginas entre idiomas por su cuenta: ese mapeo es nuestro, en `routes.ts`.
 
 ## Verificación
 

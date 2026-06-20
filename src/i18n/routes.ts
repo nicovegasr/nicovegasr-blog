@@ -1,5 +1,5 @@
 import type { Locale } from '@/i18n/locale';
-import { LOCALES, DEFAULT_LOCALE } from '@/i18n/locale';
+import { LOCALES } from '@/i18n/locale';
 
 // Logical page identifiers, decoupled from their localized URL segment.
 // Never hardcode "/sobre-mi" or "/about"; resolve URLs through buildPagePath.
@@ -17,16 +17,11 @@ const joinPath = (...segments: string[]): string => {
   return path.length > 0 ? `/${path}/` : '/';
 };
 
-// Default locale lives at the root with no prefix; others are prefixed
-// (matches astro.config `prefixDefaultLocale: false`).
-const localePathSegment = (locale: Locale): string =>
-  locale === DEFAULT_LOCALE ? '' : locale;
-
 export const buildPagePath = (page: PageKey, locale: Locale): string =>
-  joinPath(localePathSegment(locale), PATH_SEGMENT_BY_PAGE[page][locale]);
+  joinPath(locale, PATH_SEGMENT_BY_PAGE[page][locale]);
 
 export const buildBlogPostPath = (locale: Locale, slug: string): string =>
-  joinPath(localePathSegment(locale), 'blog', slug);
+  joinPath(locale, 'blog', slug);
 
 // Maps the current path to its equivalent in another locale (language switcher).
 // Blog posts have different slugs per locale, so they cannot be mapped and fall
@@ -37,8 +32,7 @@ export const buildAlternateLocalePath = (
   targetLocale: Locale,
 ): string => {
   const segments = currentPathname.split('/').filter(Boolean);
-  const pageSegments =
-    currentLocale === DEFAULT_LOCALE ? segments : segments.slice(1);
+  const pageSegments = segments.slice(1);
   const firstSegment = pageSegments[0] ?? '';
 
   const matchingPage = (Object.keys(PATH_SEGMENT_BY_PAGE) as PageKey[]).find(
