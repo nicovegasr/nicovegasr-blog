@@ -37,6 +37,7 @@ src/
 │   ├── posts/
 │   │   ├── post.ts                  ← entidad + funciones puras (testeable sin Astro)
 │   │   ├── post-repository.ts       ← astro:content → Post
+│   │   ├── post-feed.ts             ← arma el RSS (@astrojs/rss) desde findAllPosts
 │   │   └── components/              ← UI propia del feature (se agrupa al crecer)
 │   │       └── {PostPreview, PostMeta, TagList, ReadingTime}.astro
 │   ├── projects/{project.ts, project-repository.ts}
@@ -49,8 +50,8 @@ src/
 │   ├── BaseLayout.astro     ← <head> SEO: title/description, canonical, hreflang + Open Graph/Twitter Card
 │   └── {Navigation, Footer, LanguageSwitcher}.astro
 └── pages/                   ← árbol simétrico: una carpeta por idioma (URL = carpeta)
-    ├── es/{index, sobre-mi, trabajo, contacto, blog/[slug]}.astro
-    └── en/{index, about, work, contact, blog/[slug]}.astro
+    ├── es/{index, sobre-mi, trabajo, contacto, blog/[slug]}.astro · es/rss.xml.ts
+    └── en/{index, about, work, contact, blog/[slug]}.astro · en/rss.xml.ts
     (el `/` raíz no tiene page: lo redirige `redirects` en astro.config a `/es`)
 ```
 
@@ -116,7 +117,7 @@ npm run build                        # build estático
 
 ## Estado
 
-En construcción. Hecho hasta ahora: cimientos (entidades de dominio, repositorios, schemas de contenido, tests de dominio), i18n completo (diccionarios + translator), layout con nav/footer/switcher y hreflang, **índice de blog**, **detalle de artículo** (`/blog/[slug]`), **portfolio** (`/sobre-mi` · `/en/about`: hero, principios, stack inline, trayectoria y proyectos con estado vacío) **"dónde trabajo"** (`/trabajo` · `/en/work`: empresa actual con cuerpo markdown renderizado vía `findRenderableWork`, enlace a la web y cierre que enlaza a los principios) y **contacto** (`/contacto` · `/en/contact`: página estática con enlaces a pelo —`mailto:`, LinkedIn, GitHub, Medium— sin backend ni formulario). **Pulido en curso (fase 7):** ✅ SEO meta (Open Graph + Twitter Card en `BaseLayout`; `openGraphType` distingue `article` en el detalle de post de `website` en el resto; `og:locale`/`og:locale:alternate` desde `OPEN_GRAPH_LOCALE`). ✅ Sitemap (`@astrojs/sitemap` con opción `i18n`; el redirect raíz `/` se excluye con `filter`). **Nota:** la integración solo empareja alternates entre URLs con el mismo sub-path tras el prefijo de idioma; como los segmentos están localizados (`/es/sobre-mi` ≠ `/en/about`), solo la home queda emparejada en el sitemap. El emparejamiento completo vive en el `<head>` (hreflang vía `routes.ts`), que es la señal canónica que usa Google. Falta RSS y robots.txt. Sin estilos todavía: primero estructura y arquitectura.
+En construcción. Hecho hasta ahora: cimientos (entidades de dominio, repositorios, schemas de contenido, tests de dominio), i18n completo (diccionarios + translator), layout con nav/footer/switcher y hreflang, **índice de blog**, **detalle de artículo** (`/blog/[slug]`), **portfolio** (`/sobre-mi` · `/en/about`: hero, principios, stack inline, trayectoria y proyectos con estado vacío) **"dónde trabajo"** (`/trabajo` · `/en/work`: empresa actual con cuerpo markdown renderizado vía `findRenderableWork`, enlace a la web y cierre que enlaza a los principios) y **contacto** (`/contacto` · `/en/contact`: página estática con enlaces a pelo —`mailto:`, LinkedIn, GitHub, Medium— sin backend ni formulario). **Pulido en curso (fase 7):** ✅ SEO meta (Open Graph + Twitter Card en `BaseLayout`; `openGraphType` distingue `article` en el detalle de post de `website` en el resto; `og:locale`/`og:locale:alternate` desde `OPEN_GRAPH_LOCALE`). ✅ Sitemap (`@astrojs/sitemap` con opción `i18n`; el redirect raíz `/` se excluye con `filter`). **Nota:** la integración solo empareja alternates entre URLs con el mismo sub-path tras el prefijo de idioma; como los segmentos están localizados (`/es/sobre-mi` ≠ `/en/about`), solo la home queda emparejada en el sitemap. El emparejamiento completo vive en el `<head>` (hreflang vía `routes.ts`), que es la señal canónica que usa Google. ✅ RSS (`@astrojs/rss`): un feed por idioma (`/es/rss.xml` · `/en/rss.xml`) como endpoints en `pages/<locale>/rss.xml.ts` que delegan en `features/posts/post-feed.ts`; link de descubrimiento en el `<head>` apuntando al feed del locale (`buildRssFeedPath`). Falta robots.txt. Sin estilos todavía: primero estructura y arquitectura.
 
 > **Stack en el portfolio:** la lista de tecnologías va *a pelo* (array inline en cada page), sin colección ni feature: son nombres, no contenido editorial. Categorías en inglés en ambos idiomas; los nombres de tech no se traducen.
 

@@ -23,6 +23,9 @@ export const buildPagePath = (page: PageKey, locale: Locale): string =>
 export const buildBlogPostPath = (locale: Locale, slug: string): string =>
   joinPath(locale, 'blog', slug);
 
+// RSS endpoints keep their explicit extension, so no trailing slash here.
+export const buildRssFeedPath = (locale: Locale): string => `/${locale}/rss.xml`;
+
 // Maps the current path to its equivalent in another locale (language switcher).
 // Blog posts have different slugs per locale, so they cannot be mapped and fall
 // back to the target blog index (safe, never a 404).

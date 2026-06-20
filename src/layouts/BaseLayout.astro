@@ -2,7 +2,7 @@
 import type { Locale } from '@/i18n/locale';
 import { LOCALES, DEFAULT_LOCALE, OPEN_GRAPH_LOCALE } from '@/i18n/locale';
 import { getTranslator } from '@/i18n/translator';
-import { buildAlternateLocalePath, localesOtherThan } from '@/i18n/routes';
+import { buildAlternateLocalePath, localesOtherThan, buildRssFeedPath } from '@/i18n/routes';
 import Navigation from '@/layouts/Navigation.astro';
 import Footer from '@/layouts/Footer.astro';
 
@@ -59,6 +59,13 @@ const pathForLocale = (target: Locale): string =>
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content={documentTitle} />
     <meta name="twitter:description" content={documentDescription} />
+
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={siteName}
+      href={toAbsoluteUrl(buildRssFeedPath(locale))}
+    />
   </head>
   <body>
     <Navigation locale={locale} />
