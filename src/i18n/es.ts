@@ -39,6 +39,12 @@ export const spanish = {
   'work.valuesLink': 'lo que creo',
   'work.valuesSuffix': ': más rápido no es mejor; lo son los conceptos bien aplicados.',
 
+  'contact.metaDescription':
+    'Cómo escribirme: correo directo, LinkedIn, GitHub y Medium. Sin formularios.',
+  'contact.heroTitle': 'Contacto',
+  'contact.lead':
+    '¿Tienes algo entre manos o solo quieres saludar? El correo es lo más directo, pero me encontrarás también por aquí.',
+
   'footer.rights': 'Todos los derechos reservados',
 } as const;
 

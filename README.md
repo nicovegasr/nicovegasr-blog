@@ -52,7 +52,8 @@ src/
     ├── index.astro          ← blog index en español (raíz, idioma por defecto)
     ├── sobre-mi.astro       ← portfolio en español
     ├── trabajo.astro        ← "dónde trabajo" en español
-    └── en/{index, about, work}.astro   ← versiones en inglés
+    ├── contacto.astro       ← contacto (enlaces estáticos) en español
+    └── en/{index, about, work, contact}.astro   ← versiones en inglés
 ```
 
 Los tests viven junto al código que prueban (`post.test.ts` al lado de `post.ts`).
@@ -117,7 +118,7 @@ npm run build                        # build estático
 
 ## Estado
 
-En construcción. Hecho hasta ahora: cimientos (entidades de dominio, repositorios, schemas de contenido, tests de dominio), i18n completo (diccionarios + translator), layout con nav/footer/switcher y hreflang, **índice de blog**, **detalle de artículo** (`/blog/[slug]`), **portfolio** (`/sobre-mi` · `/en/about`: hero, principios, stack inline, trayectoria y proyectos con estado vacío) y **"dónde trabajo"** (`/trabajo` · `/en/work`: empresa actual con cuerpo markdown renderizado vía `findRenderableWork`, enlace a la web y cierre que enlaza a los principios). Falta contacto y el pulido (sitemap/RSS/SEO). Sin estilos todavía: primero estructura y arquitectura.
+En construcción. Hecho hasta ahora: cimientos (entidades de dominio, repositorios, schemas de contenido, tests de dominio), i18n completo (diccionarios + translator), layout con nav/footer/switcher y hreflang, **índice de blog**, **detalle de artículo** (`/blog/[slug]`), **portfolio** (`/sobre-mi` · `/en/about`: hero, principios, stack inline, trayectoria y proyectos con estado vacío) **"dónde trabajo"** (`/trabajo` · `/en/work`: empresa actual con cuerpo markdown renderizado vía `findRenderableWork`, enlace a la web y cierre que enlaza a los principios) y **contacto** (`/contacto` · `/en/contact`: página estática con enlaces a pelo —`mailto:`, LinkedIn, GitHub, Medium— sin backend ni formulario). Falta el pulido (sitemap/RSS/SEO). Sin estilos todavía: primero estructura y arquitectura.
 
 > **Stack en el portfolio:** la lista de tecnologías va *a pelo* (array inline en cada page), sin colección ni feature: son nombres, no contenido editorial. Categorías en inglés en ambos idiomas; los nombres de tech no se traducen.
 

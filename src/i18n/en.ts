@@ -41,5 +41,11 @@ export const english: Dictionary = {
   'work.valuesLink': 'what I believe',
   'work.valuesSuffix': ': faster isn\'t better — the right concepts, well applied, are.',
 
+  'contact.metaDescription':
+    'How to reach me: direct email, LinkedIn, GitHub and Medium. No forms.',
+  'contact.heroTitle': 'Contact',
+  'contact.lead':
+    "Working on something or just want to say hi? Email is the most direct route, but you'll find me around here too.",
+
   'footer.rights': 'All rights reserved',
 };
