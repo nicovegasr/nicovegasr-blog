@@ -41,14 +41,17 @@ src/
 │   │       └── {PostPreview, PostMeta, TagList, ReadingTime}.astro
 │   ├── projects/{project.ts, project-repository.ts}
 │   ├── principles/{principle.ts, principle-repository.ts}  ← valores/principios (sección de sobre-mí)
-│   ├── timeline/{timeline-entry.ts, timeline-repository.ts}
+│   ├── timeline/
+│   │   ├── {timeline-entry.ts, timeline-repository.ts}
+│   │   └── components/TimelineEntry.astro   ← una entrada (fechas mes+año, "Actualidad/Present")
 │   └── work/{work.ts, work-repository.ts}
 ├── layouts/                 ← shell transversal de toda página (no es un feature)
 │   ├── BaseLayout.astro     ← <head> SEO + hreflang alternates
 │   └── {Navigation, Footer, LanguageSwitcher}.astro
 └── pages/
     ├── index.astro          ← blog index en español (raíz, idioma por defecto)
-    └── en/index.astro       ← blog index en inglés
+    ├── sobre-mi.astro       ← portfolio en español
+    └── en/{index, about}.astro   ← blog index y portfolio en inglés
 ```
 
 Los tests viven junto al código que prueban (`post.test.ts` al lado de `post.ts`).
@@ -113,6 +116,8 @@ npm run build                        # build estático
 
 ## Estado
 
-En construcción. **Fase 1 completa**: cimientos (entidades de dominio, repositorios, schemas de contenido, tests de dominio), i18n completo (diccionarios + translator), layout con nav/footer/switcher y hreflang, y páginas índice por idioma (español en la raíz, inglés en `/en`). Falta el contenido real y las pantallas (blog, artículo, portfolio, trabajo, contacto). Sin estilos todavía: primero estructura y arquitectura.
+En construcción. Hecho hasta ahora: cimientos (entidades de dominio, repositorios, schemas de contenido, tests de dominio), i18n completo (diccionarios + translator), layout con nav/footer/switcher y hreflang, **índice de blog**, **detalle de artículo** (`/blog/[slug]`) y **portfolio** (`/sobre-mi` · `/en/about`: hero, principios, stack inline, trayectoria y proyectos con estado vacío). Falta trabajo, contacto y el pulido (sitemap/RSS/SEO). Sin estilos todavía: primero estructura y arquitectura.
+
+> **Stack en el portfolio:** la lista de tecnologías va *a pelo* (array inline en cada page), sin colección ni feature: son nombres, no contenido editorial. Categorías en inglés en ambos idiomas; los nombres de tech no se traducen.
 
 > **Contacto sin backend:** se descartó el formulario con envío de email (necesitaría servidor). La página de contacto será estática: enlaces directos (`mailto:`, redes). Por eso ya no existe el dominio `ContactMessage`/validación.

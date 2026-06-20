@@ -18,6 +18,20 @@ export const spanish = {
   'blog.readMore': 'Leer →',
   'blog.empty': 'Aún no hay artículos publicados.',
 
+  'about.metaDescription':
+    'Nicolás Vegas, ingeniero informático: a qué me dedico, mis principios, mi stack y mi trayectoria.',
+  'about.heroTitle': 'Sobre mí',
+  'about.lead':
+    'Soy Nicolás, ingeniero informático. Vengo del backend, pero me cuesta quedarme en una sola etiqueta: me muevo con comodidad por datos, infraestructura y front cuando hace falta.',
+  'about.approach':
+    'Intento entender los problemas por completo antes de tocar nada —medir el impacto, mirar las alternativas, plantear soluciones— y avanzar siempre en equipo, porque el buen software se hace en equipo.',
+  'about.principlesTitle': 'Principios',
+  'about.stackTitle': 'Stack',
+  'about.timelineTitle': 'Trayectoria',
+  'about.projectsTitle': 'Proyectos',
+  'about.projectsEmpty': 'Aún no hay proyectos publicados.',
+  'about.present': 'Actualidad',
+
   'footer.rights': 'Todos los derechos reservados',
 } as const;
 

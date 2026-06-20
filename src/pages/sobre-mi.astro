@@ -1,0 +1,90 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import TimelineEntry from '@/features/timeline/components/TimelineEntry.astro';
+import { getTranslator } from '@/i18n/translator';
+import { findAllPrinciples } from '@/features/principles/principle-repository';
+import { findAllTimelineEntries } from '@/features/timeline/timeline-repository';
+import { findAllProjects } from '@/features/projects/project-repository';
+
+const locale = 'es';
+const translate = getTranslator(locale);
+
+const principles = await findAllPrinciples(locale);
+const timeline = await findAllTimelineEntries(locale);
+const projects = await findAllProjects(locale);
+
+// Stack a pelo: nombres de tecnología sin traducir, categorías en inglés.
+const stack = [
+  { category: 'Languages', items: ['Java', 'Python', 'TypeScript', 'JavaScript', 'SQL'] },
+  { category: 'Frameworks', items: ['Spring (Boot, Batch, Security)', 'Hibernate/JPA', 'React', 'Django', 'FastAPI'] },
+  { category: 'Data', items: ['PostgreSQL', 'SQL Server', 'Oracle', 'MongoDB'] },
+  { category: 'Cloud & DevOps', items: ['AWS', 'Docker', 'Jenkins', 'GitHub Actions', 'Nginx', 'Git'] },
+  { category: 'Messaging', items: ['Kafka', 'RabbitMQ'] },
+  { category: 'Architecture', items: ['Microservices', 'Hexagonal', 'DDD', 'CQRS', 'Event-driven'] },
+  { category: 'Methodologies', items: ['TDD', 'Clean Architecture', 'SOLID', 'Agile/Scrum'] },
+];
+---
+
+<BaseLayout
+  locale={locale}
+  title={`${translate('about.heroTitle')} — ${translate('site.title')}`}
+  description={translate('about.metaDescription')}
+>
+  <section>
+    <h1>{translate('about.heroTitle')}</h1>
+    <p>{translate('about.lead')}</p>
+    <p>{translate('about.approach')}</p>
+  </section>
+
+  <section>
+    <h2>{translate('about.principlesTitle')}</h2>
+    <ul>
+      {principles.map((principle) => <li>{principle.title}</li>)}
+    </ul>
+  </section>
+
+  <section>
+    <h2>{translate('about.stackTitle')}</h2>
+    <dl>
+      {
+        stack.map((group) => (
+          <div>
+            <dt>{group.category}</dt>
+            <dd>{group.items.join(' · ')}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </section>
+
+  <section>
+    <h2>{translate('about.timelineTitle')}</h2>
+    <ul>
+      {
+        timeline.map((entry) => (
+          <li>
+            <TimelineEntry entry={entry} />
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section>
+    <h2>{translate('about.projectsTitle')}</h2>
+    {
+      projects.length > 0 ? (
+        <ul>
+          {projects.map((project) => (
+            <li>
+              <h3>{project.title}</h3>
+              <p>{project.pitch}</p>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>{translate('about.projectsEmpty')}</p>
+      )
+    }
+  </section>
+</BaseLayout>

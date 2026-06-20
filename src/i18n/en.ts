@@ -20,5 +20,19 @@ export const english: Dictionary = {
   'blog.readMore': 'Read →',
   'blog.empty': 'No articles published yet.',
 
+  'about.metaDescription':
+    'Nicolás Vegas, software engineer: what I do, my principles, my stack and my journey.',
+  'about.heroTitle': 'About',
+  'about.lead':
+    "I'm Nicolás, a software engineer. I come from backend, but I find it hard to settle into a single label: I'm comfortable across data, infrastructure and frontend when needed.",
+  'about.approach':
+    'I try to understand problems fully before touching anything —weighing the impact, looking at the alternatives, proposing solutions— and to always move forward as a team, because good software is built as a team.',
+  'about.principlesTitle': 'Principles',
+  'about.stackTitle': 'Stack',
+  'about.timelineTitle': 'Journey',
+  'about.projectsTitle': 'Projects',
+  'about.projectsEmpty': 'No projects published yet.',
+  'about.present': 'Present',
+
   'footer.rights': 'All rights reserved',
 };

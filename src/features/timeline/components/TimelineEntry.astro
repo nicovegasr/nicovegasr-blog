@@ -1,0 +1,40 @@
+---
+import type { TimelineEntry } from '@/features/timeline/timeline-entry';
+import { getTranslator } from '@/i18n/translator';
+
+interface Props {
+  entry: TimelineEntry;
+}
+
+const { entry } = Astro.props;
+const translate = getTranslator(entry.locale);
+
+const formatMonthYear = (date: Date): string =>
+  new Intl.DateTimeFormat(entry.locale, { month: 'short', year: 'numeric' }).format(date);
+
+const startLabel = formatMonthYear(entry.startDate);
+const startMachine = entry.startDate.toISOString().slice(0, 10);
+const endLabel =
+  entry.endDate === undefined
+    ? translate('about.present')
+    : formatMonthYear(entry.endDate);
+const endMachine = entry.endDate?.toISOString().slice(0, 10);
+---
+
+<article>
+  <p>
+    <time datetime={startMachine}>{startLabel}</time>
+    {' – '}
+    {
+      endMachine === undefined ? (
+        <span>{endLabel}</span>
+      ) : (
+        <time datetime={endMachine}>{endLabel}</time>
+      )
+    }
+    {entry.sector !== undefined && <span>{' · '}{entry.sector}</span>}
+  </p>
+  <h3>{entry.company}</h3>
+  <p>{entry.role}</p>
+  <p>{entry.summary}</p>
+</article>
