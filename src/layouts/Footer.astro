@@ -2,6 +2,7 @@
 import type { Locale } from '@/i18n/locale';
 import { getTranslator } from '@/i18n/translator';
 import SocialLinks from '@/layouts/SocialLinks.astro';
+import Logo from '@/layouts/Logo.astro';
 
 interface Props {
   locale: Locale;
@@ -14,7 +15,7 @@ const currentYear = new Date().getFullYear();
 
 <footer class="site-footer">
   <div class="bar">
-    <span class="monogram">NV</span>
+    <Logo size={26} title={translate('site.title')} />
     <p>© {currentYear} Nicolás Vegas — {translate('footer.rights')}</p>
     <div class="social">
       <SocialLinks />
@@ -35,19 +36,6 @@ const currentYear = new Date().getFullYear();
     max-width: var(--content-width-wide);
     margin-inline: auto;
     padding: var(--space-8) var(--space-6);
-  }
-
-  .monogram {
-    display: inline-grid;
-    place-items: center;
-    width: 1.5rem;
-    height: 1.5rem;
-    border-radius: var(--radius-small);
-    background: var(--color-ink);
-    color: var(--color-paper);
-    font-family: var(--font-family-display);
-    font-weight: 700;
-    font-size: 0.65rem;
   }
 
   .bar p {

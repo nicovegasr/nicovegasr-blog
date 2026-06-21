@@ -1,0 +1,56 @@
+---
+// Marca: monograma NV en trazo grotesk apoyado sobre una baseline lima.
+// La baseline es el guiño conceptual a "dominar las bases, aplicarlas con
+// criterio" (mismo motivo que el subrayado del og:image). Theme-aware: el
+// fondo usa la tinta y las letras el papel, así invierte solo en tema oscuro.
+interface Props {
+  size?: number;
+  title?: string;
+}
+
+const { size = 32, title = 'Nicolás Vegas' } = Astro.props;
+---
+
+<svg
+  class="logo"
+  width={size}
+  height={size}
+  viewBox="0 0 100 100"
+  role="img"
+  aria-label={title}
+>
+  <rect x="3" y="3" width="94" height="94" rx="24" class="logo-surface" />
+  <path d="M28 66 V34 L46 66 V34" class="logo-letter" />
+  <path d="M54 34 L63 66 L72 34" class="logo-letter" />
+  <rect x="28" y="72" width="44" height="7" rx="2" class="logo-baseline" />
+</svg>
+
+<style>
+  .logo {
+    display: block;
+    flex-shrink: 0;
+  }
+
+  .logo-surface {
+    fill: var(--color-ink);
+  }
+
+  .logo-letter {
+    fill: none;
+    stroke: var(--color-paper);
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* En claro la baseline es lima sobre el cuadro de tinta (contrasta). En
+     oscuro el cuadro se invierte a claro y la lima pierde contraste, así que
+     cede al papel (oscuro), como hacen las tarjetas al invertir. */
+  .logo-baseline {
+    fill: var(--color-accent);
+  }
+
+  :global([data-theme='dark']) .logo-baseline {
+    fill: var(--color-paper);
+  }
+</style>

@@ -4,6 +4,7 @@ import { buildPagePath } from '@/i18n/routes';
 import { getTranslator } from '@/i18n/translator';
 import LanguageSwitcher from '@/layouts/LanguageSwitcher.astro';
 import ThemeToggle from '@/layouts/ThemeToggle.astro';
+import Logo from '@/layouts/Logo.astro';
 
 interface Props {
   locale: Locale;
@@ -12,14 +13,13 @@ interface Props {
 const { locale } = Astro.props;
 const translate = getTranslator(locale);
 
-// "Dónde trabajo" y "Contacto" no son páginas propias: son secciones de
-// "sobre mí" (anclas #work y #contact).
+// "Dónde trabajo" no es página propia: es una sección de "sobre mí" (ancla #work).
+// El contacto vive en el footer (todas las páginas) y en el hero de la home.
 const aboutPath = buildPagePath('about', locale);
 const navigationItems: { href: string; label: string }[] = [
   { href: buildPagePath('blog', locale), label: translate('navigation.blog') },
   { href: aboutPath, label: translate('navigation.about') },
   { href: `${aboutPath}#work`, label: translate('navigation.work') },
-  { href: `${aboutPath}#contact`, label: translate('navigation.contact') },
 ];
 
 const homePath = buildPagePath('blog', locale);
@@ -29,8 +29,8 @@ const currentPathname = Astro.url.pathname;
 <header class="site-header">
   <div class="bar">
     <a class="brand" href={homePath} aria-label={translate('site.title')}>
-      <span class="monogram">NV</span>
-      <span class="brand-name">{translate('site.title')}</span>
+      <Logo size={34} title={translate('site.title')} />
+      <span class="brand-name">nicovegasr</span>
     </a>
 
     <nav class="primary" aria-label="Primary">
@@ -77,7 +77,7 @@ const currentPathname = Astro.url.pathname;
     gap: var(--space-6);
     max-width: var(--content-width-wide);
     margin-inline: auto;
-    padding: var(--space-3) var(--space-6);
+    padding: var(--space-4) var(--space-6);
   }
 
   .brand {
@@ -89,20 +89,8 @@ const currentPathname = Astro.url.pathname;
     font-weight: 700;
   }
 
-  .monogram {
-    display: inline-grid;
-    place-items: center;
-    width: 1.75rem;
-    height: 1.75rem;
-    border-radius: var(--radius-small);
-    background: var(--color-ink);
-    color: var(--color-paper);
-    font-size: var(--font-size-meta);
-    letter-spacing: 0.02em;
-  }
-
   .brand-name {
-    font-size: var(--font-size-small);
+    font-size: var(--font-size-base);
   }
 
   .primary {
@@ -118,7 +106,7 @@ const currentPathname = Astro.url.pathname;
 
   .primary a {
     font-family: var(--font-family-display);
-    font-size: var(--font-size-small);
+    font-size: var(--font-size-base);
     font-weight: 500;
     text-decoration: none;
     color: var(--color-text-soft);
