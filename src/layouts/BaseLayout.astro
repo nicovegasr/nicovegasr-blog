@@ -30,6 +30,7 @@ const siteName = translate('site.title');
 const currentPathname = Astro.url.pathname;
 const toAbsoluteUrl = (path: string): string => new URL(path, Astro.site).toString();
 const canonicalUrl = toAbsoluteUrl(currentPathname);
+const openGraphImageUrl = toAbsoluteUrl('/og-default.png');
 const pathForLocale = (target: Locale): string =>
   target === locale
     ? currentPathname
@@ -41,6 +42,7 @@ const pathForLocale = (target: Locale): string =>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <script is:inline>
       // Antes del primer pintado: marca que hay JS (gatea las animaciones de
       // aparición; sin JS el contenido se ve) y fija el tema para evitar parpadeo.
@@ -71,10 +73,15 @@ const pathForLocale = (target: Locale): string =>
         <meta property="og:locale:alternate" content={OPEN_GRAPH_LOCALE[target]} />
       ))
     }
+    <meta property="og:image" content={openGraphImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={siteName} />
 
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={documentTitle} />
     <meta name="twitter:description" content={documentDescription} />
+    <meta name="twitter:image" content={openGraphImageUrl} />
 
     <link
       rel="alternate"

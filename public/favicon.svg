@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <style>
+    .surface { fill: #0a0a0a; }
+    .letter { fill: none; stroke: #ffffff; stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; }
+    .baseline { fill: #d8ff3e; }
+    @media (prefers-color-scheme: dark) {
+      .surface { fill: #f2f2f2; }
+      .letter { stroke: #0c0c0d; }
+      .baseline { fill: #0c0c0d; }
+    }
+  </style>
+  <rect x="3" y="3" width="94" height="94" rx="24" class="surface" />
+  <path d="M28 66 V34 L46 66 V34" class="letter" />
+  <path d="M54 34 L63 66 L72 34" class="letter" />
+  <rect x="28" y="72" width="44" height="7" rx="2" class="baseline" />
+</svg>
