@@ -42,7 +42,7 @@ const stack = [
   title={`${translate('about.heroTitle')} — ${translate('site.title')}`}
   description={translate('about.metaDescription')}
 >
-  <section class="intro reveal">
+  <section class="intro about-hero reveal">
     <img
       class="portrait"
       src="/nicolas-vegas.webp"
@@ -51,9 +51,11 @@ const stack = [
       loading="eager"
       alt="Foto de Nicolás Vegas"
     />
-    <h1>{translate('about.heroTitle')}</h1>
-    <p class="lead">{translate('about.lead')}</p>
-    <p class="lead">{translate('about.approach')}</p>
+    <div class="about-hero-text">
+      <h1>{translate('about.heroTitle')}</h1>
+      <p class="lead">{translate('about.lead')}</p>
+      <p class="lead">{translate('about.approach')}</p>
+    </div>
   </section>
 
   <section id="principles" class="reveal">

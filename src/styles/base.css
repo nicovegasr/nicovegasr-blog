@@ -205,12 +205,27 @@ p {
 }
 
 .intro .portrait {
-  width: 9rem;
-  height: 9rem;
+  width: 11rem;
+  height: 11rem;
   border-radius: 50%;
   object-fit: cover;
-  margin-bottom: var(--space-6);
   border: 1px solid var(--color-rule);
+}
+
+/* Hero de sobre-mí a dos columnas: retrato + texto. Envuelve en mobile. */
+.about-hero {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  flex-wrap: wrap;
+}
+
+.about-hero .portrait {
+  flex-shrink: 0;
+}
+
+.about-hero-text {
+  flex: 1 1 24rem;
 }
 
 .intro .lead + .social-links {
