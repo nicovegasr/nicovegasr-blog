@@ -1,9 +1,14 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PostMeta from '@/features/posts/components/PostMeta.astro';
+import RelatedPosts from '@/features/posts/components/RelatedPosts.astro';
 import { getTranslator } from '@/i18n/translator';
 import { buildPagePath } from '@/i18n/routes';
-import { findAllPosts, findRenderablePost } from '@/features/posts/post-repository';
+import {
+  findAllPosts,
+  findRelatedPosts,
+  findRenderablePost,
+} from '@/features/posts/post-repository';
 
 const locale = 'es';
 
@@ -21,6 +26,7 @@ if (renderable === null) {
 const { post, Content } = renderable;
 const translate = getTranslator(locale);
 const blogPath = buildPagePath('blog', locale);
+const relatedPosts = await findRelatedPosts(locale, post.slug);
 ---
 
 <BaseLayout locale={locale} title={post.title} description={post.summary} openGraphType="article">
@@ -36,4 +42,5 @@ const blogPath = buildPagePath('blog', locale);
       <Content />
     </div>
   </article>
+  <RelatedPosts posts={relatedPosts} locale={locale} />
 </BaseLayout>

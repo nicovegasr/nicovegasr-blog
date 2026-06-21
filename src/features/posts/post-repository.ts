@@ -3,6 +3,7 @@ import type { Locale } from '@/i18n/locale';
 import {
   calculateReadingTimeInMinutes,
   isPublished,
+  selectRelatedPostsByTags,
   type Post,
 } from '@/features/posts/post';
 import { parseLocalizedEntryIdentifier } from '@/i18n/entry-identifier';
@@ -66,4 +67,20 @@ export const findRenderablePost = async (
 
   const { Content } = await render(entry);
   return { post, Content };
+};
+
+const RELATED_POSTS_LIMIT = 3;
+
+export const findRelatedPosts = async (
+  locale: Locale,
+  slug: string,
+  limit: number = RELATED_POSTS_LIMIT,
+): Promise<readonly Post[]> => {
+  const posts = await findAllPosts(locale);
+  const target = posts.find((post) => post.slug === slug);
+  if (target === undefined) {
+    return [];
+  }
+
+  return selectRelatedPostsByTags(target, posts, limit);
 };

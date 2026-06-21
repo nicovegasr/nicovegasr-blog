@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   calculateReadingTimeInMinutes,
   isPublished,
+  selectRelatedPostsByTags,
   type Post,
 } from '@/features/posts/post';
 
@@ -48,5 +49,53 @@ describe('isPublished', () => {
   it('is not published when the publication date is in the future', () => {
     const post = buildPost({ publicationDate: new Date('2030-01-01') });
     expect(isPublished(post, new Date('2026-01-01'))).toBe(false);
+  });
+});
+
+describe('selectRelatedPostsByTags', () => {
+  const target = buildPost({ slug: 'target', tags: ['astro', 'testing'] });
+
+  it('excludes the target post itself', () => {
+    const sameSlug = buildPost({ slug: 'target', tags: ['astro'] });
+    expect(selectRelatedPostsByTags(target, [sameSlug], 3)).toEqual([]);
+  });
+
+  it('excludes posts that share no tags', () => {
+    const unrelated = buildPost({ slug: 'unrelated', tags: ['cooking'] });
+    expect(selectRelatedPostsByTags(target, [unrelated], 3)).toEqual([]);
+  });
+
+  it('ranks by number of shared tags, descending', () => {
+    const oneShared = buildPost({ slug: 'one', tags: ['astro'] });
+    const twoShared = buildPost({ slug: 'two', tags: ['astro', 'testing'] });
+
+    const result = selectRelatedPostsByTags(target, [oneShared, twoShared], 3);
+
+    expect(result.map((post) => post.slug)).toEqual(['two', 'one']);
+  });
+
+  it('breaks ties by most recent publication date', () => {
+    const older = buildPost({
+      slug: 'older',
+      tags: ['astro'],
+      publicationDate: new Date('2025-01-01'),
+    });
+    const newer = buildPost({
+      slug: 'newer',
+      tags: ['astro'],
+      publicationDate: new Date('2026-01-01'),
+    });
+
+    const result = selectRelatedPostsByTags(target, [older, newer], 3);
+
+    expect(result.map((post) => post.slug)).toEqual(['newer', 'older']);
+  });
+
+  it('caps the result to the given limit', () => {
+    const candidates = ['a', 'b', 'c', 'd'].map((slug) =>
+      buildPost({ slug, tags: ['astro'] }),
+    );
+
+    expect(selectRelatedPostsByTags(target, candidates, 2)).toHaveLength(2);
   });
 });

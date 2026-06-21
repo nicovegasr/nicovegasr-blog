@@ -1,0 +1,41 @@
+---
+import type { Post } from '@/features/posts/post';
+import type { Locale } from '@/i18n/locale';
+import { getTranslator } from '@/i18n/translator';
+import PostPreview from '@/features/posts/components/PostPreview.astro';
+
+interface Props {
+  posts: readonly Post[];
+  locale: Locale;
+}
+
+const { posts, locale } = Astro.props;
+const translate = getTranslator(locale);
+---
+
+{
+  posts.length > 0 && (
+    <section class="related reveal" aria-labelledby="related-title">
+      <h2 id="related-title">{translate('blog.relatedTitle')}</h2>
+      <ul class="post-list">
+        {posts.map((post) => (
+          <li>
+            <PostPreview post={post} />
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
+<style>
+  .related {
+    margin-top: var(--space-16);
+    padding-top: var(--space-12);
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .related h2 {
+    margin-bottom: var(--space-8);
+  }
+</style>
