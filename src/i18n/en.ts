@@ -8,27 +8,27 @@ export const english: Dictionary = {
   'navigation.blog': 'Blog',
   'navigation.about': 'About',
   'navigation.work': 'Where I work',
-  'navigation.contact': 'Contact',
 
   'language.switchTo': 'Español',
   'language.current': 'English',
 
   'theme.toggle': 'Toggle theme',
 
-  'blog.introTitle': "Hi, I'm Nicolás",
+  'blog.introTitle': "Hi, I'm Nico",
   'blog.introText':
-    "Software engineer. Here I write about software development and share what I'm learning along the way.",
+    "Software engineer, I write about software development and share what I'm learning along the way.",
   'blog.readingTime': 'min read',
   'blog.readMore': 'Read →',
   'blog.empty': 'No articles published yet.',
   'blog.searchPlaceholder': 'Search articles…',
   'blog.searchEmpty': 'No articles match your search.',
+  'blog.relatedTitle': 'Related articles',
 
   'about.metaDescription':
     'Nicolás Vegas, software engineer: what I do, my principles, my stack and my journey.',
   'about.heroTitle': 'About',
   'about.lead':
-    "I'm Nicolás, a software engineer. I started in backend and never stayed there: databases, infrastructure, frontend — I go where the problem takes me.",
+    'I like to understand how things work under the hood and apply it with judgment, without tying myself to one part of the stack: I go where the problem takes me.',
   'about.approach':
     "Before I write a line, I get the whole problem: its impact, the alternatives, the solution that actually fits. And I build it with the team, because good software doesn't come from one head.",
   'about.principlesTitle': 'Principles',
@@ -42,10 +42,6 @@ export const english: Dictionary = {
   'work.valuesPrefix': "It's ",
   'work.valuesLink': 'what I believe',
   'work.valuesSuffix': ': faster isn\'t better — the right concepts, well applied, are.',
-
-  'contact.heroTitle': 'Contact',
-  'contact.lead':
-    "Working on something or just want to say hi? Email is the most direct route, but you'll find me around here too.",
 
   'footer.rights': 'All rights reserved',
 };

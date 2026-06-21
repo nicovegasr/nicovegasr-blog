@@ -6,27 +6,27 @@ export const spanish = {
   'navigation.blog': 'Blog',
   'navigation.about': 'Sobre mí',
   'navigation.work': 'Dónde trabajo',
-  'navigation.contact': 'Contacto',
 
   'language.switchTo': 'English',
   'language.current': 'Español',
 
   'theme.toggle': 'Cambiar tema',
 
-  'blog.introTitle': 'Hola, soy Nicolás',
+  'blog.introTitle': 'Hola, soy Nico',
   'blog.introText':
-    'Ingeniero informático. Aquí escribo sobre desarrollo de software y comparto lo que voy aprendiendo por el camino.',
+    'Ingeniero informático, escribo sobre desarrollo de software y comparto lo que voy aprendiendo por el camino.',
   'blog.readingTime': 'min de lectura',
   'blog.readMore': 'Leer →',
   'blog.empty': 'Aún no hay artículos publicados.',
   'blog.searchPlaceholder': 'Buscar artículos…',
   'blog.searchEmpty': 'Ningún artículo coincide con la búsqueda.',
+  'blog.relatedTitle': 'Artículos relacionados',
 
   'about.metaDescription':
     'Nicolás Vegas, ingeniero informático: a qué me dedico, mis principios, mi stack y mi trayectoria.',
   'about.heroTitle': 'Sobre mí',
   'about.lead':
-    'Soy Nicolás, ingeniero informático. Empecé en el backend y nunca me quedé ahí: bases de datos, infraestructura, frontend — voy donde el problema lo pida.',
+    'Me gusta entender cómo funcionan las cosas por dentro y aplicarlo con criterio, sin atarme a una parte del stack: voy donde el problema lo pida.',
   'about.approach':
     'Antes de escribir una línea entiendo el problema entero: qué impacto tiene, qué alternativas hay, qué solución encaja de verdad. Y lo construyo con el equipo, porque el buen software no sale de una sola cabeza.',
   'about.principlesTitle': 'Principios',
@@ -40,10 +40,6 @@ export const spanish = {
   'work.valuesPrefix': 'Es ',
   'work.valuesLink': 'lo que creo',
   'work.valuesSuffix': ': más rápido no es mejor; lo son los conceptos bien aplicados.',
-
-  'contact.heroTitle': 'Contacto',
-  'contact.lead':
-    '¿Tienes algo entre manos o solo quieres saludar? El correo es lo más directo, pero me encontrarás también por aquí.',
 
   'footer.rights': 'Todos los derechos reservados',
 } as const;
