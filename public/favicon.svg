@@ -1,3 +1,4 @@
+<!-- Espejo estático de src/layouts/Logo.astro (el favicon debe ser un fichero). Si cambias el logo, actualiza ambos. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <style>
     .surface { fill: #0a0a0a; }

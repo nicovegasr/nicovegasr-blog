@@ -8,8 +8,8 @@ import { DEFAULT_LOCALE } from '@/i18n/locale';
 import { buildPagePath } from '@/i18n/routes';
 
 const locale = DEFAULT_LOCALE;
-const homePathEs = buildPagePath('blog', 'es');
-const homePathEn = buildPagePath('blog', 'en');
+const spanishHomePath = buildPagePath('blog', 'es');
+const englishHomePath = buildPagePath('blog', 'en');
 ---
 
 <BaseLayout locale={locale} title="404 — Nicolás Vegas">
@@ -21,8 +21,8 @@ const homePathEn = buildPagePath('blog', 'en');
       <span lang="en">This page is missing or the link is broken.</span>
     </p>
     <div class="not-found-actions">
-      <a class="action" href={homePathEs}>Volver al inicio</a>
-      <a class="action" href={homePathEn} lang="en">Back home</a>
+      <a class="action" href={spanishHomePath}>Volver al inicio</a>
+      <a class="action" href={englishHomePath} lang="en">Back home</a>
     </div>
   </section>
 </BaseLayout>
