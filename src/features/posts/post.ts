@@ -21,5 +21,8 @@ export const calculateReadingTimeInMinutes = (rawText: string): number => {
 export const isPublished = (post: Post, now: Date = new Date()): boolean =>
   post.publicationDate.getTime() <= now.getTime();
 
+export const sharedTagCountWith = (post: Post, other: Post): number =>
+  post.tags.filter((tag) => other.tags.includes(tag)).length;
+
 export const searchableText = (post: Post): string =>
   [post.title, post.summary, ...post.tags].join(' ').toLowerCase();

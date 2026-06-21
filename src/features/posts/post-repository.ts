@@ -3,6 +3,7 @@ import type { Locale } from '@/i18n/locale';
 import {
   calculateReadingTimeInMinutes,
   isPublished,
+  sharedTagCountWith,
   type Post,
 } from '@/features/posts/post';
 import { parseLocalizedEntryIdentifier } from '@/i18n/entry-identifier';
@@ -70,21 +71,6 @@ export const findRenderablePost = async (
 
 const RELATED_POSTS_LIMIT = 3;
 
-const sharedTagCount = (target: Post, candidate: Post): number => {
-  const targetTags = new Set(target.tags);
-  return candidate.tags.filter((tag) => targetTags.has(tag)).length;
-};
-
-const sharesTagsWith =
-  (target: Post) =>
-  (post: Post): boolean =>
-    sharedTagCount(target, post) > 0;
-
-const byTagRelevanceTo =
-  (target: Post) =>
-  (a: Post, b: Post): number =>
-    sharedTagCount(target, b) - sharedTagCount(target, a) || byNewestFirst(a, b);
-
 export const findRelatedPosts = async (
   locale: Locale,
   slug: string,
@@ -98,7 +84,9 @@ export const findRelatedPosts = async (
 
   return posts
     .filter((post) => post.slug !== target.slug)
-    .filter(sharesTagsWith(target))
-    .sort(byTagRelevanceTo(target))
-    .slice(0, limit);
+    .map((post) => ({ post, score: sharedTagCountWith(post, target) }))
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => b.score - a.score || byNewestFirst(a.post, b.post))
+    .slice(0, limit)
+    .map(({ post }) => post);
 };

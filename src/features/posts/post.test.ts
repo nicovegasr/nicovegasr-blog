@@ -3,6 +3,7 @@ import {
   calculateReadingTimeInMinutes,
   isPublished,
   searchableText,
+  sharedTagCountWith,
   type Post,
 } from '@/features/posts/post';
 
@@ -49,6 +50,19 @@ describe('isPublished', () => {
   it('is not published when the publication date is in the future', () => {
     const post = buildPost({ publicationDate: new Date('2030-01-01') });
     expect(isPublished(post, new Date('2026-01-01'))).toBe(false);
+  });
+});
+
+describe('sharedTagCountWith', () => {
+  it('counts the tags both posts have in common', () => {
+    const post = buildPost({ tags: ['astro', 'testing', 'typescript'] });
+    const other = buildPost({ tags: ['testing', 'typescript', 'css'] });
+    expect(sharedTagCountWith(post, other)).toBe(2);
+  });
+
+  it('is zero with no tags in common or when one has none', () => {
+    expect(sharedTagCountWith(buildPost({ tags: ['astro'] }), buildPost({ tags: ['css'] }))).toBe(0);
+    expect(sharedTagCountWith(buildPost({ tags: [] }), buildPost({ tags: ['astro'] }))).toBe(0);
   });
 });
 
