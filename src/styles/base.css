@@ -16,6 +16,9 @@
 }
 
 html {
+  /* Tamaño raíz por encima de 16px: sube texto, iconos y espaciado a la vez
+     (todo está en rem). Lift suave para legibilidad sin rediseñar la escala. */
+  font-size: 106.25%;
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
 }
@@ -199,6 +202,19 @@ p {
 
 .intro h1 + .lead {
   margin-top: var(--space-6);
+}
+
+.intro .portrait {
+  width: 9rem;
+  height: 9rem;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: var(--space-6);
+  border: 1px solid var(--color-rule);
+}
+
+.intro .lead + .social-links {
+  margin-top: var(--space-8);
 }
 
 /* Listado de artículos (home) */
