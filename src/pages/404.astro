@@ -1,0 +1,58 @@
+---
+// Página 404 única en la raíz: se sirve para cualquier ruta inexistente, así que
+// no conoce el locale. Usa el idioma por defecto para el chrome y ofrece la
+// vuelta a ambos inicios (ES/EN). Astro la emite como /404.html (GitHub Pages la
+// sirve automáticamente).
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { DEFAULT_LOCALE } from '@/i18n/locale';
+import { buildPagePath } from '@/i18n/routes';
+
+const locale = DEFAULT_LOCALE;
+const homePathEs = buildPagePath('blog', 'es');
+const homePathEn = buildPagePath('blog', 'en');
+---
+
+<BaseLayout locale={locale} title="404 — Nicolás Vegas">
+  <section class="intro not-found">
+    <p class="label">Error 404</p>
+    <h1>Esta página se perdió.</h1>
+    <p class="lead">
+      El enlace está roto o la página ya no existe. <br />
+      <span lang="en">This page is missing or the link is broken.</span>
+    </p>
+    <div class="not-found-actions">
+      <a class="action" href={homePathEs}>Volver al inicio</a>
+      <a class="action" href={homePathEn} lang="en">Back home</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-top: var(--space-8);
+  }
+
+  .action {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-small);
+    text-decoration: none;
+    padding: var(--space-3) var(--space-6);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-medium);
+    transition:
+      color var(--motion-duration-fast) var(--motion-easing),
+      background var(--motion-duration-fast) var(--motion-easing),
+      border-color var(--motion-duration-fast) var(--motion-easing),
+      transform var(--motion-duration-fast) var(--motion-easing);
+  }
+
+  .action:hover {
+    color: var(--color-accent-ink);
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    transform: translateY(-2px);
+  }
+</style>
