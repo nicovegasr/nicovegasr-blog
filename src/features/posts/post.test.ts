@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   calculateReadingTimeInMinutes,
+  countSharedTags,
   isPublished,
-  selectRelatedPostsByTags,
   type Post,
 } from '@/features/posts/post';
 
@@ -52,50 +52,22 @@ describe('isPublished', () => {
   });
 });
 
-describe('selectRelatedPostsByTags', () => {
-  const target = buildPost({ slug: 'target', tags: ['astro', 'testing'] });
-
-  it('excludes the target post itself', () => {
-    const sameSlug = buildPost({ slug: 'target', tags: ['astro'] });
-    expect(selectRelatedPostsByTags(target, [sameSlug], 3)).toEqual([]);
+describe('countSharedTags', () => {
+  it('counts tags present in both posts', () => {
+    const first = buildPost({ tags: ['astro', 'testing', 'typescript'] });
+    const second = buildPost({ tags: ['testing', 'typescript', 'css'] });
+    expect(countSharedTags(first, second)).toBe(2);
   });
 
-  it('excludes posts that share no tags', () => {
-    const unrelated = buildPost({ slug: 'unrelated', tags: ['cooking'] });
-    expect(selectRelatedPostsByTags(target, [unrelated], 3)).toEqual([]);
+  it('is zero when no tags are in common', () => {
+    expect(
+      countSharedTags(buildPost({ tags: ['astro'] }), buildPost({ tags: ['css'] })),
+    ).toBe(0);
   });
 
-  it('ranks by number of shared tags, descending', () => {
-    const oneShared = buildPost({ slug: 'one', tags: ['astro'] });
-    const twoShared = buildPost({ slug: 'two', tags: ['astro', 'testing'] });
-
-    const result = selectRelatedPostsByTags(target, [oneShared, twoShared], 3);
-
-    expect(result.map((post) => post.slug)).toEqual(['two', 'one']);
-  });
-
-  it('breaks ties by most recent publication date', () => {
-    const older = buildPost({
-      slug: 'older',
-      tags: ['astro'],
-      publicationDate: new Date('2025-01-01'),
-    });
-    const newer = buildPost({
-      slug: 'newer',
-      tags: ['astro'],
-      publicationDate: new Date('2026-01-01'),
-    });
-
-    const result = selectRelatedPostsByTags(target, [older, newer], 3);
-
-    expect(result.map((post) => post.slug)).toEqual(['newer', 'older']);
-  });
-
-  it('caps the result to the given limit', () => {
-    const candidates = ['a', 'b', 'c', 'd'].map((slug) =>
-      buildPost({ slug, tags: ['astro'] }),
-    );
-
-    expect(selectRelatedPostsByTags(target, candidates, 2)).toHaveLength(2);
+  it('is zero when either post has no tags', () => {
+    expect(
+      countSharedTags(buildPost({ tags: [] }), buildPost({ tags: ['astro'] })),
+    ).toBe(0);
   });
 });

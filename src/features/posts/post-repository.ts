@@ -2,8 +2,8 @@ import { getCollection, render, type CollectionEntry } from 'astro:content';
 import type { Locale } from '@/i18n/locale';
 import {
   calculateReadingTimeInMinutes,
+  countSharedTags,
   isPublished,
-  selectRelatedPostsByTags,
   type Post,
 } from '@/features/posts/post';
 import { parseLocalizedEntryIdentifier } from '@/i18n/entry-identifier';
@@ -82,5 +82,13 @@ export const findRelatedPosts = async (
     return [];
   }
 
-  return selectRelatedPostsByTags(target, posts, limit);
+  return posts
+    .filter((post) => post.slug !== target.slug)
+    .map((post) => ({ post, sharedTags: countSharedTags(target, post) }))
+    .filter((scored) => scored.sharedTags > 0)
+    .sort(
+      (a, b) => b.sharedTags - a.sharedTags || byNewestFirst(a.post, b.post),
+    )
+    .slice(0, limit)
+    .map((scored) => scored.post);
 };
