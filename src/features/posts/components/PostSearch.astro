@@ -1,6 +1,6 @@
 ---
 import type { Locale } from '@/i18n/locale';
-import type { Post } from '@/features/posts/post';
+import { type Post, searchableText } from '@/features/posts/post';
 import { getTranslator } from '@/i18n/translator';
 
 interface Props {
@@ -16,7 +16,7 @@ const placeholder = translate('blog.searchPlaceholder');
 // Se serializa al cliente; el navegador filtra sobre estos datos, no scrapeando.
 const searchIndex = posts.map((post) => ({
   slug: post.slug,
-  text: [post.title, post.summary, ...post.tags].join(' ').toLowerCase(),
+  text: searchableText(post),
 }));
 ---
 
@@ -48,7 +48,9 @@ const searchIndex = posts.map((post) => ({
     input.addEventListener('input', () => {
       const query = input.value.trim().toLowerCase();
       const matchingSlugs = new Set(
-        searchIndex.filter((entry) => entry.text.includes(query)).map((entry) => entry.slug),
+        searchIndex
+          .filter((entry) => entry.text.includes(query))
+          .map((entry) => entry.slug),
       );
 
       list.querySelectorAll<HTMLElement>('[data-slug]').forEach((card) => {

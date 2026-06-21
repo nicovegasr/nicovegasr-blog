@@ -3,6 +3,7 @@ import {
   calculateReadingTimeInMinutes,
   countSharedTags,
   isPublished,
+  searchableText,
   type Post,
 } from '@/features/posts/post';
 
@@ -69,5 +70,19 @@ describe('countSharedTags', () => {
     expect(
       countSharedTags(buildPost({ tags: [] }), buildPost({ tags: ['astro'] })),
     ).toBe(0);
+  });
+});
+
+describe('searchableText', () => {
+  it('joins title, summary and tags, lowercased', () => {
+    const post = buildPost({
+      title: 'Astro Islands',
+      summary: 'Partial hydration',
+      tags: ['Performance', 'SSR'],
+    });
+
+    expect(searchableText(post)).toBe(
+      'astro islands partial hydration performance ssr',
+    );
   });
 });
