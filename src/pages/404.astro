@@ -1,8 +1,6 @@
 ---
-// Página 404 única en la raíz: se sirve para cualquier ruta inexistente, así que
-// no conoce el locale. Usa el idioma por defecto para el chrome y ofrece la
-// vuelta a ambos inicios (ES/EN). Astro la emite como /404.html (GitHub Pages la
-// sirve automáticamente).
+// Se sirve para cualquier ruta sin conocer el locale: chrome en idioma por
+// defecto y enlaces a ambos inicios.
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { DEFAULT_LOCALE } from '@/i18n/locale';
 import { buildPagePath } from '@/i18n/routes';

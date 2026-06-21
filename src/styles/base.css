@@ -212,7 +212,6 @@ p {
   border: 1px solid var(--color-rule);
 }
 
-/* Hero de sobre-mí a dos columnas: retrato + texto. Envuelve en mobile. */
 .about-hero {
   display: flex;
   align-items: center;
