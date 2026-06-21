@@ -8,6 +8,4 @@ dist
 .wrangler
 *.log
 .claude
-
-# Visual brainstorming companion (transient)
 .superpowers/
