@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import SocialLinks from '@/layouts/SocialLinks.astro';
 import LeanMindMark from '@/features/work/components/LeanMindMark.astro';
 import TimelineEntry from '@/features/timeline/components/TimelineEntry.astro';
 import { getTranslator } from '@/i18n/translator';
@@ -44,6 +43,14 @@ const stack = [
   description={translate('about.metaDescription')}
 >
   <section class="intro reveal">
+    <img
+      class="portrait"
+      src="/nicolas-vegas.webp"
+      width="480"
+      height="480"
+      loading="eager"
+      alt="Foto de Nicolás Vegas"
+    />
     <h1>{translate('about.heroTitle')}</h1>
     <p class="lead">{translate('about.lead')}</p>
     <p class="lead">{translate('about.approach')}</p>
@@ -119,11 +126,5 @@ const stack = [
         <p class="lead">{translate('about.projectsEmpty')}</p>
       )
     }
-  </section>
-
-  <section id="contact" class="reveal">
-    <h2>{translate('contact.heroTitle')}</h2>
-    <p class="lead">{translate('contact.lead')}</p>
-    <SocialLinks />
   </section>
 </BaseLayout>
