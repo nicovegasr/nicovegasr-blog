@@ -75,6 +75,11 @@ const sharedTagCount = (target: Post, candidate: Post): number => {
   return candidate.tags.filter((tag) => targetTags.has(tag)).length;
 };
 
+const sharesTagsWith =
+  (target: Post) =>
+  (post: Post): boolean =>
+    sharedTagCount(target, post) > 0;
+
 const byTagRelevanceTo =
   (target: Post) =>
   (a: Post, b: Post): number =>
@@ -92,7 +97,8 @@ export const findRelatedPosts = async (
   }
 
   return posts
-    .filter((post) => post.slug !== target.slug && sharedTagCount(target, post) > 0)
+    .filter((post) => post.slug !== target.slug)
+    .filter(sharesTagsWith(target))
     .sort(byTagRelevanceTo(target))
     .slice(0, limit);
 };
