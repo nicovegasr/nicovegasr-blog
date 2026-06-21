@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
   calculateReadingTimeInMinutes,
-  countSharedTags,
   isPublished,
   searchableText,
   type Post,
@@ -50,26 +49,6 @@ describe('isPublished', () => {
   it('is not published when the publication date is in the future', () => {
     const post = buildPost({ publicationDate: new Date('2030-01-01') });
     expect(isPublished(post, new Date('2026-01-01'))).toBe(false);
-  });
-});
-
-describe('countSharedTags', () => {
-  it('counts tags present in both posts', () => {
-    const first = buildPost({ tags: ['astro', 'testing', 'typescript'] });
-    const second = buildPost({ tags: ['testing', 'typescript', 'css'] });
-    expect(countSharedTags(first, second)).toBe(2);
-  });
-
-  it('is zero when no tags are in common', () => {
-    expect(
-      countSharedTags(buildPost({ tags: ['astro'] }), buildPost({ tags: ['css'] })),
-    ).toBe(0);
-  });
-
-  it('is zero when either post has no tags', () => {
-    expect(
-      countSharedTags(buildPost({ tags: [] }), buildPost({ tags: ['astro'] })),
-    ).toBe(0);
   });
 });
 

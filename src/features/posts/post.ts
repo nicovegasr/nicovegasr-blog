@@ -21,10 +21,5 @@ export const calculateReadingTimeInMinutes = (rawText: string): number => {
 export const isPublished = (post: Post, now: Date = new Date()): boolean =>
   post.publicationDate.getTime() <= now.getTime();
 
-export const countSharedTags = (first: Post, second: Post): number => {
-  const firstTags = new Set(first.tags);
-  return second.tags.filter((tag) => firstTags.has(tag)).length;
-};
-
 export const searchableText = (post: Post): string =>
   [post.title, post.summary, ...post.tags].join(' ').toLowerCase();
