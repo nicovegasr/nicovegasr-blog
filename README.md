@@ -35,7 +35,7 @@ src/
 │   ├── locale.ts            ← tipo Locale, LOCALES, isLocale, DEFAULT_LOCALE
 │   ├── es.ts · en.ts        ← diccionarios de strings de UI (en.ts tipado como Dictionary)
 │   ├── translator.ts        ← getTranslator(locale) → translate(key) tipado
-│   ├── routes.ts            ← PageKey (blog↔'', about↔sobre-mi); "trabajo"/"contacto" son anclas de sobre-mí
+│   ├── routes.ts            ← PageKey (blog↔'', about↔sobre-mi); "Dónde trabajo" es ancla #work de sobre-mí
 │   └── entry-identifier.ts  ← parsea "es/slug.md" → { locale, slug }
 ├── features/                ← nuestro código, un slice vertical por feature
 │   ├── posts/
@@ -43,7 +43,7 @@ src/
 │   │   ├── post-repository.ts       ← astro:content → Post
 │   │   ├── post-feed.ts             ← arma el RSS (@astrojs/rss) desde findAllPosts
 │   │   └── components/              ← UI propia del feature (se agrupa al crecer)
-│   │       └── {PostPreview, PostMeta, TagList, ReadingTime, PostSearch}.astro
+│   │       └── {PostPreview, PostMeta, TagList, ReadingTime, PostSearch, RelatedPosts}.astro
 │   ├── projects/{project.ts, project-repository.ts}
 │   ├── principles/{principle.ts, principle-repository.ts}  ← valores/principios (sección de sobre-mí)
 │   ├── timeline/
@@ -53,9 +53,11 @@ src/
 │       ├── {work.ts, work-repository.ts}
 │       └── components/LeanMindMark.astro    ← isotipo de Lean Mind (asset en public/)
 ├── layouts/                 ← shell transversal de toda página (no es un feature)
-│   ├── BaseLayout.astro     ← importa estilos+fuentes; <head> SEO (canonical, hreflang, OG/Twitter); script inline de tema (sin parpadeo) + observer de aparición
+│   ├── BaseLayout.astro     ← importa estilos+fuentes; <head> SEO (canonical, hreflang, OG/Twitter + og:image por defecto, favicon); script inline de tema (sin parpadeo) + observer de aparición
+│   ├── Logo.astro           ← marca: monograma NV sobre baseline lima (mismo mark que public/favicon.svg)
 │   └── {Navigation, Footer, LanguageSwitcher, ThemeToggle, SocialLinks}.astro
 └── pages/                   ← árbol simétrico: una carpeta por idioma (URL = carpeta)
+    ├── 404.astro            ← página 404 única (locale por defecto, enlaces a ambos inicios)
     ├── es/{index, sobre-mi, blog/[slug]}.astro · es/rss.xml.ts
     └── en/{index, about, blog/[slug]}.astro · en/rss.xml.ts
     (el `/` raíz no tiene page: lo redirige `redirects` en astro.config a `/es`)
@@ -105,7 +107,7 @@ i18n es un concern transversal de primera clase, por eso vive en `src/i18n/` (no
 - El locale vive en el **path del archivo** (`posts/es/slug.md`), no en el frontmatter.
 - `i18n/entry-identifier.ts` parsea el id de Astro (`"es/mi-post.md"`) → `{ locale, slug }`. Lo usan todos los repos; vive en `i18n/` porque su trabajo es extraer el locale del path.
 - Las strings de UI viven en diccionarios TS (`i18n/es.ts`, `i18n/en.ts`).
-- Las rutas lógicas se resuelven con `PageKey` en `i18n/routes.ts` (`blog` ↔ `''`, `about` ↔ `sobre-mi`). **"Dónde trabajo" y "Contacto" no son páginas**: son secciones de sobre-mí, enlazadas por ancla (`#work`, `#contact`). Nunca se hardcodean segmentos de URL.
+- Las rutas lógicas se resuelven con `PageKey` en `i18n/routes.ts` (`blog` ↔ `''`, `about` ↔ `sobre-mi`). **"Dónde trabajo" no es página**: es una sección de sobre-mí enlazada por ancla (`#work`). El **contacto** vive en el footer (todas las páginas) y en el hero de la home, no en el nav. Nunca se hardcodean segmentos de URL.
 - Todos los idiomas van prefijados por igual: `buildPagePath` antepone el locale siempre (`/es/...`, `/en/...`). `buildAlternateLocalePath` quita ese prefijo, busca la `PageKey` por el primer segmento y reconstruye la ruta en el idioma destino. Astro no empareja páginas entre idiomas por su cuenta: ese mapeo es nuestro, en `routes.ts`.
 
 ### Estilos y tema
@@ -125,19 +127,19 @@ npm run build                        # build estático
 
 ### Tests
 
-[Vitest](https://vitest.dev/) para el **dominio puro** (cálculo de tiempo de lectura, parser de identificadores, publicación de posts). No se testean los repositorios (ACL fino sobre `astro:content`) ni la UI. Los tests se co-localizan como `*.test.ts` junto al fichero que prueban.
+[Vitest](https://vitest.dev/) para el **dominio puro** (tiempo de lectura, parser de identificadores, publicación, tags compartidos, texto de búsqueda). Como excepción, la **query de relacionados** del repo tiene un test de integración que mockea `astro:content` (`post-repository.test.ts`), porque su ranking sí tiene lógica que cubrir. El resto de repos (ACL fino) y la UI no se testean. Co-localizados como `*.test.ts`.
 
 ## Estado
 
 En construcción. **Hecho:** cimientos (entidades de dominio, repositorios, schemas, tests de dominio), i18n completo (diccionarios + translator), shell (nav/footer/switcher/toggle de tema) con hreflang.
 
-- **Blog:** índice con **buscador** (filtro en cliente sobre un índice serializado desde el repositorio en build-time, no scrapeando el DOM) y **detalle de artículo** (`/blog/[slug]`).
-- **Portfolio** (`/sobre-mi` · `/en/about`): hero, principios, stack inline, trayectoria y proyectos (estado vacío). **"Dónde trabajo"** (Lean Mind, con isotipo y cuerpo markdown vía `findRenderableWork`) y **Contacto** (iconos a las plataformas vía `SocialLinks`) son ahora **secciones de sobre-mí** (anclas `#work`/`#contact`), ya no páginas propias.
-- **SEO/feeds (fase 7):** Open Graph + Twitter Card, sitemap i18n, RSS por idioma, `robots.txt`.
+- **Blog:** índice con **buscador** (filtro en cliente sobre un índice serializado en build-time, no scrapeando el DOM) y **detalle de artículo** (`/blog/[slug]`) con **posts relacionados por tags** al final (ranking por nº de tags en común).
+- **Portfolio** (`/sobre-mi` · `/en/about`): hero **a dos columnas con retrato**, principios, stack inline, trayectoria y proyectos (estado vacío). **"Dónde trabajo"** (Lean Mind, con isotipo y cuerpo markdown vía `findRenderableWork`) es una **sección de sobre-mí** (ancla `#work`). El **contacto** (iconos `SocialLinks`) se movió al **footer + hero de la home**.
+- **SEO/feeds:** Open Graph + Twitter Card **con og:image por defecto**, **favicon** SVG, sitemap i18n, RSS por idioma, `robots.txt`, **404 custom**.
 - **Estilos (fase 8):** CSS a pelo con tokens (`src/styles/`), multi-tema claro/oscuro con toggle y sin parpadeo, fuentes self-hosted, tarjetas de post que invierten al hover, aparición al hacer scroll.
 
-**Fase 8 cerrada.** Siguiente: **Projects** como fase propia (página dedicada, cada proyecto interactivo, con contenido real). Backlog: `og:image`, logo, 404 custom, posts relacionados por tags. Fase final: "Apuntes" y "Píldoras formativas" como subpáginas del blog.
+**Fase 8 + rápidos (og:image, logo, favicon, 404, posts relacionados, retrato) cerrados.** Siguiente: **Projects** como fase propia (página dedicada, cada proyecto interactivo, con contenido real). Fase final: "Apuntes" y "Píldoras formativas" como subpáginas del blog.
 
 > **Stack en el portfolio:** la lista de tecnologías va *a pelo* (array inline en cada page), sin colección ni feature: son nombres, no contenido editorial. Categorías en inglés en ambos idiomas; los nombres de tech no se traducen.
 
-> **Contacto sin backend:** sin formulario ni envío de email (necesitaría servidor). Es una **sección de sobre-mí** (`#contact`) con enlaces directos a las plataformas (`mailto:`, redes) vía el componente `SocialLinks`. Por eso no existe el dominio `ContactMessage`/validación.
+> **Contacto:** enlaces directos (`mailto:`, redes) vía `SocialLinks`, en el footer y el hero de la home. Sin formulario ni backend.
