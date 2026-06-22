@@ -58,10 +58,13 @@ const translate = getTranslator(locale);
       background var(--motion-duration-fast) var(--motion-easing);
   }
 
-  .theme-toggle:hover {
-    border-color: var(--color-ink);
-    background: var(--color-accent);
-    color: var(--color-accent-ink);
+  /* (hover: hover): en táctil el estado se quedaba pegado tras pulsar. */
+  @media (hover: hover) {
+    .theme-toggle:hover {
+      border-color: var(--color-ink);
+      background: var(--color-accent);
+      color: var(--color-accent-ink);
+    }
   }
 
   .theme-toggle svg {

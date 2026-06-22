@@ -45,10 +45,12 @@ const spanishHomePath = buildPagePath('blog', 'es');
       transform var(--motion-duration-fast) var(--motion-easing);
   }
 
-  .action:hover {
-    color: var(--color-accent-ink);
-    background: var(--color-accent);
-    border-color: var(--color-accent);
-    transform: translateY(-2px);
+  @media (hover: hover) {
+    .action:hover {
+      color: var(--color-accent-ink);
+      background: var(--color-accent);
+      border-color: var(--color-accent);
+      transform: translateY(-2px);
+    }
   }
 </style>

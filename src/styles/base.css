@@ -57,8 +57,12 @@ a {
   text-underline-offset: 0.2em;
 }
 
-a:hover {
-  text-decoration-color: var(--color-accent);
+/* (hover: hover) en todo el sitio: en táctil los :hover se quedan pegados
+   tras el tap hasta tocar otro sitio. Los punteros sí los reciben. */
+@media (hover: hover) {
+  a:hover {
+    text-decoration-color: var(--color-accent);
+  }
 }
 
 :focus-visible {
@@ -303,8 +307,10 @@ p {
   font-weight: 700;
 }
 
-.work-now:hover .work-now-company {
-  box-shadow: inset 0 -0.4em 0 var(--color-accent);
+@media (hover: hover) {
+  .work-now:hover .work-now-company {
+    box-shadow: inset 0 -0.4em 0 var(--color-accent);
+  }
 }
 
 .work-now-body {
@@ -315,19 +321,6 @@ p {
   list-style: none;
   padding: 0;
   margin-top: var(--space-8);
-}
-
-.projects {
-  list-style: none;
-  padding: 0;
-  margin-top: var(--space-6);
-  display: grid;
-  gap: var(--space-6);
-}
-
-.projects h3 {
-  font-size: var(--font-size-heading-3);
-  margin-bottom: var(--space-2);
 }
 
 /* Detalle de artículo y trabajo */
@@ -342,8 +335,10 @@ p {
   text-decoration: none;
 }
 
-.breadcrumb a:hover {
-  color: var(--color-ink);
+@media (hover: hover) {
+  .breadcrumb a:hover {
+    color: var(--color-ink);
+  }
 }
 
 .article-header {

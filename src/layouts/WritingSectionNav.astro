@@ -66,8 +66,10 @@ const currentPathname = Astro.url.pathname;
     transition: color var(--motion-duration-fast) var(--motion-easing);
   }
 
-  .writing-nav a:hover {
-    color: var(--color-ink);
+  @media (hover: hover) {
+    .writing-nav a:hover {
+      color: var(--color-ink);
+    }
   }
 
   .writing-nav a.current {

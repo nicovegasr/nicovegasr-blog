@@ -51,8 +51,10 @@ const currentPathname = Astro.url.pathname;
       border-color var(--motion-duration-fast) var(--motion-easing);
   }
 
-  .language-switcher a:hover {
-    color: var(--color-ink);
-    border-color: var(--color-ink);
+  @media (hover: hover) {
+    .language-switcher a:hover {
+      color: var(--color-ink);
+      border-color: var(--color-ink);
+    }
   }
 </style>

@@ -16,15 +16,21 @@ const translate = getTranslator(locale);
 // "Dónde trabajo" no es página propia: es una sección de "sobre mí" (ancla #work).
 // El contacto vive en el footer (todas las páginas) y en el hero de la home.
 const aboutPath = buildPagePath('about', locale);
+const blogPath = buildPagePath('blog', locale);
+
 const navigationItems: { href: string; label: string }[] = [
-  { href: buildPagePath('blog', locale), label: translate('navigation.blog') },
+  { href: blogPath, label: translate('navigation.blog') },
   { href: buildPagePath('projects', locale), label: translate('navigation.projects') },
   { href: aboutPath, label: translate('navigation.about') },
   { href: `${aboutPath}#work`, label: translate('navigation.work') },
 ];
 
-const homePath = buildPagePath('blog', locale);
-const currentPathname = Astro.url.pathname;
+const homePath = blogPath;
+
+// Apuntes y Píldoras son sub-secciones del Blog (no ítems del header): estando
+// en ellas el ítem activo sigue siendo Blog, así que su ruta colapsa a blogPath.
+const blogSectionPaths = [blogPath, buildPagePath('notes', locale), buildPagePath('pills', locale)];
+const activePath = blogSectionPaths.includes(Astro.url.pathname) ? blogPath : Astro.url.pathname;
 ---
 
 <header class="site-header">
@@ -38,7 +44,7 @@ const currentPathname = Astro.url.pathname;
       <ul>
         {
           navigationItems.map(({ href, label }) => {
-            const isCurrentPage = currentPathname === href;
+            const isCurrentPage = href === activePath;
             return (
               <li>
                 <a
@@ -115,8 +121,10 @@ const currentPathname = Astro.url.pathname;
     transition: color var(--motion-duration-fast) var(--motion-easing);
   }
 
-  .primary a:hover {
-    color: var(--color-ink);
+  @media (hover: hover) {
+    .primary a:hover {
+      color: var(--color-ink);
+    }
   }
 
   .primary a.current {

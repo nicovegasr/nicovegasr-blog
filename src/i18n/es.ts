@@ -37,8 +37,6 @@ export const spanish = {
   'about.principlesTitle': 'Principios',
   'about.stackTitle': 'Stack',
   'about.timelineTitle': 'Trayectoria',
-  'about.projectsTitle': 'Proyectos',
-  'about.projectsEmpty': 'Aún no hay proyectos publicados.',
   'about.present': 'Actualidad',
 
   'projects.metaDescription':

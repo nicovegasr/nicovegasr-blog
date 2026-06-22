@@ -44,7 +44,6 @@ src/
 │   │   ├── post-feed.ts             ← arma el RSS (@astrojs/rss) desde findAllPosts
 │   │   └── components/              ← UI propia del feature (se agrupa al crecer)
 │   │       └── {PostPreview, PostMeta, TagList, ReadingTime, PostSearch, RelatedPosts}.astro
-│   ├── projects/{project.ts, project-repository.ts}
 │   ├── principles/{principle.ts, principle-repository.ts}  ← valores/principios (sección de sobre-mí)
 │   ├── timeline/
 │   │   ├── {timeline-entry.ts, timeline-repository.ts}
@@ -120,6 +119,8 @@ CSS a pelo, sin framework de utilidades. `src/styles/tokens.css` define los **to
 
 Multi-tema: el claro es el de fábrica; el oscuro solo redefine los tokens de color en `[data-theme="dark"]`, así los componentes no conocen el tema, solo consumen `var(--color-*)`. Un script inline en `<head>` fija `data-theme` (y una clase `.js`) **antes del primer pintado** → sin parpadeo; las animaciones de aparición se gatean tras `.js` para que sin JS el contenido se vea igual.
 
+**Hover solo con puntero:** todas las reglas `:hover` van envueltas en `@media (hover: hover)`. En táctil no existe puntero y el `:hover` se quedaría "pegado" tras el tap (invirtiendo tarjetas, fondos de botón…); con esa media query esas reglas solo aplican con ratón/trackpad y en móvil el tap navega limpio. El foco accesible de la tarjeta de post usa `:has(:focus-visible)` (teclado), no `:focus-within`, para que tocar no dispare la inversión.
+
 ## Verificación
 
 ```bash
@@ -138,7 +139,7 @@ npm run build                        # build estático
 En construcción. **Hecho:** cimientos (entidades de dominio, repositorios, schemas, tests de dominio), i18n completo (diccionarios + translator), shell (nav/footer/switcher/toggle de tema) con hreflang.
 
 - **Blog:** índice con **buscador** (filtro en cliente sobre un índice serializado en build-time, no scrapeando el DOM) y **detalle de artículo** (`/blog/[slug]`) con **posts relacionados por tags** al final (ranking por nº de tags en común).
-- **Portfolio** (`/sobre-mi` · `/en/about`): hero **a dos columnas con retrato**, principios, stack inline, trayectoria y proyectos (estado vacío). **"Dónde trabajo"** (Lean Mind, con isotipo y cuerpo markdown vía `findRenderableWork`) es una **sección de sobre-mí** (ancla `#work`). El **contacto** (iconos `SocialLinks`) se movió al **footer + hero de la home**.
+- **Portfolio** (`/sobre-mi` · `/en/about`): hero **a dos columnas con retrato**, principios, stack inline y trayectoria. **"Dónde trabajo"** (Lean Mind, con isotipo y cuerpo markdown vía `findRenderableWork`) es una **sección de sobre-mí** (ancla `#work`). El **contacto** (iconos `SocialLinks`) se movió al **footer + hero de la home**. Los **proyectos** ya no son sección de sobre-mí: son una página propia (`/proyectos` · `/en/projects`), de momento *coming soon*.
 - **SEO/feeds:** Open Graph + Twitter Card **con og:image por defecto**, **favicon** SVG, sitemap i18n, RSS por idioma, `robots.txt`, **404 custom**.
 - **Estilos (fase 8):** CSS a pelo con tokens (`src/styles/`), multi-tema claro/oscuro con toggle y sin parpadeo, fuentes self-hosted, tarjetas de post que invierten al hover, aparición al hacer scroll.
 

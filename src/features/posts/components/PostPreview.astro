@@ -36,10 +36,12 @@ const postPath = buildBlogPostPath(post.locale, post.slug);
       border-color var(--motion-duration-base) var(--motion-easing);
   }
 
-  /* Al hover la tarjeta invierte a tinta. Remapear los tokens de color hace
-     que la meta y las etiquetas (componentes scoped) inviertan por cascada. */
-  .post-preview:hover,
-  .post-preview:focus-within {
+  /* Al hover/foco la tarjeta invierte a tinta. Remapear los tokens de color
+     hace que la meta y las etiquetas (componentes scoped) inviertan por cascada.
+     El hover se gatea tras (hover: hover) y el foco usa :focus-visible: en táctil
+     ninguno aplica, así el tap navega limpio sin invertir la tarjeta; el teclado
+     sí la invierte (accesibilidad). */
+  .post-preview:has(:focus-visible) {
     background: var(--color-invert-surface);
     border-color: var(--color-invert-surface);
     box-shadow: 8px 8px 0 0 var(--color-accent);
@@ -48,6 +50,19 @@ const postPath = buildBlogPostPath(post.locale, post.slug);
     --color-text-soft: var(--color-invert-text);
     --color-text-muted: var(--color-invert-muted);
     --color-rule: var(--color-invert-muted);
+  }
+
+  @media (hover: hover) {
+    .post-preview:hover {
+      background: var(--color-invert-surface);
+      border-color: var(--color-invert-surface);
+      box-shadow: 8px 8px 0 0 var(--color-accent);
+      transform: translate(-3px, -3px);
+      --color-ink: var(--color-invert-text);
+      --color-text-soft: var(--color-invert-text);
+      --color-text-muted: var(--color-invert-muted);
+      --color-rule: var(--color-invert-muted);
+    }
   }
 
   .post-preview h2 {
@@ -82,7 +97,13 @@ const postPath = buildBlogPostPath(post.locale, post.slug);
   }
 
   /* invert-text, no lima: el lima como texto no contrasta en el tema oscuro */
-  .post-preview:hover .read-more {
+  .post-preview:has(:focus-visible) .read-more {
     color: var(--color-invert-text);
+  }
+
+  @media (hover: hover) {
+    .post-preview:hover .read-more {
+      color: var(--color-invert-text);
+    }
   }
 </style>

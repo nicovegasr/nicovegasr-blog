@@ -39,8 +39,6 @@ export const english: Dictionary = {
   'about.principlesTitle': 'Principles',
   'about.stackTitle': 'Stack',
   'about.timelineTitle': 'Journey',
-  'about.projectsTitle': 'Projects',
-  'about.projectsEmpty': 'No projects published yet.',
   'about.present': 'Present',
 
   'projects.metaDescription':

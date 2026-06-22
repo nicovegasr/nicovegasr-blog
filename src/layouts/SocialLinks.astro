@@ -100,10 +100,12 @@ const isExternal = (link: SocialLink): boolean => link.platform !== 'email';
       transform var(--motion-duration-fast) var(--motion-easing);
   }
 
-  .social-links a:hover {
-    color: var(--color-accent-ink);
-    background: var(--color-accent);
-    border-color: var(--color-accent);
-    transform: translateY(-2px);
+  @media (hover: hover) {
+    .social-links a:hover {
+      color: var(--color-accent-ink);
+      background: var(--color-accent);
+      border-color: var(--color-accent);
+      transform: translateY(-2px);
+    }
   }
 </style>

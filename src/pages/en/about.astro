@@ -5,7 +5,6 @@ import TimelineEntry from '@/features/timeline/components/TimelineEntry.astro';
 import { getTranslator } from '@/i18n/translator';
 import { findAllPrinciples } from '@/features/principles/principle-repository';
 import { findAllTimelineEntries } from '@/features/timeline/timeline-repository';
-import { findAllProjects } from '@/features/projects/project-repository';
 import { findRenderableWork } from '@/features/work/work-repository';
 
 const locale = 'en';
@@ -13,7 +12,6 @@ const translate = getTranslator(locale);
 
 const principles = await findAllPrinciples(locale);
 const timeline = await findAllTimelineEntries(locale);
-const projects = await findAllProjects(locale);
 
 const renderableWork = await findRenderableWork(locale);
 if (renderableWork === null) {
@@ -110,23 +108,5 @@ const stack = [
         ))
       }
     </ul>
-  </section>
-
-  <section class="reveal">
-    <h2>{translate('about.projectsTitle')}</h2>
-    {
-      projects.length > 0 ? (
-        <ul class="projects">
-          {projects.map((project) => (
-            <li>
-              <h3>{project.title}</h3>
-              <p>{project.pitch}</p>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p class="lead">{translate('about.projectsEmpty')}</p>
-      )
-    }
   </section>
 </BaseLayout>
