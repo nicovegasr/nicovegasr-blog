@@ -3,11 +3,15 @@ import { defineConfig } from 'astro/config';
 
 import sitemap from '@astrojs/sitemap';
 
-const siteUrl = 'https://nicovegasr.dev';
+const siteUrl = 'https://nicovegasr.com';
+import cloudflare from '@astrojs/cloudflare';
+
 
 export default defineConfig({
   site: siteUrl,
+  adapter: cloudflare(),
   output: 'static',
+  
 
   i18n: {
     defaultLocale: 'es',
