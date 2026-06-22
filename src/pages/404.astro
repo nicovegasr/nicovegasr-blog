@@ -7,7 +7,6 @@ import { buildPagePath } from '@/i18n/routes';
 
 const locale = DEFAULT_LOCALE;
 const spanishHomePath = buildPagePath('blog', 'es');
-const englishHomePath = buildPagePath('blog', 'en');
 ---
 
 <BaseLayout locale={locale} title="404 — Nicolás Vegas">
@@ -20,7 +19,6 @@ const englishHomePath = buildPagePath('blog', 'en');
     </p>
     <div class="not-found-actions">
       <a class="action" href={spanishHomePath}>Volver al inicio</a>
-      <a class="action" href={englishHomePath} lang="en">Back home</a>
     </div>
   </section>
 </BaseLayout>

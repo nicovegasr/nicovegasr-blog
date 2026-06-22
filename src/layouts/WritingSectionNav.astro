@@ -1,0 +1,77 @@
+---
+import type { Locale } from '@/i18n/locale';
+import { buildPagePath } from '@/i18n/routes';
+import { getTranslator } from '@/i18n/translator';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const translate = getTranslator(locale);
+
+// Sub-navegación del eje "escritura": elige el canal antes de buscar/leer.
+// El buscador pertenece a Artículos, no es global.
+const sections: { href: string; label: string }[] = [
+  { href: buildPagePath('blog', locale), label: translate('writing.articles') },
+  { href: buildPagePath('notes', locale), label: translate('writing.notes') },
+  { href: buildPagePath('pills', locale), label: translate('writing.pills') },
+];
+
+const currentPathname = Astro.url.pathname;
+---
+
+<nav class="writing-nav" aria-label={translate('navigation.blog')}>
+  <ul>
+    {
+      sections.map(({ href, label }) => {
+        const isCurrentSection = currentPathname === href;
+        return (
+          <li>
+            <a
+              href={href}
+              class={isCurrentSection ? 'current' : undefined}
+              aria-current={isCurrentSection ? 'page' : undefined}
+            >
+              {label}
+            </a>
+          </li>
+        );
+      })
+    }
+  </ul>
+</nav>
+
+<style>
+  .writing-nav {
+    margin-bottom: var(--space-8);
+  }
+
+  .writing-nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    list-style: none;
+    padding: 0;
+  }
+
+  .writing-nav a {
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-small);
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--color-text-soft);
+    padding: 0.3em 0.8em;
+    border-radius: var(--radius-medium);
+    transition: color var(--motion-duration-fast) var(--motion-easing);
+  }
+
+  .writing-nav a:hover {
+    color: var(--color-ink);
+  }
+
+  .writing-nav a.current {
+    color: var(--color-accent-ink);
+    background: var(--color-accent);
+  }
+</style>

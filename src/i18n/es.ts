@@ -4,8 +4,13 @@ export const spanish = {
     'Blog personal de Nicolás Vegas, ingeniero informático con mentalidad DevOps. Hablo sobre desarrollo de software y hago cosas.',
 
   'navigation.blog': 'Blog',
+  'navigation.projects': 'Proyectos',
   'navigation.about': 'Sobre mí',
   'navigation.work': 'Dónde trabajo',
+
+  'writing.articles': 'Artículos',
+  'writing.notes': 'Apuntes',
+  'writing.pills': 'Píldoras',
 
   'language.switchTo': 'English',
   'language.current': 'Español',
@@ -35,6 +40,24 @@ export const spanish = {
   'about.projectsTitle': 'Proyectos',
   'about.projectsEmpty': 'Aún no hay proyectos publicados.',
   'about.present': 'Actualidad',
+
+  'projects.metaDescription':
+    'Proyectos de Nicolás Vegas: en qué trabajo, con su contexto, decisiones y aprendizajes. Próximamente.',
+  'projects.heading': 'Proyectos',
+  'projects.comingSoonText':
+    'Estoy preparando esta sección. Pronto encontrarás aquí los proyectos en los que trabajo, con su contexto, las decisiones que tomé y lo que aprendí construyéndolos.',
+
+  'notes.metaDescription':
+    'Apuntes de Nicolás Vegas: notas de aprendizaje, más crudas y directas que los artículos. Próximamente.',
+  'notes.heading': 'Apuntes',
+  'notes.comingSoonText':
+    'Notas más crudas y directas que los artículos: lo que voy capturando mientras aprendo. Pronto las abriré aquí.',
+
+  'pills.metaDescription':
+    'Píldoras formativas de Nicolás Vegas: conceptos concretos explicados en pequeño. Próximamente.',
+  'pills.heading': 'Píldoras formativas',
+  'pills.comingSoonText':
+    'Conceptos concretos explicados en pequeño, para asentar las bases sin rodeos. Pronto empezarán a aparecer aquí.',
 
   'work.since': 'Desde',
   'work.valuesPrefix': 'Es ',

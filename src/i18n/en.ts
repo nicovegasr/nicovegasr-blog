@@ -6,8 +6,13 @@ export const english: Dictionary = {
     "Nicolás Vegas's personal blog — software engineer with a DevOps mindset. I write about software development and build things.",
 
   'navigation.blog': 'Blog',
+  'navigation.projects': 'Projects',
   'navigation.about': 'About',
   'navigation.work': 'Where I work',
+
+  'writing.articles': 'Articles',
+  'writing.notes': 'Notes',
+  'writing.pills': 'Pills',
 
   'language.switchTo': 'Español',
   'language.current': 'English',
@@ -37,6 +42,24 @@ export const english: Dictionary = {
   'about.projectsTitle': 'Projects',
   'about.projectsEmpty': 'No projects published yet.',
   'about.present': 'Present',
+
+  'projects.metaDescription':
+    "Nicolás Vegas's projects: what I'm building, with context, decisions and lessons. Coming soon.",
+  'projects.heading': 'Projects',
+  'projects.comingSoonText':
+    "I'm putting this section together. Soon you'll find the projects I'm working on here, with their context, the decisions I made and what I learned building them.",
+
+  'notes.metaDescription':
+    "Nicolás Vegas's notes: learning notes, rawer and more direct than the articles. Coming soon.",
+  'notes.heading': 'Notes',
+  'notes.comingSoonText':
+    "Rawer and more direct than the articles: what I capture as I learn. I'll open them up here soon.",
+
+  'pills.metaDescription':
+    "Nicolás Vegas's learning pills: concrete concepts explained small. Coming soon.",
+  'pills.heading': 'Learning pills',
+  'pills.comingSoonText':
+    "Concrete concepts explained small, to nail the fundamentals without detours. They'll start showing up here soon.",
 
   'work.since': 'Since',
   'work.valuesPrefix': "It's ",

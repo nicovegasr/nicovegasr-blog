@@ -18,6 +18,7 @@ const translate = getTranslator(locale);
 const aboutPath = buildPagePath('about', locale);
 const navigationItems: { href: string; label: string }[] = [
   { href: buildPagePath('blog', locale), label: translate('navigation.blog') },
+  { href: buildPagePath('projects', locale), label: translate('navigation.projects') },
   { href: aboutPath, label: translate('navigation.about') },
   { href: `${aboutPath}#work`, label: translate('navigation.work') },
 ];

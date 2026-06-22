@@ -1,0 +1,28 @@
+---
+interface Props {
+  heading: string;
+  message: string;
+}
+
+const { heading, message } = Astro.props;
+---
+
+<section class="coming-soon reveal">
+  <h1>{heading}</h1>
+  <p>{message}</p>
+</section>
+
+<style>
+  .coming-soon {
+    max-width: var(--content-width-reading);
+    margin-inline: auto;
+    padding-block: var(--space-12) var(--space-24);
+    text-align: center;
+  }
+
+  .coming-soon p {
+    margin-top: var(--space-6);
+    color: var(--color-text-soft);
+    font-size: var(--font-size-lead);
+  }
+</style>

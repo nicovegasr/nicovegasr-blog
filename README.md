@@ -35,7 +35,7 @@ src/
 │   ├── locale.ts            ← tipo Locale, LOCALES, isLocale, DEFAULT_LOCALE
 │   ├── es.ts · en.ts        ← diccionarios de strings de UI (en.ts tipado como Dictionary)
 │   ├── translator.ts        ← getTranslator(locale) → translate(key) tipado
-│   ├── routes.ts            ← PageKey (blog↔'', about↔sobre-mi); "Dónde trabajo" es ancla #work de sobre-mí
+│   ├── routes.ts            ← PageKey (blog↔'', projects↔proyectos, notes↔apuntes, pills↔pildoras, about↔sobre-mi); "Dónde trabajo" es ancla #work de sobre-mí
 │   └── entry-identifier.ts  ← parsea "es/slug.md" → { locale, slug }
 ├── features/                ← nuestro código, un slice vertical por feature
 │   ├── posts/
@@ -55,12 +55,16 @@ src/
 ├── layouts/                 ← shell transversal de toda página (no es un feature)
 │   ├── BaseLayout.astro     ← importa estilos+fuentes; <head> SEO (canonical, hreflang, OG/Twitter + og:image por defecto, favicon); script inline de tema (sin parpadeo) + observer de aparición
 │   ├── Logo.astro           ← marca: monograma NV sobre baseline lima (mismo mark que public/favicon.svg)
+│   ├── WritingSectionNav.astro ← sub-nav del blog (Artículos · Apuntes · Píldoras), activo por path
+│   ├── ComingSoon.astro     ← panel reutilizable "próximamente" (Projects/Apuntes/Píldoras)
 │   └── {Navigation, Footer, LanguageSwitcher, ThemeToggle, SocialLinks}.astro
 └── pages/                   ← árbol simétrico: una carpeta por idioma (URL = carpeta)
     ├── 404.astro            ← página 404 única (locale por defecto, enlaces a ambos inicios)
-    ├── es/{index, sobre-mi, blog/[slug]}.astro · es/rss.xml.ts
-    └── en/{index, about, blog/[slug]}.astro · en/rss.xml.ts
+    ├── es/{index, proyectos, apuntes, pildoras, sobre-mi, blog/[slug]}.astro · es/rss.xml.ts
+    └── en/{index, projects, notes, pills, about, blog/[slug]}.astro · en/rss.xml.ts
     (el `/` raíz no tiene page: lo redirige `redirects` en astro.config a `/es`)
+    (proyectos/apuntes/pildoras son stubs "coming soon"; apuntes y pildoras
+     son tipos de contenido del blog: comparten el WritingSectionNav)
 ```
 
 Los tests viven junto al código que prueban (`post.test.ts` al lado de `post.ts`).
@@ -138,7 +142,7 @@ En construcción. **Hecho:** cimientos (entidades de dominio, repositorios, sche
 - **SEO/feeds:** Open Graph + Twitter Card **con og:image por defecto**, **favicon** SVG, sitemap i18n, RSS por idioma, `robots.txt`, **404 custom**.
 - **Estilos (fase 8):** CSS a pelo con tokens (`src/styles/`), multi-tema claro/oscuro con toggle y sin parpadeo, fuentes self-hosted, tarjetas de post que invierten al hover, aparición al hacer scroll.
 
-**Fase 8 + rápidos (og:image, logo, favicon, 404, posts relacionados, retrato) cerrados.** Siguiente: **Projects** como fase propia (página dedicada, cada proyecto interactivo, con contenido real). Fase final: "Apuntes" y "Píldoras formativas" como subpáginas del blog.
+**Fase final: pildoras, apuntes y projects como coming soon, pendiente desplegar el blog en cloud flare pages y plantear con calma la seccion de projects.
 
 > **Stack en el portfolio:** la lista de tecnologías va *a pelo* (array inline en cada page), sin colección ni feature: son nombres, no contenido editorial. Categorías en inglés en ambos idiomas; los nombres de tech no se traducen.
 

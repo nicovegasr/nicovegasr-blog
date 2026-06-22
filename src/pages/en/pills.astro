@@ -1,0 +1,18 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import WritingSectionNav from '@/layouts/WritingSectionNav.astro';
+import ComingSoon from '@/layouts/ComingSoon.astro';
+import { getTranslator } from '@/i18n/translator';
+
+const locale = 'en';
+const translate = getTranslator(locale);
+---
+
+<BaseLayout
+  locale={locale}
+  title={`${translate('pills.heading')} — ${translate('site.title')}`}
+  description={translate('pills.metaDescription')}
+>
+  <WritingSectionNav locale={locale} />
+  <ComingSoon heading={translate('pills.heading')} message={translate('pills.comingSoonText')} />
+</BaseLayout>

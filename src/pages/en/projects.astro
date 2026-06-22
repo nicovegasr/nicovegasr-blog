@@ -1,0 +1,16 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ComingSoon from '@/layouts/ComingSoon.astro';
+import { getTranslator } from '@/i18n/translator';
+
+const locale = 'en';
+const translate = getTranslator(locale);
+---
+
+<BaseLayout
+  locale={locale}
+  title={`${translate('projects.heading')} — ${translate('site.title')}`}
+  description={translate('projects.metaDescription')}
+>
+  <ComingSoon heading={translate('projects.heading')} message={translate('projects.comingSoonText')} />
+</BaseLayout>
