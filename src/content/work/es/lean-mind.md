@@ -7,6 +7,6 @@ startDate: 2026-05-01
 lastUpdateDate: 2026-06-20
 ---
 
-En Lean Mind hay una obsesión nada de moda: hacer el software con cuidado. Clean code, TDD, mentoring, formación — esa clase de prácticas fáciles de aplaudir y difíciles de mantener cuando llega la prisa por entregar.
+En Lean Mind se construye software a medida para clientes muy distintos, y se hace con una forma de trabajar que comparto: TDD, diseño evolutivo y revisión continua como parte del día a día.
 
-Aquí el oficio no es un eslogan: se defiende frente a las prisas y se enseña tanto como se practica. Por eso quería estar aquí.
+Después de trabajar con distintos equipos y en distintos sectores, vuelvo para aportar esa visión: crear equipos sin vacíos de conocimiento, donde todos estén alineados para entender las distintas partes del negocio y dar soluciones sostenibles en sistemas que necesitan escalar.

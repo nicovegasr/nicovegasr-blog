@@ -17,9 +17,10 @@ export const spanish = {
 
   'theme.toggle': 'Cambiar tema',
 
-  'blog.introTitle': 'Hola, soy Nico',
+  'blog.introTitle': 'Ingeniero de software.',
   'blog.introText':
-    'Ingeniero informático, escribo sobre desarrollo de software y comparto lo que voy aprendiendo por el camino.',
+    'Me interesan más los problemas que las tecnologías, así que voy donde el problema lo pida. Aquí comparto ideas, decisiones y experiencias reales construyendo software.',
+  'blog.introLink': 'Más sobre mí →',
   'blog.readingTime': 'min de lectura',
   'blog.readMore': 'Leer →',
   'blog.empty': 'Aún no hay artículos publicados.',
@@ -33,7 +34,7 @@ export const spanish = {
   'about.lead':
     'Me gusta entender cómo funcionan las cosas por dentro y aplicarlo con criterio, sin atarme a una parte del stack: voy donde el problema lo pida.',
   'about.approach':
-    'Antes de escribir una línea entiendo el problema entero: qué impacto tiene, qué alternativas hay, qué solución encaja de verdad. Y lo construyo con el equipo, porque el buen software no sale de una sola cabeza.',
+    'Con los años he aprendido que lo que marca la diferencia rara vez es la tecnología, sino entender bien el problema, sopesar las decisiones y construir algo que se sostenga.',
   'about.principlesTitle': 'Principios',
   'about.stackTitle': 'Stack',
   'about.timelineTitle': 'Trayectoria',
@@ -58,9 +59,9 @@ export const spanish = {
     'Conceptos concretos explicados en pequeño, para asentar las bases sin rodeos. Pronto empezarán a aparecer aquí.',
 
   'work.since': 'Desde',
-  'work.valuesPrefix': 'Es ',
-  'work.valuesLink': 'lo que creo',
-  'work.valuesSuffix': ': más rápido no es mejor; lo son los conceptos bien aplicados.',
+  'work.valuesPrefix': 'Cómo enfoco el trabajo, en mis ',
+  'work.valuesLink': 'principios',
+  'work.valuesSuffix': '.',
 
   'footer.rights': 'Todos los derechos reservados',
 } as const;

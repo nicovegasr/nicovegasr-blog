@@ -5,6 +5,7 @@ import PostSearch from '@/features/posts/components/PostSearch.astro';
 import WritingSectionNav from '@/layouts/WritingSectionNav.astro';
 import SocialLinks from '@/layouts/SocialLinks.astro';
 import { getTranslator } from '@/i18n/translator';
+import { buildPagePath } from '@/i18n/routes';
 import { findAllPosts } from '@/features/posts/post-repository';
 
 const locale = 'en';
@@ -15,7 +16,10 @@ const posts = await findAllPosts(locale);
 <BaseLayout locale={locale}>
   <section class="intro reveal">
     <h1>{translate('blog.introTitle')}</h1>
-    <p class="lead">{translate('blog.introText')}</p>
+    <p class="lead">
+      {translate('blog.introText')}{' '}
+      <a href={buildPagePath('about', locale)}>{translate('blog.introLink')}</a>
+    </p>
     <SocialLinks />
   </section>
   <section class="reveal">

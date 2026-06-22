@@ -1,4 +1,4 @@
 ---
 title: "Optimize and automate the repetitive; sometimes less is more."
-order: 5
+order: 4
 ---

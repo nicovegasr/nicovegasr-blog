@@ -1,4 +1,4 @@
 ---
-title: "TDD and clean code go together: tests to trust it, clarity to keep it."
-order: 6
+title: "I write tests so I can change code without fear, not out of discipline."
+order: 5
 ---

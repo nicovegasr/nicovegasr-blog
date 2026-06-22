@@ -19,9 +19,10 @@ export const english: Dictionary = {
 
   'theme.toggle': 'Toggle theme',
 
-  'blog.introTitle': "Hi, I'm Nico",
+  'blog.introTitle': 'Software engineer.',
   'blog.introText':
-    "Software engineer, I write about software development and share what I'm learning along the way.",
+    "I'm more interested in problems than technologies, so I go wherever the problem takes me. Here I share ideas, decisions and real experiences building software.",
+  'blog.introLink': 'More about me →',
   'blog.readingTime': 'min read',
   'blog.readMore': 'Read →',
   'blog.empty': 'No articles published yet.',
@@ -35,7 +36,7 @@ export const english: Dictionary = {
   'about.lead':
     'I like to understand how things work under the hood and apply it with judgment, without tying myself to one part of the stack: I go where the problem takes me.',
   'about.approach':
-    "Before I write a line, I get the whole problem: its impact, the alternatives, the solution that actually fits. And I build it with the team, because good software doesn't come from one head.",
+    "Over the years I've learned that what makes the difference is rarely the technology, but understanding the problem well, weighing the decisions and building something that holds up.",
   'about.principlesTitle': 'Principles',
   'about.stackTitle': 'Stack',
   'about.timelineTitle': 'Journey',
@@ -60,9 +61,9 @@ export const english: Dictionary = {
     "Concrete concepts explained small, to nail the fundamentals without detours. They'll start showing up here soon.",
 
   'work.since': 'Since',
-  'work.valuesPrefix': "It's ",
-  'work.valuesLink': 'what I believe',
-  'work.valuesSuffix': ': faster isn\'t better — the right concepts, well applied, are.',
+  'work.valuesPrefix': 'How I approach the work, in my ',
+  'work.valuesLink': 'principles',
+  'work.valuesSuffix': '.',
 
   'footer.rights': 'All rights reserved',
 };
