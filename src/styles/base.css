@@ -126,13 +126,19 @@ p {
   color: var(--color-text-muted);
 }
 
-/* Prosa: cuerpo de artículo renderizado desde markdown */
+/* Prosa: cuerpo de artículo renderizado desde markdown.
+   Comparte ancho con la cabecera del artículo (ambos dentro de `main`). */
 .prose {
-  max-width: var(--content-width-reading);
+  max-width: var(--content-width-wide);
 }
 
 .prose > * + * {
   margin-top: var(--space-4);
+}
+
+.prose img {
+  max-width: 100%;
+  height: auto;
 }
 
 .prose h2 {
