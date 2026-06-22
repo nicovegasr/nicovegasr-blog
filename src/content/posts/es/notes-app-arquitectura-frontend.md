@@ -19,6 +19,8 @@ Algunas de las reflexiones a las que llegué y que considero más interesantes:
 
 La idea de esta arquitectura es separar lo máximo posible la lógica de la aplicación —como las llamadas HTTP y los modelos— de la parte visual de las páginas y componentes.
 
+![Estructura de ficheros del frontend de la notes app: carpetas api, features, models, repositories y routes](../images/notes-app-frontend/project-structure.webp)
+
 En caso de que la aplicación crezca considerablemente podemos separar nuestros modelos por bounded context, aunque me decanto más por la idea de mantener los modelos separados de las features para tener una clara diferencia entre el modelado de datos de nuestra aplicación y la parte visual.
 
 ## Desacoplar las llamadas HTTP
@@ -224,4 +226,4 @@ export const Register = () => {
 };
 ```
 
-¡Muchas gracias por leer hasta aquí! Cualquier feedback es bien recibido.
+¡Muchas gracias por leer hasta aquí! Cualquier feedback es bien recibido. Si quieres ver el progreso del proyecto, puedes acceder al [repositorio aquí](https://github.com/nicovegasr/notes-app-microservices).
