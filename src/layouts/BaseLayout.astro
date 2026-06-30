@@ -18,9 +18,16 @@ interface Props {
   title?: string;
   description?: string;
   openGraphType?: 'website' | 'article';
+  alternatePaths?: Partial<Record<Locale, string>>;
 }
 
-const { locale, title, description, openGraphType = 'website' } = Astro.props;
+const {
+  locale,
+  title,
+  description,
+  openGraphType = 'website',
+  alternatePaths = {},
+} = Astro.props;
 const translate = getTranslator(locale);
 
 const documentTitle = title ?? translate('site.title');
@@ -34,7 +41,7 @@ const openGraphImageUrl = toAbsoluteUrl('/og-default.png');
 const pathForLocale = (target: Locale): string =>
   target === locale
     ? currentPathname
-    : buildAlternateLocalePath(currentPathname, locale, target);
+    : (alternatePaths[target] ?? buildAlternateLocalePath(currentPathname, locale, target));
 ---
 
 <!doctype html>
@@ -91,7 +98,7 @@ const pathForLocale = (target: Locale): string =>
     />
   </head>
   <body>
-    <Navigation locale={locale} />
+    <Navigation locale={locale} alternatePaths={alternatePaths} />
     <main>
       <slot />
     </main>

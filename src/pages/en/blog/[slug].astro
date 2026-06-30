@@ -3,7 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import PostMeta from '@/features/posts/components/PostMeta.astro';
 import RelatedPosts from '@/features/posts/components/RelatedPosts.astro';
 import { getTranslator } from '@/i18n/translator';
-import { buildPagePath } from '@/i18n/routes';
+import { buildPagePath, buildBlogPostPath } from '@/i18n/routes';
 import {
   findAllPosts,
   findRelatedPosts,
@@ -27,9 +27,18 @@ const { post, Content } = renderable;
 const translate = getTranslator(locale);
 const blogPath = buildPagePath('blog', locale);
 const relatedPosts = await findRelatedPosts(locale, post.slug);
+const alternatePaths = post.translationSlug
+  ? { es: buildBlogPostPath('es', post.translationSlug) }
+  : {};
 ---
 
-<BaseLayout locale={locale} title={post.title} description={post.summary} openGraphType="article">
+<BaseLayout
+  locale={locale}
+  title={post.title}
+  description={post.summary}
+  openGraphType="article"
+  alternatePaths={alternatePaths}
+>
   <article class="reveal">
     <header class="article-header">
       <nav class="breadcrumb" aria-label="breadcrumb">

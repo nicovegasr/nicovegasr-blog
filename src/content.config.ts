@@ -20,6 +20,9 @@ const posts = defineCollection({
     lastUpdateDate: z.coerce.date().optional(),
     summary: z.string().min(20).max(280),
     tags: z.array(z.string().min(1)).default([]),
+    // Slug of this post's counterpart in the other locale, so the language
+    // switcher can link directly to it instead of falling back to the blog index.
+    translationSlug: z.string().min(1).optional(),
   }),
 });
 

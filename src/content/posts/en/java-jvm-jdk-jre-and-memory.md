@@ -3,6 +3,7 @@ title: "Java — JVM, JDK, JRE & memory"
 publicationDate: 2025-05-15
 summary: "Understanding how Java works under the hood —JDK, JRE, JVM, JIT, memory and the Garbage Collector— to make better design decisions, optimize performance and reduce infrastructure costs."
 tags: ["java", "jvm", "memory", "performance", "optimization"]
+translationSlug: "java-jvm-jdk-jre-y-memoria"
 ---
 
 In the world of software development, we often move so fast that we forget the fundamentals of an information system.

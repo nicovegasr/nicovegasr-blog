@@ -3,6 +3,7 @@ title: "Notes app — CQRS: separar lectura y escritura"
 publicationDate: 2024-09-29
 summary: "Cómo el patrón CQRS separa las operaciones de lectura y escritura para escalar horizontalmente una aplicación, partiendo de un problema real de agotamiento de conexiones a la base de datos."
 tags: ["backend", "java", "spring", "cqrs", "arquitectura"]
+translationSlug: "notes-app-cqrs-separating-reads-and-writes"
 ---
 
 ![Esquema CQRS: las escrituras van a la base de datos principal y las lecturas a réplicas de solo lectura](../images/notes-app-cqrs/read-write-split.png)

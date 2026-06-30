@@ -16,6 +16,7 @@ const buildPost = (overrides: Partial<Post> = {}): Post => ({
   lastUpdateDate: undefined,
   tags: [],
   readingTimeInMinutes: 1,
+  translationSlug: undefined,
   ...overrides,
 });
 

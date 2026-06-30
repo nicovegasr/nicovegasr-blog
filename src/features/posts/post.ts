@@ -9,6 +9,7 @@ export type Post = {
   readonly lastUpdateDate: Date | undefined;
   readonly tags: readonly string[];
   readonly readingTimeInMinutes: number;
+  readonly translationSlug: string | undefined;
 };
 
 const WORDS_PER_MINUTE_AVERAGE = 220;

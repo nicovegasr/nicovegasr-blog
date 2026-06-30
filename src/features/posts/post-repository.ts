@@ -23,6 +23,7 @@ const toPost = (entry: CollectionEntry<'posts'>): Post | null => {
     lastUpdateDate: entry.data.lastUpdateDate,
     tags: entry.data.tags,
     readingTimeInMinutes: calculateReadingTimeInMinutes(entry.body ?? ''),
+    translationSlug: entry.data.translationSlug,
   };
 };
 

@@ -3,6 +3,7 @@ title: "Notes app — Data modeling in MongoDB: SQL vs NoSQL"
 publicationDate: 2024-08-19
 summary: "Normalize or denormalize: how data modeling changes when you move from a SQL mindset to a NoSQL one in MongoDB, with the real example of folders and notes from the notes app."
 tags: ["backend", "mongodb", "nosql", "databases", "architecture"]
+translationSlug: "notes-app-modelar-datos-mongodb"
 ---
 
 ![Data model diagram of the notes app: users, folders and notes](../images/notes-app-mongodb/data-model.webp)

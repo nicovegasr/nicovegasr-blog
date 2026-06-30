@@ -3,6 +3,7 @@ title: "Construyendo una API de alta disponibilidad con Spring Boot y RabbitMQ"
 publicationDate: 2025-12-10
 summary: "Cómo una API con Spring Boot maneja más de 7 millones de peticiones al día sin escalar vertical ni horizontalmente: procesamiento asíncrono por eventos y batching con RabbitMQ para colapsar las conexiones a la base de datos, validado con un test de carga en K6."
 tags: ["java", "spring", "rabbitmq", "arquitectura", "escalabilidad", "backend"]
+translationSlug: "building-a-high-availability-api-with-spring-and-rabbitmq"
 ---
 
 Construir una API con Spring Boot que maneje más de 7 millones de peticiones al día es posible sin escalar vertical u horizontalmente.

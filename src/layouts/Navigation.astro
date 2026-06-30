@@ -8,9 +8,10 @@ import Logo from '@/layouts/Logo.astro';
 
 interface Props {
   locale: Locale;
+  alternatePaths?: Partial<Record<Locale, string>>;
 }
 
-const { locale } = Astro.props;
+const { locale, alternatePaths = {} } = Astro.props;
 const translate = getTranslator(locale);
 
 // "Dónde trabajo" no es página propia: es una sección de "sobre mí" (ancla #work).
@@ -62,7 +63,7 @@ const activePath = blogSectionPaths.includes(Astro.url.pathname) ? blogPath : As
     </nav>
 
     <div class="actions">
-      <LanguageSwitcher locale={locale} />
+      <LanguageSwitcher locale={locale} alternatePaths={alternatePaths} />
       <ThemeToggle locale={locale} />
     </div>
   </div>

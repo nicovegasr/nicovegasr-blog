@@ -3,6 +3,7 @@ title: "Notes app — Comunicación asíncrona con Kafka"
 publicationDate: 2024-10-03
 summary: "Cómo integrar Apache Kafka en un proyecto Spring para comunicar microservicios de forma asíncrona y resolver el borrado en cascada de un usuario y sus notas entre dos bases de datos."
 tags: ["backend", "java", "spring", "kafka", "event-driven", "arquitectura"]
+translationSlug: "notes-app-asynchronous-communication-with-kafka"
 ---
 
 El mundo de la programación orientada a eventos me resulta un tema muy interesante: te permite tener una trazabilidad robusta de las operaciones y un sistema considerablemente resiliente a fallos.

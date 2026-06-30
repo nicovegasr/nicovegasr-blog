@@ -3,6 +3,7 @@ title: "Gradle — Speed, modularity and control in your builds"
 publicationDate: 2025-05-21
 summary: "How Gradle works under the hood —directories, core concepts, the build lifecycle, key files and properties— and how to use it to enforce a hexagonal architecture across modules."
 tags: ["java", "gradle", "build-tools", "architecture"]
+translationSlug: "gradle-velocidad-modularidad-y-control"
 ---
 
 In the J2EE ecosystem it's common to use Maven or Gradle to automate the build process. Sometimes we take for granted that these tools are magic and we just need to run a command such as `gradlew clean build`, but how do they work, and what can we actually do with them?

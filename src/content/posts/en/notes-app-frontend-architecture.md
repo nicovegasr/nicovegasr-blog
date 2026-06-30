@@ -3,6 +3,7 @@ title: "Notes app — Architecture on the frontend?"
 publicationDate: 2024-06-09
 summary: "Thoughts on how to structure a React frontend project: decoupling HTTP calls, wrapping react-query in your own hooks, and applying the repository pattern on the client."
 tags: ["frontend", "react", "architecture", "typescript"]
+translationSlug: "notes-app-arquitectura-frontend"
 ---
 
 Personally, I think architecture on the frontend is fairly tricky. From my own experience on React projects, the file structure tends to scale quickly and, before you know it, navigating the project is a challenge in itself.

@@ -3,6 +3,7 @@ title: "Notes app — DDD and hexagonal in Spring"
 publicationDate: 2024-05-13
 summary: "How to combine Spring's conveniences with Domain-Driven Design and hexagonal architecture: value objects, an exception hierarchy, and mapping between entities and domain models."
 tags: ["backend", "java", "spring", "ddd", "architecture"]
+translationSlug: "notes-app-ddd-hexagonal-spring"
 ---
 
 A while ago I got interested in hexagonal architecture and, later on, in everything around Domain-Driven Design (DDD) when building a software product.

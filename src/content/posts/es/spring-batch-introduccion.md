@@ -3,6 +3,7 @@ title: "Spring Batch — Introducción"
 publicationDate: 2025-05-28
 summary: "Una introducción a Spring Batch: jobs, steps chunk-oriented y tasklet, readers, processors y writers, tolerancia a fallos, y cómo los listeners y las tablas de metadatos hacen observable el procesamiento por lotes."
 tags: ["java", "spring", "spring-batch", "backend"]
+translationSlug: "spring-batch-introduction"
 ---
 
 ![Visión general de una aplicación Spring Batch: un job compuesto de steps](../images/spring-batch-intro/overview.png)

@@ -3,6 +3,7 @@ title: "Notes app — CQRS: separating reads and writes"
 publicationDate: 2024-09-29
 summary: "How the CQRS pattern separates read and write operations to scale an application horizontally, starting from a real database connection-exhaustion problem."
 tags: ["backend", "java", "spring", "cqrs", "architecture"]
+translationSlug: "notes-app-cqrs-separar-lectura-y-escritura"
 ---
 
 ![CQRS diagram: writes go to the primary database and reads to read-only replicas](../images/notes-app-cqrs/read-write-split.png)

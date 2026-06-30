@@ -5,20 +5,24 @@ import { getTranslator } from '@/i18n/translator';
 
 interface Props {
   locale: Locale;
+  alternatePaths?: Partial<Record<Locale, string>>;
 }
 
-const { locale } = Astro.props;
+const { locale, alternatePaths = {} } = Astro.props;
 const currentPathname = Astro.url.pathname;
+// The label shows the CURRENT language (not the one you'd switch to): it reads
+// as a language indicator that happens to be clickable, not a "go to X" link.
+const currentLanguageLabel = getTranslator(locale)('language.current');
 ---
 
 <ul class="language-switcher">
   {
     localesOtherThan(locale).map((target) => {
-      const translateTarget = getTranslator(target);
+      const href = alternatePaths[target] ?? buildAlternateLocalePath(currentPathname, locale, target);
       return (
         <li>
-          <a href={buildAlternateLocalePath(currentPathname, locale, target)} lang={target}>
-            {translateTarget('language.current')}
+          <a href={href} lang={target}>
+            {currentLanguageLabel}
           </a>
         </li>
       );

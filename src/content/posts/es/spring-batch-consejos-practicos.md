@@ -3,6 +3,7 @@ title: "Spring Batch — Consejos prácticos para jobs de datos robustos y rápi
 publicationDate: 2025-06-06
 summary: "Rendimiento y escalado en Spring Batch: flujos en paralelo, particionado de steps, y las consideraciones de memoria y base de datos —heap, pools de conexiones, ORM vs SQL nativo— que mantienen tus jobs de datos rápidos y estables."
 tags: ["java", "spring", "spring-batch", "backend"]
+translationSlug: "spring-batch-practical-advice"
 ---
 
 ![Visión general del procesamiento en paralelo en Spring Batch](../images/spring-batch-performance/parallel-overview.png)
