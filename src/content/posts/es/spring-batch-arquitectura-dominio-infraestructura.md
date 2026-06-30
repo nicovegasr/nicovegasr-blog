@@ -1,6 +1,6 @@
 ---
 title: "Spring Batch — Arquitectura: más dominio, menos infraestructura"
-publicationDate: 2026-07-01
+publicationDate: 2026-06-30
 summary: "Tres técnicas para que Spring Batch deje de ocupar el centro de la aplicación: una factoría que centraliza la configuración común de los jobs, un reader genérico reutilizable y un writer que solo materializa las acciones que decide el dominio."
 tags: ["java", "spring", "spring-batch", "ddd", "backend"]
 translationSlug: "spring-batch-architecture-domain-infrastructure"
