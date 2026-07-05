@@ -1,6 +1,6 @@
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
-import { z } from 'astro:schema';
+import { z } from 'astro/zod';
 
 // Markdown lives under src/content/<collection>/<locale>/<slug>.md.
 // generateId keeps the "<locale>/<slug>" shape (extension stripped) so the
@@ -50,7 +50,7 @@ const work = defineCollection({
   loader: localizedMarkdown('work'),
   schema: z.object({
     company: z.string().min(1),
-    companyUrl: z.string().url(),
+    companyUrl: z.url(),
     role: z.string().min(1),
     location: z.string().min(1),
     startDate: z.coerce.date(),
