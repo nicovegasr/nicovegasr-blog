@@ -57,6 +57,14 @@ export const spanish = {
   'pills.heading': 'Píldoras formativas',
   'pills.comingSoonText':
     'Conceptos concretos explicados en pequeño, para asentar las bases sin rodeos. Pronto empezarán a aparecer aquí.',
+  'pills.railLabel': 'Recorrido de la serie',
+  'pills.bonus': 'bonus',
+  'pills.summary': 'Resumen',
+  'pills.summaryLabel': 'la foto completa',
+  'pills.summaryHeading': 'Resumen de la serie',
+  'pills.previous': '← Anterior',
+  'pills.next': 'Siguiente →',
+  'pills.seriesCount': 'píldoras',
 
   'work.since': 'Desde',
   'work.valuesPrefix': 'Cómo enfoco el trabajo, en mis ',

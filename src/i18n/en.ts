@@ -59,6 +59,14 @@ export const english: Dictionary = {
   'pills.heading': 'Learning pills',
   'pills.comingSoonText':
     "Concrete concepts explained small, to nail the fundamentals without detours. They'll start showing up here soon.",
+  'pills.railLabel': 'Series path',
+  'pills.bonus': 'bonus',
+  'pills.summary': 'Summary',
+  'pills.summaryLabel': 'the full picture',
+  'pills.summaryHeading': 'Series summary',
+  'pills.previous': '← Previous',
+  'pills.next': 'Next →',
+  'pills.seriesCount': 'pills',
 
   'work.since': 'Since',
   'work.valuesPrefix': 'How I approach the work, in my ',

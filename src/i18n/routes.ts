@@ -24,6 +24,15 @@ export const buildPagePath = (page: PageKey, locale: Locale): string =>
 export const buildBlogPostPath = (locale: Locale, slug: string): string =>
   joinPath(locale, 'blog', slug);
 
+export const buildPillSeriesPath = (locale: Locale, series: string): string =>
+  joinPath(locale, PATH_SEGMENT_BY_PAGE.pills[locale], series);
+
+export const buildPillPath = (
+  locale: Locale,
+  series: string,
+  pill: string,
+): string => joinPath(locale, PATH_SEGMENT_BY_PAGE.pills[locale], series, pill);
+
 // RSS endpoints keep their explicit extension, so no trailing slash here.
 export const buildRssFeedPath = (locale: Locale): string => `/${locale}/rss.xml`;
 
@@ -45,6 +54,18 @@ export const buildAlternateLocalePath = (
 
   if (matchingPage !== undefined && pageSegments.length <= 1) {
     return buildPagePath(matchingPage, targetLocale);
+  }
+
+  // Pills series/pill slugs are locale-independent, so deeper paths map segment
+  // by segment. Blog posts have different slugs per locale, so they still fall
+  // back to the blog index (never a 404).
+  if (matchingPage === 'pills') {
+    const restSegments = pageSegments.slice(1);
+    return joinPath(
+      targetLocale,
+      PATH_SEGMENT_BY_PAGE.pills[targetLocale],
+      ...restSegments,
+    );
   }
 
   return buildPagePath('blog', targetLocale);
