@@ -1,0 +1,198 @@
+---
+import type { Locale } from '@/i18n/locale';
+import type { Pill } from '@/features/pills/pill';
+import { pillLeafSlugOf } from '@/features/pills/pill';
+import { buildPillPath, buildPillSeriesPath } from '@/i18n/routes';
+import { getTranslator } from '@/i18n/translator';
+import PillIcon from '@/features/pills/components/PillIcon.astro';
+
+interface Props {
+  stops: readonly Pill[];
+  hasSummary: boolean;
+  series: string;
+  locale: Locale;
+  activePillSlug?: string;
+}
+
+const { stops, hasSummary, series, locale, activePillSlug } = Astro.props;
+const translate = getTranslator(locale);
+
+// Core pills are numbered 1..n; bonus keep their own count. Rail order already
+// groups core before bonus (railOrder), so numbering the core is a running index.
+let coreNumber = 0;
+const rail = stops.map((pill) => {
+  const label = pill.bonus ? '★' : String(++coreNumber);
+  return {
+    href: buildPillPath(locale, series, pillLeafSlugOf(pill.slug)),
+    icon: pill.icon,
+    title: pill.title,
+    subtitle: pill.subtitle,
+    label,
+    kind: pill.bonus ? 'bonus' : 'core',
+    isActive: pill.slug === activePillSlug,
+  };
+});
+
+// The summary stop closes the rail, and only when the series body has content.
+const summaryStop = hasSummary
+  ? {
+      href: `${buildPillSeriesPath(locale, series)}#resumen`,
+      icon: 'summary',
+      title: translate('pills.summary'),
+      subtitle: translate('pills.summaryLabel'),
+      label: '∑',
+      kind: 'summary' as const,
+      isActive: false,
+    }
+  : null;
+
+const allStops = summaryStop ? [...rail, summaryStop] : rail;
+---
+
+<nav class="pill-rail" aria-label={translate('pills.railLabel')}>
+  <ol class="pill-rail-track">
+    {
+      allStops.map((stop) => (
+        <li>
+          <a
+            href={stop.href}
+            class:list={['pill-stop', stop.kind, { active: stop.isActive }]}
+            aria-current={stop.isActive ? 'page' : undefined}
+          >
+            <span class="node">
+              <PillIcon icon={stop.icon} />
+            </span>
+            <span class="label" aria-hidden="true">{stop.label}</span>
+            <span class="stop-title">
+              <b>{stop.title}</b>
+              <span>{stop.subtitle}</span>
+            </span>
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+</nav>
+
+<style>
+  .pill-rail {
+    margin-block: var(--space-8);
+  }
+
+  .pill-rail-track {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+    list-style: none;
+    padding: 0 var(--space-4);
+    margin: 0;
+    overflow-x: auto;
+  }
+
+  /* The connecting metro line, behind the nodes. */
+  .pill-rail-track::before {
+    content: '';
+    position: absolute;
+    top: 26px;
+    left: var(--space-8);
+    right: var(--space-8);
+    height: 2px;
+    background: var(--color-rule);
+    z-index: 0;
+  }
+
+  .pill-rail-track > li {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex: 1;
+    min-width: 72px;
+  }
+
+  .pill-stop {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .pill-stop .node {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 2px solid var(--color-rule);
+    background: var(--color-paper);
+    display: grid;
+    place-items: center;
+    transition:
+      transform var(--motion-duration-fast) var(--motion-easing),
+      border-color var(--motion-duration-fast) var(--motion-easing),
+      background var(--motion-duration-fast) var(--motion-easing),
+      color var(--motion-duration-fast) var(--motion-easing);
+  }
+
+  .pill-stop .label {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-meta);
+    color: var(--color-text-muted);
+  }
+
+  /* The stop shows only the icon + number; the title/subtitle stay in the DOM,
+     visually hidden, so each link has an accessible name for screen readers. */
+  .pill-stop .stop-title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  /* Bonus: dashed lime node. Summary: solid lime node. */
+  .pill-stop.bonus .node {
+    border-style: dashed;
+    border-color: var(--color-accent);
+  }
+
+  .pill-stop.summary .node {
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+    border-color: var(--color-accent);
+  }
+
+  /* Active (current pill on its own page) reads as visited/selected. */
+  .pill-stop.active .node,
+  .pill-stop.core.active .node {
+    background: var(--color-ink);
+    color: var(--color-paper);
+    border-color: var(--color-ink);
+    transform: scale(1.08);
+  }
+
+  .pill-stop.bonus.active .node {
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+    border-color: var(--color-accent);
+  }
+
+  .pill-stop.active .label {
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+
+  @media (hover: hover) {
+    .pill-stop:hover .node {
+      border-color: var(--color-ink);
+      transform: translateY(-2px);
+    }
+
+    .pill-stop.bonus:hover .node,
+    .pill-stop.summary:hover .node {
+      border-color: var(--color-accent);
+    }
+  }
+</style>

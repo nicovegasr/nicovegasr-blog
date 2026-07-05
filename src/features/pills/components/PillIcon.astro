@@ -1,0 +1,52 @@
+---
+// Monochrome line icons drawn with the current color, so they invert with the
+// theme and the rail hover. No external icon library: a key → list of <path> d.
+interface Props {
+  icon: string;
+}
+
+const { icon } = Astro.props;
+
+const PATHS: Record<string, string[]> = {
+  whale: [
+    'M3 14h15a3 3 0 0 0 3-3M5 14v-3h3v3M9 14v-4h3v4M13 14v-5h3v5M3 17c1.5 1 3 1 4.5 0 1.5 1 3 1 4.5 0 1.5 1 3 1 4.5 0',
+  ],
+  image: ['M4 8l8-4 8 4-8 4-8-4z', 'M4 8v8l8 4 8-4V8', 'M12 12v8'],
+  container: ['M4 6h16v12H4z', 'M8 6v12M4 10h4'],
+  dockerfile: ['M7 3h7l4 4v14H7z', 'M14 3v4h4', 'M10 13h5M10 16h5'],
+  layers: ['M12 3l9 5-9 5-9-5 9-5z', 'M3 13l9 5 9-5', 'M3 17l9 5 9-5'],
+  volume: [
+    'M5 6c0-1.7 3.1-3 7-3s7 1.3 7 3-3.1 3-7 3-7-1.3-7-3z',
+    'M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6',
+  ],
+  network: [
+    'M12 3a2.2 2.2 0 1 0 0 4.4A2.2 2.2 0 0 0 12 3z',
+    'M5 16a2.2 2.2 0 1 0 0 4.4A2.2 2.2 0 0 0 5 16z',
+    'M19 16a2.2 2.2 0 1 0 0 4.4A2.2 2.2 0 0 0 19 16z',
+    'M12 7.4v3.6M11 11l-4.5 4M13 11l4.5 4',
+  ],
+  compose: ['M3 4h7v7H3z', 'M14 4h7v7h-7z', 'M3 15h7v5H3z', 'M14 15h7v5h-7z'],
+  registry: ['M4 20V9l8-5 8 5v11', 'M9 20v-6h6v6'],
+  summary: ['M4 6h16M4 12h16M4 18h10'],
+};
+
+const FALLBACK_PATHS = ['M4 6h16M4 12h16M4 18h10'];
+const paths = PATHS[icon] ?? FALLBACK_PATHS;
+---
+
+<svg class="pill-icon" viewBox="0 0 24 24" aria-hidden="true">
+  {paths.map((d) => <path d={d} />)}
+</svg>
+
+<style>
+  .pill-icon {
+    width: 26px;
+    height: 26px;
+    display: block;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+</style>
