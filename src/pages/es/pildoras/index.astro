@@ -1,0 +1,111 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import WritingSectionNav from '@/layouts/WritingSectionNav.astro';
+import ComingSoon from '@/layouts/ComingSoon.astro';
+import PillIcon from '@/features/pills/components/PillIcon.astro';
+import { getTranslator } from '@/i18n/translator';
+import { buildPillSeriesPath } from '@/i18n/routes';
+import { findAllPillSeries } from '@/features/pills/pill-repository';
+
+const locale = 'es';
+const translate = getTranslator(locale);
+const series = await findAllPillSeries(locale);
+---
+
+<BaseLayout
+  locale={locale}
+  title={`${translate('pills.heading')} — ${translate('site.title')}`}
+  description={translate('pills.metaDescription')}
+>
+  {
+    series.length > 0 ? (
+      <section class="reveal">
+        <WritingSectionNav locale={locale} />
+        <ul class="pill-series-list">
+          {series.map((item) => (
+            <li>
+              <a href={buildPillSeriesPath(locale, item.slug)}>
+                <span class="series-icon">
+                  <PillIcon icon={item.icon} />
+                </span>
+                <span class="series-text">
+                  <b>{item.title}</b>
+                  <span>{item.summary}</span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ) : (
+      <>
+        <WritingSectionNav locale={locale} />
+        <ComingSoon
+          heading={translate('pills.heading')}
+          message={translate('pills.comingSoonText')}
+        />
+      </>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .pill-series-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .pill-series-list a {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-6);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-large);
+    text-decoration: none;
+    color: inherit;
+    transition:
+      border-color var(--motion-duration-fast) var(--motion-easing),
+      background var(--motion-duration-fast) var(--motion-easing),
+      color var(--motion-duration-fast) var(--motion-easing);
+  }
+
+  .series-icon {
+    flex: 0 0 auto;
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-medium);
+  }
+
+  .series-text b {
+    display: block;
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-heading-3);
+  }
+
+  .series-text span {
+    color: var(--color-text-soft);
+    font-size: var(--font-size-small);
+  }
+
+  @media (hover: hover) {
+    .pill-series-list a:hover {
+      background: var(--color-invert-surface);
+      color: var(--color-invert-text);
+      border-color: var(--color-invert-surface);
+    }
+
+    .pill-series-list a:hover .series-text span {
+      color: var(--color-invert-muted);
+    }
+
+    .pill-series-list a:hover .series-icon {
+      border-color: var(--color-invert-muted);
+    }
+  }
+</style>

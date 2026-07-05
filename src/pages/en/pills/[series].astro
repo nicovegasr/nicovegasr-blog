@@ -1,0 +1,71 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PillRail from '@/features/pills/components/PillRail.astro';
+import { getTranslator } from '@/i18n/translator';
+import { buildPagePath, buildPillSeriesPath } from '@/i18n/routes';
+import {
+  findAllPillSeries,
+  findRenderablePillSeries,
+} from '@/features/pills/pill-repository';
+
+const locale = 'en';
+
+export async function getStaticPaths() {
+  const series = await findAllPillSeries('en');
+  return series.map((item) => ({ params: { series: item.slug } }));
+}
+
+const { series } = Astro.params;
+const renderable = series
+  ? await findRenderablePillSeries(locale, series)
+  : null;
+if (renderable === null) {
+  throw new Error(`Pill series not found: ${locale}/${series}`);
+}
+
+const { series: pillSeries, pills, hasSummary, SummaryContent } = renderable;
+const translate = getTranslator(locale);
+const pillsPath = buildPagePath('pills', locale);
+const alternatePaths = { es: buildPillSeriesPath('es', pillSeries.slug) };
+---
+
+<BaseLayout
+  locale={locale}
+  title={`${pillSeries.title} — ${translate('pills.heading')}`}
+  description={pillSeries.summary}
+  alternatePaths={alternatePaths}
+>
+  <article class="reveal">
+    <header class="article-header">
+      <nav class="breadcrumb" aria-label="breadcrumb">
+        <a href={pillsPath}>{translate('pills.heading')}</a> / {pillSeries.title}
+      </nav>
+      <h1>{pillSeries.title}</h1>
+      <p class="series-summary">{pillSeries.summary}</p>
+    </header>
+
+    <PillRail
+      stops={pills}
+      hasSummary={hasSummary}
+      series={pillSeries.slug}
+      locale={locale}
+    />
+
+    {
+      hasSummary && (
+        <section id="resumen" class="prose">
+          <h2>{translate('pills.summaryHeading')}</h2>
+          <SummaryContent />
+        </section>
+      )
+    }
+  </article>
+</BaseLayout>
+
+<style>
+  .series-summary {
+    color: var(--color-text-soft);
+    font-size: var(--font-size-lead);
+    max-width: var(--content-width-reading);
+  }
+</style>
