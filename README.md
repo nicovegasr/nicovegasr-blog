@@ -27,7 +27,9 @@ Estructura **vertical / feature-based**: cada concepto agrupa sus propias capas 
 src/
 ├── content.config.ts        ← schemas Zod + loaders glob (Content Layer API)
 ├── content/                 ← markdown, territorio de Astro (NO tocar la ubicación)
-│   └── <coleccion>/{es,en}/*.md
+│   ├── <coleccion>/{es,en}/*.md
+│   └── pills/{es,en}/<serie>/{overview,<pildora>}.md · pills/images/<serie>/<pildora>/*.webp
+│       (una colección `pills`, discriminada por `kind`: `series` = overview + resumen en el cuerpo; `pill` = mini-post)
 ├── styles/                  ← CSS global a pelo (se importa una vez en BaseLayout)
 │   ├── tokens.css           ← custom properties: color (claro + [data-theme=dark]), tipo, espacio, motion
 │   └── base.css             ← reset, tipografía, prosa de artículos y patrones de página
@@ -48,9 +50,13 @@ src/
 │   ├── timeline/
 │   │   ├── {timeline-entry.ts, timeline-repository.ts}
 │   │   └── components/TimelineEntry.astro   ← una entrada (fechas mes+año, "Actualidad/Present")
-│   └── work/
-│       ├── {work.ts, work-repository.ts}
-│       └── components/LeanMindMark.astro    ← isotipo de Lean Mind (asset en public/)
+│   ├── work/
+│   │   ├── {work.ts, work-repository.ts}
+│   │   └── components/LeanMindMark.astro    ← isotipo de Lean Mind (asset en public/)
+│   └── pills/                        ← píldoras: micro-conceptos agrupados en series (cada píldora = mini-post con página propia)
+│       ├── pill.ts                   ← entidades Pill/PillSeries + puras (railOrder: núcleo→bonus; hasSummaryBody; isPublished)
+│       ├── pill-repository.ts        ← astro:content → Pill/PillSeries (una colección, discrimina por `kind`)
+│       └── components/{PillRail, PillIcon}.astro  ← riel (metro) de la serie + iconos mono SVG (sin librería)
 ├── layouts/                 ← shell transversal de toda página (no es un feature)
 │   ├── BaseLayout.astro     ← importa estilos+fuentes; <head> SEO (canonical, hreflang, OG/Twitter + og:image por defecto, favicon); script inline de tema (sin parpadeo) + observer de aparición
 │   ├── Logo.astro           ← marca: monograma NV sobre baseline lima (mismo mark que public/favicon.svg)
@@ -59,11 +65,14 @@ src/
 │   └── {Navigation, Footer, LanguageSwitcher, ThemeToggle, SocialLinks}.astro
 └── pages/                   ← árbol simétrico: una carpeta por idioma (URL = carpeta)
     ├── 404.astro            ← página 404 única (locale por defecto, enlaces a ambos inicios)
-    ├── es/{index, proyectos, apuntes, pildoras, sobre-mi, blog/[slug]}.astro · es/rss.xml.ts
-    └── en/{index, projects, notes, pills, about, blog/[slug]}.astro · en/rss.xml.ts
+    ├── es/{index, proyectos, apuntes, sobre-mi, blog/[slug]}.astro · es/rss.xml.ts
+    │   └── pildoras/{index, [series], [series]/[pill]}.astro  ← índice de series · serie (riel + resumen) · píldora
+    └── en/{index, projects, notes, about, blog/[slug]}.astro · en/rss.xml.ts
+        └── pills/{index, [series], [series]/[pill]}.astro
     (el `/` raíz no tiene page: lo redirige `redirects` en astro.config a `/es`)
-    (proyectos/apuntes/pildoras son stubs "coming soon"; apuntes y pildoras
-     son tipos de contenido del blog: comparten el WritingSectionNav)
+    (proyectos/apuntes siguen como stubs "coming soon"; píldoras ya sirve la
+     serie Docker. Apuntes y píldoras son tipos de contenido del blog: comparten
+     el WritingSectionNav. Píldoras: el índice cae a "coming soon" si no hay series)
 ```
 
 Los tests viven junto al código que prueban (`post.test.ts` al lado de `post.ts`).
