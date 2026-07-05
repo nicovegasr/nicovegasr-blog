@@ -3,8 +3,8 @@ kind: 'pill'
 title: 'Multi-stage build'
 subtitle: 'imágenes más ligeras'
 icon: 'layers'
-order: 1
-bonus: true
+order: 4
+bonus: false
 publicationDate: 2026-07-05
 ---
 
