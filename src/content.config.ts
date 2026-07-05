@@ -58,4 +58,27 @@ const work = defineCollection({
   }),
 });
 
-export const collections = { posts, principles, timeline, work };
+const pills = defineCollection({
+  loader: localizedMarkdown('pills'),
+  schema: z.discriminatedUnion('kind', [
+    z.object({
+      kind: z.literal('series'),
+      title: z.string().min(1).max(60),
+      summary: z.string().min(10).max(200),
+      icon: z.string().min(1),
+      publicationDate: z.coerce.date(),
+    }),
+    z.object({
+      kind: z.literal('pill'),
+      title: z.string().min(1).max(80),
+      subtitle: z.string().min(1).max(80),
+      icon: z.string().min(1),
+      order: z.number().int(),
+      bonus: z.boolean().default(false),
+      publicationDate: z.coerce.date(),
+      lastUpdateDate: z.coerce.date().optional(),
+    }),
+  ]),
+});
+
+export const collections = { posts, principles, timeline, work, pills };
