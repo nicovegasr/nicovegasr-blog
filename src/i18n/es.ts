@@ -7,6 +7,7 @@ export const spanish = {
   'navigation.projects': 'Proyectos',
   'navigation.about': 'Sobre mí',
   'navigation.work': 'Dónde trabajo',
+  'navigation.menu': 'Menú',
 
   'writing.articles': 'Artículos',
   'writing.notes': 'Apuntes',

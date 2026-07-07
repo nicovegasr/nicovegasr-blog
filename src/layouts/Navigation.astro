@@ -41,7 +41,7 @@ const activePath = blogSectionPaths.includes(Astro.url.pathname) ? blogPath : As
       <span class="brand-name">nicovegasr</span>
     </a>
 
-    <nav class="primary" aria-label="Primary">
+    <nav class="primary" id="site-nav" aria-label="Primary">
       <ul>
         {
           navigationItems.map(({ href, label }) => {
@@ -65,9 +65,57 @@ const activePath = blogSectionPaths.includes(Astro.url.pathname) ? blogPath : As
     <div class="actions">
       <LanguageSwitcher locale={locale} alternatePaths={alternatePaths} />
       <ThemeToggle locale={locale} />
+      <button
+        type="button"
+        class="menu-toggle"
+        aria-label={translate('navigation.menu')}
+        aria-controls="site-nav"
+        aria-expanded="false"
+      >
+        <svg class="icon-open" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+        </svg>
+        <svg class="icon-close" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+        </svg>
+      </button>
     </div>
   </div>
 </header>
+
+<script>
+  const header = document.querySelector<HTMLElement>('.site-header');
+  const toggle = header?.querySelector<HTMLButtonElement>('.menu-toggle');
+  const nav = header?.querySelector<HTMLElement>('.primary');
+
+  const closeMenu = () => {
+    header?.removeAttribute('data-menu-open');
+    toggle?.setAttribute('aria-expanded', 'false');
+  };
+
+  toggle?.addEventListener('click', () => {
+    const isOpen = header?.toggleAttribute('data-menu-open') ?? false;
+    toggle.setAttribute('aria-expanded', String(isOpen));
+  });
+
+  // Cerrar al navegar, con Escape o al tocar fuera del header.
+  nav?.addEventListener('click', (event) => {
+    if ((event.target as HTMLElement).closest('a')) closeMenu();
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && header?.hasAttribute('data-menu-open')) {
+      closeMenu();
+      toggle?.focus();
+    }
+  });
+
+  document.addEventListener('click', (event) => {
+    if (header?.hasAttribute('data-menu-open') && !header.contains(event.target as Node)) {
+      closeMenu();
+    }
+  });
+</script>
 
 <style>
   .site-header {
@@ -141,25 +189,87 @@ const activePath = blogSectionPaths.includes(Astro.url.pathname) ? blogPath : As
     gap: var(--space-3);
   }
 
+  /* Botón hamburguesa: solo visible en móvil. */
+  .menu-toggle {
+    display: none;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-medium);
+    background: transparent;
+    color: var(--color-ink);
+    cursor: pointer;
+  }
+
+  .menu-toggle .icon-close {
+    display: none;
+  }
+
+  .menu-toggle[aria-expanded='true'] .icon-open {
+    display: none;
+  }
+
+  .menu-toggle[aria-expanded='true'] .icon-close {
+    display: block;
+  }
+
   @media (max-width: 640px) {
+    /* Header en una sola fila compacta: máxima zona de lectura. */
     .bar {
-      flex-wrap: wrap;
-      gap: var(--space-3) var(--space-4);
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+    }
+
+    .brand {
+      margin-inline-end: auto;
     }
 
     .brand-name {
-      display: none;
+      font-size: var(--font-size-small);
     }
 
+    .menu-toggle {
+      display: inline-grid;
+    }
+
+    /* El nav sale del flujo → no empuja el header; se despliega como overlay. */
     .primary {
-      order: 3;
-      width: 100%;
+      position: absolute;
+      inset-inline: 0;
+      top: 100%;
       margin-inline-start: 0;
+      display: none;
+      background: var(--color-paper);
+      border-bottom: 1px solid var(--color-rule);
+      box-shadow: 0 8px 24px rgb(0 0 0 / 0.12);
+    }
+
+    .site-header[data-menu-open] .primary {
+      display: block;
     }
 
     .primary ul {
-      gap: var(--space-4);
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 0;
+      max-width: var(--content-width-wide);
+      margin-inline: auto;
+      padding: var(--space-2) var(--space-4) var(--space-4);
+    }
+
+    .primary li + li {
+      border-top: 1px solid var(--color-rule);
+    }
+
+    .primary a {
+      display: block;
+      padding: var(--space-3) 0;
+      font-size: var(--font-size-base);
+    }
+
+    .primary a.current {
+      display: inline-block;
     }
   }
 </style>
