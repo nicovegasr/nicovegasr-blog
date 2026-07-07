@@ -9,6 +9,7 @@ export const english: Dictionary = {
   'navigation.projects': 'Projects',
   'navigation.about': 'About',
   'navigation.work': 'Where I work',
+  'navigation.menu': 'Menu',
 
   'writing.articles': 'Articles',
   'writing.notes': 'Notes',
