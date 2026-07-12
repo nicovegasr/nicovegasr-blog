@@ -5,7 +5,7 @@ subtitle: 'communication'
 icon: 'network'
 order: 5
 bonus: false
-publicationDate: 2026-07-13
+publicationDate: 2026-07-12
 ---
 
 A Docker network is the system that lets containers **communicate with each other and with the outside world**. Docker creates isolated virtual networks and connects containers to them, controlling what can talk to what.
