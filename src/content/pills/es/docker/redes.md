@@ -5,7 +5,7 @@ subtitle: 'la comunicación'
 icon: 'network'
 order: 5
 bonus: false
-publicationDate: 2026-07-13
+publicationDate: 2026-07-12
 ---
 
 Una red de Docker es el sistema que permite a los contenedores **comunicarse entre sí y con el exterior**. Docker crea redes virtuales aisladas y conecta los contenedores a ellas, controlando qué puede hablar con qué.

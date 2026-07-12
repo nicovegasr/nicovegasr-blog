@@ -5,7 +5,7 @@ subtitle: 'orchestration'
 icon: 'compose'
 order: 6
 bonus: false
-publicationDate: 2026-07-13
+publicationDate: 2026-07-19
 ---
 
 Docker Compose lets you define **your whole application —several containers— in a single YAML file** and bring it up with one command. Instead of running each `docker run` by hand and remembering the networks, ports and order, you declare it once in `docker-compose.yml`.
