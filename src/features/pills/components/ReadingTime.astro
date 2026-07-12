@@ -1,0 +1,14 @@
+---
+import type { Locale } from '@/i18n/locale';
+import { getTranslator } from '@/i18n/translator';
+
+interface Props {
+  minutes: number;
+  locale: Locale;
+}
+
+const { minutes, locale } = Astro.props;
+const translate = getTranslator(locale);
+---
+
+<span>{minutes} {translate('blog.readingTime')}</span>

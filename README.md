@@ -46,6 +46,8 @@ src/
 │   │   ├── post-feed.ts             ← arma el RSS (@astrojs/rss) desde findAllPosts
 │   │   └── components/              ← UI propia del feature (se agrupa al crecer)
 │   │       └── {PostPreview, PostMeta, TagList, ReadingTime, PostSearch, RelatedPosts}.astro
+│   ├── reading-time/                 ← solo el CÁLCULO (regla 220 ppm), compartido por posts y píldoras
+│   │   └── reading-time.ts           ← calculateReadingTimeInMinutes (pura, testeable). La PRESENTACIÓN (<ReadingTime>) la pinta cada feature por su cuenta: no comparten píxeles, solo la regla
 │   ├── principles/{principle.ts, principle-repository.ts}  ← valores/principios (sección de sobre-mí)
 │   ├── timeline/
 │   │   ├── {timeline-entry.ts, timeline-repository.ts}
@@ -56,7 +58,7 @@ src/
 │   └── pills/                        ← píldoras: micro-conceptos agrupados en series (cada píldora = mini-post con página propia)
 │       ├── pill.ts                   ← entidades Pill/PillSeries + puras (railOrder: núcleo→bonus; hasSummaryBody; isPublished)
 │       ├── pill-repository.ts        ← astro:content → Pill/PillSeries (una colección, discrimina por `kind`)
-│       └── components/{PillRail, PillIcon}.astro  ← riel (metro) de la serie + iconos mono SVG (sin librería)
+│       └── components/{PillRail, PillIcon, ReadingTime}.astro  ← riel (metro) + iconos mono SVG + tiempo de lectura propio (bajo el título, como los posts)
 ├── layouts/                 ← shell transversal de toda página (no es un feature)
 │   ├── BaseLayout.astro     ← importa estilos+fuentes; <head> SEO (canonical, hreflang, OG/Twitter + og:image por defecto, favicon); script inline de tema (sin parpadeo) + observer de aparición
 │   ├── Logo.astro           ← marca: monograma NV sobre baseline lima (mismo mark que public/favicon.svg)
