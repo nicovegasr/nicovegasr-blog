@@ -10,6 +10,7 @@ import {
   type PillSeries,
 } from '@/features/pills/pill';
 import { parseLocalizedEntryIdentifier } from '@/i18n/entry-identifier';
+import { calculateReadingTimeInMinutes } from '@/features/reading-time/reading-time';
 
 type PillEntry = CollectionEntry<'pills'>;
 type SeriesEntry = PillEntry & { data: { kind: 'series' } };
@@ -140,6 +141,7 @@ type RenderablePill = {
   Content: Awaited<ReturnType<typeof render>>['Content'];
   seriesTitle: string;
   stops: readonly Pill[];
+  readingTimeInMinutes: number;
 };
 
 export const findRenderablePill = async (
@@ -175,5 +177,6 @@ export const findRenderablePill = async (
     Content,
     seriesTitle: pillSeries?.title ?? series,
     stops: await publishedPillsOf(locale, series),
+    readingTimeInMinutes: calculateReadingTimeInMinutes(entry.body ?? ''),
   };
 };

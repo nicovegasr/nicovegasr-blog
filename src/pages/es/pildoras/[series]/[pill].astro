@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PillRail from '@/features/pills/components/PillRail.astro';
+import ReadingTime from '@/features/pills/components/ReadingTime.astro';
 import { getTranslator } from '@/i18n/translator';
 import { buildPagePath, buildPillPath, buildPillSeriesPath } from '@/i18n/routes';
 import { neighboringPills, pillLeafSlugOf } from '@/features/pills/pill';
@@ -23,7 +24,13 @@ if (renderable === null) {
   throw new Error(`Pill not found: ${locale}/${series}/${pill}`);
 }
 
-const { pill: currentPill, Content, seriesTitle, stops } = renderable;
+const {
+  pill: currentPill,
+  Content,
+  seriesTitle,
+  stops,
+  readingTimeInMinutes,
+} = renderable;
 const translate = getTranslator(locale);
 const pillsPath = buildPagePath('pills', locale);
 const seriesPath = buildPillSeriesPath(locale, currentPill.series);
@@ -50,6 +57,9 @@ const alternatePaths = {
       </nav>
       <h1>{currentPill.title}</h1>
       <p class="pill-subtitle">{currentPill.subtitle}</p>
+      <p class="pill-meta">
+        <ReadingTime minutes={readingTimeInMinutes} locale={locale} />
+      </p>
     </header>
 
     <PillRail
@@ -94,6 +104,12 @@ const alternatePaths = {
   .pill-subtitle {
     color: var(--color-text-soft);
     font-size: var(--font-size-lead);
+  }
+
+  .pill-meta {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-meta);
+    color: var(--color-text-muted);
   }
 
   .pill-nav {

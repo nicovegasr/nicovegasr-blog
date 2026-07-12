@@ -1,11 +1,11 @@
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import type { Locale } from '@/i18n/locale';
 import {
-  calculateReadingTimeInMinutes,
   isPublished,
   sharedTagCountWith,
   type Post,
 } from '@/features/posts/post';
+import { calculateReadingTimeInMinutes } from '@/features/reading-time/reading-time';
 import { parseLocalizedEntryIdentifier } from '@/i18n/entry-identifier';
 
 const toPost = (entry: CollectionEntry<'posts'>): Post | null => {
