@@ -163,6 +163,7 @@ const activePath = blogSectionPaths.includes(Astro.url.pathname) ? blogPath : As
   .primary a {
     font-family: var(--font-family-display);
     font-size: var(--font-size-base);
+    white-space: nowrap;
     font-weight: 500;
     text-decoration: none;
     color: var(--color-text-soft);
@@ -215,7 +216,9 @@ const activePath = blogSectionPaths.includes(Astro.url.pathname) ? blogPath : As
     display: block;
   }
 
-  @media (max-width: 640px) {
+  /* El nav horizontal deja de caber antes que el viewport móvil: colapsamos
+     en cuanto los ítems empiezan a apretarse, no solo en móvil. */
+  @media (max-width: 900px) {
     /* Header en una sola fila compacta: máxima zona de lectura. */
     .bar {
       gap: var(--space-3);
