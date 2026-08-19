@@ -85,7 +85,9 @@ const allStops = summaryStop ? [...rail, summaryStop] : rail;
     justify-content: space-between;
     gap: var(--space-2);
     list-style: none;
-    padding: 0 var(--space-4);
+    /* El padding superior deja sitio al nodo activo, que crece con scale(): con
+       overflow-x el navegador recorta también en vertical y le cortaba la cabeza. */
+    padding: var(--space-2) var(--space-4) 0;
     margin: 0;
     overflow-x: auto;
   }
@@ -94,7 +96,7 @@ const allStops = summaryStop ? [...rail, summaryStop] : rail;
   .pill-rail-track::before {
     content: '';
     position: absolute;
-    top: 26px;
+    top: 34px;
     left: var(--space-8);
     right: var(--space-8);
     height: 2px;
