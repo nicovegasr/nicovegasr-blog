@@ -1,61 +1,82 @@
 ---
 kind: 'pill'
 title: 'Backend'
-subtitle: 'the system rules'
+subtitle: 'the service that does the work'
 icon: 'server'
 order: 5
 bonus: false
 publicationDate: 2026-08-21
 ---
 
-The backend is **the part of an application that receives requests, applies the
-system's rules, and saves changes**. It usually runs on one or more servers and
-you do not see it directly, but almost everything you do eventually passes
-through it.
+A backend is **a service that receives messages, performs work, and returns a
+result**. It usually runs on one or more servers, but it is not the server
+itself: the server is the machine or process that can receive traffic; the
+backend is the code that decides what to do with that traffic.
 
-## From a button to a real change
+Most often it receives HTTP requests. A website, mobile app, or integration
+sends a message and the service responds. It can also receive queue messages or
+start on a schedule, but the idea is the same: a signal arrives and the backend
+applies the system's rules.
 
-When you confirm an order, the frontend collects the products and address and
-sends a request. The backend checks that the data is valid, stock is available,
-the price is still correct, and that person is allowed to make the purchase.
+## What arrives in an HTTP request
 
-If everything adds up, it reduces the stock, saves the order, and returns the
-result. If something fails, it returns an error the frontend can explain.
+Imagine someone confirms an order. The frontend might send something like this:
 
-![A form asks to create an order; the backend validates the request, authorises the operation, and applies the rules before saving the change](../../images/fundamentos/backend/request-flow-en.webp)
+```http
+POST /orders?coupon=SUMMER
+Authorization: Bearer <token>
+Cookie: session=...
+Content-Type: application/json
 
-That distinction matters because the same system may have several clients: a
-website, a mobile app, or an external integration. If each one decided when a
-purchase was allowed, you would end up with three versions of the same rules.
-The backend keeps them in one place.
+{ "products": ["keyboard"], "address": "..." }
+```
 
-## Nobody has to be waiting
+The request has a **path** (`/orders`) and a **method** (`POST`) that express
+the operation. Headers carry metadata, such as the content format or identity.
+Query parameters (`coupon=SUMMER`) refine the request. The body carries the
+data to create or modify. Cookies also travel in headers; a browser attaches
+them, for example, to identify a session.
 
-A backend also works without someone pressing a button. It can run a scheduled
-task every night, process heavy work in the background, or react to an event
-published by another system.
+![An HTTP request enters a backend service, which authenticates, validates, and applies rules to create an order; it then sends invoice generation and email delivery to a queue](../../images/fundamentos/backend/request-flow-en.webp)
 
-When an order is created, for example, it may publish an event to prepare the
-invoice. A *webhook* travels in the other direction: the backend calls another
-service to tell it something has happened. In both cases it is still doing the
-same thing: receiving a signal and applying a rule.
+## From message to operation
 
-## Security is decided here
+A backend does not run a request exactly as it arrives. First it decides which
+code handles that path. It can then authenticate the person, check that they
+are allowed to buy, validate that the fields make sense, and apply business
+rules: stock must exist, the price must be current, and the coupon must still
+be valid.
 
-The frontend can hide a button or prevent you from opening a route, but anyone
-can bypass it and call the API directly. The backend therefore checks who made
-the request and which permissions they have before changing anything.
+Only then does it change data: it reduces stock and saves the order. Finally it
+returns an HTTP response. That may be `201 Created` with the order, `400` for
+missing data, `401` when no valid identity is provided, or `409` when stock has
+run out. The frontend uses that response to update the screen, but it does not
+decide whether the operation was valid.
 
-Identity may arrive in a token or a cookie-based session. The mechanism changes;
-the responsibility does not: **the backend does not trust the frontend to have
-done those checks for it**.
+This centralisation lets the website, mobile app, and an external integration
+use the same rules without copying them into every client.
 
-## What *stateless* means
+## CRUD is only part of the work
 
-Many backends are *stateless*: each request carries what is needed to process
-it, such as the identity and operation data. Another instance can therefore
-handle the next request without remembering what happened in the previous one.
+Many APIs expose CRUD operations: create, read, update, and delete data. In a
+shop, `POST /orders` creates an order, `GET /orders/42` reads it, `PATCH
+/orders/42` changes an allowed value, and `DELETE /cart/items/7` removes a
+product from the cart.
 
-⚠️ *Stateless* does not mean the application stores no data. The order remains
-in the database. What does not need to be kept is the conversation in one
-particular server's memory.
+CRUD describes the data change; it does not replace the rules. Creating an
+order is not simply inserting a row: identity, stock, prices, and the effects
+of the purchase still have to be checked.
+
+## It can keep working after the response
+
+Not everything needs to finish before the backend responds. After creating an
+order, it can put a job in a **queue** and respond straight away. Another
+process consumes that job later: it generates the invoice and sends the email.
+
+The person does not wait for a PDF to render or an email provider to respond.
+If sending fails, the worker can retry it without repeating the purchase.
+Scheduled tasks and messages from other services are handled in a similar way.
+
+⚠️ Hiding a button in the frontend improves the experience, but it does not
+protect the operation. Anyone can build an HTTP request themselves, which is
+why authentication, permissions, and important rules belong in the backend.

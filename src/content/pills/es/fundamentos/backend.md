@@ -1,62 +1,85 @@
 ---
 kind: 'pill'
 title: 'Backend'
-subtitle: 'las reglas del sistema'
+subtitle: 'el servicio que hace el trabajo'
 icon: 'server'
 order: 5
 bonus: false
 publicationDate: 2026-08-21
 ---
 
-El backend es **la parte de una aplicación que recibe peticiones, aplica las
-reglas del sistema y guarda los cambios**. Normalmente se ejecuta en uno o varios
-servidores y no lo ves directamente, pero casi todo lo que haces termina pasando
-por él.
+Un backend es **un servicio que recibe mensajes, ejecuta trabajo y devuelve un
+resultado**. Suele ejecutarse en uno o varios servidores, pero no es el servidor
+en sí: el servidor es la máquina o proceso que puede recibir tráfico; el backend
+es el código que decide qué hacer con ese tráfico.
 
-## Del botón al cambio real
+Lo más habitual es que reciba peticiones HTTP. Una web, una app móvil o una
+integración envían un mensaje y el servicio responde. También puede recibir
+mensajes de una cola o arrancar por un horario, pero la idea es la misma: llega
+una señal y el backend aplica las reglas del sistema.
 
-Cuando confirmas un pedido, el frontend recoge los productos y la dirección y
-envía una petición. El backend es quien comprueba que los datos son válidos, que
-queda stock, que el precio sigue siendo correcto y que esa persona puede hacer
-la compra.
+## Qué llega en una petición HTTP
 
-Si todo cuadra, descuenta el stock, guarda el pedido y devuelve el resultado. Si
-algo falla, responde con un error que el frontend pueda explicar.
+Imagina que una persona confirma un pedido. El frontend puede enviar algo como
+esto:
 
-![Un formulario pide crear un pedido; el backend valida la petición, autoriza la operación y aplica las reglas antes de guardar el cambio](../../images/fundamentos/backend/request-flow-es.webp)
+```http
+POST /orders?coupon=SUMMER
+Authorization: Bearer <token>
+Cookie: session=...
+Content-Type: application/json
 
-La distinción importa porque puede haber más de una forma de usar el mismo
-sistema: una web, una app móvil o una integración externa. Si cada cliente
-decidiera por su cuenta cuándo se puede comprar, acabarías con tres versiones de
-las mismas reglas. El backend las deja en un único sitio.
+{ "products": ["keyboard"], "address": "..." }
+```
 
-## No siempre hay alguien esperando
+La petición tiene una **ruta** (`/orders`) y un **método** (`POST`) que expresan
+la operación. Los *headers* llevan metadatos, como el formato del contenido o
+la identidad. Los *query params* (`coupon=SUMMER`) afinan la petición. El
+*body* lleva los datos que queremos crear o modificar. Las cookies también
+viajan en los headers; el navegador las adjunta, por ejemplo, para identificar
+una sesión.
 
-Un backend también trabaja sin que nadie pulse un botón. Puede ejecutar una
-tarea programada cada noche, procesar algo pesado en segundo plano o reaccionar
-a un evento que publicó otro sistema.
+![Una petición HTTP entra en un servicio backend, que autentica, valida y aplica las reglas para crear un pedido; después encarga por una cola la factura y su envío por correo](../../images/fundamentos/backend/request-flow-es.webp)
 
-Cuando se crea un pedido, por ejemplo, puede publicar un evento para preparar la
-factura. Un *webhook* recorre el camino contrario: el backend llama a otro
-servicio para avisarle de que algo ha ocurrido. En ambos casos sigue haciendo lo
-mismo: recibir una señal y aplicar una regla.
+## Del mensaje a la operación
 
-## La seguridad se decide aquí
+El backend no ejecuta una petición tal cual llega. Primero decide qué código
+atiende esa ruta. Después puede autenticar a la persona, comprobar que tiene
+permiso para comprar, validar que los campos tienen sentido y aplicar las reglas
+del negocio: que haya stock, que el precio sea el actual o que el cupón siga
+siendo válido.
 
-El frontend puede ocultar un botón o impedir que abras una ruta, pero cualquiera
-puede saltárselo y llamar a la API directamente. Por eso el backend comprueba
-quién hace la petición y qué permisos tiene antes de cambiar nada.
+Solo entonces cambia datos: descuenta unidades y guarda el pedido. Al final
+devuelve una respuesta HTTP. Puede ser un `201 Created` con el pedido, un `400`
+si faltan datos, un `401` si no hay una identidad válida o un `409` si ya no
+queda stock. El frontend usa esa respuesta para actualizar la pantalla, pero no
+decide si la operación era válida.
 
-La identidad puede llegar en un token o en una sesión mediante cookie. El
-mecanismo cambia; la responsabilidad no: **el backend no confía en que el
-frontend haya hecho las comprobaciones por él**.
+Esta centralización permite que la web, la app móvil y una integración externa
+usen las mismas reglas sin copiarlas en cada cliente.
 
-## Lo que significa *stateless*
+## CRUD es una parte del trabajo
 
-Muchos backends son *stateless*: cada petición trae lo necesario para
-procesarla, como la identidad y los datos de la operación. Así la siguiente
-petición puede atenderla otra instancia sin recordar qué ocurrió en la anterior.
+Muchas APIs exponen operaciones CRUD: crear, leer, actualizar y borrar datos.
+En una tienda, `POST /orders` crea un pedido, `GET /orders/42` lo consulta,
+`PATCH /orders/42` modifica un dato permitido y `DELETE /cart/items/7` quita un
+producto del carrito.
 
-⚠️ *Stateless* no significa que la aplicación no guarde datos. El pedido sigue
-en la base de datos. Lo que no necesita conservarse es la conversación en la
-memoria de un servidor concreto.
+CRUD describe el cambio de datos, no sustituye las reglas. Crear un pedido no
+es solo insertar una fila: hay que comprobar identidad, stock, precios y qué
+efectos debe producir la compra.
+
+## También puede seguir trabajando después
+
+No todo tiene que terminar antes de responder. Tras crear el pedido, el backend
+puede guardar un trabajo en una **cola** y responder enseguida. Otro proceso
+consume ese trabajo más tarde: genera la factura y envía el correo.
+
+Así la persona no espera a que se renderice un PDF o a que responda el proveedor
+de correo. Además, si el envío falla, el trabajador puede reintentarlo sin
+repetir la compra. Las tareas programadas y los mensajes de otros servicios se
+procesan de una forma parecida.
+
+⚠️ Ocultar un botón en el frontend mejora la experiencia, pero no protege la
+operación. Cualquiera puede construir una petición HTTP por su cuenta; por eso
+la autenticación, los permisos y las reglas importantes viven en el backend.
