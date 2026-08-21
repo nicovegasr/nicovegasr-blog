@@ -32,8 +32,6 @@ If they are all busy, later requests wait. Increasing the pool without a limit
 does not create free capacity; it only lets more work reach the database at the
 same time. If the queries are slow, that can make the problem worse.
 
-![A pool limits and reuses connections; an index avoids scanning the whole table at the cost of extra work on writes](../../images/fundamentos/base-de-datos/base-de-datos-en.webp)
-
 ## An index avoids searching row by row
 
 Without an index, finding one customer's orders may require checking the entire
@@ -46,6 +44,8 @@ or joins. It is also why creating one for every column is a bad idea.
 
 Every `INSERT`, `UPDATE`, or `DELETE` must update the table and every affected
 index. Reads become faster; writes pay in extra work and storage.
+
+![Comparison of two query plans: without an index every table page is scanned; with an index only the relevant pages are accessed, but each write updates both table and index](../../images/fundamentos/base-de-datos/base-de-datos-en.webp)
 
 ## A query can repeat work without making it obvious
 

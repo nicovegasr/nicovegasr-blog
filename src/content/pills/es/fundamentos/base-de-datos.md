@@ -34,8 +34,6 @@ medida no crea capacidad gratis; solo permite que más trabajo llegue a la base
 de datos al mismo tiempo. Si las consultas son lentas, puedes empeorar el
 problema.
 
-![Un pool limita y reutiliza conexiones; un índice evita recorrer toda la tabla a cambio de añadir trabajo a las escrituras](../../images/fundamentos/base-de-datos/base-de-datos-es.webp)
-
 ## Un índice evita buscar fila por fila
 
 Sin un índice, buscar los pedidos de un cliente puede obligar a revisar toda la
@@ -50,6 +48,8 @@ columna.
 Cada `INSERT`, `UPDATE` o `DELETE` tiene que actualizar la tabla y todos los
 índices afectados. Ganas velocidad al leer; pagas espacio y trabajo extra al
 escribir.
+
+![Comparación de dos planes para encontrar pedidos: sin índice se recorren todas las páginas de la tabla; con un índice se accede solo a las páginas relevantes, pero cada escritura actualiza tabla e índice](../../images/fundamentos/base-de-datos/base-de-datos-es.webp)
 
 ## Una consulta puede repetir trabajo sin que se note
 
