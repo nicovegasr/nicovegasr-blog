@@ -2,7 +2,7 @@
 kind: 'pill'
 title: 'Tipos de API'
 subtitle: 'cuatro estilos web'
-icon: 'api'
+icon: 'network'
 order: 2
 bonus: false
 publicationDate: 2026-08-21

@@ -2,7 +2,7 @@
 kind: 'pill'
 title: '¿Qué es un SDK?'
 subtitle: 'el kit'
-icon: 'api'
+icon: 'layers'
 order: 3
 bonus: false
 publicationDate: 2026-08-21

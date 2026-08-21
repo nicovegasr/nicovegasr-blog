@@ -1,64 +1,61 @@
 ---
 kind: 'pill'
 title: 'Backend'
-subtitle: 'the logic'
-icon: 'foundation'
-order: 4
+subtitle: 'the system rules'
+icon: 'server'
+order: 5
 bonus: false
 publicationDate: 2026-08-21
 ---
 
-A backend is the part of an application that **decides what is allowed and
-applies changes to the system**. It usually runs on a server and you do not see
-it while using an app, but that is where its rules live.
+The backend is **the part of an application that receives requests, applies the
+system's rules, and saves changes**. It usually runs on one or more servers and
+you do not see it directly, but almost everything you do eventually passes
+through it.
 
-![A form asks to create an order; the backend validates the request, authorizes the operation, and applies the rules before saving the change](../../images/fundamentos/backend/request-flow-en.webp)
+## From a button to a real change
 
-## From a click to a real change
+When you confirm an order, the frontend collects the products and address and
+sends a request. The backend checks that the data is valid, stock is available,
+the price is still correct, and that person is allowed to make the purchase.
 
-The frontend captures the user's intent: it shows a form, lets them choose
-products, and offers a button to confirm the order. But pressing that button
-should not create the order on its own.
+If everything adds up, it reduces the stock, saves the order, and returns the
+result. If something fails, it returns an error the frontend can explain.
 
-The frontend sends a request to the backend. The backend then checks that the
-data is valid, that stock is available, that the price is still correct, and
-that the person is allowed to carry out the operation. Only then does it save
-the order and return a result.
+![A form asks to create an order; the backend validates the request, authorises the operation, and applies the rules before saving the change](../../images/fundamentos/backend/request-flow-en.webp)
 
-This means a website, mobile app, and external integration can all use the same
-rules without copying them into every client.
+That distinction matters because the same system may have several clients: a
+website, a mobile app, or an external integration. If each one decided when a
+purchase was allowed, you would end up with three versions of the same rules.
+The backend keeps them in one place.
 
-## It does not always wait for a click
+## Nobody has to be waiting
 
-A backend can also react to things that have already happened or start work on
-its own. When an order is created, for example, it can publish an event so
-another process prepares an invoice or notifies the warehouse.
+A backend also works without someone pressing a button. It can run a scheduled
+task every night, process heavy work in the background, or react to an event
+published by another system.
 
-A webhook does something similar between systems: the backend sends a request
-to another service to notify it of a change. Scheduled jobs (*cron jobs*) and
-asynchronous jobs handle work that should not happen while someone is waiting,
-such as generating a nightly report or processing many images.
-
-The idea is the same: **the backend applies the system's rules even when nobody
-is pressing a button at that moment**.
+When an order is created, for example, it may publish an event to prepare the
+invoice. A *webhook* travels in the other direction: the backend calls another
+service to tell it something has happened. In both cases it is still doing the
+same thing: receiving a signal and applying a rule.
 
 ## Security is decided here
 
-The frontend can hide a button or validate a field to improve the experience,
-but anyone can modify it or call the API directly. **It is not a security
-boundary.**
+The frontend can hide a button or prevent you from opening a route, but anyone
+can bypass it and call the API directly. The backend therefore checks who made
+the request and which permissions they have before changing anything.
 
-When a request acts on someone's behalf, the backend must check their identity
-and permissions before doing anything. A token is one common way to carry that
-identity; a cookie-based session is another. There are also public routes that
-do not need to authenticate anyone.
+Identity may arrive in a token or a cookie-based session. The mechanism changes;
+the responsibility does not: **the backend does not trust the frontend to have
+done those checks for it**.
 
-## No memory between requests
+## What *stateless* means
 
-Many backends are *stateless*: every request includes the context needed to
-process it, such as the identity or the operation's data. That way, any backend
-instance can handle the next request without relying on the memory of the
-previous one.
+Many backends are *stateless*: each request carries what is needed to process
+it, such as the identity and operation data. Another instance can therefore
+handle the next request without remembering what happened in the previous one.
 
-⚠️ *Stateless* does not mean an application does not store data. It means the
-server does not need to remember the conversation in its memory to continue it.
+⚠️ *Stateless* does not mean the application stores no data. The order remains
+in the database. What does not need to be kept is the conversation in one
+particular server's memory.
