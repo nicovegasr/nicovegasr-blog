@@ -37,7 +37,7 @@ src/
 │   ├── locale.ts            ← tipo Locale, LOCALES, isLocale, DEFAULT_LOCALE
 │   ├── es.ts · en.ts        ← diccionarios de strings de UI (en.ts tipado como Dictionary)
 │   ├── translator.ts        ← getTranslator(locale) → translate(key) tipado
-│   ├── routes.ts            ← PageKey (blog↔'', projects↔proyectos, notes↔apuntes, pills↔pildoras, about↔sobre-mi); "Dónde trabajo" es ancla #work de sobre-mí
+│   ├── routes.ts            ← PageKey (blog↔'', projects↔proyectos, pills↔pildoras, about↔sobre-mi)
 │   └── entry-identifier.ts  ← parsea "es/slug.md" → { locale, slug }
 ├── features/                ← nuestro código, un slice vertical por feature
 │   ├── posts/
@@ -62,19 +62,19 @@ src/
 ├── layouts/                 ← shell transversal de toda página (no es un feature)
 │   ├── BaseLayout.astro     ← importa estilos+fuentes; <head> SEO (canonical, hreflang, OG/Twitter + og:image por defecto, favicon); script inline de tema (sin parpadeo) + observer de aparición
 │   ├── Logo.astro           ← marca: monograma NV sobre baseline lima (mismo mark que public/favicon.svg)
-│   ├── WritingSectionNav.astro ← sub-nav del blog (Artículos · Apuntes · Píldoras), activo por path
-│   ├── ComingSoon.astro     ← panel reutilizable "próximamente" (Projects/Apuntes/Píldoras)
+│   ├── WritingSectionNav.astro ← sub-nav del blog (Artículos · Píldoras), activo por path
+│   ├── ComingSoon.astro     ← panel reutilizable "próximamente" (Projects/Píldoras)
 │   └── {Navigation, Footer, LanguageSwitcher, ThemeToggle, SocialLinks}.astro
 └── pages/                   ← árbol simétrico: una carpeta por idioma (URL = carpeta)
     ├── 404.astro            ← página 404 única (locale por defecto, enlaces a ambos inicios)
-    ├── es/{index, proyectos, apuntes, sobre-mi, blog/[slug]}.astro · es/rss.xml.ts
+    ├── es/{index, proyectos, sobre-mi, blog/[slug]}.astro · es/rss.xml.ts
     │   └── pildoras/{index, [series], [series]/[pill]}.astro  ← índice de series · serie (riel + resumen) · píldora
-    └── en/{index, projects, notes, about, blog/[slug]}.astro · en/rss.xml.ts
+    └── en/{index, projects, about, blog/[slug]}.astro · en/rss.xml.ts
         └── pills/{index, [series], [series]/[pill]}.astro
     (el `/` raíz no tiene page: lo redirige `redirects` en astro.config a `/es`)
-    (proyectos/apuntes siguen como stubs "coming soon"; píldoras ya sirve la
-     serie Docker. Apuntes y píldoras son tipos de contenido del blog: comparten
-     el WritingSectionNav. Píldoras: el índice cae a "coming soon" si no hay series)
+(proyectos sigue como stub "coming soon"; píldoras ya sirve la serie Docker.
+ Píldoras comparte el WritingSectionNav con los artículos; el índice cae a
+ "coming soon" si no hay series)
 ```
 
 Los tests viven junto al código que prueban (`post.test.ts` al lado de `post.ts`).
@@ -121,7 +121,7 @@ i18n es un concern transversal de primera clase, por eso vive en `src/i18n/` (no
 - El locale vive en el **path del archivo** (`posts/es/slug.md`), no en el frontmatter.
 - `i18n/entry-identifier.ts` parsea el id de Astro (`"es/mi-post.md"`) → `{ locale, slug }`. Lo usan todos los repos; vive en `i18n/` porque su trabajo es extraer el locale del path.
 - Las strings de UI viven en diccionarios TS (`i18n/es.ts`, `i18n/en.ts`).
-- Las rutas lógicas se resuelven con `PageKey` en `i18n/routes.ts` (`blog` ↔ `''`, `about` ↔ `sobre-mi`). **"Dónde trabajo" no es página**: es una sección de sobre-mí enlazada por ancla (`#work`). El **contacto** vive en el footer (todas las páginas) y en el hero de la home, no en el nav. Nunca se hardcodean segmentos de URL.
+- Las rutas lógicas se resuelven con `PageKey` en `i18n/routes.ts` (`blog` ↔ `''`, `about` ↔ `sobre-mi`). El **contacto** vive en el footer (todas las páginas) y en el hero de la home, no en el nav. Nunca se hardcodean segmentos de URL.
 - Todos los idiomas van prefijados por igual: `buildPagePath` antepone el locale siempre (`/es/...`, `/en/...`). `buildAlternateLocalePath` quita ese prefijo, busca la `PageKey` por el primer segmento y reconstruye la ruta en el idioma destino. Astro no empareja páginas entre idiomas por su cuenta: ese mapeo es nuestro, en `routes.ts`.
 
 ### Estilos y tema
@@ -154,7 +154,7 @@ En construcción. **Hecho:** cimientos (entidades de dominio, repositorios, sche
 - **SEO/feeds:** Open Graph + Twitter Card **con og:image por defecto**, **favicon** SVG, sitemap i18n, RSS por idioma, `robots.txt`, **404 custom**.
 - **Estilos (fase 8):** CSS a pelo con tokens (`src/styles/`), multi-tema claro/oscuro con toggle y sin parpadeo, fuentes self-hosted, tarjetas de post que invierten al hover, aparición al hacer scroll.
 
-**Fase final: pildoras, apuntes y projects como coming soon, pendiente desplegar el blog en cloud flare pages y plantear con calma la seccion de projects.
+**Fase final: projects como coming soon, pendiente desplegar el blog en cloud flare pages y plantear con calma la seccion de projects.
 
 > **Stack en el portfolio:** la lista de tecnologías va *a pelo* (array inline en cada page), sin colección ni feature: son nombres, no contenido editorial. Categorías en inglés en ambos idiomas; los nombres de tech no se traducen.
 

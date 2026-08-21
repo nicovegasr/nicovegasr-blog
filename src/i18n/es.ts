@@ -10,7 +10,6 @@ export const spanish = {
   'navigation.menu': 'Menú',
 
   'writing.articles': 'Artículos',
-  'writing.notes': 'Apuntes',
   'writing.pills': 'Píldoras',
 
   'language.switchTo': 'English',
@@ -46,12 +45,6 @@ export const spanish = {
   'projects.heading': 'Proyectos',
   'projects.comingSoonText':
     'Estoy preparando esta sección. Pronto encontrarás aquí los proyectos en los que trabajo, con su contexto, las decisiones que tomé y lo que aprendí construyéndolos.',
-
-  'notes.metaDescription':
-    'Apuntes de Nicolás Vegas: notas de aprendizaje, más crudas y directas que los artículos. Próximamente.',
-  'notes.heading': 'Apuntes',
-  'notes.comingSoonText':
-    'Notas más crudas y directas que los artículos: lo que voy capturando mientras aprendo. Pronto las abriré aquí.',
 
   'pills.metaDescription':
     'Píldoras formativas de Nicolás Vegas: conceptos concretos explicados en pequeño. Próximamente.',

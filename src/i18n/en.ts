@@ -12,7 +12,6 @@ export const english: Dictionary = {
   'navigation.menu': 'Menu',
 
   'writing.articles': 'Articles',
-  'writing.notes': 'Notes',
   'writing.pills': 'Pills',
 
   'language.switchTo': 'Español',
@@ -48,12 +47,6 @@ export const english: Dictionary = {
   'projects.heading': 'Projects',
   'projects.comingSoonText':
     "I'm putting this section together. Soon you'll find the projects I'm working on here, with their context, the decisions I made and what I learned building them.",
-
-  'notes.metaDescription':
-    "Nicolás Vegas's notes: learning notes, rawer and more direct than the articles. Coming soon.",
-  'notes.heading': 'Notes',
-  'notes.comingSoonText':
-    "Rawer and more direct than the articles: what I capture as I learn. I'll open them up here soon.",
 
   'pills.metaDescription':
     "Nicolás Vegas's learning pills: concrete concepts explained small. Coming soon.",

@@ -14,8 +14,6 @@ interface Props {
 const { locale, alternatePaths = {} } = Astro.props;
 const translate = getTranslator(locale);
 
-// "Dónde trabajo" no es página propia: es una sección de "sobre mí" (ancla #work).
-// El contacto vive en el footer (todas las páginas) y en el hero de la home.
 const aboutPath = buildPagePath('about', locale);
 const blogPath = buildPagePath('blog', locale);
 
@@ -23,14 +21,13 @@ const navigationItems: { href: string; label: string }[] = [
   { href: blogPath, label: translate('navigation.blog') },
   { href: buildPagePath('projects', locale), label: translate('navigation.projects') },
   { href: aboutPath, label: translate('navigation.about') },
-  { href: `${aboutPath}#work`, label: translate('navigation.work') },
 ];
 
 const homePath = blogPath;
 
-// Apuntes y Píldoras son sub-secciones del Blog (no ítems del header): estando
-// en ellas el ítem activo sigue siendo Blog, así que su ruta colapsa a blogPath.
-const blogSectionPaths = [blogPath, buildPagePath('notes', locale), buildPagePath('pills', locale)];
+// Píldoras es una sub-sección del Blog (no un ítem del header): estando en ella
+// el ítem activo sigue siendo Blog, así que su ruta colapsa a blogPath.
+const blogSectionPaths = [blogPath, buildPagePath('pills', locale)];
 const activePath = blogSectionPaths.includes(Astro.url.pathname) ? blogPath : Astro.url.pathname;
 ---
 
