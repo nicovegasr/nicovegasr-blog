@@ -5,7 +5,7 @@ subtitle: 'the contract'
 icon: 'api'
 order: 1
 bonus: false
-publicationDate: 2026-08-19
+publicationDate: 2026-08-21
 ---
 
 An API (*Application Programming Interface*) is **the contract by which a piece of software lets others ask it for things**: what you can ask for, how to ask for it and what you get back.

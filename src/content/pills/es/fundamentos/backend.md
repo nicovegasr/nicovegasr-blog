@@ -1,64 +1,62 @@
 ---
 kind: 'pill'
 title: 'Backend'
-subtitle: 'la lógica'
-icon: 'foundation'
-order: 4
+subtitle: 'las reglas del sistema'
+icon: 'server'
+order: 5
 bonus: false
 publicationDate: 2026-08-21
 ---
 
-El backend es la parte de una aplicación que **decide qué está permitido y
-aplica los cambios en el sistema**. Normalmente se ejecuta en un servidor y no
-la ves al usar la aplicación, pero ahí viven sus reglas.
+El backend es **la parte de una aplicación que recibe peticiones, aplica las
+reglas del sistema y guarda los cambios**. Normalmente se ejecuta en uno o varios
+servidores y no lo ves directamente, pero casi todo lo que haces termina pasando
+por él.
+
+## Del botón al cambio real
+
+Cuando confirmas un pedido, el frontend recoge los productos y la dirección y
+envía una petición. El backend es quien comprueba que los datos son válidos, que
+queda stock, que el precio sigue siendo correcto y que esa persona puede hacer
+la compra.
+
+Si todo cuadra, descuenta el stock, guarda el pedido y devuelve el resultado. Si
+algo falla, responde con un error que el frontend pueda explicar.
 
 ![Un formulario pide crear un pedido; el backend valida la petición, autoriza la operación y aplica las reglas antes de guardar el cambio](../../images/fundamentos/backend/request-flow-es.webp)
 
-## Del clic al cambio real
+La distinción importa porque puede haber más de una forma de usar el mismo
+sistema: una web, una app móvil o una integración externa. Si cada cliente
+decidiera por su cuenta cuándo se puede comprar, acabarías con tres versiones de
+las mismas reglas. El backend las deja en un único sitio.
 
-El frontend recoge la intención de quien usa la aplicación: muestra un
-formulario, deja elegir productos y ofrece un botón para confirmar el pedido.
-Pero pulsar ese botón no debería crear el pedido por sí solo.
+## No siempre hay alguien esperando
 
-El frontend envía una petición al backend. Entonces el backend comprueba que
-los datos son válidos, que hay stock, que el precio sigue siendo correcto y que
-esa persona puede hacer la operación. Solo después guarda el pedido y responde
-con el resultado.
+Un backend también trabaja sin que nadie pulse un botón. Puede ejecutar una
+tarea programada cada noche, procesar algo pesado en segundo plano o reaccionar
+a un evento que publicó otro sistema.
 
-Así puedes tener una web, una app móvil y una integración externa usando las
-mismas reglas sin copiarlas en cada cliente.
-
-## No siempre espera un clic
-
-Un backend también puede reaccionar a cosas que ya han ocurrido o iniciar
-trabajo por su cuenta. Cuando se crea un pedido, por ejemplo, puede publicar un
-evento para que otro proceso prepare la factura o avise al almacén.
-
-Un *webhook* hace algo parecido entre sistemas: el backend envía una petición a
-otro servicio para notificarle un cambio. Y los trabajos programados (*cron
-jobs*) o asíncronos se ocupan de tareas que no conviene resolver mientras la
-persona espera, como generar un informe nocturno o procesar muchas imágenes.
-
-La idea es la misma: **el backend aplica las reglas del sistema aunque nadie
-esté pulsando un botón en ese momento**.
+Cuando se crea un pedido, por ejemplo, puede publicar un evento para preparar la
+factura. Un *webhook* recorre el camino contrario: el backend llama a otro
+servicio para avisarle de que algo ha ocurrido. En ambos casos sigue haciendo lo
+mismo: recibir una señal y aplicar una regla.
 
 ## La seguridad se decide aquí
 
-El frontend puede ocultar un botón o validar un campo para mejorar la
-experiencia, pero cualquiera puede modificarlo o llamar a la API directamente.
-**No es una frontera de seguridad.**
+El frontend puede ocultar un botón o impedir que abras una ruta, pero cualquiera
+puede saltárselo y llamar a la API directamente. Por eso el backend comprueba
+quién hace la petición y qué permisos tiene antes de cambiar nada.
 
-Cuando una petición actúa en nombre de alguien, el backend debe comprobar su
-identidad y sus permisos antes de hacer nada. Un token es una forma habitual de
-llevar esa identidad; una sesión mediante cookie es otra. También hay rutas
-públicas que no necesitan autenticar a nadie.
+La identidad puede llegar en un token o en una sesión mediante cookie. El
+mecanismo cambia; la responsabilidad no: **el backend no confía en que el
+frontend haya hecho las comprobaciones por él**.
 
-## Sin memoria entre peticiones
+## Lo que significa *stateless*
 
-Muchos backends son *stateless*: cada petición incluye el contexto necesario
-para procesarla, como la identidad o los datos de la operación. Así cualquiera
-de las instancias del backend puede atender la siguiente petición, sin depender
-de la memoria de la anterior.
+Muchos backends son *stateless*: cada petición trae lo necesario para
+procesarla, como la identidad y los datos de la operación. Así la siguiente
+petición puede atenderla otra instancia sin recordar qué ocurrió en la anterior.
 
-⚠️ *Stateless* no significa que la aplicación no guarde datos. Significa que
-el servidor no necesita recordar la conversación en su memoria para continuar.
+⚠️ *Stateless* no significa que la aplicación no guarde datos. El pedido sigue
+en la base de datos. Lo que no necesita conservarse es la conversación en la
+memoria de un servidor concreto.
