@@ -8,44 +8,63 @@ bonus: false
 publicationDate: 2026-08-21
 ---
 
-An SDK (*Software Development Kit*) is **a set of tools for integrating your
-application with a platform**. It commonly includes libraries, examples,
-documentation, and utilities so you do not have to build every piece yourself.
+An SDK (*Software Development Kit*) is **a package prepared for building
+software on top of a platform**. The library you call from your code is its most
+visible part, but the kit can also include types, configuration, tools,
+documentation, and examples.
 
-## An API and an SDK are not the same
+## Uploading a file to Amazon S3
 
-The API is the **contract**: which operations exist, which data they accept, and
-what they return. An SDK is a convenient way to use that contract from a
-particular language or environment.
-
-An online shop can offer an HTTP API for creating orders. Its JavaScript SDK can
-give you a ready-made function that calls that API, authenticates you, and turns
-the response into objects your application understands.
-
-![The API is the central contract. An SDK groups a client, authentication, models, and utilities for using that contract](../../images/fundamentos/sdk/api-and-sdk-en.webp)
-
-## What it saves you from doing
-
-Without an SDK, you may need to prepare each request, attach authentication
-headers, interpret errors, and transform JSON. With one, the intent stays
-closer to the code:
+The AWS SDK for JavaScript provides an S3 client. To upload an object, you give
+it the region, bucket, name, and contents:
 
 ```js
-const order = await shop.orders.create({
-  items: [{ productId: 'backpack', quantity: 1 }],
-});
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+
+const s3 = new S3Client({ region: 'eu-west-1' });
+
+await s3.send(new PutObjectCommand({
+  Bucket: 'my-photos',
+  Key: 'avatar.jpg',
+  Body: image,
+}));
 ```
 
-The SDK can handle `POST /orders`, the token, and response conversion behind the
-scenes. It does not add capabilities to the API: **it packages repeated
-decisions so using it is easier and less error-prone**.
+That code looks small because the SDK handles the mechanical work underneath:
+
+- Finds credentials in the configured sources
+- Resolves the endpoint for the selected region
+- Turns `PutObjectCommand` into an HTTP request
+- Signs the request so AWS can authenticate it
+- Interprets the response and retries certain temporary failures
+
+![Flow of an upload to S3: the SDK resolves credentials and the endpoint, serialises and signs the command, sends the request, and handles retries](../../images/fundamentos/sdk/s3-sdk-flow-en.webp)
+
+## Why it is called a kit
+
+What we install in the example is the S3 module from the AWS SDK for JavaScript.
+The complete ecosystem brings together clients for its services, commands,
+types, credential providers, configuration, and shared utilities. **It does not
+only define what you can call: it prepares the environment for building with
+it.**
+
+The SDK does not remove decisions. You still choose the region, which
+credentials will be available, which bucket to write to, and when to override
+the default configuration. The kit knows AWS's rules and automates the
+repetitive part.
+
+## The SDK has an API too
+
+`S3Client`, `PutObjectCommand`, and `send` form an API used by your code. The SDK
+in turn consumes the S3 API underneath. They are not opposing concepts: the SDK
+is the set of tools, and its APIs are the contracts through which you use them.
 
 ## When it is useful
 
-An SDK is worthwhile when you will integrate several parts of a platform or
-want to use already-solved typed models, retries, and error handling. It is
-often the fastest way to get started as well.
+An SDK pays off when it signs requests, resolves credentials, provides types, or
+standardises errors and retries that you would otherwise need to implement and
+maintain yourself.
 
-⚠️ It is neither required nor always the best layer. It may lag behind the API,
-hide details you need to control, or add too much dependency. If you only need
-one very specific operation, calling the API directly may be clearer.
+⚠️ That convenience also adds a dependency and can hide details you need to
+control. Using an SDK does not mean you can ignore the service's security,
+costs, or behaviour.
