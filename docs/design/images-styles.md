@@ -89,7 +89,10 @@ The Fundamentos images establish a useful range rather than one fixed layout:
 
 - `API` succeeds through repeated examples with one shared contract.
 - `Tipos de API` uses distinct metaphors around a central category.
-- `Backend` uses a direct three-step causal flow.
+- `Backend` distinguishes the incoming HTTP message, the synchronous decision
+  path, and work deferred to a queue; process diagrams should make those
+  boundaries visible instead of reducing the concept to a button-to-database
+  flow.
 - `Frontend` separates visible interface from state and coordination.
 - `Base de datos` makes contention and the cost of different paths visible.
 - `Infraestructura` uses a cutaway comparison to show responsibility by layer.
