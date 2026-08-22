@@ -1,44 +1,67 @@
 ---
 kind: 'pill'
 title: 'Infraestructura'
-subtitle: 'dónde vive la aplicación'
+subtitle: 'cómo una aplicación llega y se mantiene en producción'
 icon: 'infrastructure'
 order: 7
 bonus: false
 publicationDate: 2026-08-21
 ---
 
-La infraestructura es **todo lo que una aplicación necesita para ejecutarse y
-seguir disponible fuera del ordenador donde se desarrolló**. Incluye las
-máquinas, la red, el almacenamiento y las herramientas con las que se despliega,
-protege y observa.
+La infraestructura es **todo lo que permite que una aplicación llegue a sus
+usuarios, siga funcionando y pueda cambiar sin dejar el servicio roto**. Incluye
+las máquinas, la red, el almacenamiento y las herramientas con las que se
+despliega, protege y observa.
 
 El código no flota en el aire. Una tienda necesita CPU y memoria para ejecutar
-el backend, un sitio donde servir el frontend, una red que reciba las peticiones,
-una base de datos y almacenamiento para no perder la información.
+el backend, un lugar desde el que servir el frontend, una red que reciba las
+peticiones, una base de datos y almacenamiento para no perder información.
 
-## Ejecutar es solo el principio
+## Una aplicación necesita una dirección
 
-Cuando la aplicación está en uso aparecen más preguntas. ¿Cómo se cifra el
-tráfico? ¿Dónde se guardan los secretos? ¿Qué ocurre si una máquina cae? ¿Cómo
-sabes que el checkout lleva diez minutos fallando? ¿Cómo recuperas los pedidos
-si se rompe el almacenamiento?
+Una aplicación puede ejecutarse en una máquina y escuchar un puerto. Por
+ejemplo, un servidor web atiende HTTP en el puerto `80` o HTTPS en el `443`.
+Pero nadie quiere visitar una IP como `203.0.113.42`: quiere escribir
+`nicovegasr.com`.
 
-Ahí entran certificados, balanceadores de carga, copias de seguridad, logs,
-métricas, alertas y procesos de despliegue. No todas las aplicaciones necesitan
-las mismas piezas, pero todas terminan tomando estas decisiones en algún nivel.
+El dominio se compra a un *registrar*. Después configuras sus *nameservers* para
+indicar qué servidores DNS conocen las respuestas de ese dominio. Cuando el
+navegador pregunta por `nicovegasr.com`, DNS le devuelve una dirección de destino
+—una IP u otro nombre— y solo entonces el navegador abre la conexión hacia la
+aplicación.
 
-![La misma aplicación vive en infraestructura on-premise y cloud; cambia quién opera cada pieza, no las necesidades del sistema](../../images/fundamentos/infraestructura/infraestructura-es.webp)
+DNS no redirige el tráfico: resuelve un nombre. La petición HTTP o HTTPS viaja
+después a ese destino. HTTPS añade un certificado para cifrar la comunicación y
+comprobar que hablas con el dominio correcto.
+
+![Un dominio se resuelve en DNS a una dirección IP; después el navegador abre una conexión HTTPS segura con la aplicación](../../images/fundamentos/infraestructura/infraestructura-es.webp)
+
+## Mantenerla disponible es el trabajo continuo
+
+Publicar la aplicación es solo el principio. Hay que actualizar el sistema
+operativo, aplicar parches de seguridad, vigilar el espacio disponible, guardar
+copias de seguridad y saber qué ocurre cuando algo falla.
+
+También hay que pensar en los días malos. Si una máquina cae, ¿hay otra que
+pueda atender el tráfico? Si el proceso de pago falla durante diez minutos,
+¿alguien recibe una alerta? Logs, métricas, alertas, balanceadores y copias de
+seguridad convierten esas preguntas en decisiones que puedes preparar antes del
+incidente.
 
 ## On-premise: tú operas las máquinas
 
 En *on-premise*, la organización controla sus propios servidores, ya estén en
 una oficina o en un centro de datos. Decide qué hardware compra, cómo monta la
-red y cuándo amplía la capacidad.
+red, cuándo amplía la capacidad y cómo protege las instalaciones.
 
 Ese control puede ser importante por rendimiento, regulación o integración con
-sistemas propios. También significa encargarse de los parches, las averías, la
-electricidad, las copias y la capacidad que necesitarás dentro de seis meses.
+sistemas propios. También significa encargarse de las averías, la electricidad,
+los parches, las copias y la capacidad que necesitarás dentro de seis meses.
+
+Construir un entorno resistente requiere redundancia: máquinas de respaldo,
+copias verificadas, red duplicada y un plan para recuperar el servicio. Bien
+dimensionado y operado puede tener sentido económico; improvisarlo suele ser
+caro cuando llega el primer fallo serio.
 
 ## Cloud: alquilas recursos y servicios
 
@@ -53,3 +76,17 @@ diseñar copias de seguridad y asumir los límites y dependencias del proveedor.
 ⚠️ On-premise da más control, pero obliga a operar más cosas. Cloud delega parte
 de ese trabajo, pero no hace desaparecer la infraestructura. La diferencia real
 es quién se responsabiliza de cada capa y cuánto cuesta hacerlo.
+
+## La infraestructura también entrega cambios
+
+La aplicación no se despliega una sola vez. Cada versión necesita pasar por
+entornos de prueba y llegar a producción sin interrumpir a quienes la usan.
+La integración continua (CI) ejecuta comprobaciones automáticas; la entrega o el
+despliegue continuos (CD) preparan y automatizan el camino hacia producción.
+
+No siempre se publica una versión para todo el mundo a la vez. Un despliegue
+*canary* la expone primero a una parte pequeña del tráfico. Si aumentan los
+errores o empeoran las métricas, puedes detenerla o volver a la versión anterior.
+Por eso infraestructura no significa solo servidores: también es la red de
+pruebas, automatizaciones y señales que permite evolucionar una aplicación con
+seguridad.

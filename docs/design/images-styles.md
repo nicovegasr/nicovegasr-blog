@@ -95,7 +95,9 @@ The Fundamentos images establish a useful range rather than one fixed layout:
   flow.
 - `Frontend` separates visible interface from state and coordination.
 - `Base de datos` makes contention and the cost of different paths visible.
-- `Infraestructura` uses a cutaway comparison to show responsibility by layer.
+- `Infraestructura` shows the causal route from a domain through DNS and HTTPS
+  to an application. For network topics, prefer one accurate request journey
+  over a generic provider or responsibility comparison.
 
 Their common strengths are a clear thesis, concrete technical objects, dark
 outlines, restrained semantic colour, and a visual relationship that carries
