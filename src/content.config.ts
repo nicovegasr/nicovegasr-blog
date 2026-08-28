@@ -66,6 +66,7 @@ const pills = defineCollection({
       title: z.string().min(1).max(60),
       summary: z.string().min(10).max(200),
       icon: z.string().min(1),
+      order: z.number().int(),
       publicationDate: z.coerce.date(),
     }),
     z.object({

@@ -46,6 +46,9 @@ Existing assets are quality references, not compositions or styles to copy.
   for labels. Use monospace only for real code, commands, or payloads.
 - Keep labels brief. At mobile width, the main idea, stages, and arrows must
   remain understandable without zooming.
+- Prefer plain-language labels over unexplained statistical shorthand. Use
+  terms such as `Tiempo medio` instead of `p95` unless the percentile itself is
+  the concept being taught and the image explains what it means.
 - Avoid paragraphs inside images, tiny annotations, dense legends, and text
   placed close to the edges.
 - Leave safe margins around all content and keep visual weight balanced.
