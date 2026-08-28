@@ -5,8 +5,10 @@ import {
   neighboringPills,
   pillLeafSlugOf,
   railOrder,
+  seriesOrder,
   seriesSlugOf,
   type Pill,
+  type PillSeries,
 } from '@/features/pills/pill';
 
 const buildPill = (overrides: Partial<Pill> = {}): Pill => ({
@@ -21,6 +23,33 @@ const buildPill = (overrides: Partial<Pill> = {}): Pill => ({
   publicationDate: new Date('2026-01-01'),
   lastUpdateDate: undefined,
   ...overrides,
+});
+
+const buildSeries = (overrides: Partial<PillSeries> = {}): PillSeries => ({
+  slug: 'docker',
+  locale: 'es',
+  title: 'Docker',
+  summary: 'Conceptos básicos de Docker.',
+  icon: 'whale',
+  order: 2,
+  publicationDate: new Date('2026-01-01'),
+  ...overrides,
+});
+
+describe('seriesOrder', () => {
+  it('sorts series by their explicit learning order', () => {
+    const series = [
+      buildSeries({ slug: 'observabilidad', order: 3 }),
+      buildSeries({ slug: 'fundamentos', order: 1 }),
+      buildSeries({ slug: 'docker', order: 2 }),
+    ];
+
+    expect(seriesOrder(series).map((item) => item.slug)).toEqual([
+      'fundamentos',
+      'docker',
+      'observabilidad',
+    ]);
+  });
 });
 
 describe('railOrder', () => {

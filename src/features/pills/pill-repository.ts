@@ -5,6 +5,7 @@ import {
   isPublished,
   pillLeafSlugOf,
   railOrder,
+  seriesOrder,
   seriesSlugOf,
   type Pill,
   type PillSeries,
@@ -32,6 +33,7 @@ const toPillSeries = (entry: SeriesEntry): PillSeries | null => {
     title: entry.data.title,
     summary: entry.data.summary,
     icon: entry.data.icon,
+    order: entry.data.order,
     publicationDate: entry.data.publicationDate,
   };
 };
@@ -55,9 +57,6 @@ const toPill = (entry: PillItemEntry): Pill | null => {
   };
 };
 
-const byNewestFirst = (a: PillSeries, b: PillSeries): number =>
-  b.publicationDate.getTime() - a.publicationDate.getTime();
-
 const publishedPillsOf = async (
   locale: Locale,
   series: string,
@@ -76,13 +75,13 @@ export const findAllPillSeries = async (
   locale: Locale,
 ): Promise<readonly PillSeries[]> => {
   const entries = await getCollection('pills');
-  return entries
+  const series = entries
     .filter(isSeriesEntry)
     .map(toPillSeries)
     .filter((series): series is PillSeries => series !== null)
     .filter((series) => series.locale === locale)
-    .filter((series) => isPublished(series))
-    .sort(byNewestFirst);
+    .filter((series) => isPublished(series));
+  return seriesOrder(series);
 };
 
 export const findAllPublishedPills = async (

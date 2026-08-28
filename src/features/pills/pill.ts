@@ -19,6 +19,7 @@ export type PillSeries = {
   readonly title: string;
   readonly summary: string;
   readonly icon: string;
+  readonly order: number;
   readonly publicationDate: Date;
 };
 
@@ -36,6 +37,9 @@ export const isPublished = (
 ): boolean => entry.publicationDate.getTime() <= now.getTime();
 
 const byOrderAscending = (a: Pill, b: Pill): number => a.order - b.order;
+
+export const seriesOrder = (series: readonly PillSeries[]): PillSeries[] =>
+  [...series].sort((a, b) => a.order - b.order);
 
 // The rail reads as a guided path: core pills first (by order), then bonus
 // pills (by order). The summary stop is appended by the component, not here.
