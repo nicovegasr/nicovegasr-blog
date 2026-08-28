@@ -17,9 +17,9 @@ export const spanish = {
 
   'theme.toggle': 'Cambiar tema',
 
-  'blog.introTitle': 'Ingeniero de software.',
+  'blog.introTitle': 'Diseño sistemas que se sostienen.',
   'blog.introText':
-    'Me interesan más los problemas que las tecnologías, así que voy donde el problema lo pida. Aquí comparto ideas, decisiones y experiencias reales construyendo software.',
+    'Sistemas confiables ante los fallos y eficientes bajo carga.',
   'blog.introLink': 'Más sobre mí →',
   'blog.readingTime': 'min de lectura',
   'blog.readMore': 'Leer →',
