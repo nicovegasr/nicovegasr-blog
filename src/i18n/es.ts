@@ -4,7 +4,6 @@ export const spanish = {
     'Blog personal de Nicolás Vegas, ingeniero informático con mentalidad DevOps. Hablo sobre desarrollo de software y hago cosas.',
 
   'navigation.blog': 'Blog',
-  'navigation.projects': 'Proyectos',
   'navigation.about': 'Sobre mí',
   'navigation.work': 'Dónde trabajo',
   'navigation.menu': 'Menú',
@@ -39,12 +38,6 @@ export const spanish = {
   'about.stackTitle': 'Stack',
   'about.timelineTitle': 'Trayectoria',
   'about.present': 'Actualidad',
-
-  'projects.metaDescription':
-    'Proyectos de Nicolás Vegas: en qué trabajo, con su contexto, decisiones y aprendizajes. Próximamente.',
-  'projects.heading': 'Proyectos',
-  'projects.comingSoonText':
-    'Estoy preparando esta sección. Pronto encontrarás aquí los proyectos en los que trabajo, con su contexto, las decisiones que tomé y lo que aprendí construyéndolos.',
 
   'pills.metaDescription':
     'Píldoras formativas de Nicolás Vegas: conceptos concretos explicados en pequeño. Próximamente.',
