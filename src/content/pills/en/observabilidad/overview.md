@@ -9,5 +9,5 @@ publicationDate: 2026-08-28
 
 <!--
   Body = the series SUMMARY (the schemas that tie every concept together).
-  Intentionally empty until the series has been reviewed and completed.
+  Intentionally empty, like the other series.
 -->
