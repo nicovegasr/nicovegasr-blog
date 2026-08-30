@@ -8,62 +8,40 @@ bonus: false
 publicationDate: 2026-08-27
 ---
 
-Grafana es la interfaz de investigación. No almacena métricas, logs ni trazas:
-guarda cómo consultarlos y representarlos, envía cada consulta a su backend y
-relaciona las respuestas.
+Grafana muestra en una misma interfaz los datos almacenados en sistemas como
+Prometheus, Loki o Tempo. No guarda métricas, logs ni trazas: consulta cada
+fuente y representa su respuesta.
 
-## Del síntoma a la causa
+## De los datos a un panel
 
-El dashboard de informes muestra que la proporción de fallos ha subido. El panel
-no contiene esos datos; conserva una fuente, una consulta, una unidad y una forma
-de visualizarlos. En este caso usa Prometheus y PromQL:
+Un panel guarda tres decisiones: qué fuente consultar, qué pregunta hacer y cómo
+mostrar la respuesta. Cuando alguien abre un dashboard, Grafana ejecuta la
+consulta y dibuja el resultado como una gráfica, una tabla o un valor.
 
-```text
-sum(rate(reports_generated_total{status="failed"}[5m]))
-/
-sum(rate(reports_generated_total[5m]))
-```
-
-Cuando alguien abre el dashboard ocurre este recorrido:
-
-1. **Grafana resuelve el panel.** Sustituye variables como entorno o servicio y
-   calcula el intervalo y la resolución necesarios para el ancho de la gráfica.
-2. **Consulta la fuente de datos.** El plugin de Prometheus convierte la petición
-   del panel en una consulta para su API. Prometheus calcula los puntos y Grafana
-   los transforma en una serie temporal.
-3. **La visualización aplica contexto.** Unidad, leyenda, umbral y colores dan
-   significado al valor; no cambian el dato que devolvió Prometheus.
-
-El panel detecta el síntoma, pero todavía no explica qué falló. Un enlace conserva
-el servicio y el intervalo seleccionados y abre Explore contra Loki:
+La unidad, la leyenda, los colores y los umbrales ayudan a interpretar el dato,
+pero no lo modifican. La misma respuesta puede mostrarse de varias formas sin
+cambiar lo que Prometheus, Loki o Tempo devolvieron.
 
 ```text
-{service_name="report-worker", environment="production"}
-  | json
-  | level="ERROR"
+fuente de datos -> consulta -> respuesta -> visualización
 ```
 
-Entre las líneas aparece `rpt-482` con `trace_id="7ac..."`. Ese campo puede ser
-otro enlace: Grafana consulta Tempo por el identificador y dibuja la traza. Allí
-se ve que `pdf.render` es el span que falló; el log explica que faltaba la
-plantilla.
+## Relacionar las señales
+
+Grafana también permite pasar de una señal a otra. Si un panel de Prometheus
+muestra que aumentaron los fallos, un enlace puede abrir en Loki los logs del
+mismo servicio y periodo. Desde un log con `trace_id="7ac..."`, otro enlace puede
+abrir en Tempo la traza de `report-482`.
 
 ```text
-Prometheus -> panel -> Loki -> log de rpt-482 -> Tempo -> causa
+métrica -> logs del periodo -> traza concreta
 ```
 
-Los dashboards sirven para preguntas repetibles; Explore, para seguir una pista
-sin conocer todavía la causa. Ambos consultan las mismas fuentes, pero ofrecen
-un flujo de trabajo distinto.
+Para que esos enlaces funcionen, las señales deben compartir nombres de
+servicio, entorno e identificadores. Grafana puede representar y conectar la
+información disponible, pero no puede relacionar datos que usan contextos
+distintos.
 
-## Lo que debe compartir la stack
-
-Los saltos solo funcionan si las señales comparten contexto: nombre del servicio,
-entorno, intervalo y `trace_id`. Grafana puede construir enlaces con esos campos,
-pero no puede deducir que `worker-pdf` y `report-worker` son el mismo servicio si
-cada backend lo llama de una forma.
-
-Un dashboard útil empieza con pocas preguntas: tráfico, errores, duración y
-saturación. Añadir veinte gráficas de CPU no explica si las personas pueden
-generar informes. Versiona fuentes y dashboards, muestra unidades y periodos, y
-mantén cada enlace junto al contexto necesario para continuar la investigación.
+Los dashboards sirven para vigilar preguntas habituales; Explore permite
+investigar libremente y las alertas avisan cuando una consulta cumple una
+condición.

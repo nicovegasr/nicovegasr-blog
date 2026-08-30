@@ -32,39 +32,24 @@ Con un encoder JSON compatible, `stdout` recibe una sola línea como esta
   "timestamp": "2026-08-29T10:15:42Z",
   "level": "ERROR",
   "message": "Report generation failed",
-  "report_id": "rpt-482",
+  "report_id": "report-482",
   "reason": "template_not_found",
   "correlation_id": "corr-913",
   "trace_id": "7ac..."
 }
 ```
 
-A partir de ahí ocurre este recorrido:
+A partir de ahí, el log sigue este recorrido:
 
-1. **El runtime captura `stdout`.** En un contenedor, guarda la línea en un
-   archivo del nodo asociado al contenedor que la produjo.
-2. **Un agente la recoge.** Grafana Alloy sigue el archivo, recuerda hasta qué
-   posición ha leído, interpreta el JSON, recupera los metadatos del contenedor
-   y añade etiquetas estables como `service_name="report-worker"` y
-   `environment="production"`.
-3. **El agente envía un lote.** Cada entrada llega a Loki separada en tres
-   piezas: etiquetas, timestamp y línea original.
-
-```text
-etiquetas: {service_name="report-worker", environment="production"}
-timestamp: 2026-08-29T10:15:42Z
-línea:     {"level":"ERROR","reason":"template_not_found", ...}
-```
-
-4. **Loki elige un stream.** Todas las entradas con la misma combinación de
-   etiquetas pertenecen al mismo *stream*. Loki indexa esas etiquetas y el
-   intervalo de tiempo, pero no cada palabra de la línea.
-5. **Loki almacena el contenido.** Las líneas se agrupan y comprimen en
-   *chunks*. El índice permite encontrar qué chunks pueden contener el resultado
-   sin recorrer todos los logs.
-6. **Grafana envía una consulta LogQL a Loki.** Primero selecciona streams por
-   sus etiquetas y después interpreta el JSON para filtrar por un campo del
-   evento:
+1. **Alloy recoge la línea.** Lee los nuevos logs de `stdout` y añade información
+   estable, como el servicio y el entorno.
+2. **Loki agrupa los logs.** Las etiquetas `service_name` y `environment`
+   determinan a qué grupo pertenece cada línea. Loki llama *stream* a ese grupo.
+3. **Loki comprime y almacena las líneas.** Solo indexa las etiquetas y el
+   intervalo de tiempo; no cada palabra del mensaje.
+4. **Grafana consulta Loki.** Primero acota por servicio y periodo. Después,
+   LogQL interpreta el JSON y busca `reason="template_not_found"` dentro de las
+   líneas encontradas:
 
 ```text
 {service_name="report-worker", environment="production"}
@@ -72,10 +57,9 @@ línea:     {"level":"ERROR","reason":"template_not_found", ...}
   | reason="template_not_found"
 ```
 
-Loki usa el índice para localizar los chunks del servicio y del periodo elegido,
-lee su contenido y devuelve solo las líneas que cumplen el filtro. Grafana las
-muestra en Explore o en un panel. Como la línea incluye `trace_id`, también puede
-enlazarla con su traza en Tempo.
+Loki devuelve las líneas que cumplen el filtro y Grafana las muestra en Explore
+o en un panel. Como la línea incluye `trace_id`, también puede enlazarla con su
+traza en Tempo.
 
 ```text
 log.atError() -> encoder -> stdout -> runtime -> Alloy -> Loki -> Grafana
@@ -92,7 +76,3 @@ degradaría la ingesta y las consultas.
 También importan el volumen, la retención y el intervalo consultado. Buscar un
 servicio durante una hora obliga a leer muchos menos chunks que buscar todos los
 servicios durante treinta días.
-
-⚠️ Loki puede encontrar `reason="template_not_found"` porque la aplicación
-escribió ese dato. Centralizar `Something went wrong` no añade el contexto que
-falta.
