@@ -6,7 +6,6 @@ export const english: Dictionary = {
     "Nicolás Vegas's personal blog — software engineer with a DevOps mindset. I write about software development and build things.",
 
   'navigation.blog': 'Blog',
-  'navigation.projects': 'Projects',
   'navigation.about': 'About',
   'navigation.work': 'Where I work',
   'navigation.menu': 'Menu',
@@ -41,12 +40,6 @@ export const english: Dictionary = {
   'about.stackTitle': 'Stack',
   'about.timelineTitle': 'Journey',
   'about.present': 'Present',
-
-  'projects.metaDescription':
-    "Nicolás Vegas's projects: what I'm building, with context, decisions and lessons. Coming soon.",
-  'projects.heading': 'Projects',
-  'projects.comingSoonText':
-    "I'm putting this section together. Soon you'll find the projects I'm working on here, with their context, the decisions I made and what I learned building them.",
 
   'pills.metaDescription':
     "Nicolás Vegas's learning pills: concrete concepts explained small. Coming soon.",
