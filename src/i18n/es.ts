@@ -16,9 +16,9 @@ export const spanish = {
 
   'theme.toggle': 'Cambiar tema',
 
-  'blog.introTitle': 'Diseño sistemas que se sostienen.',
+  'blog.introTitle': 'Ingeniero de software',
   'blog.introText':
-    'Sistemas confiables ante los fallos y eficientes bajo carga.',
+    'Me gusta investigar y entender cómo funcionan las herramientas que usamos en el día a día.',
   'blog.introLink': 'Más sobre mí →',
   'blog.readingTime': 'min de lectura',
   'blog.readMore': 'Leer →',

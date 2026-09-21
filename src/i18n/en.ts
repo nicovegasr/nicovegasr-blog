@@ -18,9 +18,9 @@ export const english: Dictionary = {
 
   'theme.toggle': 'Toggle theme',
 
-  'blog.introTitle': 'I design systems that hold up.',
+  'blog.introTitle': 'Software engineer',
   'blog.introText':
-    'Systems that stay reliable through failures and efficient under load.',
+    'I enjoy exploring and understanding how the tools we use every day work.',
   'blog.introLink': 'More about me →',
   'blog.readingTime': 'min read',
   'blog.readMore': 'Read →',
