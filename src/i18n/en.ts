@@ -30,12 +30,12 @@ export const english: Dictionary = {
   'blog.relatedTitle': 'Related articles',
 
   'about.metaDescription':
-    'Nicolás Vegas, software engineer: what I do, my principles, my stack and my journey.',
+    'Nicolás Vegas, software engineer: what I do, my stack and my journey.',
   'about.heroTitle': 'About',
   'about.lead':
-    'I like to understand how things work under the hood and apply it with judgment, without tying myself to one part of the stack: I go where the problem takes me.',
+    'I enjoy investigating how things work under the hood to make the most of what technology offers us, building predictable, scalable and maintainable software.',
   'about.approach':
-    "Over the years I've learned that what makes the difference is rarely the technology, but understanding the problem well, weighing the decisions and building something that holds up.",
+    'I am interested in software and solution architecture, exploring the best technologies to solve problems and designing architectures that can evolve sustainably over time.',
   'about.principlesTitle': 'Principles',
   'about.stackTitle': 'Stack',
   'about.timelineTitle': 'Journey',

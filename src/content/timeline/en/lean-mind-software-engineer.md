@@ -1,6 +1,6 @@
 ---
 company: "Lean Mind"
-role: "Software Engineer"
+role: "Senior Software Engineer"
 startDate: 2026-05-01
-summary: "Native development and integrations, moving between technologies as the project demands."
+summary: "Maintenance and evolution of .NET and Java projects in on-premises and OpenShift environments."
 ---

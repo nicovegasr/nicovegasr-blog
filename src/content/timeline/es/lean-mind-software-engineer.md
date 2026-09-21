@@ -1,6 +1,6 @@
 ---
 company: "Lean Mind"
-role: "Ingeniero de Software"
+role: "Ingeniero de Software Senior"
 startDate: 2026-05-01
-summary: "Desarrollo nativo e integraciones, moviéndome entre tecnologías según lo que pida el proyecto."
+summary: "Mantenimiento y evolución de proyectos .NET y Java en entornos on-premises y OpenShift."
 ---
