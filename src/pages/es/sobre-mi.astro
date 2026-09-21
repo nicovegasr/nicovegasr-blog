@@ -1,35 +1,21 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import LeanMindMark from '@/features/work/components/LeanMindMark.astro';
 import TimelineEntry from '@/features/timeline/components/TimelineEntry.astro';
 import { getTranslator } from '@/i18n/translator';
-import { findAllPrinciples } from '@/features/principles/principle-repository';
 import { findAllTimelineEntries } from '@/features/timeline/timeline-repository';
-import { findRenderableWork } from '@/features/work/work-repository';
 
 const locale = 'es';
 const translate = getTranslator(locale);
 
-const principles = await findAllPrinciples(locale);
 const timeline = await findAllTimelineEntries(locale);
-
-const renderableWork = await findRenderableWork(locale);
-if (renderableWork === null) {
-  throw new Error(`Work entry not found for locale: ${locale}`);
-}
-const { work, Content: WorkContent } = renderableWork;
-const workSinceLabel = new Intl.DateTimeFormat(locale, {
-  month: 'long',
-  year: 'numeric',
-}).format(work.startDate);
 
 // Stack a pelo: nombres de tecnología sin traducir, categorías en inglés.
 const stack = [
   { category: 'Languages', items: ['Java', 'Python', 'TypeScript', 'JavaScript', 'SQL', 'C', 'C++'] },
-  { category: 'Backend', items: ['Spring (Boot, Batch, Security)', 'Hibernate/JPA', 'Django', 'FastAPI'] },
-  { category: 'Distributed & Event-Driven', items: ['Kafka', 'RabbitMQ', 'CQRS', 'Event-driven', 'Microservices'] },
+  { category: 'Backend', items: ['Spring (Boot, Batch, Security)', 'Hibernate/JPA', 'Django', 'FastAPI', '.NET'] },
+  { category: 'Distributed & Event-Driven', items: ['RabbitMQ', 'CQRS', 'Event-driven', 'Microservices'] },
   { category: 'Data', items: ['PostgreSQL', 'SQL Server', 'Oracle', 'MongoDB'] },
-  { category: 'Cloud & DevOps', items: ['AWS', 'Docker', 'Jenkins', 'GitHub Actions', 'Nginx', 'Git'] },
+  { category: 'Cloud & DevOps', items: ['AWS', 'Docker', 'OpenShift', 'Kubernetes', 'Jenkins', 'GitHub Actions', 'Nginx', 'Git'] },
   { category: 'Frontend', items: ['React', 'React Native'] },
   { category: 'Design & Delivery', items: ['DDD', 'Hexagonal', 'TDD', 'Clean Architecture'] },
 ];
@@ -56,13 +42,6 @@ const stack = [
     </div>
   </section>
 
-  <section id="principles" class="reveal">
-    <h2>{translate('about.principlesTitle')}</h2>
-    <ul class="principles">
-      {principles.map((principle) => <li>{principle.title}</li>)}
-    </ul>
-  </section>
-
   <section class="reveal">
     <h2>{translate('about.stackTitle')}</h2>
     <dl class="stack">
@@ -75,26 +54,6 @@ const stack = [
         ))
       }
     </dl>
-  </section>
-
-  <section id="work" class="reveal">
-    <h2>{translate('navigation.work')}</h2>
-    <a class="work-now" href={work.companyUrl} target="_blank" rel="noopener">
-      <LeanMindMark />
-      <span class="work-now-text">
-        <span class="work-now-company">{work.company}</span>
-        <span class="work-now-meta label"
-          >{work.role} · {translate('work.since')} {workSinceLabel} · {work.location}</span
-        >
-      </span>
-    </a>
-    <div class="prose work-now-body">
-      <WorkContent />
-      <p>
-        {translate('work.valuesPrefix')}<a href="#principles">{translate('work.valuesLink')}</a
-        >{translate('work.valuesSuffix')}
-      </p>
-    </div>
   </section>
 
   <section class="reveal">
