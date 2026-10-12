@@ -10,11 +10,15 @@ publicationDate: 2026-10-12
 
 KISS (*Keep It Simple, Stupid*) means solving a problem with **as little added complexity as possible**. A problem may be complex in its own right; simplifying the solution does not mean ignoring its rules.
 
-## Three input formats
+## Problem to solve
 
 An inventory process receives fixed-width, JSON, and XML files. Each format has different reading rules: field positions and lengths in one, properties in another, and elements in the third. All three must become inventory records before the same validations run.
 
-A direct solution uses one reader per format. Each reader knows how to interpret its file and returns the same record type; the rest of the process does not need to know where it came from.
+All three formats exist today. The decision is where to keep their differences so that the rest of the process does not need to know about them.
+
+## Actions to take
+
+Create one reader per format. Each reader interprets its file and returns an `InventoryRecord`; subsequent validation and processing work with that shared result.
 
 ~~~text
 Fixed-width file → PositionalReader ┐
@@ -22,11 +26,9 @@ JSON             → JsonReader       ├→ InventoryRecord → validate → pr
 XML              → XmlReader        ┘
 ~~~
 
-The differences between formats and the handling of invalid files are **inherent complexity**. Three readers are not overengineering when all three formats exist. Forcing all the parsing into one function to reduce the number of classes would only hide those differences.
+The differences between formats and the handling of invalid files are **inherent complexity**. Three readers make sense because all three formats exist. Putting all parsing into one function would only hide those differences.
 
-## Complexity that can be avoided
-
-A generic artifact could instead read external definitions for each file and use reflection to map fields to classes at runtime. Adding a format might then mean writing a new definition. But those definitions would need to be designed, validated, and maintained, while errors in the mapping would be harder to trace than in explicit readers.
+The alternative would be a generic component that reads external definitions for each file and uses reflection to map fields to classes at runtime. Adding a format might become a matter of writing a definition, but those definitions would also need to be designed, validated, and maintained. A mapping error would be harder to locate than in an explicit reader.
 
 If the three formats are known and change along with the application, that flexibility does not meet a current need. This is where YAGNI (*You Aren't Gonna Need It*) applies: do not build a mechanism for future formats today. If many different structures later need to be added without deploying code, there will be a concrete reason to reconsider it.
 
