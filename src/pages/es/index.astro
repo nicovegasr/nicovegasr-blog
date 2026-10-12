@@ -1,16 +1,16 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import PostPreview from '@/features/posts/components/PostPreview.astro';
-import PostSearch from '@/features/posts/components/PostSearch.astro';
+import PillSeriesList from '@/features/pills/components/PillSeriesList.astro';
+import ComingSoon from '@/layouts/ComingSoon.astro';
 import WritingSectionNav from '@/layouts/WritingSectionNav.astro';
 import SocialLinks from '@/layouts/SocialLinks.astro';
 import { getTranslator } from '@/i18n/translator';
 import { buildPagePath } from '@/i18n/routes';
-import { findAllPosts } from '@/features/posts/post-repository';
+import { findAllPillSeries } from '@/features/pills/pill-repository';
 
 const locale = 'es';
 const translate = getTranslator(locale);
-const posts = await findAllPosts(locale);
+const series = await findAllPillSeries(locale);
 ---
 
 <BaseLayout locale={locale}>
@@ -25,19 +25,13 @@ const posts = await findAllPosts(locale);
   <section class="reveal">
     <WritingSectionNav locale={locale} />
     {
-      posts.length > 0 ? (
-        <>
-          <PostSearch locale={locale} posts={posts} />
-          <ul class="post-list">
-            {posts.map((post) => (
-              <li>
-                <PostPreview post={post} />
-              </li>
-            ))}
-          </ul>
-        </>
+      series.length > 0 ? (
+        <PillSeriesList locale={locale} series={series} />
       ) : (
-        <p class="lead">{translate('blog.empty')}</p>
+        <ComingSoon
+          heading={translate('pills.heading')}
+          message={translate('pills.comingSoonText')}
+        />
       )
     }
   </section>

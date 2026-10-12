@@ -24,9 +24,11 @@ const navigationItems: { href: string; label: string }[] = [
 
 const homePath = blogPath;
 
-// Píldoras es una sub-sección del Blog (no un ítem del header): estando en ella
-// el ítem activo sigue siendo Blog, así que su ruta colapsa a blogPath.
-const blogSectionPaths = [blogPath, buildPagePath('pills', locale)];
+const blogSectionPaths = [
+  blogPath,
+  buildPagePath('pills', locale),
+  buildPagePath('articles', locale),
+];
 const activePath = blogSectionPaths.includes(Astro.url.pathname) ? blogPath : Astro.url.pathname;
 ---
 
@@ -47,7 +49,7 @@ const activePath = blogSectionPaths.includes(Astro.url.pathname) ? blogPath : As
                 <a
                   href={href}
                   class={isCurrentPage ? 'current' : undefined}
-                  aria-current={isCurrentPage ? 'page' : undefined}
+                  aria-current={Astro.url.pathname === href ? 'page' : undefined}
                 >
                   {label}
                 </a>
