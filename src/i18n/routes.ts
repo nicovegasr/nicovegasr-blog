@@ -3,12 +3,13 @@ import { LOCALES } from '@/i18n/locale';
 
 // Logical page identifiers, decoupled from their localized URL segment.
 // Never hardcode "/sobre-mi" or "/about"; resolve URLs through buildPagePath.
-export type PageKey = 'blog' | 'about' | 'pills';
+export type PageKey = 'blog' | 'about' | 'pills' | 'articles';
 
 const PATH_SEGMENT_BY_PAGE: Record<PageKey, Record<Locale, string>> = {
   blog: { es: '', en: '' },
   about: { es: 'sobre-mi', en: 'about' },
   pills: { es: 'pildoras', en: 'pills' },
+  articles: { es: 'articulos', en: 'articles' },
 };
 
 const joinPath = (...segments: string[]): string => {
@@ -36,7 +37,7 @@ export const buildRssFeedPath = (locale: Locale): string => `/${locale}/rss.xml`
 
 // Maps the current path to its equivalent in another locale (language switcher).
 // Blog posts have different slugs per locale, so they cannot be mapped and fall
-// back to the target blog index (safe, never a 404).
+// back to the target articles index (safe, never a 404).
 export const buildAlternateLocalePath = (
   currentPathname: string,
   currentLocale: Locale,
@@ -56,7 +57,7 @@ export const buildAlternateLocalePath = (
 
   // Pills series/pill slugs are locale-independent, so deeper paths map segment
   // by segment. Blog posts have different slugs per locale, so they still fall
-  // back to the blog index (never a 404).
+  // back to the articles index (never a 404).
   if (matchingPage === 'pills') {
     const restSegments = pageSegments.slice(1);
     return joinPath(
@@ -66,7 +67,7 @@ export const buildAlternateLocalePath = (
     );
   }
 
-  return buildPagePath('blog', targetLocale);
+  return buildPagePath('articles', targetLocale);
 };
 
 export const localesOtherThan = (locale: Locale): readonly Locale[] =>

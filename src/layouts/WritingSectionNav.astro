@@ -10,27 +10,28 @@ interface Props {
 const { locale } = Astro.props;
 const translate = getTranslator(locale);
 
-// Sub-navegación del eje "escritura": elige el canal antes de buscar/leer.
-// El buscador pertenece a Artículos, no es global.
 const sections: { href: string; label: string }[] = [
-  { href: buildPagePath('blog', locale), label: translate('writing.articles') },
-  { href: buildPagePath('pills', locale), label: translate('writing.pills') },
+  { href: buildPagePath('blog', locale), label: translate('writing.pills') },
+  { href: buildPagePath('articles', locale), label: translate('writing.articles') },
 ];
 
 const currentPathname = Astro.url.pathname;
+const currentSectionPath = currentPathname === buildPagePath('pills', locale)
+  ? buildPagePath('blog', locale)
+  : currentPathname;
 ---
 
 <nav class="writing-nav" aria-label={translate('navigation.blog')}>
   <ul>
     {
       sections.map(({ href, label }) => {
-        const isCurrentSection = currentPathname === href;
+        const isCurrentSection = currentSectionPath === href;
         return (
           <li>
             <a
               href={href}
               class={isCurrentSection ? 'current' : undefined}
-              aria-current={isCurrentSection ? 'page' : undefined}
+              aria-current={currentPathname === href ? 'page' : undefined}
             >
               {label}
             </a>
