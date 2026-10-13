@@ -8,22 +8,24 @@ bonus: false
 publicationDate: 2026-10-12
 ---
 
-TDD (*Test-Driven Development*) construye una funcionalidad en ciclos pequeños: expresar el siguiente comportamiento en una prueba que falla, implementar lo necesario para que pase y mejorar el diseño con la prueba en verde. La prueba obliga a concretar qué promete el código antes de escribir su solución.
+TDD (*Test-Driven Development*) construye una funcionalidad en ciclos pequeños: expresar el siguiente comportamiento en una prueba que falla, implementar lo necesario para que pase y mejorar el diseño con la prueba en verde. La prueba obliga a concretar qué promete el código antes de elegir cómo resolverlo.
 
-## Problema a resolver
+## Elegir el siguiente comportamiento
 
-El cálculo de precios de la píldora anterior admite una campaña. Ahora un producto puede tener varias campañas activas. La regla acordada es aplicar el mayor descuento válido, sin bajar nunca del precio mínimo del producto. Empezar por un algoritmo completo deja fácil olvidar fechas, solapamientos o el mínimo.
+Una regla de precios admite una campaña. Ahora un producto puede tener varias campañas activas. La regla acordada es aplicar el mayor descuento válido, sin bajar nunca del precio mínimo del producto. Empezar por un algoritmo completo deja fácil olvidar fechas, solapamientos o el mínimo.
 
-## Acciones a realizar
-
-Preparar una lista breve de comportamientos observables y elegir uno cada vez:
+El punto de partida es una lista breve de comportamientos observables. Se elige uno cada vez:
 
 1. Sin campañas activas, el precio permanece igual.
 2. Con una campaña activa, se aplica su descuento.
 3. Con dos campañas activas, gana el mayor descuento válido.
 4. Si el cálculo baja del mínimo, se devuelve el precio mínimo.
 
-Para cada caso, escribir una prueba con un producto, campañas y fecha concretos; comprobar que falla por el comportamiento esperado; añadir el código mínimo que la hace pasar; y refactorizar sin cambiar el resultado. El contrato puede evolucionar de `calculateCampaignPrice(product, campaign, now)` a `calculateCampaignPrice(product, campaigns, now)` conforme aparece la necesidad real de varias campañas.
+## Un ciclo que cambia el contrato
+
+Supongamos un producto de 100 € con precio mínimo de 70 €. En la fecha elegida hay campañas válidas del 10 % y del 25 %. Una prueba espera 75 €. Primero debe fallar porque el código solo admite una campaña o elige la primera, **no** por un error de preparación del test. Entonces el contrato puede pasar de `calculateCampaignPrice(product, campaign, now)` a `calculateCampaignPrice(product, campaigns, now)` y el código elegir el descuento mayor. Una segunda prueba con un descuento del 40 % espera 70 €, no 60 €.
+
+En cada paso se añade lo mínimo para pasar la prueba y después se revisan nombres y duplicación con las pruebas en verde. El siguiente caso se incorpora cuando el anterior ya funciona.
 
 ~~~text
 Ejemplo de comportamiento → prueba roja → código que pasa → refactor
@@ -33,4 +35,6 @@ Ejemplo de comportamiento → prueba roja → código que pasa → refactor
 
 Las pruebas expresan precios y reglas, no si se usó un `for`, una Factory o tres funciones privadas. Así pueden detectar una regresión y, a la vez, dejar espacio para cambiar el diseño. [Red, green, refactor](https://martinfowler.com/bliki/TestDrivenDevelopment.html) incluye el último paso: si solo se acumulan pruebas y condiciones, el código se vuelve difícil de ampliar aunque todo esté en verde.
 
-TDD tampoco decide la regla de negocio por sí solo. Antes del primer test hay que acordar qué significa «mayor descuento válido» y qué pasa al llegar al mínimo; el ciclo ayuda a implementar y revisar esa decisión con ejemplos verificables.
+## Qué demuestra la prueba
+
+TDD no decide la regla de negocio por sí solo. Antes del primer test hay que acordar qué significa «mayor descuento válido», qué fechas cuentan como activas y qué pasa al llegar al mínimo. El ciclo ayuda a implementar y revisar esas decisiones con ejemplos verificables; una suite verde solo demuestra los casos que se han expresado.

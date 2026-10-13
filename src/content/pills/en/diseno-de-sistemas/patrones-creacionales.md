@@ -8,23 +8,20 @@ bonus: false
 publicationDate: 2026-10-12
 ---
 
-Creational patterns make decisions about object creation explicit. **Builder** organizes the construction of a value with several options and invariants; **Factory** chooses which implementation to create from an input. They solve different problems, even when they appear in the same flow.
+Creating an object also involves decisions: what data it needs to be valid and which implementation fits each situation. **Builder** and **Factory** help at different points in that process.
 
-## Problem to solve
+## Builder: construct a valid request
 
-An inventory report accepts a date range, a warehouse, and an option to include out-of-stock products. It can be exported as CSV or PDF. With a constructor that takes several positional parameters, some calls swap dates or create invalid ranges. The endpoint and the scheduled job also repeat an `if` to choose between `CsvReportWriter` and `PdfReportWriter`.
+An inventory report accepts a date range, a warehouse, and an option to include out-of-stock products. A constructor with several positional parameters makes it easy to swap dates or leave a request incomplete.
 
-## Actions to take
+`ReportRequestBuilder` names each option and validates the whole request on `build()`: a required date range, a start date before the end date, and a default for including out-of-stock products. The result is a valid `ReportRequest`; the use case does not need to know how it was assembled. The builder does not replace validation of external input: it turns that input into a value that satisfies its invariants.
 
-Use a `ReportRequestBuilder` at the entry point to name the options and validate them when `build()` is called: start date before end date, required date range, and explicit defaults. The use case receives an already valid `ReportRequest` without knowing how it was assembled.
+## Factory: choose the writer
 
-Centralize writer selection in `ReportWriterFactory.for(format)`. This can be a small function: given `CSV`, it returns `CsvReportWriter`; given `PDF`, it returns `PdfReportWriter`. The report generation process works with the shared ability to write a report.
+The same report can be exported as CSV or PDF. Both the endpoint and a scheduled job need to choose a writer from the format of **each request**. `createReportWriter(format)` keeps that choice in one place: it creates `CsvReportWriter` or `PdfReportWriter`, both behind the same writing contract. A small function is enough; there is no need to create a class just to call it a Factory. An unknown format should produce an explicit error; silently choosing CSV would generate an unexpected report.
 
-~~~text
-Options → Builder → valid ReportRequest
-Format  → Factory → CsvReportWriter | PdfReportWriter
-                       ↓
-              generate and write report
-~~~
+![Builder assembles period and warehouse into a valid ReportRequest; Factory uses the CSV or PDF format to choose a writer](../../images/diseno-de-sistemas/patrones-creacionales/builder-factory-en.webp)
 
-Builder answers “how do I build this request without leaving it half configured?” Factory answers “which writer matches this format?” If `ReportRequest` has two fields and a clear constructor, Builder adds ceremony. If CSV is the only format and no selection is needed, a Factory adds nothing either. Use the pattern when it removes a repeated decision or prevents invalid states from being created.
+## When each one earns its place
+
+Builder answers “how do I build this request without leaving it half configured?” Factory answers “which writer matches this format?” They are independent solutions: one may be useful without the other. With two straightforward fields, a constructor or creation function is enough; with one writer, there is no choice to centralize. The pattern's name matters less than the decision it makes visible.

@@ -8,24 +8,33 @@ bonus: false
 publicationDate: 2026-10-12
 ---
 
-The Single Responsibility Principle (SRP) groups code that changes for the same [reason](https://blog.cleancoder.com/uncle-bob/2014/05/08/SingleReponsibilityPrinciple.html). A use case's responsibility can cover an entire process, even when it needs several steps to produce a result.
+The Single Responsibility Principle (SRP) helps decide which code belongs together according to its [reason to change](https://blog.cleancoder.com/uncle-bob/2014/05/08/SingleReponsibilityPrinciple.html). Counting methods or verbs does not reveal that boundary: a use case can have one responsibility and still need several steps to fulfill it.
 
-## Problem to solve
+## One operation, several steps
 
-A worker receives a file with data for updating users. Before saving each one, it needs a `User` built from its record. The format may be invalid or required fields may be missing. Which part of the code should turn that input into a valid user?
+An asynchronous process receives a JSON file containing a user's data. Before saving it, the process needs a valid `User`. It must read the file, check its expected shape, and build the user. Are those three responsibilities of the use case?
 
-## Actions to take
+`GenerateUserFromFile` is responsible for a complete operation: obtain a valid user or explain why that was impossible. It may coordinate collaborators with different knowledge. The reader interprets JSON; `User.from` checks the user's invariants as it builds one.
 
-Give the use case responsibility for **obtaining a valid `User` from the file**. Within that process, reading the record, checking its format, and building the user can be separate functions. Each function explains a step; the use case owns the complete result.
+![GenerateUserFromFile coordinates JsonReader and User.from to obtain a valid User; format, flow, and rules are separate reasons to change](../../images/diseno-de-sistemas/responsabilidad-unica/srp-boundary-en.webp)
 
-~~~text
-Worker → use case → read → validate format → build User
-       ← valid User or input error
-Worker → save User
+In code, the coordination can look like this:
+
+~~~ts
+class GenerateUserFromFile {
+  constructor(private readonly reader: JsonReader) {}
+
+  public execute(file: UserFile): User {
+    const data = this.reader.read(file);
+    return User.from(data);
+  }
+}
 ~~~
 
-The worker decides what to do with the result and coordinates saving. Persistence code has another reason to change: the database may change without the file format changing. That boundary is more useful than spreading `read`, `validateFormat`, and `toUser` across three classes simply because they are three verbs.
+If the JSON cannot be read or data required by `User.from` is missing, no user is built. The outer process decides what to do with the error and when to save the user. Persistence is a separate decision from construction.
 
-If the format starts evolving separately or several processes consume it, extracting a reader may make sense. Until then, keeping the steps together lets a reader follow the operation without jumping across pieces created for hypothetical reuse.
+## Where to split and where to keep things together
 
-SRP helps decide **what changes together**, rather than counting how many things a function does or how many classes a process has.
+The JSON format and the rules that make a `User` valid can evolve for different reasons. That is a useful boundary if the reader is reused or has complexity of its own. Splitting `read`, `validateFormat`, and `toUser` into classes merely because they are three steps, however, makes the flow harder to follow without isolating a real change.
+
+The example uses a `JsonReader` to show that boundary, but an initial implementation can keep reading as a private method if it only serves this flow. A separate creation policy may also make sense when its rules change for a reason of their own; then it must be clear what the policy checks and which invariants `User.from` protects, without duplicating the same rule. **A responsibility is defined by the decision it protects, not by the number of calls it coordinates.**

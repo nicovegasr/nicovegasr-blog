@@ -10,20 +10,23 @@ publicationDate: 2026-10-12
 
 Gestionar errores consiste en decidir **qué fallos forman parte del contrato** de una operación y dónde se traducen los fallos de sus dependencias. `Result`, `Either` y `try-catch` ayudan en puntos distintos de esa decisión.
 
-## Problema a resolver
+## Dos fallos que piden respuestas distintas
 
 Una persona configura una alerta de inventario. El umbral debe ser positivo y el producto debe existir. La validación puede rechazar la petición de forma normal. Al guardar la alerta, además, la base de datos puede no responder. Si ambos casos se convierten en un `null` o en un `catch` general, quien llama no sabe si debe corregir los datos o esperar a que vuelva el servicio.
 
-## Acciones a realizar
+## Hacer explícitos los resultados esperados
 
-Expresar la creación de la regla con dos resultados posibles: `Result<AlertRule, ValidationError>`. Un `Ok` contiene una regla válida; un `Err` explica qué dato corregir. `Either` representa la misma idea de dos caminos, aunque sus nombres y convenciones varían entre librerías.
+`Result<AlertRule, ValidationError>` expresa los dos resultados de validar el umbral y construir la regla. Un `Ok` contiene una regla válida; un `Err` explica qué dato corregir. `Either` representa la misma idea de dos caminos, aunque sus nombres y convenciones varían entre librerías. Comprobar que el producto existe requiere una consulta: «no existe» es un resultado esperado; «no puedo consultar» es un fallo de disponibilidad.
 
 ~~~text
-Entrada → validar → Ok(AlertRule) ──→ guardar → alerta creada
-                  └→ Err(ValidationError) → corregir entrada
-Guardar → fallo del proveedor → error de disponibilidad
+Entrada → validar umbral → Err(ValidationError) → corregir entrada
+          └→ Ok(AlertRule) → buscar producto → no existe → corregir ID
+                                  └→ existe → guardar → alerta creada
+Buscar o guardar → fallo del proveedor → error de disponibilidad
 ~~~
 
-En el adaptador de persistencia, capturar las excepciones que emite el cliente de base de datos y traducirlas a un error de disponibilidad que entienda la aplicación. Ese es un lugar concreto para `try-catch`; ponerlo alrededor de cada función solo dispersaría la política de errores. La capa de entrada decide después cómo comunicar el fallo: por ejemplo, un error de validación frente a un fallo temporal del servicio.
+## Traducir el fallo donde se conoce su origen
 
-Un [tipo `Result`](https://doc.rust-lang.org/core/result/enum.Result.html) obliga a tratar sus dos variantes cuando el lenguaje y las herramientas lo apoyan. Su utilidad no depende de convertir **todos** los fallos en valores. La frontera importante es que un dato inválido y una dependencia caída no se presenten como el mismo problema.
+El adaptador de persistencia captura las excepciones relevantes del cliente de base de datos y las traduce a un error de disponibilidad que entiende la aplicación. Ahí tiene un lugar concreto `try-catch`; ponerlo alrededor de cada función dispersaría la política de errores. La capa de entrada decide después cómo comunicar el fallo: datos a corregir o servicio temporalmente indisponible. Conviene conservar la causa original en los logs para investigar el incidente, sin exponer detalles del proveedor en la respuesta pública.
+
+Un [tipo `Result`](https://doc.rust-lang.org/core/result/enum.Result.html) hace visibles sus dos variantes cuando el lenguaje y las herramientas lo apoyan. Su utilidad no depende de convertir **todos** los fallos en valores. La frontera importante es que un dato inválido, un producto inexistente y una dependencia caída no se presenten como el mismo problema.

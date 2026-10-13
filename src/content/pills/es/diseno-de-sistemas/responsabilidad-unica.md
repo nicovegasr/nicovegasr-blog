@@ -8,24 +8,33 @@ bonus: false
 publicationDate: 2026-10-12
 ---
 
-El Principio de Responsabilidad Única (SRP) agrupa el código que cambia por el mismo [motivo](https://blog.cleancoder.com/uncle-bob/2014/05/08/SingleReponsibilityPrinciple.html). La responsabilidad de un caso de uso puede ser un proceso completo, aunque necesite varios pasos para entregar su resultado.
+El Principio de Responsabilidad Única (SRP) ayuda a decidir qué código conviene mantener junto según su [motivo de cambio](https://blog.cleancoder.com/uncle-bob/2014/05/08/SingleReponsibilityPrinciple.html). Contar métodos o verbos no revela esa frontera: un caso de uso puede tener una sola responsabilidad y necesitar varios pasos para cumplirla.
 
-## Problema a resolver
+## Una operación con varios pasos
 
-Un worker recibe un fichero con datos para actualizar usuarios. Antes de guardar cada uno necesita obtener un `User` a partir de su registro. El formato puede ser incorrecto o faltarle campos obligatorios. ¿Qué parte del código debe hacerse cargo de convertir esa entrada en un usuario válido?
+Un proceso asíncrono recibe un fichero JSON con los datos de un usuario. Antes de guardarlo necesita obtener un `User` válido. Hay que leer el fichero, comprobar si tiene la forma esperada y construir el usuario. ¿Son tres responsabilidades del caso de uso?
 
-## Acciones a realizar
+`GenerateUserFromFile` responde por una operación completa: obtener un usuario válido o explicar por qué no se pudo. Puede coordinar colaboradores con conocimientos distintos. El lector interpreta JSON; `User.from` comprueba las invariantes del usuario al construirlo.
 
-Dar al caso de uso la responsabilidad de **obtener un `User` válido del fichero**. Dentro de ese proceso, leer el registro, comprobar su formato y construir el usuario pueden ser funciones distintas. Cada función explica un paso; el caso de uso responde por el resultado completo.
+![GenerateUserFromFile coordina JsonReader y User.from para obtener un User válido; formato, flujo y reglas son motivos de cambio distintos](../../images/diseno-de-sistemas/responsabilidad-unica/srp-boundary-es.webp)
 
-~~~text
-Worker → caso de uso → leer → validar formato → construir User
-       ← User válido o error de entrada
-Worker → guardar User
+En código, la coordinación puede ser así:
+
+~~~ts
+class GenerateUserFromFile {
+  constructor(private readonly reader: JsonReader) {}
+
+  public execute(file: UserFile): User {
+    const data = this.reader.read(file);
+    return User.from(data);
+  }
+}
 ~~~
 
-El worker decide qué hacer con el resultado y coordina el guardado. El código de persistencia tiene otro motivo de cambio: puede cambiar la base de datos sin que cambie el formato del fichero. Esa frontera es más útil que repartir `read`, `validateFormat` y `toUser` en tres clases por el simple hecho de que son tres verbos.
+Si el JSON no se puede leer o faltan datos exigidos por `User.from`, no se construye el usuario. El proceso exterior decide qué hacer con ese error y cuándo guardarlo. Esa decisión de persistencia no forma parte de la construcción.
 
-Si el formato empieza a evolucionar por separado o lo consumen varios procesos, extraer un lector puede tener sentido. Hasta entonces, mantener juntos los pasos permite seguir la operación sin saltar entre piezas creadas para una reutilización hipotética.
+## Dónde separar y dónde mantener junto
 
-SRP sirve para decidir **qué cambia junto**, no para contar cuántas cosas hace una función o cuántas clases tiene un proceso.
+El formato JSON y las reglas que hacen válido a `User` pueden evolucionar por motivos distintos. Esa es una frontera útil si el lector se reutiliza o tiene complejidad propia. En cambio, separar `read`, `validateFormat` y `toUser` en clases por ser tres pasos obliga a recorrer más piezas sin aislar un cambio real.
+
+El ejemplo usa un `JsonReader` para mostrar la frontera, pero una implementación inicial puede mantener la lectura como método privado si solo sirve a este flujo. También puede existir una política de creación separada cuando sus reglas cambian por una razón propia; en ese caso hay que definir qué valida la política y qué invariantes conserva `User.from`, sin duplicar la misma regla en ambos sitios. **Una responsabilidad se reconoce por la decisión que protege, no por el número de llamadas que coordina.**

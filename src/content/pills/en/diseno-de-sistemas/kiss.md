@@ -10,15 +10,13 @@ publicationDate: 2026-10-12
 
 KISS (*Keep It Simple, Stupid*) means solving a problem with **as little added complexity as possible**. A problem may be complex in its own right; simplifying the solution does not mean ignoring its rules.
 
-## Problem to solve
+## Complexity the case already has
 
-An inventory process receives fixed-width, JSON, and XML files. Each format has different reading rules: field positions and lengths in one, properties in another, and elements in the third. All three must become inventory records before the same validations run.
+An inventory process receives **fixed-width**, **JSON**, and **XML** files. Each format has different reading rules, but all three must become inventory records before the same validation and processing can continue. All three formats exist today; changing the design cannot remove their differences.
 
-All three formats exist today. The decision is where to keep their differences so that the rest of the process does not need to know about them.
+## A solution sized to the need
 
-## Actions to take
-
-Create one reader per format. Each reader interprets its file and returns an `InventoryRecord`; subsequent validation and processing work with that shared result.
+Each reader interprets its format and returns an `InventoryRecord`. From that point on, validation and processing are the same for all three. A reading error stays associated with the format that caused it, before entering the common flow.
 
 ~~~text
 Fixed-width file → PositionalReader ┐
@@ -26,10 +24,12 @@ JSON             → JsonReader       ├→ InventoryRecord → validate → pr
 XML              → XmlReader        ┘
 ~~~
 
-The differences between formats and the handling of invalid files are **inherent complexity**. Three readers make sense because all three formats exist. Putting all parsing into one function would only hide those differences.
+Reading rules and the handling of invalid files are **inherent complexity**: all three formats exist. Putting them in a single function to reduce the number of classes would hide differences the code needs to handle.
 
-The alternative would be a generic component that reads external definitions for each file and uses reflection to map fields to classes at runtime. Adding a format might become a matter of writing a definition, but those definitions would also need to be designed, validated, and maintained. A mapping error would be harder to locate than in an explicit reader.
+A generic engine could instead read external definitions and use reflection to map fields to classes at runtime. Adding a format would then mean writing a definition. In return, those definitions would need to be designed, validated, versioned, and maintained; a mapping error would be harder to locate than in an explicit reader.
 
-If the three formats are known and change along with the application, that flexibility does not meet a current need. This is where YAGNI (*You Aren't Gonna Need It*) applies: do not build a mechanism for future formats today. If many different structures later need to be added without deploying code, there will be a concrete reason to reconsider it.
+The three formats are known and change with the application. That flexibility does not meet a current need. This is where **YAGNI (You Aren't Gonna Need It)** applies: do not build a mechanism for future formats today.
 
-KISS does not mean minimizing lines of code. It means keeping the complexity required by the problem and avoiding complexity introduced by the solution. YAGNI helps identify when that added complexity only serves an imagined future.
+## When to reconsider
+
+KISS is not measured by the number of classes or lines of code. **It means keeping the complexity required by the problem and avoiding complexity introduced by the solution.** If many new formats had to be added without deploying code, there would be a concrete reason to reconsider external definitions. Until then, three readers keep the real differences visible.

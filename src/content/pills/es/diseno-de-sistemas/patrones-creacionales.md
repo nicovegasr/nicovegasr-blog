@@ -8,23 +8,20 @@ bonus: false
 publicationDate: 2026-10-12
 ---
 
-Los patrones creacionales hacen explícitas decisiones que ocurren al crear objetos. **Builder** organiza la construcción de un valor con varias opciones e invariantes; **Factory** elige qué implementación crear según un dato de entrada. Resuelven problemas distintos, aunque puedan aparecer en el mismo flujo.
+Crear un objeto también implica tomar decisiones: qué datos necesita para ser válido y qué implementación corresponde a cada situación. **Builder** y **Factory** ayudan en momentos distintos de esa creación.
 
-## Problema a resolver
+## Builder: construir una petición válida
 
-Un informe de inventario admite periodo, almacén y la opción de incluir productos agotados. Puede salir en CSV o PDF. Con un constructor de varios parámetros posicionales, algunas llamadas intercambian fechas o crean periodos inválidos. Además, el endpoint y el proceso programado repiten un `if` para elegir entre `CsvReportWriter` y `PdfReportWriter`.
+Un informe de inventario admite periodo, almacén y la opción de incluir productos agotados. Un constructor con varios parámetros posicionales permite intercambiar las fechas sin darse cuenta o dejar la petición a medias.
 
-## Acciones a realizar
+`ReportRequestBuilder` da nombre a cada opción y valida el conjunto al llamar a `build()`: periodo obligatorio, fecha inicial anterior a la final y valor por defecto para incluir agotados. El resultado es un `ReportRequest` válido; el caso de uso no necesita conocer los pasos usados para montarlo. El *builder* no sustituye la validación de datos externos: transforma esos datos en un valor que ya cumple sus invariantes.
 
-Usar un `ReportRequestBuilder` en la entrada para nombrar las opciones y validar al llamar a `build()`: fecha inicial anterior a fecha final, periodo obligatorio y valores por defecto explícitos. El caso de uso recibe un `ReportRequest` ya válido, sin conocer cómo se fue montando.
+## Factory: elegir el escritor
 
-Centralizar la elección del escritor en `ReportWriterFactory.for(format)`. Puede ser una función pequeña: dado `CSV`, devuelve `CsvReportWriter`; dado `PDF`, devuelve `PdfReportWriter`. El proceso que genera el informe trabaja con la capacidad común de escribirlo.
+El mismo informe puede salir en CSV o PDF. Tanto el endpoint como un proceso programado necesitan escoger el escritor según el formato de **cada petición**. `createReportWriter(format)` concentra esa elección: crea `CsvReportWriter` o `PdfReportWriter`, ambos bajo el mismo contrato de escritura. Puede ser una función pequeña; no hace falta crear una clase por llamarla Factory. Si llega un formato desconocido, debe devolver un error explícito; elegir CSV por defecto produciría un informe inesperado.
 
-~~~text
-Opciones → Builder → ReportRequest válido
-Formato → Factory → CsvReportWriter | PdfReportWriter
-                        ↓
-                generar y escribir informe
-~~~
+![El Builder reúne periodo y almacén y valida ReportRequest; la Factory usa el formato CSV o PDF para elegir un escritor](../../images/diseno-de-sistemas/patrones-creacionales/builder-factory-es.webp)
 
-Builder responde «¿cómo construyo esta petición sin dejarla a medias?». Factory responde «¿qué escritor corresponde a este formato?». Si `ReportRequest` tiene dos campos y un constructor claro, Builder añadiría ceremonia. Si solo existe CSV y no hay selección real, una Factory tampoco aporta nada. El patrón entra cuando quita una decisión repetida o impide crear estados inválidos.
+## Cuándo compensa cada uno
+
+Builder responde «¿cómo construyo esta petición sin dejarla a medias?». Factory responde «¿qué escritor corresponde a este formato?». Son soluciones independientes: se puede necesitar una sin la otra. Con dos campos claros, un constructor o una función de creación bastan; con un solo escritor, no hay selección que centralizar. El nombre del patrón importa menos que la decisión concreta que deja visible.
