@@ -1,6 +1,6 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import type { Locale } from '@/i18n/locale';
-import { type TimelineEntry } from '@/features/timeline/timeline-entry';
+import { type TimelineEntry } from '@/features/about-me/timeline-entry';
 import { parseLocalizedEntryIdentifier } from '@/i18n/entry-identifier';
 
 type TimelineCollectionEntry = CollectionEntry<'timeline'>;

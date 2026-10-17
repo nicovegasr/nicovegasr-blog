@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { calculateReadingTimeInMinutes } from '@/features/reading-time/reading-time';
+import { calculateReadingTimeInMinutes } from '@/shared/reading-time/reading-time';
 
 describe('calculateReadingTimeInMinutes', () => {
   it('returns at least one minute for empty or tiny text', () => {

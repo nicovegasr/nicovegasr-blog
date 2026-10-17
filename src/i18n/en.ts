@@ -7,7 +7,6 @@ export const english: Dictionary = {
 
   'navigation.blog': 'Blog',
   'navigation.about': 'About',
-  'navigation.work': 'Where I work',
   'navigation.menu': 'Menu',
 
   'writing.articles': 'Articles',
@@ -36,7 +35,6 @@ export const english: Dictionary = {
     'I enjoy investigating how things work under the hood to make the most of what technology offers us, building predictable, scalable and maintainable software.',
   'about.approach':
     'I am interested in software and solution architecture, exploring the best technologies to solve problems and designing architectures that can evolve sustainably over time.',
-  'about.principlesTitle': 'Principles',
   'about.stackTitle': 'Stack',
   'about.timelineTitle': 'Journey',
   'about.present': 'Present',
@@ -55,11 +53,6 @@ export const english: Dictionary = {
   'pills.reader.back': 'Back to the journey',
   'pills.reader.paginationLabel': 'Between pills',
   'pills.seriesCount': 'pills',
-
-  'work.since': 'Since',
-  'work.valuesPrefix': 'How I approach the work, in my ',
-  'work.valuesLink': 'principles',
-  'work.valuesSuffix': '.',
 
   'footer.rights': 'All rights reserved',
 };

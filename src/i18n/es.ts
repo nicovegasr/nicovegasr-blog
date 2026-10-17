@@ -5,7 +5,6 @@ export const spanish = {
 
   'navigation.blog': 'Blog',
   'navigation.about': 'Sobre mí',
-  'navigation.work': 'Dónde trabajo',
   'navigation.menu': 'Menú',
 
   'writing.articles': 'Artículos',
@@ -34,7 +33,6 @@ export const spanish = {
     'Disfruto investigando cómo funcionan las cosas por dentro para aprovechar todo lo que las tecnologías nos ofrecen, construyendo software predecible, escalable y mantenible.',
   'about.approach':
     'Me interesa el mundo de la arquitectura de software y de soluciones, explorar las mejores tecnologías para resolver problemas y plantear una arquitectura que evolucione con el tiempo de forma sostenible.',
-  'about.principlesTitle': 'Principios',
   'about.stackTitle': 'Stack',
   'about.timelineTitle': 'Trayectoria',
   'about.present': 'Actualidad',
@@ -53,11 +51,6 @@ export const spanish = {
   'pills.reader.back': 'Volver al recorrido',
   'pills.reader.paginationLabel': 'Entre píldoras',
   'pills.seriesCount': 'píldoras',
-
-  'work.since': 'Desde',
-  'work.valuesPrefix': 'Cómo enfoco el trabajo, en mis ',
-  'work.valuesLink': 'principios',
-  'work.valuesSuffix': '.',
 
   'footer.rights': 'Todos los derechos reservados',
 } as const;

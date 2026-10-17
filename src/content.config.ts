@@ -26,14 +26,6 @@ const posts = defineCollection({
   }),
 });
 
-const principles = defineCollection({
-  loader: localizedMarkdown('principles'),
-  schema: z.object({
-    title: z.string().min(1).max(80),
-    order: z.number().int().default(0),
-  }),
-});
-
 const timeline = defineCollection({
   loader: localizedMarkdown('timeline'),
   schema: z.object({
@@ -43,18 +35,6 @@ const timeline = defineCollection({
     startDate: z.coerce.date(),
     endDate: z.coerce.date().optional(),
     summary: z.string().min(10),
-  }),
-});
-
-const work = defineCollection({
-  loader: localizedMarkdown('work'),
-  schema: z.object({
-    company: z.string().min(1),
-    companyUrl: z.url(),
-    role: z.string().min(1),
-    location: z.string().min(1),
-    startDate: z.coerce.date(),
-    lastUpdateDate: z.coerce.date(),
   }),
 });
 
@@ -82,4 +62,4 @@ const pills = defineCollection({
   ]),
 });
 
-export const collections = { posts, principles, timeline, work, pills };
+export const collections = { posts, timeline, pills };

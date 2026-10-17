@@ -250,22 +250,6 @@ p {
 }
 
 /* Sobre-mí */
-.principles {
-  list-style: none;
-  padding: 0;
-  margin-top: var(--space-6);
-  display: grid;
-  gap: var(--space-3);
-}
-
-.principles li {
-  font-family: var(--font-family-display);
-  font-size: var(--font-size-heading-3);
-  font-weight: 500;
-  padding-left: var(--space-4);
-  border-left: 3px solid var(--color-accent);
-}
-
 .stack {
   margin-top: var(--space-6);
   display: grid;
@@ -285,36 +269,6 @@ p {
 .stack dd {
   margin: 0;
   color: var(--color-text-soft);
-}
-
-/* Dónde trabajo (sección dentro de sobre-mí) */
-.work-now {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-4);
-  margin-top: var(--space-6);
-  text-decoration: none;
-}
-
-.work-now-text {
-  display: grid;
-  gap: var(--space-1);
-}
-
-.work-now-company {
-  font-family: var(--font-family-display);
-  font-size: var(--font-size-heading-3);
-  font-weight: 700;
-}
-
-@media (hover: hover) {
-  .work-now:hover .work-now-company {
-    box-shadow: inset 0 -0.4em 0 var(--color-accent);
-  }
-}
-
-.work-now-body {
-  margin-top: var(--space-6);
 }
 
 .timeline {

@@ -1,61 +1,92 @@
-# Arquitectura técnica
+# Technical architecture
 
-## Visión general
+## Overview
 
-El proyecto es un sitio estático de Astro. La raíz redirige a `/es`; tanto el español como el inglés usan prefijo de idioma y mantienen rutas equivalentes cuando existen.
+The blog is an Astro static site. The root redirects to `/es`; Spanish and English both use locale prefixes and equivalent routes where translations exist. Content is rendered at build time, so deployment requires static hosting rather than an application server.
 
-Astro se encarga de las páginas, el renderizado estático y las Content Collections. El código propio se organiza en *vertical slices*: cada funcionalidad agrupa su modelo, su acceso al contenido y, cuando hace falta, sus componentes.
+Application code is grouped by functionality. A feature owns a coherent part of the site; it does not have to correspond to one page or one content collection. For example, posts support article pages, listings, search, and RSS.
 
-## Estructura
+## Structure
 
 ```text
 src/
-├── content.config.ts  # Colecciones y esquemas Zod
-├── content/           # Markdown y recursos editoriales
-├── features/          # Funcionalidades del dominio
-├── i18n/              # Locales, textos y construcción de rutas
-├── layouts/           # Shell compartido de las páginas
-├── pages/             # Rutas de Astro por idioma
-└── styles/            # Tokens y estilos globales
+├── content.config.ts       # Astro collection loaders and Zod schemas
+├── content/                # Localized Markdown and editorial assets
+├── features/
+│   ├── about-me/           # Career history: model, repository, and timeline UI
+│   ├── pills/              # Series, individual pills, and the notebook reader
+│   └── posts/              # Articles, listings, search, related posts, and feeds
+├── shared/
+│   └── reading-time/       # Calculation, tests, and UI used by posts and pills
+├── i18n/                   # Locales, UI dictionaries, and route builders
+├── layouts/                # Site-wide shell, navigation, footer, and controls
+├── pages/                  # Astro routes, separated by locale
+└── styles/                 # Design tokens and global styles
 ```
 
-### Contenido y funcionalidades
+### Responsibilities within a feature
 
-`src/content/` responde a la convención de Astro: sus colecciones se declaran en `src/content.config.ts` y el idioma forma parte de la ruta del archivo. No debe moverse dentro de `features/`.
+Keep small features flat, separating responsibilities with files:
 
-Cada módulo de `src/features/` separa tres responsabilidades sin introducir capas artificiales:
+- Model files contain types and pure logic.
+- `*-repository.ts` files adapt `astro:content` entries to application types and expose rendered content when needed.
+- `components/` contains feature-specific UI and page composition.
+- Tests live beside the logic they verify.
 
-- `<feature>.ts`: tipos y lógica pura.
-- `<feature>-repository.ts`: adaptación de `astro:content` a los tipos del dominio.
-- `components/`: UI propia del módulo, solo cuando tiene sentido agruparla.
+There are no mandatory `domain/`, `application/`, or `infrastructure/` directories. Add subdirectories when the amount of code makes navigation easier, rather than creating empty layers in advance.
 
-Las páginas y los componentes consumen los repositorios; no acceden directamente a `astro:content`. Esta frontera evita que los detalles de Astro se propaguen por la aplicación y permite probar la lógica de dominio de forma aislada.
+Pages and components consume repositories instead of importing `astro:content` directly. This keeps collection identifiers, validation, and Markdown rendering behind one boundary. Pure logic remains testable without Astro.
 
-## Internacionalización
+### Feature ownership and shared code
 
-`src/i18n/` es una preocupación transversal:
+`about-me` owns career history because its consumers are the localized About pages. The underlying content collection remains named `timeline`: content storage and feature ownership need not have identical directory names.
 
-- `locale.ts` define los locales válidos y el idioma por defecto.
-- `es.ts` y `en.ts` contienen los textos de interfaz.
-- `routes.ts` transforma rutas lógicas entre idiomas.
-- `entry-identifier.ts` obtiene idioma y *slug* a partir de los identificadores de las colecciones.
+`shared/` contains focused pieces used by more than one feature. Reading-time calculation and presentation belong together there because posts and pills both use them. Shared code must not depend on feature modules. Do not use this directory as a catch-all for code with unclear ownership.
 
-Las rutas se construyen mediante estas utilidades, sin hardcodear segmentos localizados en los componentes.
+Feature-specific page composition stays in the feature. `PillNotebook.astro`, for example, composes the pills experience using the site-wide `BaseLayout.astro`; it is not part of the global shell.
 
-## Presentación
+### Content
 
-`BaseLayout.astro` concentra los estilos globales, fuentes, metadatos SEO, enlaces alternativos entre idiomas y la inicialización del tema. `layouts/` contiene el chrome compartido; los componentes específicos permanecen junto a su funcionalidad.
+`src/content/` follows Astro's content conventions. Collection schemas live in `src/content.config.ts`, and the locale is part of each Markdown entry's path. Keep editorial content outside `features/`.
 
-Los tokens viven en `src/styles/tokens.css`; `base.css` contiene el reset, la tipografía y los patrones verdaderamente globales. Los estilos de componente se definen de forma local y consumen los tokens, por lo que no dependen del tema activo.
+The active collections are posts, timeline, and pills. The retired Principles and current-work sections have no remaining collections, modules, or editorial files. When retiring another section, check its consumers, schema, Markdown, translations, components, and styles together.
 
-## Calidad
+## Internationalization
 
-Los tests se co-localizan con la lógica que cubren. La validación habitual es:
+`src/i18n/` is cross-cutting:
 
-```bash
-npm run typecheck
-npm run test:run
-npm run build
-```
+- `locale.ts` defines supported locales and the default language.
+- `es.ts` and `en.ts` contain interface text; the English dictionary must implement the Spanish dictionary's keys.
+- `translator.ts` provides typed dictionary access.
+- `routes.ts` builds and translates logical routes.
+- `entry-identifier.ts` extracts locale and slug from content entry identifiers.
 
-Consulta [la guía de estilo](../design/styleguide.md) para las decisiones visuales y [la guía de imágenes](../design/images-styles.md) antes de crear o editar recursos gráficos.
+Use `getTranslator(locale)` in components. Do not embed parallel language dictionaries or localized route segments in feature UI. Technical identifiers, proper nouns, and authored Markdown remain separate from interface translations.
+
+## Presentation and static navigation
+
+`BaseLayout.astro` owns the document shell, global styles, self-hosted fonts, SEO metadata, alternate-language links, and theme initialization. Reusable site controls live alongside it in `layouts/`; feature-specific UI stays with its feature.
+
+Design tokens live in `src/styles/tokens.css`. `base.css` contains the reset, typography, and genuinely global patterns. Components use scoped styles and theme-independent color tokens. See the visual guide for the palette, typography, depth, and motion rules.
+
+Series and individual pill routes render the same notebook component. Individual routes select their article during the build. Reader links point to generated HTML pages, so direct visits, reloads, browser history, and navigation without JavaScript do not require a client-side router or persisted selection. Native cross-document view transitions enhance navigation where supported and are disabled for reduced-motion preferences.
+
+## Development and verification
+
+Use the Node.js version and startup commands documented in the root README. For a change:
+
+1. Read the owning feature, its consumers, and the relevant design guidance.
+2. Keep ES/EN routes and interface dictionaries aligned.
+3. Keep the diff focused and preserve unrelated working-tree changes.
+4. Run the standard checks:
+
+   ```bash
+   git diff --check
+   npm run typecheck
+   npm run test:run
+   npm run build
+   ```
+
+5. After route or page-composition changes, inspect the generated ES/EN HTML and verify links and selected content. After visual changes, inspect desktop and mobile layouts; a passing build does not establish visual quality.
+
+See the [visual guide](../design/styleguide.md) and read the [image guide](../design/images-styles.md) before creating or editing graphical assets.

@@ -11,7 +11,7 @@ import {
   type PillSeries,
 } from '@/features/pills/pill';
 import { parseLocalizedEntryIdentifier } from '@/i18n/entry-identifier';
-import { calculateReadingTimeInMinutes } from '@/features/reading-time/reading-time';
+import { calculateReadingTimeInMinutes } from '@/shared/reading-time/reading-time';
 
 type PillEntry = CollectionEntry<'pills'>;
 type SeriesEntry = PillEntry & { data: { kind: 'series' } };
