@@ -49,6 +49,8 @@ Feature-specific page composition stays in the feature. `PillNotebook.astro`, fo
 
 `src/content/` follows Astro's content conventions. Collection schemas live in `src/content.config.ts`, and the locale is part of each Markdown entry's path. Keep editorial content outside `features/`.
 
+To withhold an entire pill series, set `draft: true` in its localized `overview.md` files. Draft series and all their individual pill routes are excluded from generation, listings, and the sitemap regardless of publication date. Remove the flag or set it to `false` when the series is ready.
+
 The active collections are posts, timeline, and pills. The retired Principles and current-work sections have no remaining collections, modules, or editorial files. When retiring another section, check its consumers, schema, Markdown, translations, components, and styles together.
 
 ## Internationalization

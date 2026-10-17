@@ -32,6 +32,7 @@ const toPillSeries = (entry: SeriesEntry): PillSeries | null => {
     locale: identifier.locale,
     title: entry.data.title,
     summary: entry.data.summary,
+    draft: entry.data.draft,
     icon: entry.data.icon,
     order: entry.data.order,
     publicationDate: entry.data.publicationDate,
@@ -88,11 +89,14 @@ export const findAllPublishedPills = async (
   locale: Locale,
 ): Promise<readonly { series: string; pill: string }[]> => {
   const entries = await getCollection('pills');
+  const publishedSeries = new Set(
+    (await findAllPillSeries(locale)).map((series) => series.slug),
+  );
   return entries
     .filter(isPillEntry)
     .map(toPill)
     .filter((pill): pill is Pill => pill !== null)
-    .filter((pill) => pill.locale === locale)
+    .filter((pill) => pill.locale === locale && publishedSeries.has(pill.series))
     .filter((pill) => isPublished(pill))
     .map((pill) => ({ series: pill.series, pill: pillLeafSlugOf(pill.slug) }));
 };
@@ -170,11 +174,15 @@ export const findRenderablePill = async (
     (candidate) => candidate.slug === series,
   );
 
+  if (pillSeries === undefined) {
+    return null;
+  }
+
   const { Content } = await render(entry);
   return {
     pill,
     Content,
-    seriesTitle: pillSeries?.title ?? series,
+    seriesTitle: pillSeries.title,
     stops: await publishedPillsOf(locale, series),
     readingTimeInMinutes: calculateReadingTimeInMinutes(entry.body ?? ''),
   };

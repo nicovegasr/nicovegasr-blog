@@ -30,6 +30,7 @@ const buildSeries = (overrides: Partial<PillSeries> = {}): PillSeries => ({
   locale: 'es',
   title: 'Docker',
   summary: 'Conceptos básicos de Docker.',
+  draft: false,
   icon: 'whale',
   order: 2,
   publicationDate: new Date('2026-01-01'),

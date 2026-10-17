@@ -14,6 +14,7 @@ export type Pill = {
 };
 
 export type PillSeries = {
+  readonly draft: boolean;
   readonly slug: string;
   readonly locale: Locale;
   readonly title: string;
@@ -32,9 +33,9 @@ export const pillLeafSlugOf = (pillSlug: string): string =>
   pillSlug.split('/').slice(1).join('/');
 
 export const isPublished = (
-  entry: { publicationDate: Date },
+  entry: { publicationDate: Date; draft?: boolean },
   now: Date = new Date(),
-): boolean => entry.publicationDate.getTime() <= now.getTime();
+): boolean => !entry.draft && entry.publicationDate.getTime() <= now.getTime();
 
 const byOrderAscending = (a: Pill, b: Pill): number => a.order - b.order;
 
