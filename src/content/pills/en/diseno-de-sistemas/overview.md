@@ -2,13 +2,13 @@
 kind: 'series'
 draft: true
 title: 'System design'
-summary: 'Design decisions from the code up: how to keep a solution understandable, test it, and let it evolve without adding complexity ahead of time.'
+summary: 'Design decisions from the code up: how to understand, test, and change a solution without turning every modification into a new problem.'
 icon: 'design'
 order: 4
 publicationDate: 2026-10-12
 ---
 
-These decisions connect. Before introducing an abstraction, identify what can actually vary: a format, a domain rule, a provider, or the state one run must preserve. KISS helps avoid hypothetical flexibility; single responsibility, cohesion, and coupling help place each change where it belongs.
+Design is tested when something changes: a supplier modifies its file, a new rule appears, or a report needs another destination. KISS helps handle that complexity without adding obstacles of our own. Single responsibility, cohesion, and coupling help decide which code belongs together and what should be separate. An abstraction can simplify the work when it brings an actual variation into one place; it can also complicate things when it makes people navigate more pieces without a concrete reason.
 
 Then consider the visible contract. A preview should not write without saying so; an object should not exist in an invalid state; an input error should not look like a database outage. Builder, Factory, immutability, and result types are possible tools for expressing those decisions, not goals in themselves.
 

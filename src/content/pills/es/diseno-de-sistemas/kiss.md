@@ -1,35 +1,57 @@
 ---
 kind: 'pill'
 title: 'Keep It Simple, Stupid (KISS)'
-subtitle: 'la solución más simple que resuelve el problema'
+subtitle: 'resolver lo complejo sin complicarlo más'
 icon: 'simple'
 order: 1
 bonus: false
 publicationDate: 2026-10-12
 ---
 
-KISS (*Keep It Simple, Stupid*) propone resolver un problema con **la menor complejidad añadida**. Un problema puede ser complejo por sí mismo; simplificar la solución no consiste en ignorar sus reglas.
+**Mantén las cosas simples.** Esa es la idea de KISS (*Keep It Simple, Stupid*). Si el problema es sencillo, una solución sencilla debería bastar. Si es complejo, el diseño tiene que hacerse cargo de esa complejidad y permitir trabajar con ella.
 
-## Qué complejidad exige el caso
+Una interfaz puede ayudarte a simplificar. Una función de veinte líneas puede hacerte la vida imposible. La diferencia se ve cuando tienes que entender el código o cambiarlo.
 
-Un proceso de inventario recibe **archivos posicionales**, **JSON** y **XML**. Cada formato tiene reglas distintas de lectura, pero todos deben convertirse en registros de inventario antes de aplicar las mismas validaciones y continuar el procesamiento. Los tres formatos existen hoy; sus diferencias no se pueden eliminar cambiando el diseño.
+## Cien jobs que leen ficheros
 
-## Una solución proporcionada
+Imagina cien jobs de Spring Batch que importan inventario de distintos proveedores. Llegan JSON, XML y ficheros posicionales, donde cada campo ocupa unas posiciones concretas. Dos ficheros posicionales pueden tener distribuciones completamente distintas: que compartan formato no significa que se lean igual.
 
-Cada lector interpreta su formato y entrega un `InventoryRecord`. A partir de ahí, las validaciones y el procesamiento son los mismos para los tres. Un error de lectura queda asociado al formato que lo produjo, antes de entrar en el flujo común.
+Algunos proveedores cambian esa distribución con frecuencia. Esta semana el código de producto ocupa las posiciones 1 a 12; la siguiente, las posiciones 1 a 16, desplazando los campos que vienen después.
 
-~~~text
-Archivo posicional → PositionalReader ┐
-JSON               → JsonReader       ├→ InventoryRecord → validar → procesar
-XML                → XmlReader        ┘
+Hay dos dificultades que el código tiene que resolver: entender cada disposición y mantenerla cuando cambie. Eso es **complejidad inherente**: viene con el problema que hemos aceptado resolver.
+
+## ¿Dónde cambias la lectura de ese fichero?
+
+Una primera solución podría copiar la lectura dentro de cada job que la necesita. Parece cómoda: cada job tiene todo su código a mano. Pero si ocho jobs leen la misma disposición y el proveedor la cambia, ahora tienes ocho sitios que revisar. También tienes ocho oportunidades de dejar una copia con las posiciones antiguas.
+
+Podemos concentrar esa lectura en un lector y reutilizarlo en los ocho jobs. Las disposiciones distintas tendrán sus propios lectores. Todos entregan registros de inventario mediante una interfaz común:
+
+~~~ts
+interface InventoryReader {
+  read(file: InventoryFile): Iterable<InventoryRecord>;
+}
 ~~~
 
-Las reglas de lectura y el tratamiento de archivos inválidos son **complejidad inherente**: los tres formatos existen. Meterlos en una única función para reducir el número de clases escondería las diferencias que el código necesita manejar.
+Cada job recibe el lector que le corresponde y trabaja con sus registros. No necesita conocer las posiciones del fichero ni elegir entre todos los formatos del sistema.
 
-También se podría construir un motor que leyera definiciones externas y usara *reflection* para mapear campos a clases en tiempo de ejecución. Añadir un formato sería cuestión de escribir una definición. A cambio, habría que diseñar, validar, versionar y mantener esas definiciones; un error de mapeo sería más difícil de localizar que en un lector explícito.
+~~~text
+Job A ─┐
+Job B ─┼→ SupplierStockReader → registros de inventario
+Job C ─┘
 
-Los tres formatos son conocidos y cambian junto con la aplicación. Esa flexibilidad no resuelve una necesidad actual. Aquí entra **YAGNI (You Aren't Gonna Need It)**: no construir hoy un mecanismo para formatos futuros.
+Job D ──→ WarehouseXmlReader → registros de inventario
+~~~
 
-## El criterio para revisarlo
+Cuando cambia la disposición del primer fichero, modificas `SupplierStockReader` y sus pruebas. Los jobs siguen pidiendo registros de la misma manera. Si también cambia el significado de un dato, habrá que revisar lo que hace el procesamiento con él: una interfaz no puede hacer desaparecer ese cambio.
 
-KISS no se mide por el número de clases o de líneas de código. **Pide conservar la complejidad que exige el problema y evitar la que introduce la solución.** Si muchos formatos nuevos tuviesen que incorporarse sin desplegar código, habría un motivo concreto para reconsiderar un sistema de definiciones. Hasta entonces, tres lectores dejan visibles las diferencias reales.
+**Aquí la abstracción simplifica el mantenimiento.** Centralizar significa mantener la lectura de cada disposición en un lugar conocido, no meter los cien formatos en una clase gigante.
+
+## La complejidad que añadimos nosotros
+
+Las copias repartidas entre jobs son **complejidad añadida**: el proveedor no nos ha obligado a duplicar su formato. Tampoco nos obliga a crear un sistema de plugins, una jerarquía de diez clases o un motor configurable para empezar a leerlo.
+
+Esos mecanismos pueden tener sentido si resuelven una necesidad concreta. Si los formatos cambian a menudo y deben incorporarse sin desplegar código, quizá compense describirlos mediante configuración. Esa configuración también tendrá que entenderse, comprobarse y mantenerse; ser genérica no la hace automáticamente más simple.
+
+Con un fichero pequeño que solo usa un proceso, una función puede bastar. Con cien disposiciones reales, organizar sus lectores y compartir un contrato puede ser la solución más sencilla de mantener.
+
+**KISS pide que el diseño facilite resolver el problema real, con toda su complejidad, y que cada mecanismo añadido se gane su sitio.**

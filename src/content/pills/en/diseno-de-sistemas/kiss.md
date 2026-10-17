@@ -1,35 +1,57 @@
 ---
 kind: 'pill'
 title: 'Keep It Simple, Stupid (KISS)'
-subtitle: 'the simplest solution that solves the problem'
+subtitle: 'handle complexity without adding more'
 icon: 'simple'
 order: 1
 bonus: false
 publicationDate: 2026-10-12
 ---
 
-KISS (*Keep It Simple, Stupid*) means solving a problem with **as little added complexity as possible**. A problem may be complex in its own right; simplifying the solution does not mean ignoring its rules.
+**Keep things simple.** That is the idea behind KISS (*Keep It Simple, Stupid*). A straightforward problem should only need a straightforward solution. A complex problem needs a design that handles its complexity and lets people work with it.
 
-## Complexity the case already has
+An interface can help simplify things. A twenty-line function can make your life miserable. The difference becomes clear when you need to understand or change the code.
 
-An inventory process receives **fixed-width**, **JSON**, and **XML** files. Each format has different reading rules, but all three must become inventory records before the same validation and processing can continue. All three formats exist today; changing the design cannot remove their differences.
+## A hundred jobs reading files
 
-## A solution sized to the need
+Imagine a hundred Spring Batch jobs importing inventory from different suppliers. Files arrive as JSON, XML, and fixed-width text, where each field occupies specific positions. Two fixed-width files can have completely different layouts: sharing a format does not mean they can be read in the same way.
 
-Each reader interprets its format and returns an `InventoryRecord`. From that point on, validation and processing are the same for all three. A reading error stays associated with the format that caused it, before entering the common flow.
+Some suppliers change their layouts frequently. This week, the product code occupies positions 1 through 12; next week, it occupies positions 1 through 16, shifting the fields that follow.
 
-~~~text
-Fixed-width file → PositionalReader ┐
-JSON             → JsonReader       ├→ InventoryRecord → validate → process
-XML              → XmlReader        ┘
+The code has two difficulties to handle: understanding each layout and maintaining it as it changes. That is **inherent complexity**: it comes with the problem we have agreed to solve.
+
+## Where do you change that file's reading logic?
+
+An initial solution might copy the reading logic into every job that needs it. This seems convenient: each job has all its code close at hand. But if eight jobs read the same layout and the supplier changes it, you now have eight places to review. You also have eight opportunities to leave a copy using the old positions.
+
+We can put that logic in one reader and reuse it across the eight jobs. Different layouts get their own readers. All readers provide inventory records through a common interface:
+
+~~~ts
+interface InventoryReader {
+  read(file: InventoryFile): Iterable<InventoryRecord>;
+}
 ~~~
 
-Reading rules and the handling of invalid files are **inherent complexity**: all three formats exist. Putting them in a single function to reduce the number of classes would hide differences the code needs to handle.
+Each job receives the reader it needs and works with its records. It does not need to know the file positions or choose between every format in the system.
 
-A generic engine could instead read external definitions and use reflection to map fields to classes at runtime. Adding a format would then mean writing a definition. In return, those definitions would need to be designed, validated, versioned, and maintained; a mapping error would be harder to locate than in an explicit reader.
+~~~text
+Job A ─┐
+Job B ─┼→ SupplierStockReader → inventory records
+Job C ─┘
 
-The three formats are known and change with the application. That flexibility does not meet a current need. This is where **YAGNI (You Aren't Gonna Need It)** applies: do not build a mechanism for future formats today.
+Job D ──→ WarehouseXmlReader → inventory records
+~~~
 
-## When to reconsider
+When the first file's layout changes, you update `SupplierStockReader` and its tests. The jobs still ask for records in the same way. If a field's meaning also changes, you will need to review how processing uses it: an interface cannot make that change disappear.
 
-KISS is not measured by the number of classes or lines of code. **It means keeping the complexity required by the problem and avoiding complexity introduced by the solution.** If many new formats had to be added without deploying code, there would be a concrete reason to reconsider external definitions. Until then, three readers keep the real differences visible.
+**Here, the abstraction simplifies maintenance.** Centralizing means keeping each layout's reading logic in one known place, rather than putting all hundred formats into one giant class.
+
+## Complexity we add ourselves
+
+Copies scattered across jobs are **added complexity**: the supplier did not force us to duplicate its format. Nor does it require us to build a plugin system, a ten-class hierarchy, or a configurable engine before we can read the file.
+
+Those mechanisms can make sense when they meet a concrete need. If formats change frequently and must be introduced without deploying code, describing them through configuration may be worthwhile. That configuration will also need to be understood, checked, and maintained; being generic does not automatically make it simpler.
+
+For one small file used by one process, a function may be enough. For a hundred actual layouts, organizing their readers and sharing a contract may be the simplest solution to maintain.
+
+**KISS asks for a design that makes the actual problem easier to solve, with all its complexity, and makes every added mechanism earn its place.**
