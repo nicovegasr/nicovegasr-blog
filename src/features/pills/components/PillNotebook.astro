@@ -1,0 +1,82 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PillReader from '@/features/pills/components/PillReader.astro';
+import type { Locale } from '@/i18n/locale';
+import { getTranslator } from '@/i18n/translator';
+import {
+  buildPagePath,
+  buildPillPath,
+  buildPillSeriesPath,
+} from '@/i18n/routes';
+import { findRenderablePillSeries } from '@/features/pills/pill-repository';
+import { pillLeafSlugOf } from '@/features/pills/pill';
+
+interface Props {
+  locale: Locale;
+  seriesSlug: string;
+  activePillSlug?: string;
+}
+const { locale, seriesSlug, activePillSlug } = Astro.props;
+const renderable = await findRenderablePillSeries(locale, seriesSlug);
+if (!renderable)
+  throw new Error(`Pill series not found: ${locale}/${seriesSlug}`);
+const { series, pills, hasSummary, SummaryContent } = renderable;
+const activePill = pills.find(
+  (pill) => pillLeafSlugOf(pill.slug) === activePillSlug,
+);
+if (activePillSlug && !activePill)
+  throw new Error(`Pill not found: ${activePillSlug}`);
+const translate = getTranslator(locale);
+const otherLocale = locale === 'es' ? 'en' : 'es';
+const alternatePaths = {
+  [otherLocale]: activePillSlug
+    ? buildPillPath(otherLocale, series.slug, activePillSlug)
+    : buildPillSeriesPath(otherLocale, series.slug),
+};
+
+---
+
+<BaseLayout
+  locale={locale}
+  title={activePill ? `${activePill.title} — ${series.title}` : `${series.title} — ${translate('pills.heading')}`}
+  description={activePill?.subtitle ?? series.summary}
+  openGraphType={activePill ? 'article' : 'website'}
+  alternatePaths={alternatePaths}
+>
+  <article class="series-notebook">
+    <header class="notebook-header">
+      <nav class="breadcrumb" aria-label="breadcrumb">
+        <a href={buildPagePath('pills', locale)}>{translate('pills.heading')}</a> / {series.title}
+      </nav>
+      <h1>{series.title}</h1>
+      <p class="series-summary">{series.summary}</p>
+    </header>
+    <PillReader locale={locale} series={series} pills={pills} hasSummary={hasSummary} activePillSlug={activePillSlug}>
+      <Fragment slot="summary"><SummaryContent /></Fragment>
+    </PillReader>
+  </article>
+</BaseLayout>
+
+<style>
+  .notebook-header {
+    margin-bottom: var(--space-12);
+  }
+  .notebook-header h1 {
+    font-size: clamp(2.8rem, 7vw, 5rem);
+    line-height: 1.05;
+    letter-spacing: -0.055em;
+    overflow-wrap: anywhere;
+  }
+  .series-summary {
+    color: var(--color-text-soft);
+    font-size: var(--font-size-lead);
+    line-height: 1.65;
+    max-width: 55ch;
+    margin-top: var(--space-4);
+  }
+  @media (max-width: 480px) {
+    .notebook-header {
+      margin-bottom: var(--space-8);
+    }
+  }
+</style>

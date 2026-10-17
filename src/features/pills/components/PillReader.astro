@@ -1,0 +1,493 @@
+---
+import type { Locale } from '@/i18n/locale';
+import { getTranslator } from '@/i18n/translator';
+import type { Pill, PillSeries } from '@/features/pills/pill';
+import { pillLeafSlugOf } from '@/features/pills/pill';
+import { findRenderablePill } from '@/features/pills/pill-repository';
+import { buildPillPath, buildPillSeriesPath } from '@/i18n/routes';
+import PillIcon from './PillIcon.astro';
+import ReadingTime from '@/features/pills/components/ReadingTime.astro';
+
+interface Props {
+  locale: Locale;
+  series: PillSeries;
+  pills: readonly Pill[];
+  hasSummary: boolean;
+  activePillSlug?: string | undefined;
+}
+
+const { locale, series, pills, hasSummary, activePillSlug } = Astro.props;
+const seriesPath = buildPillSeriesPath(locale, series.slug);
+const translate = getTranslator(locale);
+let coreNumber = 0;
+const chapters = pills.map((pill) => {
+  const slug = pillLeafSlugOf(pill.slug);
+  return {
+    ...pill,
+    leaf: slug,
+    isActive: activePillSlug ? slug === activePillSlug : pill === pills[0],
+    number: pill.bonus ? '＋' : String(++coreNumber).padStart(2, '0'),
+    href: `${buildPillPath(locale, series.slug, slug)}#pill-reading`,
+  };
+});
+const selectedIndex = chapters.findIndex((chapter) => chapter.isActive);
+const selected = chapters[selectedIndex];
+const previous = chapters[selectedIndex - 1];
+const next = chapters[selectedIndex + 1];
+const rendered = selected
+  ? await findRenderablePill(locale, series.slug, selected.leaf)
+  : null;
+const Content = rendered?.Content;
+
+---
+
+<div class="notebook">
+  <aside class="contents" id="pill-contents">
+    <div class="contents-heading">
+      <span class="eyebrow">{translate('pills.reader.heading')}</span>
+      <span class="count">
+        {String(pills.length).padStart(2, '0')} {translate('pills.seriesCount')}
+      </span>
+    </div>
+    <nav aria-label={translate('pills.reader.heading')}>
+      <ol class="journey">
+        {chapters.map((chapter) => (
+          <li>
+            <a href={chapter.href} aria-current={chapter.isActive ? 'page' : undefined}>
+              <span class="station"><PillIcon icon={chapter.icon} /></span>
+              <span class="stop-copy">
+                <span class="stop-number">
+                  {chapter.bonus ? translate('pills.reader.bonus') : `${translate('pills.reader.chapter')} ${chapter.number}`}
+                </span>
+                <strong>{chapter.title}</strong>
+                <span class="stop-description">{chapter.subtitle}</span>
+              </span>
+              <span class="stop-arrow" aria-hidden="true">→</span>
+            </a>
+          </li>
+        ))}
+        {hasSummary && (
+          <li>
+            <a href={`${seriesPath}#resumen`}>
+              <span class="station">∑</span>
+              <span class="stop-copy"><strong>{translate('pills.summary')}</strong></span>
+              <span class="stop-arrow" aria-hidden="true">↓</span>
+            </a>
+          </li>
+        )}
+      </ol>
+    </nav>
+  </aside>
+
+  <div class="reading-desk">
+    {selected && rendered && Content && (
+      <section class="chapter-page" id="pill-reading" aria-labelledby="chapter-title">
+        <div class="page-meta">
+          <span>{selected.bonus ? translate('pills.reader.bonus') : `${translate('pills.reader.chapter')} ${selected.number}`}</span>
+          <ReadingTime minutes={rendered.readingTimeInMinutes} locale={locale} />
+        </div>
+        <header class="chapter-heading">
+          <h2 id="chapter-title">{selected.title}</h2>
+          <p class="chapter-subtitle">{selected.subtitle}</p>
+        </header>
+        <div class="chapter-body prose"><Content /></div>
+        <footer class="page-footer">
+          <span class="folio">{selected.number} <span>/ {String(pills.length).padStart(2, '0')}</span></span>
+          <nav class="chapter-pagination" aria-label={translate('pills.reader.paginationLabel')}>
+            {previous && <a class="previous-chapter" href={previous.href} aria-label={`${translate('pills.reader.previous')}: ${previous.title}`}>← <span>{translate('pills.reader.previous')}</span></a>}
+            {next ? (
+              <a href={next.href} class="next-chapter">
+                <span>{translate('pills.reader.next')}<strong>{next.title}</strong></span>
+                <span aria-hidden="true">→</span>
+              </a>
+            ) : hasSummary ? (
+              <a href={`${seriesPath}#resumen`} class="next-chapter">{translate('pills.summary')} →</a>
+            ) : (
+              <a href="#pill-contents" class="back-link">{translate('pills.reader.back')} ↑</a>
+            )}
+          </nav>
+        </footer>
+      </section>
+    )}
+    {hasSummary && !activePillSlug && (
+      <section class="summary-page prose" id="resumen" aria-labelledby="summary-title">
+        <h2 id="summary-title">{translate('pills.summary')}</h2>
+        <slot name="summary" />
+      </section>
+    )}
+  </div>
+</div>
+
+<style>
+  .notebook {
+    display: grid;
+    grid-template-columns: minmax(15rem, 0.8fr) minmax(0, 1.7fr);
+    border-top: 1px solid var(--color-ink);
+    align-items: start;
+  }
+  .contents {
+    view-transition-name: pill-contents;
+    position: sticky;
+    top: var(--space-24);
+    max-height: calc(100dvh - 8rem);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    padding: var(--space-8) var(--space-6) var(--space-6) 0;
+  }
+  .eyebrow,
+  .count,
+  .stop-number,
+  .page-meta,
+  .folio,
+  .back-link {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-meta);
+  }
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .contents-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .count {
+    color: var(--color-text-soft);
+    white-space: nowrap;
+  }
+  .journey {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-6) 0;
+  }
+  .journey li {
+    position: relative;
+  }
+  .journey li:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 34px;
+    bottom: -15px;
+    width: 1px;
+    background: var(--color-rule);
+  }
+  .journey a {
+    display: grid;
+    grid-template-columns: 42px 1fr 15px;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-2) var(--space-3) 0;
+    text-decoration: none;
+    position: relative;
+    border-radius: var(--radius-small);
+  }
+  .station {
+    width: 42px;
+    height: 42px;
+    border: 1px solid var(--color-rule);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--color-paper);
+    z-index: 1;
+    transition:
+      background var(--motion-duration-fast),
+      border-color var(--motion-duration-fast),
+      transform var(--motion-duration-fast);
+  }
+  .station :global(svg) {
+    width: 20px;
+    height: 20px;
+  }
+  .stop-copy {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+  .stop-number {
+    font-size: 0.625rem;
+    color: var(--color-text-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .stop-copy strong {
+    font-family: var(--font-family-display);
+    font-size: 1rem;
+    line-height: 1.25;
+    font-weight: 600;
+  }
+  .stop-description {
+    font-size: 0.75rem;
+    color: var(--color-text-soft);
+    line-height: 1.5;
+  }
+  .stop-arrow {
+    color: var(--color-text-soft);
+    align-self: center;
+    transition: transform var(--motion-duration-fast);
+  }
+  .journey a[aria-current] .station {
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+    border-color: var(--color-accent-ink);
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--color-accent) 18%, transparent);
+  }
+  .journey a[aria-current] .stop-copy strong {
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent);
+    text-decoration-thickness: 4px;
+    text-underline-offset: 4px;
+  }
+  .journey a[aria-current] .stop-arrow {
+    color: var(--color-ink);
+    transform: translateX(2px);
+  }
+  .reading-desk {
+    min-width: 0;
+    border-left: 1px solid var(--color-rule);
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-ink) 4%, transparent),
+      transparent 22px
+    );
+  }
+  .chapter-page {
+    view-transition-name: pill-page;
+    padding: var(--space-8) 0 var(--space-6) var(--space-8);
+    scroll-margin-top: var(--space-24);
+  }
+  .page-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+    color: var(--color-text-soft);
+    font-size: 0.625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .chapter-heading {
+    position: relative;
+    padding: var(--space-6) 0 var(--space-8);
+    border-bottom: 1px solid var(--color-rule);
+    margin-bottom: var(--space-8);
+  }
+  .chapter-heading h2 {
+    font-size: clamp(2rem, 3.5vw, 3.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.055em;
+    margin-top: 0;
+    max-width: 18ch;
+    overflow-wrap: anywhere;
+  }
+  .chapter-subtitle {
+    color: var(--color-text-soft);
+    font-size: var(--font-size-lead);
+    line-height: 1.5;
+    margin-top: var(--space-4);
+    max-width: 38ch;
+  }
+  .chapter-body {
+    font-size: 1rem;
+    line-height: 1.85;
+    overflow-wrap: break-word;
+  }
+  .chapter-body :global(h2) {
+    font-size: clamp(1.35rem, 2vw, 1.75rem);
+  }
+  .chapter-body :global(h3) {
+    font-size: 1.25rem;
+  }
+  .chapter-body :global(img) {
+    border-radius: var(--radius-small);
+  }
+  .chapter-body :global(pre) {
+    max-width: 100%;
+    font-size: var(--font-size-small);
+  }
+  .chapter-body :global(table) {
+    display: block;
+    overflow-x: auto;
+    border-collapse: collapse;
+    font-size: var(--font-size-small);
+  }
+  .chapter-body :global(th),
+  .chapter-body :global(td) {
+    border-bottom: 1px solid var(--color-rule);
+    padding: var(--space-3);
+    text-align: left;
+  }
+  .page-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+    border-top: 1px solid var(--color-ink);
+    margin-top: var(--space-12);
+    padding-top: var(--space-6);
+  }
+  .folio {
+    flex-shrink: 0;
+  }
+  .folio span {
+    color: var(--color-text-soft);
+  }
+  .chapter-pagination {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    min-width: 0;
+  }
+  .previous-chapter {
+    text-decoration: none;
+    font-size: var(--font-size-meta);
+    white-space: nowrap;
+  }
+  .summary-page {
+    padding: var(--space-8);
+    scroll-margin-top: var(--space-24);
+    border-top: 1px solid var(--color-rule);
+  }
+  .next-chapter {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    font-size: var(--font-size-meta);
+    text-decoration: none;
+    text-align: right;
+  }
+  .next-chapter strong {
+    display: block;
+    font-family: var(--font-family-display);
+    font-size: 1rem;
+  }
+  .next-chapter > span:last-child {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+    border-radius: 50%;
+    flex-shrink: 0;
+    font-size: 1.2rem;
+  }
+  @media (hover: hover) {
+    .journey a:hover .station {
+      transform: scale(1.08);
+      border-color: var(--color-ink);
+    }
+    .journey a:hover .stop-arrow {
+      transform: translateX(3px);
+    }
+  }
+  @media (max-width: 800px) {
+    .notebook {
+      grid-template-columns: 1fr;
+    }
+    .contents {
+      position: static;
+      max-height: none;
+      overflow: visible;
+      padding: var(--space-6) 0;
+    }
+    .journey {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 var(--space-4);
+      margin-bottom: 0;
+    }
+    .journey li::before {
+      display: none;
+    }
+    .reading-desk {
+      border-left: 0;
+      border-top: 1px solid var(--color-ink);
+      background: none;
+    }
+    .chapter-page {
+      view-transition-name: pill-page;
+      padding: var(--space-6) 0;
+    }
+    .chapter-heading h2 {
+      font-size: clamp(2.25rem, 8vw, 3.5rem);
+    }
+  }
+  @media (max-width: 480px) {
+    .journey {
+      grid-template-columns: 1fr;
+    }
+    .journey a {
+      grid-template-columns: 36px 1fr 15px;
+      padding-block: var(--space-2);
+    }
+    .station {
+      width: 36px;
+      height: 36px;
+    }
+    .journey li:not(:last-child)::before {
+      display: block;
+      left: 17px;
+      top: 30px;
+    }
+    .stop-number {
+      display: none;
+    }
+    .stop-copy strong {
+      font-size: var(--font-size-small);
+    }
+    .stop-description {
+      font-size: 0.6875rem;
+    }
+    .page-meta {
+      flex-wrap: wrap;
+    }
+    .page-footer {
+      align-items: flex-start;
+    }
+    .chapter-pagination {
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .previous-chapter span {
+      display: none;
+    }
+    .summary-page {
+      padding-inline: 0;
+    }
+    .chapter-heading {
+      padding-top: var(--space-8);
+    }
+  }
+</style>
+
+<style is:global>
+  @view-transition {
+    navigation: auto;
+  }
+  ::view-transition-group(pill-page),
+  ::view-transition-group(pill-contents) {
+    animation-duration: var(--motion-duration-base);
+    animation-timing-function: var(--motion-easing);
+  }
+  ::view-transition-new(pill-page) {
+    animation: notebook-page-in var(--motion-duration-base) var(--motion-easing)
+      both;
+  }
+  @keyframes notebook-page-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    @view-transition {
+      navigation: none;
+    }
+  }
+</style>
