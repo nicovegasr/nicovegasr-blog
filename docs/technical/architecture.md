@@ -49,7 +49,7 @@ Feature-specific page composition stays in the feature. `PillNotebook.astro`, fo
 
 `src/content/` follows Astro's content conventions. Collection schemas live in `src/content.config.ts`, and the locale is part of each Markdown entry's path. Keep editorial content outside `features/`.
 
-To withhold an entire pill series, set `draft: true` in its localized `overview.md` files. Draft series and all their individual pill routes are excluded from generation, listings, and the sitemap regardless of publication date. Remove the flag or set it to `false` when the series is ready.
+To withhold an entire pill series, set `draft: true` in its localized `overview.md` files. Draft series and all their individual pill routes are excluded from page generation and the sitemap. The home page and pills index use a separate metadata-only catalogue: once their announcement date is reached, draft titles and icons appear as non-clickable Coming soon cards with generic preparation copy. Their overview body, editorial summary, and individual articles are not rendered. Remove the flag or set it to `false` when the series is ready.
 
 The active collections are posts, timeline, and pills. The retired Principles and current-work sections have no remaining collections, modules, or editorial files. When retiring another section, check its consumers, schema, Markdown, translations, components, and styles together.
 
@@ -71,7 +71,11 @@ Use `getTranslator(locale)` in components. Do not embed parallel language dictio
 
 Design tokens live in `src/styles/tokens.css`. `base.css` contains the reset, typography, and genuinely global patterns. Components use scoped styles and theme-independent color tokens. See the visual guide for the palette, typography, depth, and motion rules.
 
-Series and individual pill routes render the same notebook component. Individual routes select their article during the build. Reader links point to generated HTML pages, so direct visits, reloads, browser history, and navigation without JavaScript do not require a client-side router or persisted selection. Native cross-document view transitions enhance navigation where supported and are disabled for reduced-motion preferences.
+Series and individual pill routes render the same notebook component. Individual routes select their article during the build. Reader links point to generated HTML pages, so direct visits, reloads, and navigation without JavaScript remain available.
+
+The notebook opts into Astro's `ClientRouter` through `BaseLayout`. It loads generated pages without a full document reload, updating the URL, history, metadata, and translated links. Within the same locale and series, a custom swap replaces only `.reading-desk` and the translated language link, preserving the shell and index DOM. New chapter visits explicitly align the reader below the header; history traversal keeps Astro's saved scroll position. The index persists only within the same locale and series. `features/pills/reader-navigation.ts` updates its selection from the incoming page, preserves its scroll position, and scrolls the index just enough to reveal the selected pill. The reading panel uses a direct Web Animation rather than relying on browser view-transition snapshots. Its duration is controlled by `--motion-duration-reading` in `tokens.css`; reduced-motion preferences disable it. The default reading transition lasts 400ms. Left/right arrow keys select the previous/next pill while the reader is visible; up/down retain native reading scroll. Editing controls, horizontal code/table navigation, text selection, and browser shortcuts keep their own key behavior. A dismissible keyboard tip appears for fine pointers with hover support; dismissal uses session storage with an in-memory fallback. No server-side session or persisted reading state is required.
+
+Shared controls use event delegation, and viewport reveals initialize on `astro:page-load`, so controls continue working after client-side navigation. Pages outside the notebook do not opt into the router.
 
 ## Development and verification
 

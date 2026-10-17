@@ -82,35 +82,29 @@ const activePath = blogSectionPaths.includes(Astro.url.pathname) ? blogPath : As
 </header>
 
 <script>
-  const header = document.querySelector<HTMLElement>('.site-header');
-  const toggle = header?.querySelector<HTMLButtonElement>('.menu-toggle');
-  const nav = header?.querySelector<HTMLElement>('.primary');
-
-  const closeMenu = () => {
-    header?.removeAttribute('data-menu-open');
-    toggle?.setAttribute('aria-expanded', 'false');
+  const closeMenu = (header: HTMLElement) => {
+    header.removeAttribute('data-menu-open');
+    header.querySelector('.menu-toggle')?.setAttribute('aria-expanded', 'false');
   };
 
-  toggle?.addEventListener('click', () => {
-    const isOpen = header?.toggleAttribute('data-menu-open') ?? false;
-    toggle.setAttribute('aria-expanded', String(isOpen));
-  });
-
-  // Cerrar al navegar, con Escape o al tocar fuera del header.
-  nav?.addEventListener('click', (event) => {
-    if ((event.target as HTMLElement).closest('a')) closeMenu();
-  });
-
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && header?.hasAttribute('data-menu-open')) {
-      closeMenu();
-      toggle?.focus();
+  // Delegation keeps the controls working when ClientRouter replaces the header.
+  document.addEventListener('click', (event) => {
+    const header = document.querySelector<HTMLElement>('.site-header');
+    if (!header || !(event.target instanceof Element)) return;
+    const toggle = event.target.closest('.menu-toggle');
+    if (toggle && header.contains(toggle)) {
+      const isOpen = header.toggleAttribute('data-menu-open');
+      toggle.setAttribute('aria-expanded', String(isOpen));
+    } else if (event.target.closest('.primary a') || !header.contains(event.target)) {
+      closeMenu(header);
     }
   });
 
-  document.addEventListener('click', (event) => {
-    if (header?.hasAttribute('data-menu-open') && !header.contains(event.target as Node)) {
-      closeMenu();
+  document.addEventListener('keydown', (event) => {
+    const header = document.querySelector<HTMLElement>('.site-header[data-menu-open]');
+    if (event.key === 'Escape' && header) {
+      closeMenu(header);
+      header.querySelector<HTMLButtonElement>('.menu-toggle')?.focus();
     }
   });
 </script>

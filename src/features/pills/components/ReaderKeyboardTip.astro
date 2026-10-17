@@ -1,0 +1,96 @@
+---
+import type { Locale } from '@/i18n/locale';
+import { getTranslator } from '@/i18n/translator';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const translate = getTranslator(locale);
+---
+
+<aside
+  class="keyboard-tip"
+  data-reader-keyboard-tip
+  aria-label={translate('pills.reader.keyboardTipLabel')}
+  hidden
+>
+  <span class="keys" aria-hidden="true"><kbd>←</kbd><kbd>→</kbd></span>
+  <p>{translate('pills.reader.keyboardTip')}</p>
+  <button
+    type="button"
+    data-dismiss-keyboard-tip
+    aria-label={translate('pills.reader.dismissKeyboardTip')}
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17" /></svg>
+  </button>
+</aside>
+
+<script>
+  import '../reader-keyboard-tip';
+</script>
+
+<style>
+  .keyboard-tip {
+    position: fixed;
+    inset-inline-end: var(--space-6);
+    bottom: var(--space-6);
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    width: max-content;
+    max-width: min(26rem, calc(100vw - var(--space-12)));
+    padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
+    border: 1px solid var(--color-ink);
+    border-radius: var(--radius-small);
+    background: var(--color-paper);
+    color: var(--color-ink);
+    box-shadow: var(--space-1) var(--space-1) 0 var(--color-ink);
+    font-size: var(--font-size-small);
+    line-height: 1.5;
+  }
+  .keyboard-tip[hidden] {
+    display: none;
+  }
+  .keys {
+    display: flex;
+    gap: var(--space-1);
+    flex-shrink: 0;
+  }
+  kbd {
+    display: grid;
+    place-items: center;
+    width: var(--space-8);
+    height: var(--space-8);
+    border: 1px solid var(--color-accent-ink);
+    border-radius: var(--radius-small);
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-small);
+  }
+  button {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: var(--space-8);
+    height: var(--space-8);
+    border: 0;
+    border-radius: var(--radius-small);
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+  button svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+  }
+  @media (hover: hover) {
+    button:hover { background: var(--color-rule); }
+  }
+</style>

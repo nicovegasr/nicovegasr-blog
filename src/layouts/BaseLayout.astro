@@ -1,4 +1,5 @@
 ---
+import { ClientRouter } from 'astro:transitions';
 import type { Locale } from '@/i18n/locale';
 import { LOCALES, DEFAULT_LOCALE, OPEN_GRAPH_LOCALE } from '@/i18n/locale';
 import { getTranslator } from '@/i18n/translator';
@@ -18,6 +19,7 @@ interface Props {
   title?: string;
   description?: string;
   openGraphType?: 'website' | 'article';
+  clientNavigation?: boolean;
   alternatePaths?: Partial<Record<Locale, string>>;
 }
 
@@ -26,6 +28,7 @@ const {
   title,
   description,
   openGraphType = 'website',
+  clientNavigation = false,
   alternatePaths = {},
 } = Astro.props;
 const translate = getTranslator(locale);
@@ -45,9 +48,10 @@ const pathForLocale = (target: Locale): string =>
 ---
 
 <!doctype html>
-<html lang={locale}>
+<html lang={locale} data-client-navigation={clientNavigation || undefined} transition:animate="none">
   <head>
     <meta charset="utf-8" />
+    {clientNavigation && <ClientRouter fallback="swap" />}
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <script is:inline>
@@ -105,24 +109,30 @@ const pathForLocale = (target: Locale): string =>
     <Footer locale={locale} />
 
     <script>
-      // Aparición al entrar en viewport. Si no hay soporte, todo queda visible.
-      const revealItems = document.querySelectorAll('.reveal');
-      if ('IntersectionObserver' in window && revealItems.length > 0) {
-        const observer = new IntersectionObserver(
-          (entries, self) => {
+      let revealObserver: IntersectionObserver | undefined;
+      const revealContent = () => {
+        revealObserver?.disconnect();
+        const items = document.querySelectorAll('.reveal:not(.is-visible)');
+        if ('IntersectionObserver' in window && items.length > 0) {
+          revealObserver = new IntersectionObserver((entries, observer) => {
             for (const entry of entries) {
               if (entry.isIntersecting) {
                 entry.target.classList.add('is-visible');
-                self.unobserve(entry.target);
+                observer.unobserve(entry.target);
               }
             }
-          },
-          { rootMargin: '0px 0px -10% 0px' },
-        );
-        revealItems.forEach((item) => observer.observe(item));
-      } else {
-        revealItems.forEach((item) => item.classList.add('is-visible'));
-      }
+          }, { rootMargin: '0px 0px -10% 0px' });
+          items.forEach((item) => revealObserver!.observe(item));
+        } else {
+          items.forEach((item) => item.classList.add('is-visible'));
+        }
+      };
+      document.addEventListener('astro:page-load', revealContent);
+      document.addEventListener('astro:before-swap', (event) => {
+        event.newDocument.documentElement.dataset.theme =
+          document.documentElement.dataset.theme ?? 'light';
+      });
+      revealContent();
     </script>
   </body>
 </html>

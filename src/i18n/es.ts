@@ -39,10 +39,14 @@ export const spanish = {
 
   'pills.metaDescription':
     'Píldoras formativas de Nicolás Vegas: conceptos concretos explicados en pequeño. Próximamente.',
+  'pills.upcoming': 'En obras 🚧',
   'pills.heading': 'Píldoras formativas',
   'pills.comingSoonText':
     'Conceptos concretos explicados en pequeño, para asentar las bases sin rodeos. Pronto empezarán a aparecer aquí.',
   'pills.summary': 'Resumen',
+  'pills.reader.keyboardTipLabel': 'Consejo de navegación',
+  'pills.reader.keyboardTip': 'Usa las flechas ← y → para cambiar de píldora.',
+  'pills.reader.dismissKeyboardTip': 'Cerrar consejo de navegación',
   'pills.reader.heading': 'El recorrido',
   'pills.reader.chapter': 'Capítulo',
   'pills.reader.bonus': 'Extra',

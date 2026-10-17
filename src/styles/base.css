@@ -23,6 +23,12 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Reader navigation sets its own anchor position after the panel swap. */
+html[data-client-navigation] {
+  scroll-behavior: auto;
+  scrollbar-gutter: stable;
+}
+
 body {
   min-height: 100dvh;
   display: flex;

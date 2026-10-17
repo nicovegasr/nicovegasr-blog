@@ -4,11 +4,11 @@ import WritingSectionNav from '@/layouts/WritingSectionNav.astro';
 import ComingSoon from '@/layouts/ComingSoon.astro';
 import PillSeriesList from '@/features/pills/components/PillSeriesList.astro';
 import { getTranslator } from '@/i18n/translator';
-import { findAllPillSeries } from '@/features/pills/pill-repository';
+import { findPillSeriesCatalog } from '@/features/pills/pill-repository';
 
 const locale = 'en';
 const translate = getTranslator(locale);
-const series = await findAllPillSeries(locale);
+const series = await findPillSeriesCatalog(locale);
 ---
 
 <BaseLayout

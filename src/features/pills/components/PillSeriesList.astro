@@ -1,5 +1,6 @@
 ---
 import type { Locale } from '@/i18n/locale';
+import { getTranslator } from '@/i18n/translator';
 import type { PillSeries } from '@/features/pills/pill';
 import PillIcon from '@/features/pills/components/PillIcon.astro';
 import { buildPillSeriesPath } from '@/i18n/routes';
@@ -10,23 +11,31 @@ interface Props {
 }
 
 const { locale, series } = Astro.props;
+const translate = getTranslator(locale);
 ---
 
 <ul class="pill-series-list">
   {
-    series.map((item) => (
-      <li>
-        <a href={buildPillSeriesPath(locale, item.slug)}>
-          <span class="series-icon">
-            <PillIcon icon={item.icon} />
-          </span>
-          <span class="series-text">
-            <b>{item.title}</b>
-            <span>{item.summary}</span>
-          </span>
-        </a>
-      </li>
-    ))
+    series.map((item) => {
+      const Card = item.draft ? 'div' : 'a';
+      return (
+        <li>
+          <Card
+            class:list={['series-card', { 'is-upcoming': item.draft }]}
+            href={item.draft ? undefined : buildPillSeriesPath(locale, item.slug)}
+          >
+            <span class="series-icon"><PillIcon icon={item.icon} /></span>
+            <span class="series-text">
+              <span class="series-title">
+                <b>{item.title}</b>
+                {item.draft && <span class="upcoming-label">{translate('pills.upcoming')}</span>}
+              </span>
+              {!item.draft && <span class="series-description">{item.summary}</span>}
+            </span>
+          </Card>
+        </li>
+      );
+    })
   }
 </ul>
 
@@ -38,7 +47,7 @@ const { locale, series } = Astro.props;
     gap: var(--space-4);
   }
 
-  .pill-series-list a {
+  .series-card {
     display: flex;
     align-items: center;
     gap: var(--space-4);
@@ -63,15 +72,48 @@ const { locale, series } = Astro.props;
     border-radius: var(--radius-medium);
   }
 
+  .is-upcoming {
+    --construction-yellow: #facc15;
+    border: 2px dashed var(--construction-yellow);
+  }
+
+  .series-text {
+    min-width: 0;
+  }
+
+  .series-title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+  }
+
+  .upcoming-label {
+    display: inline-block;
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--construction-yellow);
+    border-radius: var(--radius-small);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-meta);
+    line-height: 1.5;
+    background: var(--construction-yellow);
+    color: #0a0a0a;
+  }
+
   .series-text b {
     display: block;
     font-family: var(--font-family-display);
     font-size: var(--font-size-heading-3);
   }
 
-  .series-text span {
+  .series-description {
     color: var(--color-text-soft);
     font-size: var(--font-size-small);
+  }
+
+  @media (max-width: 480px) {
+    .series-card { padding: var(--space-4); align-items: flex-start; }
+    .series-icon { width: 40px; height: 40px; }
   }
 
   @media (hover: hover) {
@@ -81,7 +123,7 @@ const { locale, series } = Astro.props;
       border-color: var(--color-invert-surface);
     }
 
-    .pill-series-list a:hover .series-text span {
+    .pill-series-list a:hover .series-description {
       color: var(--color-invert-muted);
     }
 

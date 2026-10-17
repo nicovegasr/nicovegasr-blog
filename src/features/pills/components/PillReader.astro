@@ -41,8 +41,13 @@ const Content = rendered?.Content;
 
 ---
 
-<div class="notebook">
-  <aside class="contents" id="pill-contents">
+<div class="notebook" data-pill-reader={`${locale}/${series.slug}`}>
+  <aside
+    class="contents"
+    id="pill-contents"
+    transition:persist={`pill-index-${locale}-${series.slug}`}
+    transition:animate="none"
+  >
     <div class="contents-heading">
       <span class="eyebrow">{translate('pills.reader.heading')}</span>
       <span class="count">
@@ -53,7 +58,7 @@ const Content = rendered?.Content;
       <ol class="journey">
         {chapters.map((chapter) => (
           <li>
-            <a href={chapter.href} aria-current={chapter.isActive ? 'page' : undefined}>
+            <a href={chapter.href} data-pill-link aria-current={chapter.isActive ? 'page' : undefined}>
               <span class="station"><PillIcon icon={chapter.icon} /></span>
               <span class="stop-copy">
                 <span class="stop-number">
@@ -62,7 +67,9 @@ const Content = rendered?.Content;
                 <strong>{chapter.title}</strong>
                 <span class="stop-description">{chapter.subtitle}</span>
               </span>
-              <span class="stop-arrow" aria-hidden="true">→</span>
+              <span class="stop-arrow" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>
+              </span>
             </a>
           </li>
         ))}
@@ -71,7 +78,9 @@ const Content = rendered?.Content;
             <a href={`${seriesPath}#resumen`}>
               <span class="station">∑</span>
               <span class="stop-copy"><strong>{translate('pills.summary')}</strong></span>
-              <span class="stop-arrow" aria-hidden="true">↓</span>
+              <span class="stop-arrow" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 5v14m-6-6 6 6 6-6" /></svg>
+              </span>
             </a>
           </li>
         )}
@@ -81,13 +90,13 @@ const Content = rendered?.Content;
 
   <div class="reading-desk">
     {selected && rendered && Content && (
-      <section class="chapter-page" id="pill-reading" aria-labelledby="chapter-title">
+      <section class="chapter-page" id="pill-reading" aria-labelledby="chapter-title" aria-keyshortcuts="ArrowLeft ArrowRight">
         <div class="page-meta">
           <span>{selected.bonus ? translate('pills.reader.bonus') : `${translate('pills.reader.chapter')} ${selected.number}`}</span>
           <ReadingTime minutes={rendered.readingTimeInMinutes} locale={locale} />
         </div>
         <header class="chapter-heading">
-          <h2 id="chapter-title">{selected.title}</h2>
+          <h2 id="chapter-title" tabindex="-1">{selected.title}</h2>
           <p class="chapter-subtitle">{selected.subtitle}</p>
         </header>
         <div class="chapter-body prose"><Content /></div>
@@ -111,12 +120,16 @@ const Content = rendered?.Content;
     )}
     {hasSummary && !activePillSlug && (
       <section class="summary-page prose" id="resumen" aria-labelledby="summary-title">
-        <h2 id="summary-title">{translate('pills.summary')}</h2>
+        <h2 id="summary-title" tabindex="-1">{translate('pills.summary')}</h2>
         <slot name="summary" />
       </section>
     )}
   </div>
 </div>
+
+<script>
+  import '../reader-navigation';
+</script>
 
 <style>
   .notebook {
@@ -126,7 +139,6 @@ const Content = rendered?.Content;
     align-items: start;
   }
   .contents {
-    view-transition-name: pill-contents;
     position: sticky;
     top: var(--space-24);
     max-height: calc(100dvh - 8rem);
@@ -158,34 +170,43 @@ const Content = rendered?.Content;
     white-space: nowrap;
   }
   .journey {
+    --station-size: 42px;
     list-style: none;
-    padding: 0;
+    padding: var(--space-1);
     margin: var(--space-6) 0;
   }
   .journey li {
     position: relative;
   }
-  .journey li:not(:last-child)::before {
+  /* Each segment joins row centers, even when titles wrap to different heights. */
+  .journey li::before {
     content: '';
     position: absolute;
-    left: 20px;
-    top: 34px;
-    bottom: -15px;
+    left: calc(var(--space-1) + var(--station-size) / 2 - 0.5px);
+    top: 0;
+    bottom: 0;
     width: 1px;
     background: var(--color-rule);
   }
+  .journey li:first-child::before {
+    top: 50%;
+  }
+  .journey li:last-child::before {
+    bottom: 50%;
+  }
   .journey a {
     display: grid;
-    grid-template-columns: 42px 1fr 15px;
+    grid-template-columns: var(--station-size) minmax(0, 1fr) var(--space-6);
+    align-items: center;
     gap: var(--space-3);
-    padding: var(--space-3) var(--space-2) var(--space-3) 0;
+    padding: var(--space-3) var(--space-1);
     text-decoration: none;
     position: relative;
     border-radius: var(--radius-small);
   }
   .station {
-    width: 42px;
-    height: 42px;
+    width: var(--station-size);
+    height: var(--station-size);
     border: 1px solid var(--color-rule);
     border-radius: 50%;
     display: grid;
@@ -217,6 +238,7 @@ const Content = rendered?.Content;
     font-size: 1rem;
     line-height: 1.25;
     font-weight: 600;
+    overflow-wrap: anywhere;
   }
   .stop-description {
     font-size: 0.75rem;
@@ -224,9 +246,21 @@ const Content = rendered?.Content;
     line-height: 1.5;
   }
   .stop-arrow {
+    display: grid;
+    place-items: center;
+    width: var(--space-6);
+    height: var(--space-6);
     color: var(--color-text-soft);
-    align-self: center;
-    transition: transform var(--motion-duration-fast);
+    transition: transform var(--motion-duration-fast) var(--motion-easing);
+  }
+  .stop-arrow svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
   .journey a[aria-current] .station {
     background: var(--color-accent);
@@ -254,7 +288,6 @@ const Content = rendered?.Content;
     );
   }
   .chapter-page {
-    view-transition-name: pill-page;
     padding: var(--space-8) 0 var(--space-6) var(--space-8);
     scroll-margin-top: var(--space-24);
   }
@@ -273,6 +306,7 @@ const Content = rendered?.Content;
     border-bottom: 1px solid var(--color-rule);
     margin-bottom: var(--space-8);
   }
+  .chapter-heading h2:focus { outline: none; }
   .chapter-heading h2 {
     font-size: clamp(2rem, 3.5vw, 3.5rem);
     line-height: 1.05;
@@ -407,8 +441,7 @@ const Content = rendered?.Content;
       background: none;
     }
     .chapter-page {
-      view-transition-name: pill-page;
-      padding: var(--space-6) 0;
+        padding: var(--space-6) 0;
     }
     .chapter-heading h2 {
       font-size: clamp(2.25rem, 8vw, 3.5rem);
@@ -416,20 +449,14 @@ const Content = rendered?.Content;
   }
   @media (max-width: 480px) {
     .journey {
+      --station-size: 36px;
       grid-template-columns: 1fr;
     }
     .journey a {
-      grid-template-columns: 36px 1fr 15px;
       padding-block: var(--space-2);
     }
-    .station {
-      width: 36px;
-      height: 36px;
-    }
-    .journey li:not(:last-child)::before {
+    .journey li::before {
       display: block;
-      left: 17px;
-      top: 30px;
     }
     .stop-number {
       display: none;
@@ -458,36 +485,6 @@ const Content = rendered?.Content;
     }
     .chapter-heading {
       padding-top: var(--space-8);
-    }
-  }
-</style>
-
-<style is:global>
-  @view-transition {
-    navigation: auto;
-  }
-  ::view-transition-group(pill-page),
-  ::view-transition-group(pill-contents) {
-    animation-duration: var(--motion-duration-base);
-    animation-timing-function: var(--motion-easing);
-  }
-  ::view-transition-new(pill-page) {
-    animation: notebook-page-in var(--motion-duration-base) var(--motion-easing)
-      both;
-  }
-  @keyframes notebook-page-in {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    @view-transition {
-      navigation: none;
     }
   }
 </style>

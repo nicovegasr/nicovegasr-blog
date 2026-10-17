@@ -41,10 +41,14 @@ export const english: Dictionary = {
 
   'pills.metaDescription':
     "Nicolás Vegas's learning pills: concrete concepts explained small. Coming soon.",
+  'pills.upcoming': 'Under construction 🚧',
   'pills.heading': 'Learning pills',
   'pills.comingSoonText':
     "Concrete concepts explained small, to nail the fundamentals without detours. They'll start showing up here soon.",
   'pills.summary': 'Summary',
+  'pills.reader.keyboardTipLabel': 'Navigation tip',
+  'pills.reader.keyboardTip': 'Use the ← and → arrow keys to switch pills.',
+  'pills.reader.dismissKeyboardTip': 'Dismiss navigation tip',
   'pills.reader.heading': 'The journey',
   'pills.reader.chapter': 'Chapter',
   'pills.reader.bonus': 'Extra',

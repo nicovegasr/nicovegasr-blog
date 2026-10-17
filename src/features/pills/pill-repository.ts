@@ -72,7 +72,9 @@ const publishedPillsOf = async (
   return railOrder(pills);
 };
 
-export const findAllPillSeries = async (
+// The catalogue exposes metadata only. Draft series can be announced here
+// without rendering their overview or publishing any individual pill route.
+export const findPillSeriesCatalog = async (
   locale: Locale,
 ): Promise<readonly PillSeries[]> => {
   const entries = await getCollection('pills');
@@ -81,9 +83,14 @@ export const findAllPillSeries = async (
     .map(toPillSeries)
     .filter((series): series is PillSeries => series !== null)
     .filter((series) => series.locale === locale)
-    .filter((series) => isPublished(series));
+    .filter((series) => isPublished({ publicationDate: series.publicationDate }));
   return seriesOrder(series);
 };
+
+export const findAllPillSeries = async (
+  locale: Locale,
+): Promise<readonly PillSeries[]> =>
+  (await findPillSeriesCatalog(locale)).filter((series) => isPublished(series));
 
 export const findAllPublishedPills = async (
   locale: Locale,

@@ -8,6 +8,7 @@ vi.mock('astro:content', () => ({ getCollection, render }));
 
 import {
   findAllPillSeries,
+  findPillSeriesCatalog,
   findAllPublishedPills,
   findRenderablePill,
   findRenderablePillSeries,
@@ -38,6 +39,24 @@ beforeEach(() => {
 });
 
 describe('series publication', () => {
+  it('announces a draft using metadata without rendering its content or generating routes', async () => {
+    getCollection.mockResolvedValue([seriesEntry('es', true), pillEntry('es')]);
+    expect(await findPillSeriesCatalog('es')).toEqual([
+      expect.objectContaining({ slug: 'inventory', title: 'Inventory', draft: true }),
+    ]);
+    expect(await findAllPillSeries('es')).toEqual([]);
+    expect(await findAllPublishedPills('es')).toEqual([]);
+    expect(render).not.toHaveBeenCalled();
+  });
+
+  it('keeps future announcements and other locales out of the catalogue', async () => {
+    const future = seriesEntry('es', true);
+    future.data.publicationDate = new Date('2999-01-01');
+    getCollection.mockResolvedValue([future, seriesEntry('en', true)]);
+    expect(await findPillSeriesCatalog('es')).toEqual([]);
+    expect(render).not.toHaveBeenCalled();
+  });
+
   it('withholds a draft series and its dated pills from every public entry point', async () => {
     getCollection.mockResolvedValue([seriesEntry('es', true), pillEntry('es')]);
 
