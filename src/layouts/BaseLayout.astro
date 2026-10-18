@@ -58,7 +58,12 @@ const pathForLocale = (target: Locale): string =>
       // Antes del primer pintado: marca que hay JS (gatea las animaciones de
       // aparición; sin JS el contenido se ve) y fija el tema para evitar parpadeo.
       document.documentElement.classList.add('js');
-      const storedTheme = localStorage.getItem('theme');
+      let storedTheme = null;
+      try {
+        storedTheme = localStorage.getItem('theme');
+      } catch {
+        // The system preference still works when browser storage is blocked.
+      }
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       const theme = storedTheme ?? (prefersDark ? 'dark' : 'light');
       document.documentElement.dataset.theme = theme;

@@ -37,7 +37,11 @@ const translate = getTranslator(locale);
     const next =
       document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
     document.documentElement.dataset.theme = next;
-    localStorage.setItem('theme', next);
+    try {
+      localStorage.setItem('theme', next);
+    } catch {
+      // The theme still changes for this visit when storage is blocked.
+    }
   });
 </script>
 

@@ -41,10 +41,9 @@ const Content = rendered?.Content;
 
 ---
 
-<div class="notebook" data-pill-reader={`${locale}/${series.slug}`}>
+<div class="notebook" id="pill-contents" tabindex="-1" data-pill-reader={`${locale}/${series.slug}`}>
   <aside
     class="contents"
-    id="pill-contents"
     transition:persist={`pill-index-${locale}-${series.slug}`}
     transition:animate="none"
   >
@@ -90,7 +89,7 @@ const Content = rendered?.Content;
 
   <div class="reading-desk">
     {selected && rendered && Content && (
-      <section class="chapter-page" id="pill-reading" aria-labelledby="chapter-title" aria-keyshortcuts="ArrowLeft ArrowRight">
+      <section class="chapter-page" data-pill-swipe id="pill-reading" aria-labelledby="chapter-title" aria-keyshortcuts="ArrowLeft ArrowRight">
         <div class="page-meta">
           <span>{selected.bonus ? translate('pills.reader.bonus') : `${translate('pills.reader.chapter')} ${selected.number}`}</span>
           <ReadingTime minutes={rendered.readingTimeInMinutes} locale={locale} />
@@ -112,7 +111,7 @@ const Content = rendered?.Content;
             ) : hasSummary ? (
               <a href={`${seriesPath}#resumen`} class="next-chapter">{translate('pills.summary')} →</a>
             ) : (
-              <a href="#pill-contents" class="back-link">{translate('pills.reader.back')} ↑</a>
+              <a href="#pill-contents" data-astro-reload class="back-link">{translate('pills.reader.back')} ↑</a>
             )}
           </nav>
         </footer>
@@ -129,10 +128,13 @@ const Content = rendered?.Content;
 
 <script>
   import '../reader-navigation';
+  import '../reader-keyboard-navigation';
+  import '../reader-swipe-navigation';
 </script>
 
 <style>
   .notebook {
+    scroll-margin-top: var(--space-24);
     display: grid;
     grid-template-columns: minmax(15rem, 0.8fr) minmax(0, 1.7fr);
     border-top: 1px solid var(--color-ink);
@@ -441,7 +443,7 @@ const Content = rendered?.Content;
       background: none;
     }
     .chapter-page {
-        padding: var(--space-6) 0;
+      padding: var(--space-6) 0;
     }
     .chapter-heading h2 {
       font-size: clamp(2.25rem, 8vw, 3.5rem);

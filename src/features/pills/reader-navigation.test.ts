@@ -1,12 +1,10 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 
-const { navigate, deselectScripts, swapHeadElements } = vi.hoisted(() => ({
-  navigate: vi.fn(),
+const { deselectScripts, swapHeadElements } = vi.hoisted(() => ({
   deselectScripts: vi.fn(),
   swapHeadElements: vi.fn(),
 }));
 vi.mock('astro:transitions/client', () => ({
-  navigate,
   swapFunctions: { deselectScripts, swapHeadElements },
 }));
 
@@ -38,7 +36,9 @@ const reader = (key = 'es/docker', selected = 0) => {
     querySelector: (selector: string) =>
       selector.includes('#resumen')
         ? links[2]
-        : links.find((item) => item.getAttribute('aria-current')),
+        : selector === 'a[data-pill-link]'
+          ? links[0]
+          : links.find((item) => item.getAttribute('aria-current')),
     querySelectorAll: () => links,
   };
   const panel = {
@@ -58,7 +58,9 @@ const reader = (key = 'es/docker', selected = 0) => {
         ? index
         : selector === '.reading-desk'
           ? panel
-          : { focus, getBoundingClientRect: () => ({ top: 220 }) },
+          : selector === '#resumen'
+            ? null
+            : { focus, getBoundingClientRect: () => ({ top: 220 }) },
   };
 };
 
@@ -70,18 +72,20 @@ const beforeSwap = (
   incoming: ReturnType<typeof reader>,
   navigationType = 'push',
   hash = '#pill-reading',
+  ready = Promise.resolve(),
 ) => {
   const event = Object.assign(new Event('astro:before-swap'), {
     newDocument: {
       querySelector: (selector: string) =>
         selector === '[data-pill-reader]' ? incoming : null,
     },
-    viewTransition: { skipTransition: vi.fn() },
+    viewTransition: { ready, skipTransition: vi.fn() },
     swap: vi.fn(),
     navigationType,
     to: new URL(`https://example.test/images/${hash}`),
   });
   documentEvents.dispatchEvent(event);
+  event.swap();
   return event;
 };
 
@@ -94,23 +98,21 @@ beforeEach(async () => {
     documentElement: {},
   });
   vi.stubGlobal('document', documentEvents);
-  vi.stubGlobal('location', { hash: '#pill-reading' });
+  vi.stubGlobal('location', new URL('https://example.test/docker/#pill-reading'));
   vi.stubGlobal('Element', class {});
-  vi.stubGlobal('window', {
+  vi.stubGlobal('window', Object.assign(new EventTarget(), {
     innerHeight: 800,
     scrollY: 100,
     getSelection: () => null,
     scrollTo: vi.fn(),
     matchMedia: vi.fn(() => ({ matches: false })),
-  });
+  }));
   vi.stubGlobal('getComputedStyle', () => ({
     scrollMarginTop: '40px',
     getPropertyValue: () => '3s',
   }));
   deselectScripts.mockReset();
   swapHeadElements.mockReset();
-  navigate.mockReset();
-  navigate.mockResolvedValue(undefined);
   await import('./reader-navigation');
 });
 afterEach(() => vi.unstubAllGlobals());
@@ -123,6 +125,15 @@ describe('notebook navigation lifecycle', () => {
     expect(event.viewTransition.skipTransition).toHaveBeenCalled();
     expect(swapHeadElements).toHaveBeenCalledWith(event.newDocument);
     expect(current.panel.replaceWith).toHaveBeenCalledWith(incoming.panel);
+  });
+
+  it('handles the expected native transition rejection when snapshots are skipped', async () => {
+    beforeSwap(reader('es/docker', 1), 'push', '#pill-reading',
+      Promise.reject(new DOMException('Transition skipped', 'AbortError')));
+    // Vitest also fails this test if the rejected ready promise is unhandled.
+    await Promise.resolve();
+    emit('astro:after-swap');
+    expect(current.panel.animate).toHaveBeenCalled();
   });
 
   it('explicitly aligns every new chapter below the header and uses the duration token', () => {
@@ -195,65 +206,49 @@ describe('notebook navigation lifecycle', () => {
   });
 });
 
-const pressKey = (key: string, fields = {}) => {
-  const event = Object.assign(new Event('keydown', { cancelable: true }), {
-    key,
-    ...fields,
-  });
-  documentEvents.dispatchEvent(event);
-  return event;
-};
+describe('summary anchor selection', () => {
+  const showSummary = () => {
+    const select = current.querySelector;
+    current.querySelector = (selector: string) => selector === '#resumen'
+      ? { focus: current.focus, getBoundingClientRect: () => ({ top: 220 }) }
+      : select(selector);
+  };
 
-describe('reader keyboard navigation', () => {
-  it('opens the next pill with right, keeping native up/down reading scroll', () => {
-    expect(pressKey('ArrowDown').defaultPrevented).toBe(false);
-    expect(pressKey('ArrowUp').defaultPrevented).toBe(false);
-    expect(navigate).not.toHaveBeenCalled();
-    expect(pressKey('ArrowRight').defaultPrevented).toBe(true);
-    expect(navigate).toHaveBeenCalledWith('/images/#pill-reading', {
-      sourceElement: current.links[1],
-    });
+  it('marks a directly visited summary when Astro finishes loading the page', () => {
+    showSummary();
+    location.hash = '#resumen';
+    emit('astro:page-load');
+    expect(current.links[2]!.getAttribute('aria-current')).toBe('page');
+    expect(current.links[0]!.hasAttribute('aria-current')).toBe(false);
   });
 
-  it('opens the previous pill with left, without wrapping at either endpoint', async () => {
-    expect(pressKey('ArrowLeft').defaultPrevented).toBe(false);
-    expect(navigate).not.toHaveBeenCalled();
-    current = reader('es/docker', 1);
-    expect(pressKey('ArrowRight').defaultPrevented).toBe(false);
-    expect(navigate).not.toHaveBeenCalled();
-    pressKey('ArrowLeft');
-    expect(navigate).toHaveBeenCalledWith('/intro/#pill-reading', {
-      sourceElement: current.links[0],
-    });
-  });
-
-  it('leaves browser shortcuts, held keys, and offscreen readers alone', () => {
-    pressKey('ArrowRight', { altKey: true });
-    pressKey('ArrowRight', { metaKey: true });
-    pressKey('ArrowRight', { repeat: true });
-    current.getBoundingClientRect = () => ({ top: 900, bottom: 2000 });
-    pressKey('ArrowRight');
-    expect(navigate).not.toHaveBeenCalled();
-  });
-
-  it('leaves arrow keys to focused editing or horizontally scrolling controls', () => {
-    class Control {
-      closest = () => ({ tagName: 'INPUT' });
+  it('updates after an Astro same-page click that changes history without hashchange', async () => {
+    showSummary();
+    class AnchorTarget {
+      closest = () => ({
+        href: 'https://example.test/docker/#resumen',
+        target: '',
+        hasAttribute: () => false,
+      });
     }
-    vi.stubGlobal('Element', Control);
-    const event = Object.assign(new Event('keydown', { cancelable: true }), {
-      key: 'ArrowRight',
-    });
-    Object.defineProperty(event, 'target', { value: new Control() });
+    vi.stubGlobal('Element', AnchorTarget);
+    const event = Object.assign(new Event('click', { cancelable: true }), { button: 0 });
+    Object.defineProperty(event, 'target', { value: new AnchorTarget() });
     documentEvents.dispatchEvent(event);
-    expect(event.defaultPrevented).toBe(false);
-    expect(navigate).not.toHaveBeenCalled();
+    // Simulate the URL update performed by Astro's click handler.
+    location.hash = '#resumen';
+    await Promise.resolve();
+    expect(current.links[2]!.hasAttribute('aria-current')).toBe(true);
   });
 
-  it('prevents overlapping keyboard navigations while a chapter is loading', () => {
-    navigate.mockReturnValue(new Promise(() => {}));
-    pressKey('ArrowRight');
-    pressKey('ArrowRight');
-    expect(navigate).toHaveBeenCalledTimes(1);
+  it('follows hash changes and back/forward without a document swap', () => {
+    showSummary();
+    location.hash = '#resumen';
+    window.dispatchEvent(new Event('hashchange'));
+    expect(current.links[2]!.hasAttribute('aria-current')).toBe(true);
+    location.hash = '#pill-reading';
+    window.dispatchEvent(new Event('popstate'));
+    expect(current.links[0]!.hasAttribute('aria-current')).toBe(true);
+    expect(current.links[2]!.hasAttribute('aria-current')).toBe(false);
   });
 });
