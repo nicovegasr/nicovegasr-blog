@@ -14,7 +14,10 @@ export const changePill = (direction: 'previous' | 'next'): boolean => {
   ];
   const selected = links.findIndex((link) => link.hasAttribute('aria-current'));
   if (selected < 0) return false;
-  const target = links[selected + (direction === 'next' ? 1 : -1)];
+  const target = links[selected + (direction === 'next' ? 1 : -1)] ??
+    (direction === 'next'
+      ? reader.querySelector<HTMLAnchorElement>('[data-pill-next-series]')
+      : null);
   if (!target) return false;
 
   changingChapter = true;

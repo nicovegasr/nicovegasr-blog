@@ -8,6 +8,7 @@ vi.mock('astro:content', () => ({ getCollection, render }));
 
 import {
   findAllPillSeries,
+  findNextPillSeries,
   findPillSeriesCatalog,
   findAllPublishedPills,
   findRenderablePill,
@@ -88,5 +89,54 @@ describe('series publication', () => {
     expect(await findAllPublishedPills('en')).toEqual([
       { series: 'inventory', pill: 'intro' },
     ]);
+  });
+});
+
+describe('next published series', () => {
+  const series = (slug: string, order: number, draft = false, locale = 'es') => ({
+    ...seriesEntry(locale, draft),
+    id: `${locale}/${slug}/overview`,
+    data: { ...seriesEntry(locale, draft).data, order },
+  });
+  const pill = (slug: string, locale = 'es') => ({
+    ...pillEntry(locale), id: `${locale}/${slug}/intro`,
+  });
+
+  it('follows series order, skipping drafts, future content, empty series and other locales', async () => {
+    const future = series('future', 2);
+    future.data.publicationDate = new Date('2999-01-01');
+    getCollection.mockResolvedValue([
+      series('next', 6), pill('next'),
+      series('current', 1), pill('current'),
+      future, pill('future'),
+      series('draft', 3, true), pill('draft'),
+      series('empty', 4),
+      series('translated', 5, false, 'en'), pill('translated', 'en'),
+    ]);
+    expect(await findNextPillSeries('es', 'current')).toEqual({
+      series: expect.objectContaining({ slug: 'next' }),
+      pill: expect.objectContaining({ slug: 'next/intro' }),
+    });
+    expect(render).not.toHaveBeenCalled();
+  });
+
+  it('does not wrap the last series or guess a successor for an unknown series', async () => {
+    getCollection.mockResolvedValue([series('last', 1), pill('last')]);
+    expect(await findNextPillSeries('es', 'last')).toBeNull();
+    expect(await findNextPillSeries('es', 'unknown')).toBeNull();
+  });
+
+  it('starts with the first core pill rather than an earlier-numbered bonus or future pill', async () => {
+    const bonus = { ...pill('next'), id: 'es/next/bonus',
+      data: { ...pill('next').data, bonus: true, order: 0 } };
+    const future = { ...pill('next'), id: 'es/next/future',
+      data: { ...pill('next').data, order: -1, publicationDate: new Date('2999-01-01') } };
+    getCollection.mockResolvedValue([
+      series('current', 1), series('next', 2), bonus, future, pill('next'),
+    ]);
+    expect(await findNextPillSeries('es', 'current')).toEqual({
+      series: expect.objectContaining({ slug: 'next' }),
+      pill: expect.objectContaining({ slug: 'next/intro' }),
+    });
   });
 });

@@ -43,6 +43,7 @@ beforeEach(async () => {
   const reader = {
     getBoundingClientRect: () => ({ top: 0, bottom: 1200 }),
     querySelectorAll: () => links,
+    querySelector: () => null,
   };
   documentEvents = Object.assign(new EventTarget(), { querySelector: () => reader });
   vi.stubGlobal('document', documentEvents);

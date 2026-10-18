@@ -92,6 +92,20 @@ export const findAllPillSeries = async (
 ): Promise<readonly PillSeries[]> =>
   (await findPillSeriesCatalog(locale)).filter((series) => isPublished(series));
 
+export const findNextPillSeries = async (
+  locale: Locale,
+  currentSeries: string,
+): Promise<{ series: PillSeries; pill: Pill } | null> => {
+  const series = await findAllPillSeries(locale);
+  const currentIndex = series.findIndex((item) => item.slug === currentSeries);
+  if (currentIndex < 0) return null;
+  for (const candidate of series.slice(currentIndex + 1)) {
+    const [pill] = await publishedPillsOf(locale, candidate.slug);
+    if (pill) return { series: candidate, pill };
+  }
+  return null;
+};
+
 export const findAllPublishedPills = async (
   locale: Locale,
 ): Promise<readonly { series: string; pill: string }[]> => {

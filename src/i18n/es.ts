@@ -47,6 +47,8 @@ export const spanish = {
   'pills.reader.keyboardTipLabel': 'Consejo de navegación',
   'pills.reader.keyboardTip': 'Usa las flechas ← y → para cambiar de píldora.',
   'pills.reader.dismissKeyboardTip': 'Cerrar consejo de navegación',
+  'pills.reader.nextSeries': 'Siguiente serie',
+  'pills.reader.allSeries': 'Ver todas las series',
   'pills.reader.heading': 'El recorrido',
   'pills.reader.chapter': 'Capítulo',
   'pills.reader.bonus': 'Extra',

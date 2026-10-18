@@ -3,8 +3,8 @@ import type { Locale } from '@/i18n/locale';
 import { getTranslator } from '@/i18n/translator';
 import type { Pill, PillSeries } from '@/features/pills/pill';
 import { pillLeafSlugOf } from '@/features/pills/pill';
-import { findRenderablePill } from '@/features/pills/pill-repository';
-import { buildPillPath, buildPillSeriesPath } from '@/i18n/routes';
+import { findNextPillSeries, findRenderablePill } from '@/features/pills/pill-repository';
+import { buildPagePath, buildPillPath, buildPillSeriesPath } from '@/i18n/routes';
 import PillIcon from './PillIcon.astro';
 import ReadingTime from '@/shared/reading-time/ReadingTime.astro';
 
@@ -34,6 +34,11 @@ const selectedIndex = chapters.findIndex((chapter) => chapter.isActive);
 const selected = chapters[selectedIndex];
 const previous = chapters[selectedIndex - 1];
 const next = chapters[selectedIndex + 1];
+const nextSeries = next ? null : await findNextPillSeries(locale, series.slug);
+const forward = next ?? (nextSeries ? {
+  href: `${buildPillPath(locale, nextSeries.series.slug, pillLeafSlugOf(nextSeries.pill.slug))}#pill-reading`,
+  title: nextSeries.pill.title,
+} : null);
 const rendered = selected
   ? await findRenderablePill(locale, series.slug, selected.leaf)
   : null;
@@ -75,7 +80,7 @@ const Content = rendered?.Content;
         {hasSummary && (
           <li>
             <a href={`${seriesPath}#resumen`}>
-              <span class="station">∑</span>
+              <span class="station"><PillIcon icon="summary" /></span>
               <span class="stop-copy"><strong>{translate('pills.summary')}</strong></span>
               <span class="stop-arrow" aria-hidden="true">
                 <svg viewBox="0 0 24 24"><path d="M12 5v14m-6-6 6 6 6-6" /></svg>
@@ -108,9 +113,9 @@ const Content = rendered?.Content;
                 <span class="pagination-copy">{translate('pills.reader.previous')}<strong>{previous.title}</strong></span>
               </a>
             )}
-            {next ? (
-              <a href={next.href} class="next-chapter">
-                <span class="pagination-copy">{translate('pills.reader.next')}<strong>{next.title}</strong></span>
+            {forward ? (
+              <a href={forward.href} class="next-chapter" data-pill-next-series={nextSeries ? true : undefined}>
+                <span class="pagination-copy">{nextSeries ? `${translate('pills.reader.nextSeries')}: ${nextSeries.series.title}` : translate('pills.reader.next')}<strong>{forward.title}</strong></span>
                 <span class="pagination-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></span>
               </a>
             ) : hasSummary ? (
@@ -119,7 +124,7 @@ const Content = rendered?.Content;
                 <span class="pagination-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></span>
               </a>
             ) : (
-              <a href="#pill-contents" data-astro-reload class="back-link">{translate('pills.reader.back')} ↑</a>
+              <a href={buildPagePath('pills', locale)} class="back-link">{translate('pills.reader.allSeries')} →</a>
             )}
           </nav>
         </footer>
@@ -279,6 +284,7 @@ const Content = rendered?.Content;
     box-shadow: inset 3px 0 0 var(--color-accent);
   }
   .journey a[aria-current] .station {
+    --pill-icon-signal: var(--color-accent-ink);
     background: var(--color-accent);
     color: var(--color-accent-ink);
     border-color: var(--color-accent-ink);

@@ -49,6 +49,8 @@ export const english: Dictionary = {
   'pills.reader.keyboardTipLabel': 'Navigation tip',
   'pills.reader.keyboardTip': 'Use the ← and → arrow keys to switch pills.',
   'pills.reader.dismissKeyboardTip': 'Dismiss navigation tip',
+  'pills.reader.nextSeries': 'Next series',
+  'pills.reader.allSeries': 'View all series',
   'pills.reader.heading': 'The journey',
   'pills.reader.chapter': 'Chapter',
   'pills.reader.bonus': 'Extra',

@@ -10,6 +10,7 @@ const reader = (_key = 'es/docker', selected = 0) => ({
   })),
   getBoundingClientRect: () => ({ top: 0, bottom: 1200 }),
   querySelectorAll() { return this.links; },
+  querySelector: vi.fn(() => null as { href: string } | null),
 });
 let current: ReturnType<typeof reader>;
 let documentEvents: EventTarget;
@@ -62,6 +63,14 @@ describe('reader keyboard navigation', () => {
     expect(navigate).toHaveBeenCalledWith('/intro/#pill-reading', {
       sourceElement: current.links[0],
     });
+  });
+
+  it('continues into the next published series at the last pill', () => {
+    current = reader('es/docker', 1);
+    const continuation = { href: '/es/pildoras/fundamentos/api/#pill-reading' };
+    current.querySelector.mockReturnValue(continuation);
+    expect(pressKey('ArrowRight').defaultPrevented).toBe(true);
+    expect(navigate).toHaveBeenCalledWith(continuation.href, { sourceElement: continuation });
   });
 
   it('leaves browser shortcuts, held keys, and offscreen readers alone', () => {
