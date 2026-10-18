@@ -102,14 +102,22 @@ const Content = rendered?.Content;
         <footer class="page-footer">
           <span class="folio">{selected.number} <span>/ {String(pills.length).padStart(2, '0')}</span></span>
           <nav class="chapter-pagination" aria-label={translate('pills.reader.paginationLabel')}>
-            {previous && <a class="previous-chapter" href={previous.href} aria-label={`${translate('pills.reader.previous')}: ${previous.title}`}>← <span>{translate('pills.reader.previous')}</span></a>}
+            {previous && (
+              <a class="previous-chapter" href={previous.href}>
+                <span class="pagination-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M19 12H5m6-6-6 6 6 6" /></svg></span>
+                <span class="pagination-copy">{translate('pills.reader.previous')}<strong>{previous.title}</strong></span>
+              </a>
+            )}
             {next ? (
               <a href={next.href} class="next-chapter">
-                <span>{translate('pills.reader.next')}<strong>{next.title}</strong></span>
-                <span aria-hidden="true">→</span>
+                <span class="pagination-copy">{translate('pills.reader.next')}<strong>{next.title}</strong></span>
+                <span class="pagination-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></span>
               </a>
             ) : hasSummary ? (
-              <a href={`${seriesPath}#resumen`} class="next-chapter">{translate('pills.summary')} →</a>
+              <a href={`${seriesPath}#resumen`} class="next-chapter">
+                <span class="pagination-copy">{translate('pills.reader.next')}<strong>{translate('pills.summary')}</strong></span>
+                <span class="pagination-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></span>
+              </a>
             ) : (
               <a href="#pill-contents" data-astro-reload class="back-link">{translate('pills.reader.back')} ↑</a>
             )}
@@ -146,6 +154,7 @@ const Content = rendered?.Content;
     max-height: calc(100dvh - 8rem);
     overflow-y: auto;
     scrollbar-width: thin;
+    scrollbar-color: var(--color-text-muted) transparent;
     padding: var(--space-8) var(--space-6) var(--space-6) 0;
   }
   .eyebrow,
@@ -264,30 +273,23 @@ const Content = rendered?.Content;
     stroke-linecap: round;
     stroke-linejoin: round;
   }
+  .journey a[aria-current] {
+    background: color-mix(in srgb, var(--color-accent) 7%, var(--color-paper));
+    color: var(--color-ink);
+    box-shadow: inset 3px 0 0 var(--color-accent);
+  }
   .journey a[aria-current] .station {
     background: var(--color-accent);
     color: var(--color-accent-ink);
     border-color: var(--color-accent-ink);
-    box-shadow: 0 0 0 5px color-mix(in srgb, var(--color-accent) 18%, transparent);
   }
-  .journey a[aria-current] .stop-copy strong {
-    text-decoration: underline;
-    text-decoration-color: var(--color-accent);
-    text-decoration-thickness: 4px;
-    text-underline-offset: 4px;
-  }
+  .journey a[aria-current] .stop-number,
   .journey a[aria-current] .stop-arrow {
     color: var(--color-ink);
-    transform: translateX(2px);
   }
   .reading-desk {
     min-width: 0;
     border-left: 1px solid var(--color-rule);
-    background: linear-gradient(
-      90deg,
-      color-mix(in srgb, var(--color-ink) 4%, transparent),
-      transparent 22px
-    );
   }
   .chapter-page {
     padding: var(--space-8) 0 var(--space-6) var(--space-8);
@@ -355,9 +357,7 @@ const Content = rendered?.Content;
     text-align: left;
   }
   .page-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    display: grid;
     gap: var(--space-4);
     border-top: 1px solid var(--color-ink);
     margin-top: var(--space-12);
@@ -370,47 +370,75 @@ const Content = rendered?.Content;
     color: var(--color-text-soft);
   }
   .chapter-pagination {
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-6);
     min-width: 0;
   }
-  .previous-chapter {
+  .previous-chapter,
+  .next-chapter {
+    display: grid;
+    align-items: center;
+    gap: var(--space-3);
+    min-width: 0;
     text-decoration: none;
     font-size: var(--font-size-meta);
-    white-space: nowrap;
+    line-height: 1.5;
+  }
+  .previous-chapter {
+    grid-template-columns: 40px minmax(0, 1fr);
+  }
+  .next-chapter {
+    grid-column: 2;
+    grid-template-columns: minmax(0, 1fr) 40px;
+    text-align: right;
+  }
+  .pagination-copy {
+    align-self: start;
+    display: grid;
+    gap: var(--space-1);
+  }
+  .pagination-copy strong {
+    font-family: var(--font-family-display);
+    font-size: 1rem;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+  }
+  .pagination-arrow {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--color-ink);
+    border-radius: 50%;
+  }
+  .next-chapter .pagination-arrow {
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+    border-color: var(--color-accent-ink);
+  }
+  .pagination-arrow svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .back-link {
+    grid-column: 2;
+    justify-self: end;
+    align-self: center;
+    text-align: right;
   }
   .summary-page {
     padding: var(--space-8);
     scroll-margin-top: var(--space-24);
     border-top: 1px solid var(--color-rule);
   }
-  .next-chapter {
-    display: flex;
-    align-items: center;
-    gap: var(--space-6);
-    font-size: var(--font-size-meta);
-    text-decoration: none;
-    text-align: right;
-  }
-  .next-chapter strong {
-    display: block;
-    font-family: var(--font-family-display);
-    font-size: 1rem;
-  }
-  .next-chapter > span:last-child {
-    display: grid;
-    place-items: center;
-    width: 40px;
-    height: 40px;
-    background: var(--color-accent);
-    color: var(--color-accent-ink);
-    border-radius: 50%;
-    flex-shrink: 0;
-    font-size: 1.2rem;
-  }
   @media (hover: hover) {
-    .journey a:hover .station {
+    .journey a:not([aria-current]):hover .station {
       transform: scale(1.08);
       border-color: var(--color-ink);
     }
@@ -476,11 +504,14 @@ const Content = rendered?.Content;
       align-items: flex-start;
     }
     .chapter-pagination {
-      flex-wrap: wrap;
-      justify-content: flex-end;
+      gap: var(--space-3);
     }
-    .previous-chapter span {
-      display: none;
+    .previous-chapter,
+    .next-chapter {
+      gap: var(--space-2);
+    }
+    .pagination-copy strong {
+      font-size: var(--font-size-small);
     }
     .summary-page {
       padding-inline: 0;

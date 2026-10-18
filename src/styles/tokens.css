@@ -51,6 +51,7 @@
   --content-width-wide: 68rem;
 
   /* Color, tema claro (de fábrica) */
+  color-scheme: light;
   --color-paper: #ffffff;
   --color-ink: #0a0a0a;
   --color-accent: #d8ff3e;
@@ -66,6 +67,7 @@
 }
 
 :root[data-theme='dark'] {
+  color-scheme: dark;
   --color-paper: #0c0c0d;
   --color-ink: #f2f2f2;
   --color-accent: #d8ff3e;
