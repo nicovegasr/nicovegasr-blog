@@ -1,119 +1,17 @@
 ---
-// Monochrome line icons drawn with the current color, so they invert with the
-// theme and the rail hover. No external icon library: a key → list of <path> d.
+import { PILL_ICONS } from '@/features/pills/pill-icons';
+
 interface Props {
   icon: string;
 }
 
 const { icon } = Astro.props;
-
-const PATHS: Record<string, string[]> = {
-  whale: [
-    'M3 14h15a3 3 0 0 0 3-3M5 14v-3h3v3M9 14v-4h3v4M13 14v-5h3v5M3 17c1.5 1 3 1 4.5 0 1.5 1 3 1 4.5 0 1.5 1 3 1 4.5 0',
-  ],
-  image: ['M4 8l8-4 8 4-8 4-8-4z', 'M4 8v8l8 4 8-4V8', 'M12 12v8'],
-  container: ['M4 6h16v12H4z', 'M8 6v12M4 10h4'],
-  dockerfile: ['M7 3h7l4 4v14H7z', 'M14 3v4h4', 'M10 13h5M10 16h5'],
-  layers: ['M12 3l9 5-9 5-9-5 9-5z', 'M3 13l9 5 9-5', 'M3 17l9 5 9-5'],
-  volume: [
-    'M5 6c0-1.7 3.1-3 7-3s7 1.3 7 3-3.1 3-7 3-7-1.3-7-3z',
-    'M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6',
-  ],
-  network: [
-    'M12 3a2.2 2.2 0 1 0 0 4.4A2.2 2.2 0 0 0 12 3z',
-    'M5 16a2.2 2.2 0 1 0 0 4.4A2.2 2.2 0 0 0 5 16z',
-    'M19 16a2.2 2.2 0 1 0 0 4.4A2.2 2.2 0 0 0 19 16z',
-    'M12 7.4v3.6M11 11l-4.5 4M13 11l4.5 4',
-  ],
-  compose: ['M3 4h7v7H3z', 'M14 4h7v7h-7z', 'M3 15h7v5H3z', 'M14 15h7v5h-7z'],
-  registry: ['M4 20V9l8-5 8 5v11', 'M9 20v-6h6v6'],
-  foundation: ['M3 10h18l-9-6-9 6z', 'M6 10v9M12 10v9M18 10v9', 'M3 19h18'],
-  design: ['M3 4h8v7H3z', 'M13 4h8v7h-8z', 'M8 11v5h8v-5', 'M5 20h14'],
-  kubernetes: ['M12 3l8 5v8l-8 5-8-5V8z', 'M12 7v10M7.5 9.5l9 5M16.5 9.5l-9 5', 'M12 7l4.5 2.5v5L12 17l-4.5-2.5v-5z'],
-  'cluster-cost': ['M4 6h7v6H4z', 'M13 6h7v6h-7z', 'M8 12v6h8v-6', 'M5 21h14'],
-  'desired-state': ['M4 4h7v7H4z', 'M13 13h7v7h-7z', 'M11 7h6v6', 'M14 10l3 3 3-3'],
-  pod: ['M12 3l8 5v8l-8 5-8-5V8z', 'M8 10h8v5H8z'],
-  deployment: ['M3 6h6v6H3z', 'M15 6h6v6h-6z', 'M9 9h6', 'M6 12v5h12v-5', 'M11 17l2 2 2-2'],
-  config: ['M5 4h14v16H5z', 'M8 9h8M8 14h8', 'M11 7v4M14 12v4'],
-  probe: ['M4 12h4l2-5 4 10 2-5h4'],
-  service: ['M4 5h6v5H4z', 'M14 5h6v5h-6z', 'M9 15h6v5H9z', 'M7 10v3h5v2M17 10v3h-5'],
-  pipeline: ['M3 5h5v5H3z', 'M10 10h5v5h-5z', 'M17 15h5v5h-5z', 'M8 8l2 2M15 15l2 2'],
-  gitops: ['M5 5v10a4 4 0 0 0 4 4h10', 'M5 5h.01M5 13h.01M19 19h.01', 'M10 8h8v7h-8z', 'M13 11l2 2 2-2'],
-  diagnosis: ['M4 4h12v12H4z', 'M13 13l7 7', 'M7 8h6M7 11h4'],
-  simple: ['M4 6h16', 'M4 12h16', 'M4 18h10'],
-  responsibility: [
-    'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z',
-    'M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10z',
-    'M12 12h.01',
-  ],
-  predictable: ['M4 12h12', 'M12 8l4 4-4 4', 'M18 5h2v14h-2'],
-  cohesion: ['M12 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4z', 'M5 4h5v5H5z', 'M15 4h5v5h-5z', 'M3 18h5v4H3z', 'M16 18h5v4h-5z', 'M10 10l1 2M14 10l-1 2M8 18l3-2M16 18l-3-2'],
-  coupling: ['M4 7h6v6H4z', 'M14 11h6v6h-6z', 'M10 10l4 4', 'M7 13v4h7'],
-  snapshot: ['M5 4h14v16H5z', 'M8 8h8M8 12h8', 'M11 16h2'],
-  'error-flow': ['M4 4v6h8', 'M12 10l-3-3M12 10l-3 3', 'M12 10h5v5', 'M17 15l-3-3M17 15l3-3', 'M17 15v5'],
-  creation: ['M4 5h7v6H4z', 'M13 5h7v6h-7z', 'M8 11v4h8v-4', 'M5 20h14v-5H5z'],
-  retry: ['M19 7a8 8 0 1 0 1 8', 'M19 3v4h-4', 'M9 12h6', 'M12 9v6'],
-  testable: ['M4 5h16v14H4z', 'M7 12l3 3 6-7', 'M7 21h10'],
-  tdd: ['M20 10a8 8 0 1 0 0 4', 'M20 5v5h-5', 'M8 13l3 3 5-6'],
-  api: ['M3 7h6v10H3z', 'M15 7h6v10h-6z', 'M9 10h6M9 14h6'],
-  server: ['M4 4h16v6H4z', 'M4 14h16v6H4z', 'M7 7h.01M7 17h.01', 'M11 7h6M11 17h6'],
-  frontend: [
-    'M3 5h18v14H3z',
-    'M3 9h18',
-    'M6 7h.01M9 7h.01',
-    'M9 13l-2 2 2 2M15 13l2 2-2 2',
-  ],
-  database: [
-    'M5 6c0-1.7 3.1-3 7-3s7 1.3 7 3-3.1 3-7 3-7-1.3-7-3z',
-    'M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6',
-    'M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3',
-  ],
-  infrastructure: [
-    'M4 20h16',
-    'M6 20V9l6-5 6 5v11',
-    'M9 11h.01M12 11h.01M15 11h.01',
-    'M9 15h6v5',
-  ],
-  observability: [
-    'M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z',
-    'M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z',
-  ],
-  logs: ['M5 3h14v18H5z', 'M8 8h8M8 12h8M8 16h5'],
-  telemetry: [
-    'M4 18V9M8 18V5M12 18v-7M16 18V7M20 18v-5',
-    'M3 21h18',
-  ],
-  loki: [
-    'M4 5h16v14H4z',
-    'M8 9h8M8 13h5',
-    'M17 15l2 2-2 2',
-  ],
-  metrics: [
-    'M4 19V5M4 19h16',
-    'M7 15l4-4 3 2 5-6',
-  ],
-  traces: [
-    'M5 5v5a2 2 0 0 0 2 2h10a2 2 0 0 1 2 2v5',
-    'M5 5h.01M12 12h.01M19 19h.01',
-  ],
-  dashboard: [
-    'M3 4h18v16H3z',
-    'M3 10h18M10 10v10',
-    'M7 7h.01M14 15h4M14 17h2',
-  ],
-  alert: [
-    'M12 3a3 3 0 0 0-3 3v2c0 4-2 6-3 8h12c-1-2-3-4-3-8V6a3 3 0 0 0-3-3z',
-    'M10 20h4',
-  ],
-  summary: ['M4 6h16M4 12h16M4 18h10'],
-};
-
-const FALLBACK_PATHS = ['M4 6h16M4 12h16M4 18h10'];
-const paths = PATHS[icon] ?? FALLBACK_PATHS;
+const drawing = PILL_ICONS[icon] ?? PILL_ICONS.summary!;
 ---
 
-<svg class="pill-icon" viewBox="0 0 24 24" aria-hidden="true">
-  {paths.map((d) => <path d={d} />)}
+<svg class="pill-icon" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+  {drawing.body.map((d) => <path d={d} fill-rule="evenodd" />)}
+  {drawing.signal && <path class="signal" d={drawing.signal} />}
 </svg>
 
 <style>
@@ -121,10 +19,9 @@ const paths = PATHS[icon] ?? FALLBACK_PATHS;
     width: 26px;
     height: 26px;
     display: block;
-    stroke: currentColor;
-    stroke-width: 1.6;
-    fill: none;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+    fill: currentColor;
+  }
+  .signal {
+    fill: var(--pill-icon-signal, var(--color-accent));
   }
 </style>
