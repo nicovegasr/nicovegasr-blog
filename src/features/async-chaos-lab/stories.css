@@ -1689,6 +1689,38 @@ queue-stories-game .qs-outcome .qs-fatal-caller + #qs-outcome-text {
   margin-top: 0.5rem;
 }
 
+/* A loss should read as the moment of the experiment, not a small status label. */
+queue-stories-game .qs-outcome[data-tone='loss'] {
+  width: min(880px, calc(100vw - 2rem));
+}
+queue-stories-game .qs-outcome[data-tone='loss'] .qs-outcome-kicker {
+  color: #ff8179;
+  font-size: clamp(1rem, 2.2vw, 1.35rem);
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  margin-bottom: 1.25rem;
+}
+queue-stories-game .qs-outcome[data-tone='loss'] .qs-outcome-kicker > span {
+  color: #ff8179;
+  font-size: 1.5em;
+}
+queue-stories-game .qs-outcome[data-tone='loss'] h2 {
+  font-size: clamp(2.6rem, 6vw, 4.25rem);
+  max-width: 17ch;
+}
+@media (max-width: 700px) {
+  queue-stories-game .qs-outcome[data-tone='loss'] {
+    width: calc(100vw - 1rem);
+    max-height: calc(100dvh - 1rem);
+  }
+  queue-stories-game .qs-outcome[data-tone='loss'] .qs-outcome-kicker {
+    font-size: clamp(0.9rem, 4vw, 1.1rem);
+  }
+  queue-stories-game .qs-outcome[data-tone='loss'] h2 {
+    font-size: clamp(2.25rem, 10vw, 3.2rem);
+  }
+}
+
 /* Shared geometry keeps the system stable when entering or leaving the walkthrough. */
 queue-stories-game .qs-stage,
 queue-stories-game .qs-system {
@@ -1892,7 +1924,7 @@ queue-stories-game .qs-step-options > label {
 }
 queue-stories-game.is-guided .qs-result-metrics,
 queue-stories-game.is-guided .qs-achievements,
-queue-stories-game.is-guided .qs-step-options details {
+queue-stories-game.is-guided .qs-step-options details:not(:has([data-guide-focus])) {
   display: none;
 }
 queue-stories-game.is-guided .qs-dock {

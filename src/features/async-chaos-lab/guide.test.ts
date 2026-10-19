@@ -59,6 +59,15 @@ describe('Walkthrough instructions follow observed state', () => {
     expect(beat(state, 'optimize').task).toContain('opcional');
   });
 
+  it('teaches the saved charge checkpoint before the ambiguous email outcome', () => {
+    const state = run(defaultConfig(2));
+    expect(state.phase).toBe('duplicate');
+    expect(state.step).toBe(1);
+    const result = beat(state, 'charge');
+    expect(result.target).toBe('charge');
+    expect(result.task).toContain('Recordar por ID');
+  });
+
   it('points to receiver deduplication after the final email is duplicated', () => {
     const config = defaultConfig(2);
     config.steps.forEach((step) => (step.remember = true));

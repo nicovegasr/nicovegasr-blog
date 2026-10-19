@@ -1,0 +1,137 @@
+---
+import type { Locale } from '@/i18n/locale';
+import { labsPath, labPath } from './links';
+interface Props { locale: Locale; level: 1 | 2 | 3; title: string }
+const { locale, level, title } = Astro.props;
+const es = locale === 'es';
+---
+  <header class="qs-heading">
+    <div>
+      <p class="qs-breadcrumb">
+        <a href={labsPath(locale)}>← {es ? 'Laboratorios' : 'Labs'}</a><span
+          aria-hidden="true">/</span
+        >Async Chaos Lab
+      </p><h1>{title}</h1>
+    </div>
+    <nav class="qs-levels" aria-label={es ? 'Laboratorios' : 'Labs'}>
+      <span class="qs-levels-caption">{es ? 'Tres niveles para experimentar' : 'Three levels to explore'}</span>
+      <a
+        href={labPath(locale, 1)}
+        aria-current={level === 1 ? 'page' : undefined}
+        ><span class="qs-level-number">01</span><span class="qs-level-name">{es ? 'La cola' : 'The queue'}</span></a
+      ><a
+        href={labPath(locale, 2)}
+        aria-current={level === 2 ? 'page' : undefined}
+        ><span class="qs-level-number">02</span><span class="qs-level-name">{es ? 'El worker' : 'The worker'}</span></a>
+      <a href={labPath(locale, 3)} aria-current={level === 3 ? 'page' : undefined}>
+        <span class="qs-level-number">03</span><span class="qs-level-name">{es ? 'Escalar' : 'Scale'}</span>
+      </a>
+    </nav>
+  </header>
+<style>
+  .qs-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0 0 0.8rem;
+  }
+  .qs-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font: 0.6rem/1.4 var(--font-family-mono);
+    color: var(--color-text-soft);
+    margin: 0 0 0.55rem;
+  }
+  .qs-breadcrumb a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .qs-breadcrumb a:hover {
+    color: var(--color-ink);
+  }
+  .qs-breadcrumb > span {
+    opacity: 0.4;
+  }
+  .qs-heading h1 {
+    font: 500 clamp(1.65rem, 3vw, 2rem)/1.1 var(--font-family-display);
+    letter-spacing: -0.05em;
+    margin: 0;
+  }
+  .qs-levels {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    gap: 0.35rem;
+    flex-shrink: 0;
+  }
+  .qs-levels-caption {
+    grid-column: 1 / -1;
+    font: 500 0.6rem/1.3 var(--font-family-display);
+    color: var(--color-text-soft);
+    margin-bottom: 0.1rem;
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent);
+    text-decoration-thickness: 3px;
+    text-underline-offset: 0.25em;
+  }
+  .qs-levels a {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font: 600 0.8rem/1.3 var(--font-family-display);
+    padding: 0.5rem 0.65rem;
+    border: 1px solid var(--color-rule);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--color-ink);
+    background: color-mix(in srgb, var(--color-rule) 24%, var(--color-paper));
+    white-space: nowrap;
+  }
+  .qs-level-number {
+    display: grid;
+    place-items: center;
+    width: 23px;
+    height: 23px;
+    border-radius: 50%;
+    background: var(--color-paper);
+    color: var(--color-text-soft);
+    font: 500 0.55rem/1 var(--font-family-mono);
+  }
+  .qs-levels a:hover {
+    border-color: var(--color-text-soft);
+  }
+  .qs-levels a[aria-current='page'] {
+    background: var(--color-paper);
+  }
+  .qs-levels a[aria-current='page'] .qs-level-name {
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent);
+    text-decoration-thickness: 5px;
+    text-underline-offset: 0.25em;
+    text-decoration-skip-ink: none;
+  }
+  .qs-levels a[aria-current='page'] .qs-level-number {
+    color: var(--color-ink);
+  }
+  @media (max-width: 950px) {
+    .qs-heading { align-items: flex-start; flex-direction: column; gap: 1.1rem; }
+  }
+  @media (max-width: 580px) {
+    .qs-heading {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+    .qs-heading h1 {
+      font-size: 1.65rem;
+    }
+    .qs-levels {
+      align-self: flex-start;
+    }
+    .qs-levels a { padding: 0.5rem 0.4rem; font-size: 0.72rem; gap: 0.3rem; }
+    .qs-breadcrumb {
+      font-size: 0.55rem;
+    }
+  }
+</style>

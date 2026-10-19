@@ -1,6 +1,6 @@
 # Async Chaos Lab
 
-Two browser-only payment simulations inside the existing Astro site. No React,
+Three browser-only payment simulations inside the existing Astro site. No React,
 backend, broker, real database, payment SDK or additional project dependency.
 All charges, email and failures are simulated.
 
@@ -18,8 +18,14 @@ npm run dev -- --host 127.0.0.1 --port 4328
 | Catalogue                | `/es/laboratorios/`                 | `/en/labs/`                 |
 | Protect pending payments | `/es/laboratorios/async-chaos-lab/` | `/en/labs/async-chaos-lab/` |
 | Inside the worker        | `/es/laboratorios/worker-steps/`    | `/en/labs/worker-steps/`    |
+| Scaling the system       | `/es/laboratorios/scaling/`         | `/en/labs/scaling/`         |
 
-Use Start/Pause and explicitly retry when an incident interrupts processing.
+Lab 3 has a separate fixed-clock engine because resource contention differs from
+the fault/checkpoint state machine of labs 1 and 2. It shares their static Astro
+wrapper, navigation, visual language and native custom-element approach. See
+[`scaling/README.md`](./scaling/README.md) for its model, costs and reproduction.
+
+In labs 1 and 2, use Start/Pause and explicitly retry when an incident interrupts processing.
 Tutorial opens a short teammate call. The optional guided walkthrough follows
 actual failures and lets the player change the diagram. Finishing keeps the
 successful configuration; leaving early restores the previous trial.
@@ -143,14 +149,16 @@ claimed.
 
 Names and awards use optional, locale-aware `sessionStorage`. Names are capped at
 64 characters and escaped before insertion into HTML; job IDs remain immutable.
-Both labs share component/payment names and keep their own step names. Blocked or
+Labs 1 and 2 share component/payment names and keep their own step names. Lab 3
+keeps its own names and comparison history. Blocked or
 malformed storage falls back to an in-page session. Reload resets simulation
 progress. Production timers stop when the element disconnects or the tab hides.
 
 Native dialogs own keyboard focus during incidents and outcomes. Green identifies
 current work; text and symbols also identify states. Reduced motion disables
 packet, indicator and outcome animations. The compact transport remains reachable
-while scrolling. No results table, event-log panel or abandoned prototype is shipped.
+while scrolling. There is no per-payment results table, event-log panel or abandoned
+prototype. Lab 3 offers a compact comparison of finished trials in a dialog.
 
 ## Verification and deployment
 

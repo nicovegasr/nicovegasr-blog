@@ -907,7 +907,8 @@ class QueueStories extends HTMLElement {
     }
     if (s.phase === 'won') {
       const wasted = s.events.filter(
-        (e) => e.job === 3 && e.kind === 'wasted',
+        // The final retry is necessary when its completion marker was lost.
+        (e) => e.job === 3 && e.kind === 'wasted' && e.step < this.config.steps.length - 1,
       ).length;
       return [
         this.t('LOS TRES PAGOS COMPLETADOS', 'ALL THREE PAYMENTS COMPLETE'),

@@ -277,6 +277,20 @@ export function guideBeat(c: Context): GuideBeat {
           ),
       s.config.steps[3]?.providerDeduplication ? null : 'provider',
     );
+  if (stage === 'charge')
+    return beat(
+      2,
+      t('Recuerda la acción que ya terminó.', 'Remember the completed action.'),
+      t(
+        'En esta prueba el cobro terminó antes de la caída. Guardar su avance permitirá saltarlo en el siguiente intento.',
+        'In this trial the charge finished before the crash. Saving its progress will let the next attempt skip it.',
+      ),
+      t(
+        `Activa «Recordar por ID» en «${c.chargeStep}».`,
+        `Enable “Remember by ID” in “${c.chargeStep}”.`,
+      ),
+      'charge',
+    );
   if (s.phase === 'duplicate')
     return beat(
       3,
@@ -295,20 +309,6 @@ export function guideBeat(c: Context): GuideBeat {
             'Change how this effect is protected before running the trial again.',
           ),
       isExternal(s.config.steps[s.step]?.kind ?? 'check') ? 'provider' : null,
-    );
-  if (stage === 'charge')
-    return beat(
-      2,
-      t('Recuerda la acción que ya terminó.', 'Remember the completed action.'),
-      t(
-        'En esta prueba el cobro terminó antes de la caída. Guardar su avance permitirá saltarlo en el siguiente intento.',
-        'In this trial the charge finished before the crash. Saving its progress will let the next attempt skip it.',
-      ),
-      t(
-        `Activa «Recordar por ID» en «${c.chargeStep}».`,
-        `Enable “Remember by ID” in “${c.chargeStep}”.`,
-      ),
-      'charge',
     );
   if (stage === 'optimize')
     return beat(

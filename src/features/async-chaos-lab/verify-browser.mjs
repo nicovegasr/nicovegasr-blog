@@ -622,8 +622,16 @@ try {
   await click('lesson');
   await setting('remember-1');
   await finish();
+  assert.equal(await phase(), 'duplicate');
+  assert.match(await feedback(), /Enviar confirmación|confirmación|efecto/i);
+  await click('lesson');
+  assert.equal(
+    await evaluate('document.querySelector("[data-guide-focus]").dataset.setting'),
+    'provider-3',
+  );
+  await setting('provider-3');
+  await finish();
   assert.equal(await phase(), 'won');
-  assert.match(await feedback(), /repetiste 2 pasos/);
   await screenshot('worker-safe-but-wasteful');
   await click('lesson');
   for (const i of [0, 2, 3]) await setting('remember-' + i);
