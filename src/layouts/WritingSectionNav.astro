@@ -13,15 +13,20 @@ const translate = getTranslator(locale);
 const sections: { href: string; label: string }[] = [
   { href: buildPagePath('blog', locale), label: translate('writing.pills') },
   { href: buildPagePath('articles', locale), label: translate('writing.articles') },
+  { href: buildPagePath('labs', locale), label: translate('writing.labs') },
 ];
 
 const currentPathname = Astro.url.pathname;
-const currentSectionPath = currentPathname === buildPagePath('pills', locale)
+const pillsPath = buildPagePath('pills', locale);
+const labsPath = buildPagePath('labs', locale);
+const currentSectionPath = currentPathname.startsWith(pillsPath)
   ? buildPagePath('blog', locale)
-  : currentPathname;
+  : currentPathname.startsWith(labsPath)
+    ? labsPath
+    : currentPathname;
 ---
 
-<nav class="writing-nav" aria-label={translate('navigation.blog')}>
+<nav class="writing-nav" aria-label={translate('navigation.sections')}>
   <ul>
     {
       sections.map(({ href, label }) => {

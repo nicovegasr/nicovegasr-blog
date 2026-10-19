@@ -8,9 +8,11 @@ export const english: Dictionary = {
   'navigation.blog': 'Blog',
   'navigation.about': 'About',
   'navigation.menu': 'Menu',
+  'navigation.sections': 'Sections',
 
   'writing.articles': 'Articles',
   'writing.pills': 'Pills',
+  'writing.labs': 'Labs',
 
   'language.switchTo': 'Español',
   'language.current': 'English',

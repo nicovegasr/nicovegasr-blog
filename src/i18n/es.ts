@@ -6,9 +6,11 @@ export const spanish = {
   'navigation.blog': 'Blog',
   'navigation.about': 'Sobre mí',
   'navigation.menu': 'Menú',
+  'navigation.sections': 'Secciones',
 
   'writing.articles': 'Artículos',
   'writing.pills': 'Píldoras',
+  'writing.labs': 'Laboratorios',
 
   'language.switchTo': 'English',
   'language.current': 'Español',

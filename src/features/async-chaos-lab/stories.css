@@ -1,0 +1,1978 @@
+/* Feature-local lab styles, using the blog's existing palette and type. */
+body:has(queue-stories-game) main {
+  padding-top: var(--space-6);
+}
+queue-stories-game {
+  display: block;
+  font-size: var(--font-size-small);
+  --qs-wash: color-mix(in srgb, var(--color-rule) 28%, var(--color-paper));
+}
+queue-stories-game * {
+  box-sizing: border-box;
+}
+queue-stories-game h2 {
+  font: 600 1.2rem/1.2 var(--font-family-display);
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.025em;
+}
+queue-stories-game p {
+  line-height: 1.5;
+  margin: 0.4rem 0;
+}
+queue-stories-game button,
+queue-stories-game select {
+  font: 500 0.85rem/1.4 var(--font-family-display);
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--color-ink);
+  border-radius: var(--radius-small);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  cursor: pointer;
+  max-width: 100%;
+}
+queue-stories-game button:hover:not(:disabled) {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+queue-stories-game :focus-visible {
+  outline: 3px solid var(--color-ink);
+  outline-offset: 3px;
+}
+/* Keep focused/scrolled controls clear of the site header and sticky transport. */
+queue-stories-game :is(button, input, select, summary) {
+  scroll-margin-block: 110px 100px;
+}
+queue-stories-game input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-ink);
+  flex-shrink: 0;
+}
+queue-stories-game .qs-editable {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+queue-stories-game .qs-editable > strong {
+  display: block;
+  font: 600 0.95rem/1.3 var(--font-family-display);
+  letter-spacing: -0.025em;
+}
+queue-stories-game .qs-name {
+  display: none;
+  width: 100%;
+  min-width: 0;
+  font: 500 0.9rem/1.4 var(--font-family-display);
+  border: 1px solid var(--color-ink);
+  border-radius: var(--radius-small);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  padding: 0.35rem;
+}
+queue-stories-game.is-personalizing .qs-name {
+  display: block;
+}
+queue-stories-game.is-personalizing [data-display-label] {
+  display: none;
+}
+queue-stories-game .qs-eyebrow {
+  font: 0.65rem/1.4 var(--font-family-mono);
+  letter-spacing: 0.06em;
+  color: var(--color-text-soft);
+}
+queue-stories-game .qs-transport,
+queue-stories-game .qs-tools {
+  display: flex;
+  align-items: center;
+}
+queue-stories-game .qs-tools {
+  margin-left: auto;
+}
+queue-stories-game [data-action='play'] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  min-height: 42px;
+  padding: 0.6rem 1rem;
+  border: 0;
+  border-radius: var(--radius-small);
+  background: var(--color-ink);
+  color: var(--color-paper);
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+queue-stories-game [data-action='play']::before {
+  content: '▶';
+  font-size: 0.65em;
+  color: var(--color-accent);
+}
+queue-stories-game.is-playing [data-action='play']::before {
+  content: 'Ⅱ';
+}
+queue-stories-game[data-phase='incident'] [data-action='play']::before {
+  content: '↻';
+  font-size: 0.95em;
+}
+queue-stories-game [data-action='play']:hover {
+  background: color-mix(in srgb, var(--color-ink) 85%, var(--color-paper));
+  color: var(--color-paper);
+}
+queue-stories-game .qs-transport [data-action='reset'],
+queue-stories-game .qs-tools button,
+queue-stories-game [data-action='guide-close'] {
+  padding: 0.5rem 0;
+  min-height: 40px;
+  border: 0;
+  background: none;
+  color: var(--color-text-soft);
+  font-size: 0.75rem;
+  border-radius: 0;
+}
+queue-stories-game .qs-transport [data-action='reset']:hover,
+queue-stories-game .qs-tools button:hover,
+queue-stories-game [data-action='guide-close']:hover {
+  color: var(--color-ink);
+  background: none;
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+}
+queue-stories-game .qs-score {
+  color: var(--color-text-soft);
+  white-space: nowrap;
+  padding-left: 1rem;
+  border-left: 1px solid var(--color-rule);
+}
+
+queue-stories-game .qs-feedback {
+  padding: 0.65rem 0;
+  margin: 0.5rem 0;
+  color: var(--color-text-soft);
+  border-bottom: 1px solid var(--color-rule);
+}
+queue-stories-game .qs-feedback strong {
+  font: 500 0.85rem/1.4 var(--font-family-display);
+  color: var(--color-ink);
+}
+queue-stories-game .qs-feedback p {
+  font-size: 0.75rem;
+  max-width: 110ch;
+  margin-bottom: 0;
+}
+queue-stories-game[data-phase='lost'] .qs-feedback,
+queue-stories-game[data-phase='duplicate'] .qs-feedback {
+  border-left: 2px solid var(--color-ink);
+  padding-left: 0.75rem;
+}
+queue-stories-game .qs-diagram {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.5fr) 20px minmax(0, 2.8fr);
+  align-items: center;
+  gap: 0.65rem;
+}
+queue-stories-game .qs-api {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 1rem 0.75rem;
+  border: 2px solid var(--color-ink);
+  border-radius: var(--radius-large) var(--radius-large) 0 0;
+}
+queue-stories-game .qs-api > strong {
+  font: 600 2.75rem/1 var(--font-family-display);
+  letter-spacing: -0.06em;
+}
+queue-stories-game .qs-api p {
+  font-size: 0.75rem;
+  margin: 0;
+}
+queue-stories-game .qs-arrow {
+  text-align: center;
+  font: 600 1.5rem/1 var(--font-family-display);
+}
+queue-stories-game .qs-process {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 20px minmax(0, 1fr);
+  align-items: start;
+  gap: 0.75rem;
+  padding: 2rem 0.8rem 0.8rem;
+  border: 2px dashed var(--color-ink);
+  border-radius: var(--radius-medium);
+}
+queue-stories-game .qs-process > .qs-arrow {
+  align-self: center;
+}
+queue-stories-game .qs-process.is-durable {
+  border-color: var(--color-rule);
+  border-style: solid;
+}
+queue-stories-game .qs-boundary {
+  position: absolute;
+  left: 0.8rem;
+  right: 0.8rem;
+  font: 0.65rem/1.3 var(--font-family-mono);
+  color: var(--color-text-soft);
+}
+queue-stories-game .qs-node-setting {
+  display: flex;
+  flex-direction: column;
+  font: 0.7rem/1.4 var(--font-family-display);
+}
+queue-stories-game .qs-node-setting select {
+  width: 100%;
+  font-size: 0.78rem;
+  padding: 0.4rem 0.3rem;
+}
+queue-stories-game .qs-array {
+  background: var(--qs-wash);
+  display: flex;
+  flex-direction: column;
+}
+queue-stories-game .qs-job {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--color-rule);
+  padding: 0.4rem;
+  background: var(--color-paper);
+  min-width: 0;
+}
+queue-stories-game .qs-job > div {
+  flex: 1;
+  min-width: 0;
+}
+queue-stories-game .qs-job > button {
+  padding: 0.2rem;
+  font: 0.65rem/1.4 var(--font-family-mono);
+  border: 0;
+  background: var(--color-rule);
+}
+queue-stories-game .qs-job .qs-editable > strong {
+  font-size: 0.8rem;
+}
+queue-stories-game .qs-job small {
+  display: block;
+  font: 0.6rem/1.4 var(--font-family-mono);
+  color: var(--color-text-soft);
+}
+queue-stories-game .qs-job-icon {
+  font: 600 1rem/1 var(--font-family-display);
+}
+queue-stories-game .qs-job.is-working {
+  outline: 2px solid var(--color-ink);
+}
+queue-stories-game .qs-job.is-retrying {
+  border: 2px dashed var(--color-ink);
+}
+queue-stories-game .qs-job.is-done {
+  opacity: 0.65;
+}
+queue-stories-game .qs-job.is-lost {
+  border-style: dashed;
+  opacity: 0.55;
+}
+queue-stories-game .qs-job.is-lost .qs-editable {
+  text-decoration: line-through;
+}
+queue-stories-game .qs-job.is-inspected {
+  outline: 2px solid var(--color-ink);
+}
+queue-stories-game .qs-active-job {
+  border: 1px solid var(--color-ink);
+  font: 500 0.75rem/1.4 var(--font-family-display);
+  background: var(--qs-wash);
+  overflow-wrap: anywhere;
+}
+queue-stories-game .qs-worker-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+queue-stories-game .qs-step {
+  border: 1px solid var(--color-rule);
+  border-left: 4px solid var(--color-rule);
+  padding: 0.6rem;
+  min-width: 0;
+  background: var(--color-paper);
+}
+queue-stories-game .qs-step.is-active {
+  border-color: var(--color-ink);
+  border-left: 6px solid var(--color-accent);
+}
+queue-stories-game .qs-step.has-duplicate {
+  border: 2px dashed var(--color-ink);
+}
+queue-stories-game .qs-step-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+queue-stories-game .qs-step-heading > .qs-editable {
+  flex: 1;
+  min-width: 0;
+}
+queue-stories-game .qs-step-number {
+  font: 500 0.65rem/1 var(--font-family-mono);
+  border: 1px solid var(--color-ink);
+  padding: 0.35rem;
+}
+queue-stories-game .qs-step-state {
+  font: 0.65rem/1.5 var(--font-family-mono);
+  color: var(--color-text-soft);
+  margin: 0.3rem 0 0;
+}
+queue-stories-game .qs-ready-queue {
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem;
+  border: 1px solid var(--color-rule);
+  font-size: 0.75rem;
+}
+queue-stories-game .qs-extra-names {
+  display: none;
+}
+queue-stories-game.is-personalizing .qs-extra-names {
+  display: flex;
+  gap: 0.5rem;
+}
+queue-stories-game .qs-job-strip {
+  display: grid;
+  gap: 0.5rem;
+  margin-block: 0.6rem;
+}
+queue-stories-game .qs-worker-interior {
+  border: 2px solid var(--color-ink);
+  border-radius: var(--radius-large);
+  background: var(--qs-wash);
+}
+queue-stories-game .qs-worker-interior > header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+queue-stories-game .qs-worker-interior > header > div {
+  min-width: 0;
+}
+queue-stories-game .qs-worker-interior > header .qs-editable > strong {
+  font-size: 1.2rem;
+}
+queue-stories-game .qs-worker-interior .qs-worker-steps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+queue-stories-game .qs-step-options {
+  margin-top: 0.6rem;
+}
+queue-stories-game .qs-step-options label {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+queue-stories-game .qs-step-options details {
+  margin-top: 0.5rem;
+  font-size: 0.65rem;
+  color: var(--color-text-soft);
+}
+queue-stories-game .qs-step-options details[open] {
+  padding-top: 0.3rem;
+}
+queue-stories-game .qs-step-options .qs-kind-label {
+  align-items: flex-start;
+  flex-direction: column;
+  margin-block: 0.6rem;
+}
+queue-stories-game summary {
+  cursor: pointer;
+  font-family: var(--font-family-display);
+}
+queue-stories-game .qs-result-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  padding-block: 0.75rem;
+  font: 0.65rem/1.5 var(--font-family-mono);
+}
+queue-stories-game .qs-result-metrics b {
+  font: 600 1.25rem/1 var(--font-family-display);
+  margin-right: 0.3rem;
+}
+queue-stories-game .qs-achievements {
+  border: 1px solid var(--color-rule);
+  margin-block: 1rem;
+}
+queue-stories-game .qs-achievements > p {
+  font-size: 0.7rem;
+  color: var(--color-text-soft);
+}
+queue-stories-game [data-achievements] {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+queue-stories-game [data-achievements] article {
+  display: flex;
+  gap: 0.75rem;
+  border: 1px dashed var(--color-rule);
+  padding: 0.75rem;
+  color: var(--color-text-soft);
+}
+queue-stories-game [data-achievements] article.is-unlocked {
+  border: 2px solid var(--color-ink);
+  color: var(--color-ink);
+  background: var(--qs-wash);
+}
+queue-stories-game [data-achievements] article > span {
+  font-size: 1.5rem;
+}
+queue-stories-game [data-achievements] h3 {
+  font: 600 0.9rem/1.3 var(--font-family-display);
+  margin: 0;
+}
+queue-stories-game [data-achievements] p {
+  font-size: 0.75rem;
+}
+queue-stories-game [data-achievements] small {
+  font-size: 0.65rem;
+}
+queue-stories-game .qs-toast:not(:empty) {
+  position: fixed;
+  bottom: 1.2rem;
+  right: 1.2rem;
+  z-index: 40;
+  width: min(340px, calc(100vw - 2.4rem));
+  padding: 1rem;
+  border: 2px solid var(--color-ink);
+  box-shadow: 4px 4px 0 var(--color-ink);
+  background: var(--color-paper);
+}
+queue-stories-game .qs-toast strong {
+  display: block;
+  font: 600 1rem/1.3 var(--font-family-display);
+  margin: 0.5rem 0;
+}
+/* An outcome is a scene with evidence, rather than an alert card. */
+queue-stories-game .qs-outcome {
+  --qs-scene-ink: var(--color-ink);
+  --qs-scene-soft: var(--color-text-soft);
+  --qs-scene-rule: var(--color-rule);
+  position: fixed;
+  padding: 0;
+  border: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  background: var(--color-paper);
+  color: var(--qs-scene-ink);
+}
+queue-stories-game .qs-outcome[data-tone='loss'] {
+  --qs-scene-ink: #f2f2f2;
+  --qs-scene-soft: #b5b5b5;
+  --qs-scene-rule: #424244;
+  background: rgb(12 12 13 / 0.93);
+}
+queue-stories-game .qs-outcome :focus-visible {
+  outline-color: var(--qs-scene-ink);
+}
+queue-stories-game .qs-outcome-shell {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+}
+queue-stories-game .qs-outcome-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--qs-scene-soft);
+  font: 0.6rem/1.5 var(--font-family-mono);
+}
+queue-stories-game .qs-outcome-top > span > span {
+  margin: 0 0.5rem;
+  opacity: 0.5;
+}
+queue-stories-game .qs-outcome-top button {
+  background: none;
+  border: 0;
+  padding: 0.5rem 0;
+  color: var(--qs-scene-soft);
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+queue-stories-game .qs-outcome-top button:hover {
+  background: none;
+  color: var(--qs-scene-ink);
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+}
+queue-stories-game .qs-outcome-content {
+  width: 100%;
+  max-width: 860px;
+}
+queue-stories-game .qs-outcome-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font: 0.6rem/1.4 var(--font-family-mono);
+  letter-spacing: 0.08em;
+  color: var(--qs-scene-soft);
+  margin: 0 0 1rem;
+}
+queue-stories-game .qs-outcome-kicker > span {
+  font-size: 1.25rem;
+  color: var(--qs-scene-ink);
+}
+queue-stories-game .qs-outcome h2 {
+  font: 500 clamp(2rem, 5vw, 3.8rem)/1.02 var(--font-family-display);
+  letter-spacing: -0.06em;
+  margin: 0 0 1.5rem;
+  max-width: 19ch;
+  text-wrap: balance;
+}
+queue-stories-game .qs-outcome #qs-outcome-text {
+  font: 0.9rem/1.65 var(--font-family-body);
+  max-width: 78ch;
+  margin: 1.5rem 0 0.5rem;
+  overflow-wrap: anywhere;
+}
+queue-stories-game .qs-outcome-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+}
+queue-stories-game .qs-outcome-actions button {
+  font-size: 0.8rem;
+  min-height: 42px;
+}
+queue-stories-game .qs-outcome-actions [data-primary] {
+  padding: 0.7rem 1rem;
+  border: 0;
+  background: var(--qs-scene-ink);
+  color: var(--color-paper);
+}
+queue-stories-game
+  .qs-outcome[data-tone='loss']
+  .qs-outcome-actions
+  [data-primary] {
+  color: #0c0c0d;
+}
+queue-stories-game .qs-outcome-actions [data-primary]::after {
+  content: ' →';
+  margin-left: 0.5rem;
+}
+queue-stories-game .qs-outcome-actions [data-primary]::before {
+  display: none;
+}
+queue-stories-game .qs-outcome-actions button:not([data-primary]) {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding: 0.5rem 0;
+  color: var(--qs-scene-soft);
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+}
+queue-stories-game .qs-outcome-actions button:hover {
+  opacity: 0.8;
+}
+queue-stories-game .qs-ticket-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+queue-stories-game .qs-ticket {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 145px;
+  padding: 0.8rem 0.8rem 1.2rem;
+  background: color-mix(in srgb, var(--qs-scene-ink) 8%, transparent);
+  border-top: 2px solid var(--qs-scene-ink);
+  color: var(--qs-scene-ink);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 94%,
+    95% 100%,
+    90% 94%,
+    85% 100%,
+    80% 94%,
+    75% 100%,
+    70% 94%,
+    65% 100%,
+    60% 94%,
+    55% 100%,
+    50% 94%,
+    45% 100%,
+    40% 94%,
+    35% 100%,
+    30% 94%,
+    25% 100%,
+    20% 94%,
+    15% 100%,
+    10% 94%,
+    5% 100%,
+    0 94%
+  );
+}
+queue-stories-game .qs-ticket header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font: 0.6rem/1.4 var(--font-family-mono);
+}
+queue-stories-game .qs-ticket header > span:last-child {
+  font-size: 1rem;
+  line-height: 1;
+}
+queue-stories-game .qs-ticket > strong {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font: 500 0.95rem/1.35 var(--font-family-display);
+  margin: 0.7rem 0 0.5rem;
+  overflow-wrap: anywhere;
+}
+queue-stories-game .qs-ticket-lines {
+  width: 80%;
+  height: 18px;
+  border-top: 1px solid var(--qs-scene-rule);
+  margin-top: auto;
+}
+queue-stories-game .qs-ticket-lines::after {
+  content: '';
+  display: block;
+  width: 70%;
+  border-top: 1px solid var(--qs-scene-rule);
+  margin-top: 7px;
+}
+queue-stories-game .qs-ticket footer {
+  font: 0.55rem/1.5 var(--font-family-mono);
+  margin-top: 0.3rem;
+  color: var(--qs-scene-soft);
+}
+queue-stories-game .qs-ticket.is-lost {
+  background: none;
+  border-top-style: dashed;
+  color: var(--qs-scene-soft);
+}
+queue-stories-game .qs-ticket.is-lost > strong {
+  text-decoration: line-through;
+}
+queue-stories-game .qs-evidence-caption {
+  font: 0.6rem/1.6 var(--font-family-mono);
+  color: var(--qs-scene-soft);
+  margin-top: 0.75rem;
+}
+queue-stories-game .qs-repeat-evidence {
+  display: grid;
+  grid-template-columns: minmax(0, 180px) 30px minmax(0, 180px) minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem;
+}
+queue-stories-game .qs-repeat-evidence .qs-ticket.is-repeated {
+  border-top-style: dashed;
+  transform: rotate(3deg);
+}
+queue-stories-game .qs-repeat-symbol {
+  font: 300 2rem/1 var(--font-family-display);
+  text-align: center;
+  color: var(--qs-scene-soft);
+}
+queue-stories-game .qs-repeat-evidence > p {
+  font: 0.75rem/1.6 var(--font-family-body);
+  padding-left: 1rem;
+  overflow-wrap: anywhere;
+}
+queue-stories-game .qs-action-evidence {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+queue-stories-game .qs-action-evidence article {
+  padding: 0.75rem 0;
+  border-top: 2px solid var(--qs-scene-rule);
+  min-width: 0;
+}
+queue-stories-game .qs-action-evidence article.is-finished {
+  border-color: var(--qs-scene-ink);
+}
+queue-stories-game .qs-action-evidence article.was-interrupted {
+  border-top-style: dashed;
+  border-color: var(--qs-scene-ink);
+}
+queue-stories-game .qs-evidence-step {
+  display: flex;
+  justify-content: space-between;
+  font: 0.6rem/1.4 var(--font-family-mono);
+  color: var(--qs-scene-soft);
+}
+queue-stories-game .qs-evidence-step b {
+  font-size: 0.85rem;
+  color: var(--qs-scene-ink);
+}
+queue-stories-game .qs-action-evidence strong {
+  display: block;
+  margin: 0.7rem 0 0.4rem;
+  font: 500 0.9rem/1.3 var(--font-family-display);
+  overflow-wrap: anywhere;
+}
+queue-stories-game .qs-action-evidence small {
+  display: block;
+  font: 0.6rem/1.5 var(--font-family-mono);
+  color: var(--qs-scene-soft);
+}
+queue-stories-game .qs-ack-evidence {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+  border-block: 1px solid var(--qs-scene-rule);
+  padding-block: 1.25rem;
+}
+queue-stories-game .qs-ack-evidence span {
+  display: block;
+  font: 0.55rem/1.5 var(--font-family-mono);
+  color: var(--qs-scene-soft);
+  margin-bottom: 0.6rem;
+}
+queue-stories-game .qs-ack-evidence strong {
+  font: 500 0.9rem/1.4 var(--font-family-display);
+  overflow-wrap: anywhere;
+}
+queue-stories-game .qs-outcome .qs-earned {
+  display: flex;
+  gap: 0.75rem;
+  border-top: 1px solid var(--qs-scene-rule);
+  padding-top: 1rem;
+  margin-top: 1.5rem;
+  max-width: 78ch;
+}
+queue-stories-game .qs-earned > span {
+  font-size: 1.3rem;
+}
+queue-stories-game .qs-earned .qs-award-label {
+  display: block;
+  font: 0.5rem/1.5 var(--font-family-mono);
+  letter-spacing: 0.05em;
+  color: var(--qs-scene-soft);
+}
+queue-stories-game .qs-earned strong {
+  display: block;
+  font: 500 0.85rem/1.4 var(--font-family-display);
+  margin: 0.25rem 0;
+}
+queue-stories-game .qs-earned p {
+  font: 0.7rem/1.6 var(--font-family-body);
+  color: var(--qs-scene-soft);
+  margin: 0;
+}
+@media (min-width: 1400px) {
+  body:has(queue-stories-game) main {
+    max-width: 1160px;
+  }
+}
+@media (max-width: 850px) {
+  queue-stories-game .qs-diagram {
+    grid-template-columns: 1fr;
+  }
+  queue-stories-game .qs-api {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  queue-stories-game .qs-api > .qs-editable {
+    grid-column: 1;
+  }
+  queue-stories-game .qs-api > strong {
+    grid-row: 1/4;
+    grid-column: 2;
+  }
+  queue-stories-game .qs-diagram > .qs-arrow {
+    transform: rotate(90deg);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  queue-stories-game .qs-step.is-active {
+    animation: qs-work 1.3s ease-in-out infinite;
+  }
+  queue-stories-game .qs-job.is-working .qs-job-icon {
+    animation: qs-message 0.65s ease-out infinite;
+  }
+  queue-stories-game .qs-outcome[open] .qs-outcome-content {
+    animation: qs-scene-in 0.35s ease-out both;
+  }
+  queue-stories-game .qs-outcome[open]::backdrop {
+    animation: qs-darken 0.7s ease-out;
+  }
+  queue-stories-game .qs-outcome[open] .qs-ticket.is-lost {
+    animation: qs-forget 2.4s ease-out both;
+  }
+  queue-stories-game .qs-outcome[open] .qs-ticket.is-lost:nth-child(3) {
+    animation-delay: 0.16s;
+  }
+  @keyframes qs-work {
+    50% {
+      box-shadow: 3px 0 0 color-mix(in srgb, var(--qs-ok) 45%, transparent);
+    }
+  }
+  @keyframes qs-message {
+    from {
+      transform: translateX(-5px);
+      opacity: 0.35;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  @keyframes qs-scene-in {
+    from {
+      opacity: 0;
+      transform: translateY(5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes qs-darken {
+    from {
+      background: rgb(10 10 10 / 0.65);
+    }
+    to {
+      background: rgb(10 10 10 / 0.92);
+    }
+  }
+  @keyframes qs-forget {
+    0% {
+      background: color-mix(in srgb, var(--qs-scene-ink) 10%, transparent);
+      transform: translateY(0);
+    }
+    100% {
+      background: transparent;
+      transform: translateY(5px);
+    }
+  }
+}
+queue-stories-game .qs-step-nature {
+  font: 0.6rem/1.4 var(--font-family-mono);
+  color: var(--color-text-soft);
+  margin: 0.5rem 0;
+}
+queue-stories-game .qs-step-nature.has-external {
+  font-weight: 600;
+  color: var(--color-ink);
+  border-left: 3px solid var(--color-accent);
+  padding-left: 0.4rem;
+}
+queue-stories-game .qs-step-tradeoff {
+  display: block;
+  font: 0.6rem/1.4 var(--font-family-mono);
+  color: var(--color-text-soft);
+  margin: 0.5rem 0;
+}
+queue-stories-game .qs-toast small {
+  display: block;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
+
+queue-stories-game .qs-step-contract {
+  font: 0.65rem/1.5 var(--font-family-mono);
+  color: var(--color-text-soft);
+  margin: 0.5rem 0;
+}
+queue-stories-game .qs-job.is-failed {
+  border: 2px dashed var(--color-ink);
+}
+queue-stories-game[data-phase='duplicate'] .qs-step.is-active {
+  animation: none;
+}
+@media (max-width: 700px) {
+  queue-stories-game .qs-transport {
+    gap: 0.75rem;
+  }
+  queue-stories-game .qs-tools {
+    margin: 0;
+    gap: 1.25rem;
+  }
+  queue-stories-game .qs-score {
+    grid-row: 1;
+    grid-column: 2;
+    border: 0;
+    padding: 0;
+  }
+  queue-stories-game .qs-outcome-shell {
+    padding: 1rem 1.1rem 1.5rem;
+  }
+  queue-stories-game .qs-outcome-top {
+    align-items: flex-start;
+    font-size: 0.5rem;
+  }
+  queue-stories-game .qs-outcome-top > span {
+    max-width: 140px;
+  }
+  queue-stories-game .qs-outcome-top button {
+    font-size: 0.6rem;
+  }
+  queue-stories-game .qs-outcome-content {
+    padding: 2rem 0;
+    margin: auto;
+  }
+  queue-stories-game .qs-outcome h2 {
+    font-size: clamp(2rem, 8vw, 3rem);
+    margin-bottom: 1.25rem;
+  }
+  queue-stories-game .qs-outcome #qs-outcome-text {
+    font-size: 0.8rem;
+    line-height: 1.6;
+  }
+  queue-stories-game .qs-ticket-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+  }
+  queue-stories-game .qs-ticket {
+    min-height: 125px;
+    padding: 0.65rem 0.65rem 1rem;
+  }
+  queue-stories-game .qs-ticket > strong {
+    font-size: 0.85rem;
+  }
+  queue-stories-game .qs-outcome-actions {
+    align-items: stretch;
+    gap: 0.75rem;
+    flex-direction: column;
+  }
+  queue-stories-game .qs-outcome-actions button {
+    font-size: 0.75rem;
+  }
+  queue-stories-game .qs-action-evidence {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+  queue-stories-game .qs-action-evidence strong {
+    font-size: 0.8rem;
+  }
+  queue-stories-game .qs-ack-evidence {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding-block: 1rem;
+  }
+  queue-stories-game .qs-ack-evidence span {
+    margin-bottom: 0.25rem;
+  }
+  queue-stories-game .qs-repeat-evidence {
+    grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr);
+    gap: 0.6rem;
+  }
+  queue-stories-game .qs-repeat-evidence > p {
+    grid-column: 1/-1;
+    padding: 0;
+    font-size: 0.7rem;
+  }
+}
+/* The first lab exposes a fixed journey; detailed per-step controls live in lab 2. */
+queue-stories-game[data-level='1'] .qs-worker-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+queue-stories-game[data-level='1'] .qs-worker .qs-step {
+  position: relative;
+  border: 1px solid var(--color-rule);
+  border-top: 3px solid var(--color-rule);
+}
+queue-stories-game[data-level='1'] .qs-worker .qs-step.is-active {
+  border: 1px solid var(--color-ink);
+  border-top: 3px solid var(--color-accent);
+}
+queue-stories-game[data-level='1'] .qs-worker .qs-step.has-duplicate {
+  border: 1px dashed var(--color-ink);
+  border-top: 3px solid var(--color-ink);
+}
+queue-stories-game[data-level='1'] .qs-step-heading {
+  display: grid;
+  grid-template-columns: 1fr auto;
+}
+queue-stories-game[data-level='1'] .qs-step-heading > .qs-editable {
+  grid-column: 1/-1;
+  grid-row: 2;
+  min-height: 2.4em;
+}
+queue-stories-game[data-level='1'] .qs-step-heading > .qs-editable > strong {
+  line-height: 1.35;
+}
+queue-stories-game[data-level='1'] .qs-step-number {
+  border: 0;
+  padding: 0;
+  justify-self: start;
+  color: var(--color-text-soft);
+}
+queue-stories-game[data-level='1'] [data-step-icon] {
+  grid-column: 2;
+  grid-row: 1;
+}
+queue-stories-game[data-level='1'] .qs-step-contract {
+  font-size: 0.58rem;
+  line-height: 1.5;
+}
+queue-stories-game[data-level='1'] .qs-step:not(:last-child)::after {
+  content: '→';
+  position: absolute;
+  right: -0.5rem;
+  top: 2.5rem;
+  font-size: 0.6rem;
+  color: var(--color-text-soft);
+  z-index: 1;
+}
+@media (max-width: 1100px) and (min-width: 851px) {
+  queue-stories-game[data-level='1'] .qs-diagram {
+    grid-template-columns: 100px 16px minmax(0, 1fr);
+  }
+  queue-stories-game[data-level='1'] .qs-process {
+    grid-template-columns: minmax(0, 0.8fr) 16px minmax(0, 1.2fr);
+  }
+}
+queue-stories-game[data-level='1'] .qs-step.is-active .qs-step-state {
+  font-weight: 500;
+  color: var(--color-ink);
+}
+/* Components have distinct, consistent roles; color supplements the labels. */
+queue-stories-game {
+  --qs-api: #5278b0;
+  --qs-storage: #8b6caf;
+  --qs-compute: #b77d29;
+  --qs-fault: #c65a56;
+  --qs-ok: #537f66;
+}
+queue-stories-game .qs-api,
+queue-stories-game .qs-store,
+queue-stories-game .qs-worker {
+  position: relative;
+}
+queue-stories-game .qs-figure {
+  display: block;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+queue-stories-game .qs-figure-api {
+  color: var(--qs-api);
+}
+queue-stories-game .qs-figure-ram,
+queue-stories-game .qs-figure-db {
+  color: var(--qs-storage);
+}
+queue-stories-game .qs-figure-worker {
+  color: var(--qs-compute);
+}
+queue-stories-game .qs-api > .qs-figure {
+  width: 30px;
+  height: 30px;
+}
+queue-stories-game .qs-store > [data-store-figure],
+queue-stories-game .qs-worker > .qs-figure {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+queue-stories-game .qs-store > .qs-editable {
+  padding-right: 42px;
+}
+queue-stories-game .qs-worker > .qs-editable {
+  padding-right: 40px;
+}
+queue-stories-game .qs-store > [data-store-figure] {
+  transform: translateY(-5px);
+}
+queue-stories-game .qs-arrow {
+  position: relative;
+}
+queue-stories-game .qs-arrow::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  left: 50%;
+  top: 50%;
+  margin: -4px;
+  background: var(--qs-api);
+  border: 1px solid var(--color-paper);
+  opacity: 0;
+  pointer-events: none;
+}
+queue-stories-game .qs-job.is-done .qs-job-icon {
+  color: var(--qs-ok);
+}
+queue-stories-game .qs-job.is-lost .qs-job-icon,
+queue-stories-game .qs-job.is-failed .qs-job-icon {
+  color: var(--qs-fault);
+}
+queue-stories-game.is-worker-down .qs-worker > .qs-figure-worker,
+queue-stories-game.is-worker-down
+  .qs-worker-interior
+  > header
+  > .qs-figure-worker {
+  color: var(--qs-fault);
+}
+queue-stories-game .qs-led {
+  fill: currentColor;
+}
+
+/* All outcomes stay over the actual diagram. Recoverable incidents use a lighter scrim. */
+queue-stories-game .qs-outcome {
+  inset: 0;
+  margin: auto;
+  width: min(760px, calc(100vw - 2rem));
+  max-width: calc(100vw - 2rem);
+  height: fit-content;
+  max-height: calc(100dvh - 2rem);
+  border-radius: 14px;
+  box-shadow: 0 24px 100px rgb(0 0 0 / 0.22);
+}
+queue-stories-game .qs-outcome::backdrop {
+  background: rgb(10 10 10 / 0.8);
+  backdrop-filter: blur(3px);
+}
+queue-stories-game .qs-outcome-shell {
+  min-height: 0;
+  width: 100%;
+  padding: 1.25rem 1.75rem 1.5rem;
+}
+queue-stories-game .qs-outcome-content {
+  margin: 0;
+  padding: 1.5rem 0 0;
+}
+queue-stories-game .qs-outcome h2 {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+}
+queue-stories-game .qs-outcome[data-tone='incident'],
+queue-stories-game .qs-outcome[data-tone='story'] {
+  width: min(660px, calc(100vw - 2rem));
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+queue-stories-game .qs-outcome[data-tone='incident']::backdrop,
+queue-stories-game .qs-outcome[data-tone='story']::backdrop {
+  background: rgb(10 10 10 / 0.4);
+  backdrop-filter: blur(2px);
+  animation: none;
+}
+queue-stories-game .qs-call-shell {
+  padding: 1.25rem 1.5rem 1.5rem;
+}
+queue-stories-game .qs-call-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+queue-stories-game .qs-call-channel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font: 0.55rem/1.5 var(--font-family-mono);
+  letter-spacing: 0.04em;
+  color: var(--color-text-soft);
+}
+queue-stories-game .qs-call-channel i {
+  display: block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--qs-fault);
+}
+queue-stories-game .qs-call-top button {
+  border: 0;
+  padding: 0.25rem 0;
+  background: none;
+  font-size: 0.65rem;
+  color: var(--color-text-soft);
+}
+queue-stories-game .qs-call-top button:hover {
+  background: none;
+  color: var(--color-ink);
+  text-decoration: underline;
+}
+queue-stories-game .qs-call-heading {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+queue-stories-game .qs-call-heading > .qs-figure {
+  width: 50px;
+  height: 50px;
+  padding: 5px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--qs-fault) 10%, var(--color-paper));
+  color: var(--qs-fault);
+}
+queue-stories-game .qs-call-heading h2 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  letter-spacing: -0.04em;
+  max-width: none;
+  margin: 0 0 0.3rem;
+}
+queue-stories-game .qs-call-shell #qs-outcome-text {
+  font-size: 0.82rem;
+  line-height: 1.65;
+  margin: 0 0 1rem;
+}
+queue-stories-game .qs-call-evidence {
+  padding: 1rem;
+  border-radius: var(--radius-small);
+  background: var(--qs-wash);
+}
+queue-stories-game .qs-call-evidence .qs-action-evidence {
+  gap: 0.65rem;
+}
+queue-stories-game .qs-call-evidence .qs-action-evidence strong {
+  font-size: 0.75rem;
+}
+queue-stories-game .qs-call-evidence .qs-action-evidence small {
+  font-size: 0.55rem;
+}
+queue-stories-game .qs-call-evidence .qs-ack-evidence {
+  padding: 0;
+  border: 0;
+  gap: 0.75rem;
+}
+queue-stories-game .qs-call-evidence .qs-ack-evidence strong {
+  font-size: 0.75rem;
+}
+queue-stories-game .qs-call-evidence .qs-evidence-caption {
+  font-size: 0.55rem;
+  margin-bottom: 0;
+}
+queue-stories-game .qs-call-shell #qs-outcome-text p {
+  margin: 0 0 0.8rem;
+}
+@media (max-width: 700px) {
+  queue-stories-game .qs-outcome-shell,
+  queue-stories-game .qs-call-shell {
+    padding: 1rem 1.1rem 1.25rem;
+  }
+  queue-stories-game .qs-outcome-content {
+    margin: 0;
+    padding: 1.25rem 0 0;
+  }
+  queue-stories-game .qs-call-heading {
+    gap: 0.65rem;
+  }
+  queue-stories-game .qs-call-heading > .qs-figure {
+    width: 42px;
+    height: 42px;
+  }
+  queue-stories-game .qs-call-evidence {
+    padding: 0.75rem;
+  }
+}
+@media (max-width: 850px) {
+  queue-stories-game .qs-api > .qs-figure {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  queue-stories-game.is-playing .qs-arrow::after {
+    animation: qs-packet 0.65s ease-in-out infinite;
+  }
+  queue-stories-game.is-playing .qs-led {
+    animation: qs-led 1.3s ease-in-out infinite;
+  }
+  queue-stories-game.is-playing .qs-led:last-child {
+    animation-delay: 0.65s;
+  }
+
+  queue-stories-game .qs-outcome[open] .qs-call-shell {
+    animation: qs-call-in 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  @keyframes qs-packet {
+    0% {
+      transform: translateX(-11px);
+      opacity: 0;
+    }
+    25%,
+    75% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(11px);
+      opacity: 0;
+    }
+  }
+  @keyframes qs-led {
+    50% {
+      opacity: 0.2;
+    }
+  }
+  @keyframes qs-call-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+}
+
+/* A single compact transport follows the player, including on short screens. */
+queue-stories-game .qs-dock {
+  position: sticky;
+  bottom: 1rem;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: fit-content;
+  max-width: 100%;
+  margin: 1rem auto 0.4rem;
+  padding: 0.4rem 0.55rem 0.4rem 0.4rem;
+  border: 1px solid var(--color-rule);
+  border-radius: 14px;
+  background: var(--color-paper);
+  box-shadow: 0 5px 24px rgb(0 0 0 / 0.1);
+}
+queue-stories-game .qs-transport,
+queue-stories-game .qs-tools {
+  gap: 0.3rem;
+}
+queue-stories-game .qs-tools {
+  margin: 0;
+  padding-left: 0.6rem;
+  border-left: 1px solid var(--color-rule);
+}
+queue-stories-game .qs-dock [data-action='play'] {
+  min-width: 128px;
+  min-height: 40px;
+  padding: 0.5rem 0.75rem;
+  border-radius: 9px;
+  font-size: 0.78rem;
+}
+queue-stories-game .qs-dock .qs-dock-icon,
+queue-stories-game .qs-dock .qs-tools button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-width: 36px;
+  min-height: 38px;
+  padding: 0.4rem;
+  border: 0;
+  border-radius: 8px;
+  font-size: 0.65rem;
+  color: var(--color-text-soft);
+  text-decoration: none;
+}
+queue-stories-game .qs-dock .qs-dock-icon {
+  font-size: 1.1rem;
+}
+queue-stories-game .qs-dock .qs-tools button:hover,
+queue-stories-game .qs-dock .qs-dock-icon:hover {
+  background: var(--qs-wash);
+  text-decoration: none;
+}
+queue-stories-game .qs-tool-symbol {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  font-size: 0.8rem;
+}
+queue-stories-game .qs-tools [data-action='guide'] .qs-tool-symbol {
+  border: 1px solid var(--color-rule);
+  border-radius: 50%;
+  font-size: 0.6rem;
+}
+queue-stories-game .qs-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding-inline: 0.15rem;
+}
+queue-stories-game .qs-score {
+  padding: 0;
+  border: 0;
+  font: 0.55rem/1 var(--font-family-mono);
+}
+queue-stories-game .qs-progress-dots {
+  display: flex;
+  gap: 4px;
+}
+queue-stories-game .qs-progress-dots > span {
+  display: block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1px solid var(--color-text-muted);
+  background: var(--color-paper);
+}
+queue-stories-game .qs-progress-dots > .is-done {
+  background: var(--qs-ok);
+  border-color: var(--qs-ok);
+}
+queue-stories-game .qs-progress-dots > .is-working {
+  background: var(--qs-ok);
+  border-color: var(--qs-ok);
+}
+queue-stories-game .qs-progress-dots > .is-retrying {
+  background: var(--qs-compute);
+  border-color: var(--qs-compute);
+}
+queue-stories-game .qs-progress-dots > .is-lost,
+queue-stories-game .qs-progress-dots > .is-failed {
+  background: var(--qs-fault);
+  border-color: var(--qs-fault);
+}
+queue-stories-game.is-guided .qs-feedback {
+  display: none;
+}
+queue-stories-game .qs-choice-note {
+  color: var(--color-text-soft);
+}
+
+queue-stories-game .qs-ready-queue {
+  display: none;
+}
+queue-stories-game.is-personalizing .qs-ready-queue {
+  display: flex;
+}
+queue-stories-game .qs-job-strip {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+queue-stories-game .qs-worker-interior {
+  padding: 0.75rem;
+}
+queue-stories-game .qs-worker-interior > header {
+  margin-bottom: 0.5rem;
+}
+queue-stories-game .qs-worker-interior .qs-step {
+  padding: 0.55rem 0.65rem;
+}
+queue-stories-game .qs-worker-interior .qs-step-nature {
+  margin: 0.35rem 0;
+  font: 0.58rem/1.4 var(--font-family-mono);
+}
+queue-stories-game .qs-worker-interior .qs-step-options {
+  margin-top: 0.4rem;
+}
+queue-stories-game .qs-result-metrics {
+  justify-content: center;
+  gap: 0.8rem;
+  padding: 0.5rem 0;
+  font-size: 0.58rem;
+  color: var(--color-text-soft);
+}
+queue-stories-game .qs-result-metrics b {
+  font-size: 0.9rem;
+  color: var(--color-ink);
+}
+queue-stories-game .qs-achievements {
+  padding: 0.6rem 0.8rem;
+  margin: 0.6rem 0;
+  font-size: 0.7rem;
+}
+@media (max-width: 580px) {
+  queue-stories-game .qs-process {
+    grid-template-columns: 1fr;
+    padding: 2.5rem 0.65rem 0.65rem;
+  }
+  queue-stories-game .qs-process > .qs-arrow {
+    transform: rotate(90deg);
+  }
+  queue-stories-game .qs-worker-interior .qs-worker-steps {
+    grid-template-columns: 1fr;
+  }
+  queue-stories-game .qs-worker-interior > header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  queue-stories-game .qs-worker-interior > header .qs-active-job {
+    width: 100%;
+    margin: 0.1rem 0 0.3rem;
+  }
+  queue-stories-game .qs-job-strip {
+    gap: 0.3rem;
+  }
+  queue-stories-game .qs-job-strip .qs-job {
+    flex-wrap: wrap;
+    gap: 0.2rem;
+    padding: 0.35rem;
+  }
+  queue-stories-game .qs-job-strip .qs-editable > strong {
+    font-size: 0.65rem;
+  }
+  queue-stories-game .qs-job-strip small {
+    font-size: 0.5rem;
+  }
+  queue-stories-game .qs-job-strip .qs-job-icon {
+    font-size: 0.8rem;
+  }
+  queue-stories-game .qs-dock {
+    gap: 0.4rem;
+    bottom: 0.65rem;
+    padding: 0.3rem;
+    max-width: calc(100vw - 1rem);
+  }
+  queue-stories-game .qs-dock [data-action='play'] {
+    min-width: 128px;
+    font-size: 0.72rem;
+    padding: 0.5rem;
+  }
+  queue-stories-game .qs-tool-label {
+    display: none;
+  }
+  queue-stories-game .qs-tools {
+    padding-left: 0.35rem;
+  }
+  queue-stories-game .qs-dock .qs-tools button,
+  queue-stories-game .qs-dock .qs-dock-icon {
+    min-width: 34px;
+  }
+  queue-stories-game.is-personalizing .qs-extra-names {
+    flex-direction: column;
+    width: 100%;
+  }
+  queue-stories-game [data-achievements] {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Decisions look editable; live work uses green with labels and symbols. */
+queue-stories-game .qs-node-setting {
+  border: 1px solid color-mix(in srgb, var(--qs-storage) 48%, var(--color-rule));
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--qs-storage) 7%, var(--color-paper));
+  cursor: pointer;
+}
+queue-stories-game .qs-setting-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+queue-stories-game .qs-setting-title small {
+  font-size: 0.55rem;
+  font-weight: 400;
+  color: var(--color-text-soft);
+}
+queue-stories-game .qs-node-setting select {
+  border-color: color-mix(in srgb, var(--qs-storage) 65%, var(--color-rule));
+  border-radius: 6px;
+  background: var(--color-paper);
+  min-height: 34px;
+}
+queue-stories-game .qs-node-setting:hover,
+queue-stories-game .qs-node-setting:focus-within {
+  border-color: var(--qs-storage);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--qs-storage) 12%, transparent);
+}
+queue-stories-game .qs-job.is-working {
+  background: color-mix(in srgb, var(--qs-ok) 12%, var(--color-paper));
+  border-color: var(--qs-ok);
+  outline-color: var(--qs-ok);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--qs-ok) 18%, transparent);
+}
+queue-stories-game .qs-job.is-working [data-display-label] {
+  text-decoration: underline;
+  text-decoration-color: var(--qs-ok);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+queue-stories-game .qs-job.is-working .qs-job-icon {
+  color: var(--qs-ok);
+}
+queue-stories-game .qs-step.is-active,
+queue-stories-game[data-level='1'] .qs-worker .qs-step.is-active {
+  border-color: var(--qs-ok);
+  background: color-mix(in srgb, var(--qs-ok) 10%, var(--color-paper));
+  box-shadow: inset 0 0 0 1px var(--qs-ok);
+}
+queue-stories-game[data-level='1'] .qs-worker .qs-step.is-active {
+  border-top-color: var(--qs-ok);
+}
+queue-stories-game .qs-step.is-active [data-display-label] {
+  text-decoration: underline;
+  text-decoration-color: var(--qs-ok);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+queue-stories-game .qs-step.is-active .qs-step-state {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+queue-stories-game .qs-active-job.is-executing {
+  border-color: var(--qs-ok);
+  background: color-mix(in srgb, var(--qs-ok) 12%, var(--color-paper));
+  box-shadow: inset 3px 0 var(--qs-ok);
+}
+queue-stories-game .qs-worker-interior > header {
+  justify-content: flex-start;
+}
+queue-stories-game .qs-worker-interior > header > div:first-of-type {
+  margin-right: auto;
+}
+queue-stories-game .qs-worker-interior > header > .qs-figure {
+  width: 32px;
+  height: 32px;
+}
+queue-stories-game .qs-worker-interior > header .qs-active-job {
+  font-size: 0.65rem;
+  max-width: 45%;
+}
+queue-stories-game .qs-worker-interior .qs-step-options {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+queue-stories-game .qs-worker-interior .qs-step-options details {
+  margin-top: 0;
+}
+queue-stories-game .qs-worker-interior .qs-step-options details[open] {
+  flex-basis: 100%;
+}
+@media (max-width: 580px) {
+  queue-stories-game .qs-worker-interior > header .qs-active-job {
+    max-width: 100%;
+  }
+}
+
+queue-stories-game .qs-call-heading > .qs-figure-phone {
+  color: var(--qs-api);
+  background: color-mix(in srgb, var(--qs-api) 10%, var(--color-paper));
+}
+queue-stories-game .qs-phone-conversation p {
+  font-size: 0.82rem;
+  line-height: 1.65;
+}
+queue-stories-game .qs-phone-conversation .qs-phone-aside {
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--qs-api);
+  color: var(--color-text-soft);
+}
+
+queue-stories-game .qs-fatal-caller {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  color: var(--qs-scene-soft);
+  font: 0.5rem/1.4 var(--font-family-mono);
+  letter-spacing: 0.04em;
+}
+queue-stories-game .qs-fatal-caller > .qs-figure {
+  width: 23px;
+  height: 23px;
+  color: var(--qs-scene-soft);
+}
+queue-stories-game .qs-outcome .qs-fatal-caller + #qs-outcome-text {
+  margin-top: 0.5rem;
+}
+
+/* Shared geometry keeps the system stable when entering or leaving the walkthrough. */
+queue-stories-game .qs-stage,
+queue-stories-game .qs-system {
+  min-width: 0;
+}
+queue-stories-game .qs-diagram {
+  margin-block: 0.75rem 0.5rem;
+}
+queue-stories-game .qs-process {
+  padding-top: 1.75rem;
+  border-width: 1px;
+}
+queue-stories-game .qs-boundary {
+  font-size: 0.6rem;
+  top: 0.45rem;
+}
+queue-stories-game .qs-node-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 36px;
+}
+queue-stories-game .qs-node-heading > div {
+  min-width: 0;
+  flex: 1;
+}
+queue-stories-game .qs-node-heading .qs-figure {
+  width: 29px;
+  height: 29px;
+}
+queue-stories-game .qs-node-heading .qs-editable > strong {
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+queue-stories-game .qs-node-heading .qs-eyebrow {
+  display: block;
+  font-size: 0.55rem;
+  margin-bottom: 0.15rem;
+}
+queue-stories-game .qs-node-setting {
+  padding: 0.35rem 0.45rem;
+  gap: 0.25rem;
+  margin: 0.5rem 0 0.2rem;
+}
+queue-stories-game .qs-setting-title {
+  font-size: 0.72rem;
+}
+queue-stories-game .qs-choice-note {
+  min-height: 0;
+  font: 0.65rem/1.4 var(--font-family-body);
+  margin: 0.2rem 0 0.5rem;
+  max-width: none;
+}
+queue-stories-game .qs-array {
+  border: 1px solid var(--color-rule);
+  border-top: 3px solid var(--qs-storage);
+  border-radius: 5px;
+  padding: 0.3rem;
+  gap: 0.25rem;
+}
+queue-stories-game .qs-array .qs-job {
+  padding: 0.35rem;
+  border-color: transparent;
+}
+queue-stories-game .qs-job > button {
+  min-width: 26px;
+  min-height: 26px;
+  border-radius: 4px;
+}
+queue-stories-game .qs-active-job {
+  padding: 0.35rem 0.45rem;
+  margin: 0.4rem 0;
+  font-size: 0.72rem;
+  border-color: var(--color-rule);
+  border-radius: 5px;
+  min-height: 30px;
+}
+queue-stories-game[data-level='1'] .qs-worker .qs-step {
+  padding: 0.4rem;
+  border-top-width: 2px;
+  border-radius: 5px;
+}
+queue-stories-game[data-level='1'] .qs-step-heading {
+  gap: 0.25rem;
+}
+queue-stories-game[data-level='1'] .qs-step-heading > .qs-editable > strong {
+  font-size: 0.78rem;
+}
+queue-stories-game[data-level='1'] .qs-step-contract {
+  font: 0.65rem/1.4 var(--font-family-body);
+  margin: 0.35rem 0;
+  min-height: 2.8em;
+}
+queue-stories-game[data-level='1'] .qs-step-state {
+  font-size: 0.63rem;
+}
+queue-stories-game .qs-worker-interior .qs-step {
+  border-radius: 5px;
+}
+queue-stories-game .qs-worker-interior > header .qs-active-job {
+  margin: 0;
+}
+/* One explanation and one next action, following the full-width diagram. */
+queue-stories-game .qs-tutorial:empty {
+  display: none;
+}
+queue-stories-game .qs-tutorial:not(:empty) {
+  display: block;
+  padding: 0.7rem 0.9rem;
+  margin: 0.7rem 0 0;
+  border: 0;
+  border-left: 3px solid var(--qs-api);
+  border-radius: 0 8px 8px 0;
+  background: color-mix(in srgb, var(--qs-api) 5%, var(--color-paper));
+  scroll-margin-block: 100px 80px;
+}
+queue-stories-game .qs-guide-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.3rem;
+  font: 0.6rem/1.4 var(--font-family-mono);
+  color: var(--color-text-soft);
+}
+queue-stories-game .qs-guide-chapter {
+  margin-left: 0.5rem;
+  color: var(--color-ink);
+}
+queue-stories-game .qs-guide-header [data-action='guide-close'] {
+  min-height: 28px;
+  padding: 0.2rem 0;
+  font: 0.7rem/1.3 var(--font-family-body);
+  text-decoration: none;
+}
+queue-stories-game .qs-guide-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(220px, 1fr);
+  align-items: start;
+  gap: 1.5rem;
+}
+queue-stories-game .qs-guide-story h2 {
+  font-size: 1rem;
+  line-height: 1.25;
+  margin: 0 0 0.25rem;
+}
+queue-stories-game .qs-guide-story p {
+  font: 0.82rem/1.5 var(--font-family-body);
+  margin: 0;
+  max-width: 80ch;
+}
+queue-stories-game .qs-guide-next {
+  padding-left: 1rem;
+  border-left: 1px solid var(--color-rule);
+}
+queue-stories-game .qs-guide-next .qs-eyebrow {
+  font-size: 0.55rem;
+  font-weight: 500;
+  color: var(--qs-api);
+}
+queue-stories-game .qs-guide-next p {
+  font: 0.8rem/1.45 var(--font-family-body);
+  margin: 0.2rem 0 0;
+}
+queue-stories-game .qs-guide-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.8rem;
+  margin-top: 0.35rem;
+}
+queue-stories-game .qs-guide-actions button {
+  border: 0;
+  padding: 0.25rem 0;
+  min-height: 28px;
+  font: 0.72rem/1.4 var(--font-family-display);
+  color: var(--color-ink);
+  background: none;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  scroll-margin-block: 110px 100px;
+}
+queue-stories-game .qs-guide-actions button:hover {
+  background: none;
+  color: var(--qs-api);
+}
+queue-stories-game .qs-node-setting:has([data-guide-focus]) {
+  border-color: var(--qs-api);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--qs-api) 15%, transparent);
+}
+queue-stories-game .qs-step-options > label:has([data-guide-focus]) {
+  background: color-mix(in srgb, var(--qs-api) 12%, var(--color-paper));
+  outline: 2px solid var(--qs-api);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+queue-stories-game .qs-node-setting,
+queue-stories-game .qs-step-options > label {
+  scroll-margin-block: 110px 90px;
+}
+queue-stories-game.is-guided .qs-result-metrics,
+queue-stories-game.is-guided .qs-achievements,
+queue-stories-game.is-guided .qs-step-options details {
+  display: none;
+}
+queue-stories-game.is-guided .qs-dock {
+  margin-top: 0.6rem;
+}
+queue-stories-game.is-worker-down .qs-node-heading > .qs-figure-worker {
+  color: var(--qs-fault);
+}
+@media (max-width: 700px) {
+  queue-stories-game .qs-guide-body {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+  queue-stories-game .qs-guide-next {
+    padding: 0.65rem 0 0;
+    border: 0;
+    border-top: 1px solid var(--color-rule);
+  }
+  queue-stories-game .qs-tutorial:not(:empty) {
+    padding: 0.7rem 0.75rem;
+  }
+  queue-stories-game .qs-guide-header {
+    font-size: 0.55rem;
+  }
+  queue-stories-game .qs-guide-header [data-action='guide-close'] {
+    font-size: 0.65rem;
+  }
+}
+
+/* Naming belongs to the component, outside the simulation transport. */
+queue-stories-game .qs-api-stack {
+  min-width: 0;
+  align-self: center;
+}
+queue-stories-game .qs-edit-controls {
+  display: flex;
+  justify-content: flex-start;
+  margin: 0 0 0.35rem;
+}
+queue-stories-game .qs-edit-controls .qs-rename-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 0;
+  padding: 0.2rem 0;
+  min-height: 30px;
+  font: 0.7rem/1.3 var(--font-family-display);
+  background: none;
+  color: var(--color-text-soft);
+}
+queue-stories-game .qs-edit-controls .qs-rename-button:hover {
+  color: var(--color-ink);
+  background: none;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+queue-stories-game .qs-payments-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+queue-stories-game .qs-payments-header .qs-job-strip {
+  flex: 1;
+  min-width: 0;
+}
+queue-stories-game .qs-payments-header .qs-edit-controls {
+  margin: 0;
+  flex-shrink: 0;
+}
+@media (max-width: 580px) {
+  queue-stories-game .qs-payments-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0;
+  }
+  queue-stories-game .qs-payments-header .qs-edit-controls {
+    order: -1;
+    align-self: flex-end;
+  }
+  queue-stories-game .qs-payments-header .qs-job-strip {
+    width: 100%;
+  }
+}

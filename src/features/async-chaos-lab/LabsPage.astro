@@ -1,0 +1,93 @@
+---
+import type { Locale } from '@/i18n/locale';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { labsPath, labPath } from './links';
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const es = locale === 'es';
+const title = es ? 'Laboratorios' : 'Labs';
+const description = es
+  ? 'Construye, experimenta y descubre cómo se comporta tu sistema.'
+  : 'Build, experiment and discover how your system behaves.';
+---
+
+<BaseLayout
+  locale={locale}
+  title={`${title} · nicovegasr`}
+  description={description}
+  alternatePaths={{ es: labsPath('es'), en: labsPath('en') }}
+>
+  <header class="labs-heading">
+    <p class="label">ASYNC CHAOS LAB</p><h1>{title}</h1><p class="lead">
+      {description}
+    </p><p class="labs-note">
+      {
+        es
+          ? 'Simulaciones interactivas. Sin registro ni instalaciones.'
+          : 'Interactive simulations. No signup or installation.'
+      }
+    </p>
+  </header>
+  <a class="featured-lab" href={labPath(locale)}
+    ><span class="label"
+      >{
+        es
+          ? 'DOS EXPERIMENTOS · TUTORIAL INTERACTIVO'
+          : 'TWO EXPERIMENTS · INTERACTIVE TUTORIAL'
+      }</span
+    ><h2>Async Chaos Lab →</h2><p>
+      {
+        es
+          ? 'Tres pagos para poner tu sistema a prueba. Pon tus nombres a la entrada, el almacenamiento y el worker. Después entra en sus pasos para evitar efectos repetidos.'
+          : 'Three payments to put your system to the test. Name the intake, storage and worker. Then go inside its steps to avoid repeated effects.'
+      }
+    </p><b>{es ? 'Abrir el simulador' : 'Open the simulator'}</b></a
+  >
+</BaseLayout>
+<style>
+  .featured-lab {
+    display: block;
+    text-decoration: none;
+    border: 2px solid var(--color-ink);
+    box-shadow: 5px 5px 0 var(--color-ink);
+    padding: var(--space-6);
+    margin-bottom: var(--space-8);
+  }
+  .featured-lab h2 {
+    font-size: var(--font-size-heading-1);
+    margin-block: var(--space-2);
+  }
+  .featured-lab p {
+    max-width: 65ch;
+    font-size: var(--font-size-small);
+  }
+  .featured-lab b {
+    display: inline-block;
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+    padding: var(--space-2) var(--space-3);
+    margin-top: var(--space-4);
+  }
+  .labs-heading {
+    margin-bottom: var(--space-8);
+  }
+  .labs-heading h1 {
+    margin: var(--space-3) 0;
+    font-size: var(--font-size-display);
+    letter-spacing: -0.05em;
+  }
+  .labs-heading .lead {
+    max-width: 44ch;
+  }
+  .labs-note {
+    font-size: var(--font-size-small);
+    color: var(--color-text-soft);
+  }
+  @media (max-width: 540px) {
+    .labs-heading h1 {
+      font-size: 2.8rem;
+    }
+  }
+</style>

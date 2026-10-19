@@ -1,0 +1,140 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import type { Locale } from '@/i18n/locale';
+import { labsPath, labPath } from './links';
+import './stories.css';
+interface Props {
+  locale: Locale;
+  level: 1 | 2;
+}
+const { locale, level } = Astro.props;
+const es = locale === 'es';
+const title =
+  level === 1
+    ? es
+      ? 'Protege tus pagos.'
+      : 'Protect your payments.'
+    : es
+      ? 'Un pago. Cuatro pasos.'
+      : 'One payment. Four steps.';
+---
+
+<BaseLayout
+  locale={locale}
+  title={`${title} · Async Chaos Lab`}
+  description={es
+    ? 'Ponle tus nombres al sistema, ejecuta tres pagos y observa las consecuencias de cada decisión.'
+    : 'Name your system, run three payments and see the consequences of each decision.'}
+  alternatePaths={{ es: labPath('es', level), en: labPath('en', level) }}
+>
+  <header class="qs-heading">
+    <div>
+      <p class="qs-breadcrumb">
+        <a href={labsPath(locale)}>← {es ? 'Laboratorios' : 'Labs'}</a><span
+          aria-hidden="true">/</span
+        >Async Chaos Lab
+      </p><h1>{title}</h1>
+    </div>
+    <nav class="qs-levels" aria-label={es ? 'Laboratorios' : 'Labs'}>
+      <a
+        href={labPath(locale, 1)}
+        aria-current={level === 1 ? 'page' : undefined}
+        ><span>01</span>{es ? 'La cola' : 'The queue'}</a
+      ><a
+        href={labPath(locale, 2)}
+        aria-current={level === 2 ? 'page' : undefined}
+        ><span>02</span>{es ? 'El worker' : 'The worker'}</a>
+    </nav>
+  </header>
+  <queue-stories-game data-level={level} data-locale={locale}
+  ></queue-stories-game>
+  <noscript
+    >{
+      es
+        ? 'Activa JavaScript para probar la simulación.'
+        : 'Enable JavaScript to try the simulation.'
+    }</noscript
+  >
+</BaseLayout>
+<script>
+  import './controller';
+</script>
+<style>
+  .qs-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0 0 0.8rem;
+  }
+  .qs-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font: 0.6rem/1.4 var(--font-family-mono);
+    color: var(--color-text-soft);
+    margin: 0 0 0.55rem;
+  }
+  .qs-breadcrumb a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .qs-breadcrumb a:hover {
+    color: var(--color-ink);
+  }
+  .qs-breadcrumb > span {
+    opacity: 0.4;
+  }
+  .qs-heading h1 {
+    font: 500 clamp(1.65rem, 3vw, 2rem)/1.1 var(--font-family-display);
+    letter-spacing: -0.05em;
+    margin: 0;
+  }
+  .qs-levels {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.2rem;
+    background: var(--color-paper);
+    border: 1px solid var(--color-rule);
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+  .qs-levels a {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font: 500 0.7rem/1.4 var(--font-family-display);
+    padding: 0.45rem 0.65rem;
+    border-radius: 7px;
+    text-decoration: none;
+    color: var(--color-text-soft);
+    white-space: nowrap;
+  }
+  .qs-levels a > span {
+    font: 0.55rem/1 var(--font-family-mono);
+    opacity: 0.7;
+  }
+  .qs-levels a:hover {
+    color: var(--color-ink);
+  }
+  .qs-levels a[aria-current='page'] {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+  @media (max-width: 580px) {
+    .qs-heading {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+    .qs-heading h1 {
+      font-size: 1.65rem;
+    }
+    .qs-levels {
+      align-self: flex-start;
+    }
+    .qs-breadcrumb {
+      font-size: 0.55rem;
+    }
+  }
+</style>
