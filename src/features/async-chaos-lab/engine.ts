@@ -61,7 +61,7 @@ export type Incident =
   | 'worker-retry'
   | 'ack-retry'
   | 'activation-failed'
-  | 'email-failed'
+  | 'email-uncertain'
   | 'effect-uncertain'
   | 'duplicate';
 export type SimulationState = {
@@ -203,7 +203,7 @@ export function advance(previous: SimulationState): SimulationState {
       } else pauseForIncident(state, 'worker-retry');
       return state;
     }
-    // Lab 2 failures happen before activation/email takes effect, once per run.
+    // Payment #2 crashes before activation takes effect, once per run.
     if (
       config.level === 2 &&
       job.id === 2 &&
@@ -213,17 +213,6 @@ export function advance(previous: SimulationState): SimulationState {
       stepProgress.executions++;
       recordEvent(state, 'worker-crash');
       pauseForIncident(state, 'activation-failed');
-      return state;
-    }
-    if (
-      config.level === 2 &&
-      job.id === 3 &&
-      state.step === 3 &&
-      injectFaultOnce(state, 'email-3')
-    ) {
-      stepProgress.executions++;
-      recordEvent(state, 'worker-crash');
-      pauseForIncident(state, 'email-failed');
       return state;
     }
     if (
@@ -280,6 +269,18 @@ export function advance(previous: SimulationState): SimulationState {
     ) {
       recordEvent(state, 'gap');
       pauseForIncident(state, 'effect-uncertain');
+      return state;
+    }
+    // Payment #3: the email was accepted, but the worker dies before saving
+    // its checkpoint. On retry, only receiver-side deduplication can help.
+    if (
+      config.level === 2 &&
+      job.id === 3 &&
+      state.step === 3 &&
+      injectFaultOnce(state, 'email-3')
+    ) {
+      recordEvent(state, 'worker-crash');
+      pauseForIncident(state, 'email-uncertain');
       return state;
     }
     // Only a configured checkpoint writes progress; an unchecked action leaves no marker.

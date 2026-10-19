@@ -612,7 +612,14 @@ class QueueStories extends HTMLElement {
       this.closeOutcome();
       if (this.level === 1)
         this.guide = this.state.phase === 'lost' ? 'storage' : 'identity';
-      else this.guide = this.state.phase === 'won' ? 'optimize' : 'charge';
+      else if (this.state.phase === 'won') this.guide = 'optimize';
+      else if (
+        this.state.phase === 'duplicate' &&
+        this.state.step === this.config.steps.length - 1 &&
+        isExternal(this.config.steps[this.state.step]?.kind ?? 'check')
+      )
+        this.guide = 'email';
+      else this.guide = 'charge';
     }
     this.update();
     if (action === 'lesson') {
@@ -869,18 +876,23 @@ class QueueStories extends HTMLElement {
                 `“${previous}” finished, but the worker crashed before “${step}” for “${j}”. You have a partial result. What already happened still exists.`,
               ),
         ];
-      if (s.incident === 'email-failed')
+      if (s.incident === 'email-uncertain')
         return [
           this.customSteps()
-            ? this.t('Solo falta una acción.', 'Only one action remains.')
+            ? this.t('La acción pudo completarse.', 'The action may have completed.')
             : this.t(
-                'El cliente pagó. No recibió confirmación.',
-                'The customer paid. No confirmation arrived.',
+                'El email pudo salir. Su avance no quedó guardado.',
+                'The email may have gone out. Its progress was not saved.',
               ),
-          this.t(
-            `«${j}» completó los tres primeros pasos. El worker cayó antes de «${step}». Solo falta ese paso: volver al principio puede repetir trabajo ya resuelto.`,
-            `“${j}” completed the first three steps. The worker crashed before “${step}”. Only that step remains: starting over can repeat successful work.`,
-          ),
+          this.customSteps()
+            ? this.t(
+                `El worker cayó después de «${step}» para «${j}», antes de guardar el resultado. Si la acción ya ocurrió, repetirla puede duplicarla.`,
+                `The worker crashed after “${step}” for “${j}”, before saving the result. If the action already happened, retrying can duplicate it.`,
+              )
+            : this.t(
+                `«${j}» ya recibió el email, pero el worker cayó antes de guardar que lo había enviado. Si lo repites sin que el proveedor reconozca un ID estable, puede llegarle dos veces.`,
+                `“${j}” already received the email, but the worker crashed before saving that it sent it. If you retry without receiver support for a stable ID, it may arrive twice.`,
+              ),
         ];
       return [
         this.t(
@@ -959,6 +971,8 @@ class QueueStories extends HTMLElement {
       api: this.name('api'),
       job: this.job(Math.max(0, this.state.active)),
       chargeStep: this.step(1),
+      lastStep: this.step(this.config.steps.length - 1),
+      steps: this.config.steps.map((_, index) => this.step(index)),
     });
     const targets = {
       storage: '[data-setting=storage]',
@@ -967,8 +981,12 @@ class QueueStories extends HTMLElement {
       steps: '[data-setting^="remember-"]:not(:checked)',
     };
     if (beat.target) {
-      this.guideTarget = targets[beat.target];
+      this.guideTarget =
+        beat.target === 'provider'
+          ? `[data-setting="provider-${this.guide === 'email' ? this.config.steps.length - 1 : this.state.step}"]`
+          : targets[beat.target];
       const node = this.querySelector<HTMLElement>(this.guideTarget);
+      node?.closest('details')?.setAttribute('open', '');
       node?.setAttribute('data-guide-focus', 'true');
       node?.setAttribute('aria-describedby', 'qs-guide-task');
     }
@@ -1176,15 +1194,15 @@ class QueueStories extends HTMLElement {
           `The customer for ${job} just wrote: “You charged me, but I cannot get in.” Can you finish activating their account? And watch out for charging them again.`,
         ),
       };
-    if (!this.customSteps() && s.incident === 'email-failed')
+    if (!this.customSteps() && s.incident === 'email-uncertain')
       return {
         title: this.t(
-          'Falta el email de confirmación.',
-          'The confirmation email is missing.',
+          'El email salió, pero no sabemos si repetirlo.',
+          'The email was sent, but we do not know whether to retry it.',
         ),
         report: this.t(
-          `Otro cliente, esta vez por ${job}: la cuenta funciona, pero sigue esperando el email con la confirmación del pago. Parece que solo nos falta enviárselo.`,
-          `Another customer, this time for ${job}: their account works, but they are still waiting for the payment confirmation email. It looks like we only need to send it.`,
+          `Otro problema con ${job}: el proveedor aceptó el email, pero el worker cayó antes de guardar el envío. Si lo mandamos otra vez, puede recibir dos confirmaciones.`,
+          `Another issue with ${job}: the provider accepted the email, but the worker crashed before saving the send. If we send it again, the customer may receive two confirmations.`,
         ),
       };
     return {

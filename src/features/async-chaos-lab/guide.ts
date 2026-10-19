@@ -1,3 +1,4 @@
+import { isExternal } from './engine';
 import type { SimulationState } from './engine';
 
 export type GuideStage =
@@ -9,9 +10,16 @@ export type GuideStage =
   | 'safe'
   | 'partial'
   | 'charge'
+  | 'email'
   | 'optimize'
   | 'efficient';
-export type GuideTarget = 'storage' | 'identity' | 'charge' | 'steps' | null;
+export type GuideTarget =
+  | 'storage'
+  | 'identity'
+  | 'charge'
+  | 'provider'
+  | 'steps'
+  | null;
 type Context = {
   level: 1 | 2;
   es: boolean;
@@ -22,6 +30,8 @@ type Context = {
   worker: string;
   job: string;
   chargeStep: string;
+  lastStep: string;
+  steps: string[];
 };
 export type GuideBeat = {
   chapter: number;
@@ -204,7 +214,15 @@ export function guideBeat(c: Context): GuideBeat {
     return beat(
       4,
       t('Los tres pagos terminaron.', 'All three payments finished.'),
-      s.wasted
+      s.events.some(
+        (event) =>
+          event.kind === 'provider-dedup' && event.job === 3 && event.step === 3,
+      )
+        ? t(
+            'El proveedor reconoció el mismo ID y evitó volver a enviar el email. Guardar avances locales no bastaba para esa caída.',
+            'The provider recognized the same ID and avoided sending the email again. Saving local progress was not enough for that crash.',
+          )
+        : s.wasted
         ? t(
             'El cobro no se duplicó. Algunas acciones seguras se repitieron: puedes comparar si compensa guardar también su avance.',
             'The charge was not duplicated. Some safe actions ran again: compare whether saving their progress is worthwhile.',
@@ -221,20 +239,62 @@ export function guideBeat(c: Context): GuideBeat {
   if (s.phase === 'incident')
     return beat(
       stage === 'partial' ? 1 : 3,
-      s.incident === 'email-failed'
+      s.incident === 'email-uncertain'
         ? t(
-            'Solo falta avisar al cliente.',
-            'Only the customer notification remains.',
+            'El email salió, pero no sabemos si volverá a salir.',
+            'The email was sent, but we do not know if it will be sent again.',
           )
         : t('Cobrado. Todavía sin activar.', 'Charged. Still inactive.'),
       t(
-        `${c.job} quedó a medias. Los pasos con ✓ ya terminaron; reiniciar el worker no deshace esos resultados.`,
-        `${c.job} stopped halfway. Steps marked ✓ finished; restarting the worker does not undo those results.`,
+        s.incident === 'email-uncertain'
+          ? `${c.job}: el proveedor aceptó el email y el worker cayó antes de guardar ese avance. Si lo repites, el cliente podría recibirlo dos veces.`
+          : `${c.job} quedó a medias. Los pasos con ✓ ya terminaron; reiniciar el worker no deshace esos resultados.`,
+        s.incident === 'email-uncertain'
+          ? `${c.job}: the provider accepted the email and the worker crashed before saving that progress. Retrying may send it twice.`
+          : `${c.job} stopped halfway. Steps marked ✓ finished; restarting the worker does not undo those results.`,
       ),
       t(
         'Pulsa «Reprocesar pago» y observa qué se ejecuta otra vez.',
         'Press “Reprocess payment” and watch what runs again.',
       ),
+    );
+  if (stage === 'email')
+    return beat(
+      3,
+      t('El worker no sabe si el email salió.', 'The worker cannot tell whether the email was sent.'),
+      t(
+        `«${c.lastStep}» ya produjo el efecto, pero el worker cayó antes de guardar su marca. Si repite la acción, puede duplicar el email.`,
+        `“${c.lastStep}” already produced the effect, but the worker crashed before saving its marker. Repeating the action can send a duplicate email.`,
+      ),
+      s.config.steps[3]?.providerDeduplication
+        ? t(
+            'El proveedor reconoce el mismo ID. Inicia otro ensayo para comprobar que solo registra un envío.',
+            'The provider recognizes the same ID. Start another trial to check that it records only one send.',
+          )
+        : t(
+            `En «Opciones del paso» de «${c.lastStep}», activa que el proveedor reconozca el mismo ID.`,
+            `Under “Step options” for “${c.lastStep}”, enable receiver support for the same ID.`,
+          ),
+      s.config.steps[3]?.providerDeduplication ? null : 'provider',
+    );
+  if (s.phase === 'duplicate')
+    return beat(
+      3,
+      t('El reintento duplicó un efecto.', 'The retry duplicated an effect.'),
+      t(
+        `«${c.steps[s.step] ?? c.lastStep}» ya había producido un efecto para ${c.job}. El worker cayó antes de guardar el avance y al volver a intentarlo lo produjo otra vez.`,
+        `“${c.steps[s.step] ?? c.lastStep}” had already produced an effect for ${c.job}. The worker crashed before saving progress, so the retry produced it again.`,
+      ),
+      isExternal(s.config.steps[s.step]?.kind ?? 'check')
+        ? t(
+            `Activa la deduplicación del proveedor para «${c.steps[s.step] ?? c.lastStep}» y repite el ensayo.`,
+            `Enable receiver deduplication for “${c.steps[s.step] ?? c.lastStep}” and run the trial again.`,
+          )
+        : t(
+            'Cambia cómo se protege este efecto antes de repetir el ensayo.',
+            'Change how this effect is protected before running the trial again.',
+          ),
+      isExternal(s.config.steps[s.step]?.kind ?? 'check') ? 'provider' : null,
     );
   if (stage === 'charge')
     return beat(
@@ -249,19 +309,6 @@ export function guideBeat(c: Context): GuideBeat {
         `Enable “Remember by ID” in “${c.chargeStep}”.`,
       ),
       'charge',
-    );
-  if (s.phase === 'duplicate')
-    return beat(
-      2,
-      t('Reintentar repitió una acción.', 'Retrying repeated an action.'),
-      t(
-        `${c.job} volvió a pasar por «${c.chargeStep}». La primera vez ya había producido su resultado.`,
-        `${c.job} went through “${c.chargeStep}” again. The first attempt had already produced its result.`,
-      ),
-      t(
-        'Cambia qué debe recordar el siguiente intento.',
-        'Change what the next attempt should remember.',
-      ),
     );
   if (stage === 'optimize')
     return beat(

@@ -32,7 +32,8 @@ action runs the current setup. Its secondary choice starts the guided walkthroug
 directly. Finishing that walkthrough preserves its results and protections.
 
 Incident calls describe what the customer notices: a missing payment record,
-a paid but inactive subscription, a missing confirmation or a duplicate charge.
+a paid but inactive subscription, an uncertain confirmation that may be sent twice,
+or a duplicate charge.
 They do not sound like internal incident reports. Technical causes live on the
 diagram and in the guide. Customized action types use generic outcome language;
 a duplicated local record never implies another real charge.

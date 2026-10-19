@@ -98,8 +98,9 @@ the explicit retry action. HTTP 202 does not imply completion or durability.
 
 Durable job storage and recovery are assumed. The default actions are validation,
 a simulated Stripe charge, setting a local subscription active, and sending a
-simulated confirmation. Payment #2 fails before activation takes effect; #3 fails
-before confirmation takes effect. Every scripted fault occurs once per run.
+simulated confirmation. Payment #2 fails before activation takes effect; #3 sends
+the confirmation, then the worker crashes before saving its checkpoint. Every
+scripted fault occurs once per run.
 
 Each action can be renamed and assigned one of five behaviors:
 
@@ -113,10 +114,13 @@ Each action can be renamed and assigned one of five behaviors:
 
 Remember by ID writes a durable checkpoint after the action succeeds. Later
 attempts skip that job/step when its checkpoint exists. Remembering the charge
-allows the default scenario to finish safely; remembering additional repeatable
-actions trades extra stored state for less repeated work. With all four remembered,
-five previous successful actions are skipped and 14 action attempts occur,
-including the two interrupted attempts. Failed actions are still executed again.
+prevents the earlier charge from being repeated; the final email still becomes
+uncertain if the worker crashes before its checkpoint. Only a receiver that
+recognizes the same stable notification ID can make that retry safe. Remembering
+additional repeatable actions trades extra stored state for less repeated work.
+With all four remembered and provider deduplication enabled for the email, five
+previous successful actions are skipped and 14 action attempts occur, including
+the two interrupted attempts. Failed actions are still executed again.
 
 No external effects does not imply idempotency: a local append can duplicate.
 Conversely, pure checks and setting the same local value do not need provider
@@ -124,15 +128,16 @@ protection. A safe replay may waste work without violating data integrity.
 
 ### A checkpoint is not an exactly-once guarantee
 
-Engine-only `gap: 'charge' | 'email'` regression scenarios crash after an external
-effect and before its local checkpoint. A local marker cannot protect an operation
-that finished without that marker being written. Retrying can duplicate it.
+The scripted last-payment failure and engine-only `gap: 'charge' | 'email'`
+regression scenarios crash after an external effect and before its local
+checkpoint. A local marker cannot protect an operation that finished without that
+marker being written. Retrying can duplicate it.
 
 `providerDeduplication` simulates a receiver that recognizes the same immutable
 job/step operation key and returns the existing result. This support is conditional,
 not a distributed transaction or a capability promised for every email provider.
-The focused UI does not expose the additional crash selector. No exactly-once
-physical execution, real Stripe call or real email guarantee is claimed.
+No exactly-once physical execution, real Stripe call or real email guarantee is
+claimed.
 
 ## Browser behavior
 

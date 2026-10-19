@@ -100,25 +100,42 @@ describe('Inside a worker: checkpoints and external effects', () => {
     expect(s.jobs[1]!.steps[2]!.effects).toBe(0);
     expect(run(defaultConfig(2)).phase).toBe('duplicate');
   });
-  it('remembering the completed charge prevents charging twice in the guided case', () => {
+  it('remembering the charge prevents a second charge but not an uncertain email', () => {
     const c = defaultConfig(2);
     c.steps[1]!.remember = true;
     const s = run(c);
-    expect(s.phase).toBe('won');
-    expect(totals(s).wasted).toBe(3);
+    expect(s.phase).toBe('duplicate');
+    expect(totals(s).wasted).toBe(4);
     expect(s.jobs[1]!.steps[1]!.effects).toBe(1);
     expect(s.jobs[2]!.steps[2]!.executions).toBe(2);
+    expect(s.jobs[2]!.steps[3]!.effects).toBe(2);
   });
-  it('checkpoints skip exactly the previous successful work, never the failed step', () => {
+  it('local checkpoints cannot confirm an email sent just before a crash', () => {
     const c = defaultConfig(2);
     c.steps.forEach((step) => (step.remember = true));
+
+    let interrupted = initialState(c);
+    while (
+      interrupted.phase !== 'incident' ||
+      interrupted.incident !== 'email-uncertain'
+    ) {
+      interrupted =
+        interrupted.phase === 'incident'
+          ? continueAfterIncident(interrupted)
+          : advance(interrupted);
+    }
+
+    expect(interrupted.jobs[2]!.steps[3]!.effects).toBe(1);
+    expect(interrupted.jobs[2]!.steps[3]!.checkpoint).toBe(false);
+
     const s = run(c);
-    expect(s.phase).toBe('won');
+    expect(s.phase).toBe('duplicate');
     expect(totals(s).skipped).toBe(5);
-    expect(totals(s).wasted).toBe(0);
+    expect(totals(s).wasted).toBe(1);
     expect(totals(s).executions).toBe(14);
     expect(s.jobs[1]!.steps[2]!.effects).toBe(1);
-    expect(s.jobs[2]!.steps[3]!.effects).toBe(1);
+    expect(s.jobs[2]!.steps[3]!.effects).toBe(2);
+    expect(totals(s).done).toBe(2);
   });
   it.each(['charge', 'email'] as const)(
     'a crash after %s effect defeats a local checkpoint alone',
@@ -139,6 +156,7 @@ describe('Inside a worker: checkpoints and external effects', () => {
       const c = defaultConfig(2);
       c.gap = gap;
       c.steps.forEach((step) => (step.remember = true));
+      c.steps[3]!.providerDeduplication = true;
       c.steps[gap === 'charge' ? 1 : 3]!.providerDeduplication = true;
       const s = run(c);
       expect(s.phase).toBe('won');
@@ -161,6 +179,35 @@ describe('Inside a worker: checkpoints and external effects', () => {
     expect(s.jobs[1]!.attempt).toBe(2);
     expect(s.jobs[2]!.attempt).toBe(2);
   });
+  it('the last payment cannot pass after its email is sent twice', () => {
+    const c = defaultConfig(2);
+    c.steps.forEach((step) => (step.remember = true));
+
+    const s = run(c);
+
+    expect(s.phase).toBe('duplicate');
+    expect(s.active).toBe(2);
+    expect(s.step).toBe(3);
+    expect(s.jobs[2]!.steps[3]!.effects).toBe(2);
+    expect(s.jobs[2]!.status).toBe('failed');
+    expect(totals(s).done).toBe(2);
+  });
+  it('the last payment completes only if the email receiver deduplicates its stable ID', () => {
+    const c = defaultConfig(2);
+    c.steps.forEach((step) => (step.remember = true));
+    c.steps[3]!.providerDeduplication = true;
+
+    const s = run(c);
+
+    expect(s.phase).toBe('won');
+    expect(s.jobs[2]!.steps[3]!.effects).toBe(1);
+    expect(
+      s.events.some(
+        (event) => event.job === 3 && event.kind === 'provider-dedup',
+      ),
+    ).toBe(true);
+    expect(totals(s).done).toBe(3);
+  });
   it('incidents pause until an explicit retry, without mutating the previous state', () => {
     let s = initialState(defaultConfig(2));
     while (s.phase !== 'incident') s = advance(s);
@@ -178,7 +225,7 @@ describe('External effects and replay safety are independent', () => {
     c.steps.forEach((step, i) => (step.kind = i % 2 ? 'set-state' : 'check'));
     const s = run(c);
     expect(s.phase).toBe('won');
-    expect(s.wasted).toBe(5);
+    expect(s.wasted).toBe(6);
     expect(s.skipped).toBe(0);
     expect(s.jobs[1]!.steps[0]!.executions).toBe(2);
     expect(s.jobs[1]!.steps[0]!.effects).toBe(1);

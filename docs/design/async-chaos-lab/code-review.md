@@ -33,8 +33,8 @@ No general plugin system or new application framework was introduced.
 - A stable ID plus an atomic local result can suppress a repeated local mutation.
   A local checkpoint alone cannot guarantee one external effect across a crash.
 - Provider deduplication is a simulated receiver capability, not guaranteed email
-  or payment-provider behavior. The extra post-effect crash is covered by engine
-  tests rather than added to the focused UI.
+  or payment-provider behavior. The last-payment scenario shows the post-effect,
+  pre-checkpoint crash; the separate charge crash-window remains engine-tested.
 - No global navigation, new articles or Pill links are added. No inactive Pill
   reference registry remains to suggest an integration that does not render.
 

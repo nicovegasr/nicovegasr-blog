@@ -15,6 +15,8 @@ function beat(state: SimulationState, stage: GuideStage) {
     worker: 'My worker',
     job: `Payment #${Math.max(0, state.active) + 1}`,
     chargeStep: 'My charge',
+    lastStep: 'My notification',
+    steps: state.config.steps.map((_, index) => `My step ${index + 1}`),
   });
 }
 
@@ -47,14 +49,26 @@ describe('Walkthrough instructions follow observed state', () => {
     expect(result.task).toContain('Reprocesar pago');
   });
 
-  it('treats extra checkpoints as optional after a correct worker run', () => {
+  it('explains the receiver protection after a correct worker run', () => {
     const config = defaultConfig(2);
     config.steps[1]!.remember = true;
+    config.steps[3]!.providerDeduplication = true;
     const state = run(config);
     expect(state.phase).toBe('won');
-    expect(beat(state, 'safe').story).toContain(
-      'acciones seguras se repitieron',
-    );
+    expect(beat(state, 'safe').story).toContain('proveedor reconoció');
     expect(beat(state, 'optimize').task).toContain('opcional');
+  });
+
+  it('points to receiver deduplication after the final email is duplicated', () => {
+    const config = defaultConfig(2);
+    config.steps.forEach((step) => (step.remember = true));
+    const duplicate = run(config);
+
+    expect(duplicate.phase).toBe('duplicate');
+    expect(duplicate.step).toBe(3);
+    const result = beat(duplicate, 'email');
+    expect(result.target).toBe('provider');
+    expect(result.story).toContain('My notification');
+    expect(result.task).toContain('proveedor');
   });
 });
