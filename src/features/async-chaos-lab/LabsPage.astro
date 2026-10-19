@@ -1,6 +1,7 @@
 ---
 import type { Locale } from '@/i18n/locale';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { buildPagePath } from '@/i18n/routes';
 import { labsPath, labPath } from './links';
 interface Props {
   locale: Locale;
@@ -19,6 +20,10 @@ const description = es
   description={description}
   alternatePaths={{ es: labsPath('es'), en: labsPath('en') }}
 >
+  <nav class="breadcrumb" aria-label={es ? 'Ruta de navegación' : 'Breadcrumb'}>
+    <a href={buildPagePath('blog', locale)}>{es ? 'Inicio' : 'Home'}</a>
+    <span aria-hidden="true"> / </span>{title}
+  </nav>
   <header class="labs-heading">
     <p class="label">ASYNC CHAOS LAB</p><h1>{title}</h1><p class="lead">
       {description}
