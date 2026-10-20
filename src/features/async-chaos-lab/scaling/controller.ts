@@ -1,10 +1,12 @@
+import { eligibleAchievements, scalingAchievements } from './achievements';
+import type { ScalingAchievementId } from './achievements';
+import { outcomeShell } from '../outcome-shell';
 import {
   createScaling,
+  BASE_CAPACITIES,
   PAYMENT_COUNT,
   pauseScaling,
   playScaling,
-  resourceCapacities,
-  runScaling,
   scalingDefaults,
   scalingMetrics,
   scalingVerdict,
@@ -14,8 +16,8 @@ import {
   TARGET_SECONDS,
 } from './engine';
 import type { ScalingConfig } from './engine';
-import { callCopy, resourceExplanation, scalingNames } from './content';
-import type { Names, Scene } from './content';
+import { callCopy, scalingNames } from './content';
+import type { Names } from './content';
 import { cleanLabel, escapeHtml as esc } from '../labels';
 import { labFigure } from '../figures';
 
@@ -23,9 +25,8 @@ type Trial = {
   config: ScalingConfig;
   seconds: number;
   cost: number;
-  rejected: number;
-  retries: number;
   completed: number;
+  outageStep: number | null;
   won: boolean;
 };
 const button = (action: string, text: string, extra = '') =>
@@ -39,17 +40,14 @@ class QueueScaling extends HTMLElement {
   private state = createScaling();
   private names!: Names;
   private history: Trial[] = [];
-  private seen = new Set<Scene>();
-  private unlocked = false;
+  private unlocked = new Set<ScalingAchievementId>();
+  private newAwards: ScalingAchievementId[] = [];
   private timer: ReturnType<typeof setInterval> | undefined;
   private speed = 1;
-  private inspected = -1;
-  private inspectorMarkup = '';
   private radioMarkup = '';
   private selectedJob = 0;
   private modalAction: (() => void) | undefined;
   private packets: HTMLButtonElement[] = [];
-  private baseline = scalingMetrics(runScaling(scalingDefaults()));
   private get es() {
     return this.dataset.locale !== 'en';
   }
@@ -60,14 +58,15 @@ class QueueScaling extends HTMLElement {
     return this.querySelector<T>(selector)!;
   }
   private get storageKey() {
-    return `async-scaling-v1-${this.es ? 'es' : 'en'}`;
+    return `async-scaling-v4-${this.es ? 'es' : 'en'}`;
   }
 
   connectedCallback() {
     this.names = scalingNames(this.es);
     this.loadSession();
+    this.loadAchievements();
     this.innerHTML = `
-      <div class="sc-mission"><span class="sc-mission-mark" aria-hidden="true">↗</span><p><strong>${this.t('24 pagos. Menos espera.', '24 payments. Less waiting.')}</strong><span>${this.t(`Tu misión: terminar en ${TARGET_SECONDS} s o menos, sin rechazos y con un coste ≤ ${TARGET_COST} u.`, `Your mission: finish within ${TARGET_SECONDS} s, with no rejections and a cost ≤ ${TARGET_COST} u.`)}</span></p>${button('help', '?', `aria-label="${this.t('Cómo jugar', 'How to play')}"`)}</div>
+      <div class="sc-mission"><span class="sc-mission-mark" aria-hidden="true">↗</span><p><strong>${this.t('24 pagos. Menos espera.', '24 payments. Less waiting.')}</strong><span>${this.t(`Tu misión: terminar en ${TARGET_SECONDS} s o menos, sin saturar los servicios y con un coste ≤ ${TARGET_COST} u.`, `Your mission: finish within ${TARGET_SECONDS} s, without overwhelming services and a cost ≤ ${TARGET_COST} u.`)}</span></p></div>
       <section class="sc-board" aria-label="${this.t('Recorrido de los pagos', 'Payment flow')}">
         <div class="sc-intake">
           ${button('names', `✎ ${this.t('Nombres', 'Names')}`, 'class="sc-edit-names"')}
@@ -76,13 +75,12 @@ class QueueScaling extends HTMLElement {
         </div>
         <div class="sc-machine">
           <div class="sc-team">
-            <div class="sc-team-heading">${labFigure('worker')}<div><small>${this.t('EQUIPO · HASTA 8 WORKERS', 'TEAM · UP TO 8 WORKERS')}</small><strong data-name="worker"></strong></div><div class="sc-hire">${button('less', '−', `aria-label="${this.t('Quitar un worker', 'Remove one worker')}" data-config`)}<output data-workers>1</output>${button('more', '+', `aria-label="${this.t('Añadir un worker', 'Add one worker')}" data-config`)}</div></div>
+            <div class="sc-team-heading">${labFigure('worker')}<div><small data-team-summary>${this.t('EQUIPO · HASTA 8 WORKERS', 'TEAM · UP TO 8 WORKERS')}</small><strong data-name="worker"></strong></div><div class="sc-hire">${button('less', '−', `aria-label="${this.t('Quitar un worker', 'Remove one worker')}" data-config`)}<output data-workers>1</output>${button('more', '+', `aria-label="${this.t('Añadir un worker', 'Add one worker')}" data-config`)}</div></div>
             <div class="sc-worker-rack" data-worker-rack>${Array.from({ length: AVAILABLE_WORKERS }, (_, i) => button(`worker:${i + 1}`, `<span>W${String(i + 1).padStart(2, '0')}</span><b>—</b>`, `data-worker="${i + 1}" class="sc-worker" hidden`)).join('')}</div>
           </div>
           <div class="sc-flow">${[0, 1, 2, 3].map((step) => this.stepCard(step)).join('')}</div>
           <div class="sc-delivered"><span>✓ ${this.t('Completados', 'Completed')}</span><div data-location="done"></div><b data-done>0/24</b></div>
         </div>
-        <aside class="sc-inspector" data-inspector hidden aria-label="${this.t('Decisión del paso', 'Step decision')}"></aside>
       </section>
       <aside class="sc-radio" role="status" aria-live="polite">${labFigure('phone')}<div><small>${this.t('GUARDIA · EN DIRECTO', 'ON CALL · LIVE')}</small><p data-radio>${this.t('Tenemos una cola de clientes esperando. Dale al play y mira quién tarda.', 'Customers are waiting. Press play and see where the time goes.')}</p></div></aside>
       <div class="sc-dock">
@@ -91,6 +89,11 @@ class QueueScaling extends HTMLElement {
         <div class="sc-dock-metrics"><span data-occupied></span><span data-waiting></span>${button('cost', '<span data-cost></span>', `aria-label="${this.t('Ver cómo se calcula el coste', 'Show the cost calculation')}"`)}</div>
       </div>
       <div class="sc-trial-bar"><span>${this.t('Tus intentos', 'Your trials')}</span><div data-trials></div>${button('compare', this.t('Comparar ↗', 'Compare ↗'))}</div>
+      <details class="qs-achievements">
+        <summary data-achievement-summary></summary>
+        <p>${this.t('Logros de esta sesión del navegador. Los reinicios del laboratorio no los borran.', 'Achievements for this browser session. Resetting the lab does not erase them.')}</p>
+        <div data-achievements></div>
+      </details>
       <dialog class="sc-dialog" aria-labelledby="sc-dialog-title" aria-describedby="sc-dialog-text"></dialog>`;
     const pending = this.q('[data-location=pending]');
     this.packets = this.state.jobs.map((job) => {
@@ -104,7 +107,6 @@ class QueueScaling extends HTMLElement {
       return packet;
     });
     this.addEventListener('click', this.onClick);
-    this.addEventListener('change', this.onChange);
     this.addEventListener('input', this.onInput);
     this.q<HTMLDialogElement>('dialog').addEventListener(
       'close',
@@ -112,13 +114,12 @@ class QueueScaling extends HTMLElement {
     );
     document.addEventListener('visibilitychange', this.onVisibility);
     this.render();
-    if (!this.seen.has('intro')) this.showCall('intro');
+    this.showCall('intro');
   }
   disconnectedCallback() {
     this.stopTimer();
     this.querySelector<HTMLDialogElement>('dialog')?.close();
     this.removeEventListener('click', this.onClick);
-    this.removeEventListener('change', this.onChange);
     this.removeEventListener('input', this.onInput);
     document.removeEventListener('visibilitychange', this.onVisibility);
   }
@@ -130,26 +131,17 @@ class QueueScaling extends HTMLElement {
       'HTTP · 1 s',
     ];
     return `<article class="sc-step" data-step="${step}">
-      <button type="button" class="sc-step-heading" data-action="inspect:${step}" aria-expanded="false"><small>0${step + 1} <span>${resources[step]}</span></small><strong data-name="step-${step}"></strong><span class="sc-step-detail">${this.t('Ver recurso', 'Inspect resource')} ↗</span></button>
+      <div class="sc-step-heading"><small>0${step + 1} <span>${resources[step]}</span></small><strong data-name="step-${step}"></strong></div>
       <div class="sc-resource"><span data-status="${step}"></span><b data-capacity="${step}"></b></div>
       <div class="sc-slots" data-location="active-${step}"></div>
       <div class="sc-wait"><small data-wait-label="${step}">${this.t('Esperando turno', 'Waiting for a slot')}</small><div data-location="waiting-${step}"></div></div>
-      <div class="sc-step-controls" data-controls="${step}" hidden><label>${this.t('Máximo a la vez', 'Max at once')}<input type="number" min="1" max="24" data-limit="${step}" data-config aria-label="${this.t('Máximo simultáneo del paso', 'Step concurrency limit')} ${step + 1}" /></label>${step ? `<label class="sc-protection"><input type="checkbox" data-protect="${step}" data-config />${this.t('Esperar una plaza', 'Wait for a slot')}</label>` : `<small>${this.t('La CPU comparte su tiempo', 'CPU time is shared')}</small>`}</div>
+      <div class="sc-step-controls"><span>${this.t('Capacidad', 'Capacity')}</span><div class="sc-capacity-control">${button(`shrink:${step}`, '−', `data-config aria-label="${this.t('Reducir capacidad del paso', 'Reduce capacity of step')} ${step + 1}"`)}<output data-resource-size="${step}"></output>${button(`grow:${step}`, '+', `data-config aria-label="${this.t('Ampliar capacidad del paso', 'Expand capacity of step')} ${step + 1}"`)}</div></div>
+      <small class="sc-capacity-cost" data-resource-cost="${step}"></small>
     </article>`;
   }
   private loadSession() {
     try {
       const saved = JSON.parse(sessionStorage.getItem(this.storageKey) ?? '{}');
-      if (Array.isArray(saved.seen))
-        for (const scene of [
-          'intro',
-          'stripe',
-          'admission',
-          'rejections',
-          'database',
-        ] as Scene[])
-          if (saved.seen.includes(scene)) this.seen.add(scene);
-      this.unlocked = saved.unlocked === true;
       if (saved.names && typeof saved.names === 'object') {
         for (const key of ['api', 'queue', 'worker'] as const)
           this.names[key] = cleanLabel(saved.names[key], this.names[key]);
@@ -170,14 +162,12 @@ class QueueScaling extends HTMLElement {
             trial.config.workers <= AVAILABLE_WORKERS &&
             trial.seconds <= TARGET_SECONDS &&
             trial.cost <= TARGET_COST &&
-            trial.rejected === 0;
+            trial.outageStep === null;
           return (
             trial.config.workers <= AVAILABLE_WORKERS &&
             [
               trial.seconds,
               trial.cost,
-              trial.rejected,
-              trial.retries,
               trial.completed,
             ].every(
               (value) =>
@@ -193,14 +183,43 @@ class QueueScaling extends HTMLElement {
       /* The lab also works without browser storage. */
     }
   }
+  private loadAchievements() {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem('async-scaling-achievements-v1') ?? '{}');
+      if (Array.isArray(saved.ids))
+        this.unlocked = new Set(scalingAchievements.filter(({ id }) => saved.ids.includes(id)).map(({ id }) => id));
+    } catch { /* Achievements also work with browser storage blocked. */ }
+  }
+  private checkAchievements() {
+    this.newAwards = eligibleAchievements(this.state)
+      .filter((id) => !this.unlocked.has(id));
+    this.newAwards.forEach((id) => this.unlocked.add(id));
+    try {
+      sessionStorage.setItem('async-scaling-achievements-v1', JSON.stringify({
+        ids: [...this.unlocked],
+      }));
+    } catch { /* Optional session persistence. */ }
+  }
+  private renderNewAwards() {
+    return `<div class="sc-result-awards">${scalingAchievements.filter(({ id }) => this.newAwards.includes(id)).map((award) => {
+      const [title, description] = this.es ? award.es : award.en;
+      return `<div class="qs-earned" data-earned="${award.id}"><span aria-hidden="true">✦</span><div><small class="qs-award-label">${this.t('LOGRO DESBLOQUEADO', 'ACHIEVEMENT UNLOCKED')}</small><strong>${esc(title)}</strong><p>${esc(description)}</p></div></div>`;
+    }).join('')}</div>`;
+  }
+  private renderAchievements() {
+    this.q('[data-achievement-summary]').textContent = `✦ ${this.t('Logros de sesión', 'Session achievements')} · ${this.unlocked.size}/${scalingAchievements.length}`;
+    this.q('[data-achievements]').innerHTML = scalingAchievements.map((award) => {
+      const unlocked = this.unlocked.has(award.id);
+      const [title, description] = this.es ? award.es : award.en;
+      return `<article class="${unlocked ? 'is-unlocked' : ''}" data-achievement="${award.id}"><span aria-hidden="true">${unlocked ? '✦' : '◇'}</span><div><h3>${esc(title)}${unlocked ? ` <small>· ${this.t('conseguido', 'unlocked')}</small>` : ''}</h3><p>${esc(description)}</p></div></article>`;
+    }).join('');
+  }
   private saveSession() {
     try {
       sessionStorage.setItem(
         this.storageKey,
         JSON.stringify({
           names: this.names,
-          seen: [...this.seen],
-          unlocked: this.unlocked,
           history: this.history,
         }),
       );
@@ -244,8 +263,10 @@ class QueueScaling extends HTMLElement {
     this.render();
   }
   private start() {
-    if (this.state.phase === 'complete' || this.state.phase === 'blocked')
+    this.newAwards = [];
+    if (this.state.phase === 'complete' || this.state.phase === 'blocked') {
       this.state = createScaling(this.config);
+    }
     this.state = playScaling(this.state);
     this.stopTimer();
     this.timer = setInterval(() => this.advance(), 120 / this.speed);
@@ -255,57 +276,24 @@ class QueueScaling extends HTMLElement {
     this.state = tickScaling(this.state);
     if (this.state.phase === 'complete' || this.state.phase === 'blocked') {
       this.stopTimer();
+      this.checkAchievements();
       const metrics = scalingMetrics(this.state);
       const verdict = scalingVerdict(this.state);
       this.history.push({
         config: structuredClone(this.config),
         seconds: metrics.seconds,
         cost: metrics.cost,
-        rejected: this.state.rejected,
-        retries: this.state.retries,
         completed: metrics.completed,
+        outageStep: this.state.outageStep,
         won: verdict.won,
       });
       this.history = this.history.slice(-8);
-      if (this.state.waitTicks[1] > 0 && this.config.workers >= 4)
-        this.unlocked = true;
       this.saveSession();
       this.render();
       this.showResult();
       return;
     }
     this.render();
-    const steps = scalingMetrics(this.state).steps;
-    if (this.state.rejected > 0 && !this.seen.has('rejections')) {
-      this.inspected =
-        this.state.events.find((event) => event.kind === 'rejected')?.step ?? 1;
-      this.showCall('rejections');
-    } else if (
-      this.config.stripeCapacity === 9 &&
-      this.config.limits[1] === 3 &&
-      steps[1]!.waiting.length >= 2 &&
-      !this.seen.has('admission')
-    ) {
-      this.inspected = 1;
-      this.showCall('admission');
-    } else if (
-      this.config.stripeCapacity === 9 &&
-      this.state.waitTicks[2] >= 4 &&
-      this.state.waitTicks[2] > this.state.waitTicks[1] &&
-      steps[2]!.waiting.length &&
-      !this.seen.has('database')
-    ) {
-      this.inspected = 2;
-      this.showCall('database');
-    } else if (
-      steps[1]!.waiting.length >= 2 &&
-      this.config.stripeCapacity === 3 &&
-      !this.seen.has('stripe')
-    ) {
-      this.unlocked = true;
-      this.inspected = 1;
-      this.showCall('stripe');
-    }
   }
   private configure(change: (config: ScalingConfig) => void) {
     if (this.state.phase === 'running') return;
@@ -350,23 +338,11 @@ class QueueScaling extends HTMLElement {
       if (this.state.phase === 'running') this.start();
       else this.render();
     }
-    if (action === 'inspect') {
-      this.inspected = this.inspected === Number(value) ? -1 : Number(value);
-      this.renderInspector();
-    }
-    if (action === 'inspector-close') {
-      this.inspected = -1;
-      this.renderInspector();
-    }
-    if (action === 'upgrade') {
-      this.inspected = -1;
+    if (action === 'grow' || action === 'shrink') {
+      const step = Number(value);
       this.configure((config) => {
-        config.stripeCapacity = config.stripeCapacity === 3 ? 9 : 3;
-        if (config.stripeCapacity === 3 && config.limits[1] !== null)
-          config.limits[1] = Math.min(config.limits[1]!, 3);
-      });
-      this.q<HTMLInputElement>('[data-limit="1"]').focus({
-        preventScroll: true,
+        config.capacities[step] = Math.max(1, Math.min(8,
+          config.capacities[step]! + (action === 'grow' ? 1 : -1)));
       });
     }
     if (action === 'job') {
@@ -378,7 +354,6 @@ class QueueScaling extends HTMLElement {
         this.state.jobs.find((job) => job.worker === Number(value))?.id ?? 0;
       this.renderRadio();
     }
-    if (action === 'help') this.showCall('help');
     if (action === 'names') this.showNames();
     if (action === 'compare') this.showComparison();
     if (action === 'replay') {
@@ -396,27 +371,6 @@ class QueueScaling extends HTMLElement {
       const callback = this.modalAction;
       this.q<HTMLDialogElement>('dialog').close();
       callback?.();
-    }
-  };
-  private onChange = (event: Event) => {
-    const input = event.target as HTMLInputElement;
-    if (input.dataset.limit !== undefined) {
-      const step = Number(input.dataset.limit);
-      const value = Math.min(
-        resourceCapacities(this.config)[step]!,
-        Math.max(1, Math.round(Number(input.value) || 1)),
-      );
-      this.configure((config) => {
-        config.limits[step] = value;
-      });
-    }
-    if (input.dataset.protect !== undefined) {
-      const step = Number(input.dataset.protect);
-      this.configure((config) => {
-        config.limits[step] = input.checked
-          ? resourceCapacities(config)[step]!
-          : null;
-      });
     }
   };
   private onInput = (event: Event) => {
@@ -437,6 +391,7 @@ class QueueScaling extends HTMLElement {
       playing = state.phase === 'running';
     this.dataset.phase = state.phase;
     this.classList.toggle('is-playing', playing);
+    this.classList.toggle('is-broken', state.phase === 'blocked');
     this.querySelectorAll<HTMLElement>('[data-name]').forEach((node) => {
       node.textContent = this.name(node.dataset.name!);
     });
@@ -459,7 +414,7 @@ class QueueScaling extends HTMLElement {
         : state.phase === 'complete' || state.phase === 'blocked'
           ? this.t('↻ Otra prueba', '↻ Try again')
           : this.t('▶ Procesar pagos', '▶ Process payments');
-    this.querySelectorAll<HTMLButtonElement | HTMLInputElement>(
+    this.querySelectorAll<HTMLButtonElement | HTMLInputElement | HTMLSelectElement>(
       '[data-config]',
     ).forEach((control) => {
       control.disabled = playing;
@@ -480,41 +435,41 @@ class QueueScaling extends HTMLElement {
       worker.hidden = id > this.config.workers;
       worker.classList.toggle('is-busy', !!job);
       worker.classList.toggle('is-waiting', !!job && job.status !== 'running');
-      worker.title = `${this.names.worker} ${id} · ${job ? this.names.jobs[job.id - 1] : this.t('libre', 'idle')}`;
-      worker.querySelector('b')!.textContent = job ? `#${job.id}` : '—';
+      worker.title = `${this.names.worker} ${id} · ${job ? `${this.names.jobs[job.id - 1]} · ${this.names.steps[job.step]}` : this.t('libre', 'idle')}`;
+      worker.querySelector('b')!.textContent = job ? `#${job.id} · P${job.step + 1}` : '—';
     });
+    this.q('[data-team-summary]').textContent = this.t(
+      `EQUIPO · ${metrics.occupied}/${this.config.workers} WORKERS OCUPADOS`,
+      `TEAM · ${metrics.occupied}/${this.config.workers} WORKERS BUSY`,
+    );
     metrics.steps.forEach((step, index) => {
       const node = this.q(`[data-step="${index}"]`);
       node.classList.toggle('is-working', step.active.length > 0);
+      node.classList.toggle('is-down', state.outageStep === index);
       node.classList.toggle('is-congested', step.waiting.length > 0);
-      node.classList.toggle(
-        'is-rejected',
-        step.waiting.some((job) => job.status === 'retry'),
-      );
       node.style.setProperty(
         '--load',
         `${(step.active.length / step.capacity) * 100}%`,
       );
       this.q(`[data-capacity="${index}"]`).textContent =
-        `${step.active.length}/${step.capacity} ${this.t('plazas', 'slots')}`;
-      this.q(`[data-status="${index}"]`).textContent = step.active.length
+        `${step.active.length}/${step.capacity} ${this.t('en uso', 'in use')}`;
+      this.q(`[data-status="${index}"]`).textContent = state.outageStep === index
+        ? this.t('✕ SERVICIO CAÍDO', '✕ SERVICE DOWN')
+        : step.active.length
         ? this.t('En marcha', 'Working')
         : this.t('Disponible', 'Available');
-      this.q(`[data-wait-label="${index}"]`).textContent =
-        `${step.waiting.length} ${this.t('esperando', 'waiting')}${step.waiting.some((job) => job.status === 'retry') ? this.t(' · reintento', ' · retry') : ''}`;
-      this.q(`[data-controls="${index}"]`).hidden = !this.unlocked;
-      const limit = this.q<HTMLInputElement>(`[data-limit="${index}"]`);
-      limit.max = String(step.capacity);
-      if (document.activeElement !== limit)
-        limit.value = String(this.config.limits[index] ?? step.capacity);
-      limit.disabled = playing || this.config.limits[index] === null;
-      const protect = this.querySelector<HTMLInputElement>(
-        `[data-protect="${index}"]`,
-      );
-      if (protect) protect.checked = this.config.limits[index] !== null;
+      this.q(`[data-wait-label="${index}"]`).textContent = state.outageStep === index
+        ? `${step.interrupted.length} ${this.t('interrumpidos', 'interrupted')}`
+        : `${step.waiting.length} ${this.t('esperando', 'waiting')}`;
+      this.q(`[data-resource-size="${index}"]`).textContent = String(step.capacity);
+      this.q<HTMLButtonElement>(`[data-action="grow:${index}"]`).disabled = playing || step.capacity === 8;
+      this.q<HTMLButtonElement>(`[data-action="shrink:${index}"]`).disabled = playing || step.capacity === 1;
+      const extra = Math.max(0, step.capacity - BASE_CAPACITIES[index]!);
+      this.q(`[data-resource-cost="${index}"]`).textContent = extra
+        ? `+${extra} ${this.t('u/s de capacidad', 'capacity units/s')}`
+        : this.t('Capacidad incluida', 'Included capacity');
     });
     this.renderRadio();
-    this.renderInspector();
     this.renderTrials();
   }
   private renderJobs() {
@@ -530,6 +485,7 @@ class QueueScaling extends HTMLElement {
       const parent = this.q(`[data-location="${location}"]`);
       if (packet.parentElement !== parent) {
         const before = packet.getBoundingClientRect();
+        packet.getAnimations().forEach((animation) => animation.cancel());
         parent.append(packet);
         const after = packet.getBoundingClientRect();
         if (!reduced && this.state.phase === 'running' && before.width)
@@ -545,6 +501,7 @@ class QueueScaling extends HTMLElement {
           );
       }
       packet.dataset.status = job.status;
+      packet.textContent = `#${String(job.id).padStart(2, '0')}${job.worker !== null ? ` · W${job.worker}` : ''}`;
       packet.title = `${this.names.jobs[job.id - 1]} · ${job.status === 'done' ? this.t('Completado', 'Complete') : (this.names.steps[job.step] ?? '')}`;
       packet.setAttribute('aria-label', packet.title);
       const progress =
@@ -562,9 +519,11 @@ class QueueScaling extends HTMLElement {
     const state = this.state,
       metrics = scalingMetrics(state);
     let text = '';
-    if (this.selectedJob) {
+    if (state.outageStep !== null)
+      text = this.t(`Cadena rota: ${this.names.steps[state.outageStep]} está caído. Los pagos siguen guardados. Recupera el servicio y prepara otro intento.`, `Broken chain: ${this.names.steps[state.outageStep]} is down. Payments are still stored. Recover the service and prepare another trial.`);
+    else if (this.selectedJob) {
       const job = state.jobs[this.selectedJob - 1]!;
-      text = `${this.names.jobs[job.id - 1]} · ${job.status === 'done' ? this.t('completado', 'complete') : job.status === 'pending' ? this.t('guardado, esperando un worker', 'stored, waiting for a worker') : `${this.names.steps[job.step]} · ${job.status === 'retry' ? this.t('petición rechazada, esperando el reintento', 'request rejected, waiting to retry') : job.status === 'waiting' ? this.t('esperando una plaza; su worker sigue ocupado', 'waiting for a slot; its worker remains busy') : this.t('ejecutándose ahora', 'running now')}`}`;
+      text = `${this.names.jobs[job.id - 1]} · ${job.status === 'done' ? this.t('completado', 'complete') : job.status === 'pending' ? this.t('guardado, esperando un worker', 'stored, waiting for a worker') : `${this.names.steps[job.step]} · ${job.status === 'failed' ? this.t('interrumpido por la caída del servicio', 'interrupted by service outage') : job.status === 'waiting' ? this.t('esperando una plaza; su worker sigue ocupado', 'waiting for a slot; its worker remains busy') : this.t('ejecutándose ahora', 'running now')}`}`;
     } else if (state.phase === 'ready')
       text =
         this.config.workers === 1
@@ -581,11 +540,6 @@ class QueueScaling extends HTMLElement {
         'Película en pausa. Puedes seguir donde estabas o cambiar el equipo para preparar otro intento.',
         'Playback paused. Resume where you left off, or change the team to prepare another trial.',
       );
-    else if (state.rejected > 0)
-      text = this.t(
-        `${state.rejected} peticiones rechazadas · ${state.retries} reintentos. Los pagos en coral esperan para volver; conservan el mismo ID.`,
-        `${state.rejected} rejected requests · ${state.retries} retries. Coral payments are waiting to return; they keep the same ID.`,
-      );
     else if (metrics.steps.some((step) => step.waiting.length)) {
       const busiest = metrics.steps.reduce(
         (best, step, index) =>
@@ -601,8 +555,8 @@ class QueueScaling extends HTMLElement {
     } else if (state.phase === 'complete')
       text = scalingVerdict(state).won
         ? this.t(
-            'Los 24 completados. Más rápido, sin rechazos y dentro del presupuesto. ¿Puedes mejorar tu marca?',
-            'All 24 complete. Faster, no rejections, within budget. Can you improve your result?',
+            'Los 24 completados. Más rápido, sin incidencias y dentro del presupuesto. ¿Puedes mejorar tu marca?',
+            'All 24 complete. Faster, no outages, within budget. Can you improve your result?',
           )
         : this.t(
             'Todos llegaron. Compara el tiempo y el coste antes de decidir qué cambiar.',
@@ -630,33 +584,17 @@ class QueueScaling extends HTMLElement {
       this.radioMarkup = html;
     }
   }
-  private renderInspector() {
-    const node = this.q('[data-inspector]');
-    node.hidden = this.inspected < 0;
-    this.querySelectorAll<HTMLButtonElement>('.sc-step-heading').forEach(
-      (button, i) =>
-        button.setAttribute('aria-expanded', String(i === this.inspected)),
-    );
-    if (this.inspected < 0) return;
-    const index = this.inspected;
-    const card = this.q(`[data-step="${index}"]`);
-    if (node.parentElement !== card) card.append(node);
-    const html = `<header><strong>${esc(this.names.steps[index]!)}</strong>${button('inspector-close', '×', `aria-label="${this.t('Cerrar explicación', 'Close explanation')}"`)}</header><p>${this.highlight(resourceExplanation(index, this.names, this.es, this.config.stripeCapacity))}</p>${index === 1 && this.unlocked ? button('upgrade', this.config.stripeCapacity === 3 ? this.t('Ampliar a 9 plazas', 'Expand to 9 slots') : this.t('Volver a 3 plazas', 'Return to 3 slots'), `${this.state.phase === 'running' ? 'disabled' : ''} class="sc-upgrade"`) + `<small>${this.state.phase === 'running' ? this.t('Pausa para cambiar el contrato.', 'Pause to change the contract.') : this.config.stripeCapacity === 3 ? this.t('6 plazas extra · +6 u/s. Prepara otro intento.', '6 extra slots · +6 units/s. Prepares a new trial.') : this.t('Libera las 6 plazas extra. Prepara otro intento.', 'Releases the 6 extra slots. Prepares a new trial.')}</small>` : ''}`;
-    if (this.inspectorMarkup !== html) {
-      node.innerHTML = html;
-      this.inspectorMarkup = html;
-    }
-  }
   private renderTrials() {
+    this.renderAchievements();
     this.q('[data-trials]').innerHTML = this.history.length
       ? this.history
           .slice(-4)
           .map(
             (trial) =>
-              `<span class="sc-trial ${trial.won ? 'is-won' : ''}">${trial.config.workers} W <span>→</span> ${number(trial.seconds, 1)} s <small>· ${number(trial.cost)} u${trial.rejected ? ` · ${trial.rejected} ✕` : ''}</small></span>`,
+              `<span class="sc-trial ${trial.won ? 'is-won' : ''}">${trial.config.workers} W <span>→</span> ${number(trial.seconds, 1)} s <small>· ${number(trial.cost)} u</small></span>`,
           )
           .join('')
-      : `<small>${this.t(`Referencia: 1 worker · ${this.baseline.seconds} s. Tu primer intento quedará aquí.`, `Baseline: 1 worker · ${this.baseline.seconds} s. Your first trial will appear here.`)}</small>`;
+      : `<small>${this.t('Tus resultados aparecerán aquí. Compara tus propios intentos.', 'Your results will appear here. Compare your own trials.')}</small>`;
   }
   private modal(
     title: string,
@@ -668,6 +606,9 @@ class QueueScaling extends HTMLElement {
     this.pause();
     const dialog = this.q<HTMLDialogElement>('dialog');
     this.modalAction = callback;
+    dialog.className = 'sc-dialog';
+    dialog.setAttribute('aria-labelledby', 'sc-dialog-title');
+    dialog.setAttribute('aria-describedby', 'sc-dialog-text');
     dialog.dataset.tone = tone;
     dialog.innerHTML = `<header><span>${labFigure('phone')}${this.t('GUARDIA · ASYNC CHAOS LAB', 'ON CALL · ASYNC CHAOS LAB')}</span>${button('close', '×', `aria-label="${this.t('Cerrar', 'Close')}"`)}</header><h2 id="sc-dialog-title">${esc(title)}</h2><div id="sc-dialog-text">${body}</div><footer>${button('modal-primary', label, 'class="sc-primary"')}${button('close', this.t('Volver al diagrama', 'Back to diagram'))}</footer>`;
     if (!dialog.open) dialog.showModal();
@@ -676,88 +617,59 @@ class QueueScaling extends HTMLElement {
       .querySelector<HTMLButtonElement>('[data-action=modal-primary]')
       ?.focus({ preventScroll: true });
   }
-  private showCall(scene: Scene) {
+  private showCall(scene: 'intro') {
     const copy = callCopy(scene, this.names, this.es);
-    this.seen.add(scene);
-    if (scene === 'stripe' || scene === 'database') this.unlocked = true;
-    this.saveSession();
-    this.modal(
-      copy.title,
+    this.modal(copy.title,
       `<p>${this.highlight(copy.report)}</p><p class="sc-call-hint">${this.highlight(copy.hint)}</p>`,
-      copy.action,
-      scene === 'intro'
-        ? () => this.start()
-        : () => {
-            const step = this.inspected;
-            this.inspected = -1;
-            this.render();
-            if (scene === 'admission' || scene === 'stripe')
-              this.q<HTMLInputElement>('[data-limit="1"]').focus({
-                preventScroll: true,
-              });
-            else if (scene === 'rejections' && step > 0)
-              this.q<HTMLInputElement>(`[data-protect="${step}"]`).focus({
-                preventScroll: true,
-              });
-            else if (scene === 'database')
-              this.q<HTMLButtonElement>('[data-action="inspect:2"]').focus({
-                preventScroll: true,
-              });
-          },
-    );
+      copy.action);
   }
   private showResult() {
+    if (this.state.outageStep !== null) {
+      const step = this.state.outageStep;
+      const metrics = scalingMetrics(this.state);
+      this.pause();
+      const dialog = this.q<HTMLDialogElement>('dialog');
+      dialog.className = 'qs-outcome';
+      dialog.dataset.tone = 'loss';
+      dialog.setAttribute('aria-labelledby', 'qs-outcome-title');
+      dialog.setAttribute('aria-describedby', 'qs-outcome-text');
+      this.modalAction = undefined;
+      dialog.innerHTML = outcomeShell({
+        es: this.es, trial: this.history.length, fatal: true,
+        kicker: this.t('GAME LOSS / SERVICIO CAÍDO', 'GAME LOSS / SERVICE DOWN'),
+        title: this.t(`Tu sistema colapsó en el paso ${step + 1}.`, `Your system collapsed at step ${step + 1}.`),
+        evidence: `<p>${metrics.completed}/24 ${this.t('pagos completados · los pendientes siguen guardados', 'payments complete · pending payments are still stored')}</p>`,
+        text: this.t(`«${esc(this.names.steps[step]!)}» recibió más trabajo del que podía atender y se cayó. Los pagos siguen guardados, pero la cadena está parada. Amplía este servicio o reduce los workers antes de volver a arrancar.`, `“${esc(this.names.steps[step]!)}” received more work than it could handle and went down. Payments remain stored, but the chain has stopped. Expand this service or reduce workers before starting again.`),
+        actions: button('close', this.t('Revisar mi sistema', 'Review my system'), 'data-primary'),
+        dismissAction: 'close',
+        awards: this.renderNewAwards(),
+      });
+      dialog.showModal();
+      dialog.querySelector<HTMLButtonElement>('[data-primary]')?.focus({ preventScroll: true });
+      return;
+    }
     const metrics = scalingMetrics(this.state),
       verdict = scalingVerdict(this.state);
-    const horizontalProgress =
-      this.config.workers >= 4 &&
-      this.config.stripeCapacity === 3 &&
-      verdict.safe;
-    const title = horizontalProgress
-      ? this.config.workers === 4
-        ? this.t('Más pods. Menos espera.', 'More pods. Less waiting.')
-        : this.t('Más pods. La misma puerta.', 'More pods. The same doorway.')
-      : verdict.won
-        ? this.t('Ahora sí llegamos a tiempo.', 'Now we are on time.')
-        : this.state.phase === 'blocked'
-          ? this.t(
-              'Demasiados intentos. Paramos aquí.',
-              'Too many retries. Stopping here.',
-            )
-          : !verdict.safe
-            ? this.t(
-                'Llegaron, pero a base de reintentos.',
-                'They arrived, with too many retries.',
-              )
-            : !verdict.fast
-              ? this.t(
-                  'Llegaron. Los últimos esperaron demasiado.',
-                  'They arrived. The last ones waited too long.',
-                )
-              : this.t(
-                  'La misma velocidad. Una factura mayor.',
-                  'The same speed. A bigger bill.',
-                );
+    const title = verdict.won
+      ? this.t('Ahora sí llegamos a tiempo.', 'Now we are on time.')
+      : !verdict.fast
+        ? this.t('Llegaron. Los últimos esperaron demasiado.', 'They arrived. The last ones waited too long.')
+        : this.t('Llegaron. A un coste demasiado alto.', 'They arrived. At too high a cost.');
+    const previous = this.history.slice(0, -1).findLast((trial) => trial.completed === PAYMENT_COUNT);
+    const currentResult = `<div><small>${this.t('ESTE INTENTO', 'THIS TRIAL')} · ${this.config.workers} WORKERS</small><strong>${number(metrics.seconds, 1)} s</strong><span>${number(metrics.throughput, 2)} ${this.t('pagos/s', 'payments/s')} · ${number(metrics.cost)} u</span></div>`;
+    const comparison = previous
+      ? `<div class="sc-before-after"><div><small>${this.t('TU INTENTO ANTERIOR', 'YOUR PREVIOUS TRIAL')} · ${previous.config.workers} WORKERS</small><strong>${number(previous.seconds, 1)} s</strong><span>${number(previous.completed / previous.seconds, 2)} ${this.t('pagos/s', 'payments/s')} · ${number(previous.cost)} u</span></div><span aria-hidden="true">→</span>${currentResult}</div>`
+      : `<div class="sc-before-after sc-first-result">${currentResult}</div><p class="sc-first-trial">${this.t('Es tu primer intento completado. El siguiente se comparará con este resultado.', 'This is your first completed trial. The next one will be compared with this result.')}</p>`;
     const flags = [
       [verdict.fast, `≤ ${TARGET_SECONDS} s`],
       [verdict.economical, `≤ ${TARGET_COST} u`],
-      [this.state.rejected === 0, this.t('Sin rechazos', 'No rejections')],
+      [this.state.outageStep === null, this.t('Sin incidencias', 'No outages')],
     ] as const;
     this.modal(
       title,
-      `<p class="sc-result-label">${verdict.won ? this.t('MISIÓN SUPERADA', 'MISSION COMPLETE') : horizontalProgress ? this.t('PRIMERA MEJORA · AÚN QUEDA TRABAJO', 'FIRST IMPROVEMENT · NOT FINISHED YET') : this.t('ENSAYO TERMINADO · AJUSTA TU SISTEMA', 'TRIAL COMPLETE · ADJUST YOUR SYSTEM')}</p><div class="sc-before-after"><div><small>${this.t('ANTES · 1 WORKER', 'BEFORE · 1 WORKER')}</small><strong>${this.baseline.seconds} s</strong><span>${number(this.baseline.throughput, 2)} ${this.t('pagos/s', 'payments/s')} · ${this.baseline.cost} u</span></div><span aria-hidden="true">→</span><div><small>${this.t('AHORA', 'NOW')} · ${this.config.workers} WORKERS</small><strong>${number(metrics.seconds, 1)} s</strong><span>${number(metrics.throughput, 2)} ${this.t('pagos/s', 'payments/s')} · ${number(metrics.cost)} u</span></div></div><div class="sc-checks">${flags.map(([ok, label]) => `<span data-ok="${ok}">${ok ? '✓' : '×'} ${label}</span>`).join('')}</div><p>${this.t(`${metrics.completed}/24 pagos · ${this.state.rejected} rechazos · ${this.state.retries} reintentos · ningún efecto duplicado.`, `${metrics.completed}/24 payments · ${this.state.rejected} rejections · ${this.state.retries} retries · no duplicate effects.`)}</p><p class="sc-call-hint">${horizontalProgress ? this.t('Bien: repartir los pagos ha reducido la espera. Pero cada nuevo worker llama a los mismos servicios. Los pods crecen; las plazas de Stripe no. Mira cuántos pagos admite ese paso antes de seguir añadiendo workers.', 'Good: sharing the payments reduced the wait. But every new worker calls the same services. Pods grow; Stripe slots do not. Check how many payments that step admits before adding more workers.') : this.config.stripeCapacity === 9 && this.config.limits[1] === 3 ? this.t('Stripe ya admite 9 llamadas, pero el paso sigue limitado a 3. Revisa «Máximo a la vez»: aún no estamos aprovechando la ampliación.', 'Stripe now allows 9 calls, but the step is still limited to 3. Review “Max at once”: we are not using the extra capacity yet.') : verdict.won ? this.t('Más workers ayudaron hasta que otra fase puso el límite. Sigue comparando: puedes ganar con equipos distintos. El coste cuenta el tiempo que reservas recursos, aunque estén esperando.', 'More workers helped until another phase set the limit. Keep comparing: several teams can win. Cost counts how long you reserve resources, even while they wait.') : this.state.rejected ? this.t('Antes de añadir más workers, recupera la espera por plaza en el servicio que rechazó peticiones.', 'Before adding workers, restore admission control on the rejecting service.') : !verdict.fast ? this.t('El siguiente paso no es contratar a ciegas. Mira dónde esperan los pagos y ajusta la capacidad que realmente pueden utilizar.', 'Do not add workers blindly. Look where payments wait and tune the capacity they can actually use.') : this.t('Reservar más workers no abre más plazas en el servicio. Prueba un equipo menor y compara el tiempo.', 'Reserving more workers does not add service slots. Try a smaller team and compare the time.')}</p>`,
-      horizontalProgress
-        ? this.t('Buscar el siguiente límite', 'Find the next limit')
-        : this.t('Volver a mi sistema', 'Back to my system'),
-      () => {
-        this.inspected = horizontalProgress ? 1 : -1;
-        this.render();
-        this.q(
-          horizontalProgress
-            ? '[data-action="inspect:1"]'
-            : '[data-action=play]',
-        ).focus({ preventScroll: true });
-      },
+      `<p class="sc-result-label">${verdict.won ? this.t('MISIÓN SUPERADA', 'MISSION COMPLETE') : this.t('ENSAYO TERMINADO · AJUSTA TU SISTEMA', 'TRIAL COMPLETE · ADJUST YOUR SYSTEM')}</p>${comparison}<div class="sc-checks">${flags.map(([ok, label]) => `<span data-ok="${ok}">${ok ? '✓' : '×'} ${label}</span>`).join('')}</div><p>${this.t(`${metrics.completed}/24 pagos · ningún efecto duplicado.`, `${metrics.completed}/24 payments · no duplicate effects.`)}</p><p class="sc-call-hint">${verdict.won ? this.t('Los workers y los servicios ya pueden trabajar juntos sin romper la cadena. Compara tus intentos: ampliar todo también tiene un coste.', 'Workers and services can now work together without breaking the chain. Compare your trials: expanding everything has a cost too.') : this.t('Cada worker lleva un pago completo. Prueba un equipo mayor y prepara sus servicios para la carga que van a recibir.', 'Each worker carries a complete payment. Try a larger team and prepare its services for the load they will receive.')}</p>${this.renderNewAwards()}`,
+      this.t('Volver a mi sistema', 'Back to my system'),
+      () => { this.q('[data-action=play]').focus({ preventScroll: true }); },
       verdict.won ? 'win' : 'review',
     );
   }
@@ -775,7 +687,7 @@ class QueueScaling extends HTMLElement {
     const metrics = scalingMetrics(this.state);
     this.modal(
       this.t('Pagar por tenerlo reservado.', 'Paying for reserved capacity.'),
-      `<p>${this.t('Son unidades educativas, no euros ni tarifas reales. Cada worker reservado cuesta 1 u por segundo simulado, tanto si trabaja como si espera.', 'These are teaching units, not real prices. Each reserved worker costs 1 unit per simulated second, whether working or waiting.')}</p><p><strong>${this.config.workers} × ${number(metrics.seconds, 1)} s = ${number(metrics.workerCost)} u</strong></p><p>${this.t('El contrato original está incluido. Cada plaza extra de Stripe añade 1 u/s.', 'The original service contract is included. Each extra Stripe slot adds 1 u/s.')} ${this.config.stripeCapacity - 3} × ${number(metrics.seconds, 1)} s = ${number(metrics.extraServiceCost)} u.</p><p>${this.t('Eficiencia = pagos completados / unidades reservadas. El objetivo combina rapidez, cero rechazos y un coste máximo; no premia únicamente gastar menos.', 'Efficiency = completed payments / reserved units. The mission combines speed, zero rejections and a cost ceiling; spending less alone is not enough.')}</p>`,
+      `<p>${this.t('Son unidades educativas, no euros ni tarifas reales. Cada worker reservado cuesta 1 u por segundo simulado, tanto si trabaja como si espera.', 'These are teaching units, not real prices. Each reserved worker costs 1 unit per simulated second, whether working or waiting.')}</p><p><strong>${this.config.workers} × ${number(metrics.seconds, 1)} s = ${number(metrics.workerCost)} u</strong></p><p>${this.t('El contrato original está incluido. Cada unidad extra de capacidad añade 1 u/s.', 'The original service contract is included. Each extra unit of resource capacity adds 1 u/s.')} ${this.config.capacities.reduce((total, capacity, step) => total + Math.max(0, capacity - BASE_CAPACITIES[step]!), 0)} × ${number(metrics.seconds, 1)} s = ${number(metrics.extraServiceCost)} u.</p><p>${this.t('Eficiencia = pagos completados / unidades reservadas. El objetivo combina rapidez, servicios suficientes y un coste máximo; no premia únicamente gastar menos.', 'Efficiency = completed payments / reserved units. The mission combines speed, sufficient service capacity and a cost ceiling; spending less alone is not enough.')}</p>`,
       this.t('Entendido', 'Got it'),
     );
   }
@@ -786,7 +698,7 @@ class QueueScaling extends HTMLElement {
         'Same work. Different teams.',
       ),
       this.history.length
-        ? `<div class="sc-comparison"><table><thead><tr>${[this.t('Workers / Stripe', 'Workers / Stripe'), this.t('Tiempo', 'Time'), this.t('Rechazos', 'Rejected'), this.t('Coste', 'Cost'), this.t('Pagos/u', 'Payments/u')].map((title) => `<th scope="col">${title}</th>`).join('')}</tr></thead><tbody>${this.history.map((trial, index) => `<tr><td>${button(`replay:${index}`, `${trial.config.workers} W / ${trial.config.stripeCapacity} ${trial.won ? '✓' : ''}`, `aria-label="${this.t('Preparar esta configuración', 'Prepare this configuration')}"`)}<small class="sc-trial-config">${trial.config.limits.map((limit) => limit ?? '—').join(' / ')}</small></td><td>${number(trial.seconds, 1)} s</td><td>${trial.rejected}</td><td>${number(trial.cost)} u</td><td>${number(trial.completed / (trial.cost || 1), 3)}</td></tr>`).join('')}</tbody></table></div><p class="sc-call-hint">${this.t('Se guardan los últimos 8 intentos terminados en esta sesión. La reproducción ×1, ×2 o ×4 no altera sus resultados. El coste incluye todas las plazas reservadas. Bajo cada equipo aparecen los cuatro límites (— significa sin control). Pulsa un equipo para volver a probarlo.', 'The last 8 finished trials are kept in this session. Playback at ×1, ×2 or ×4 never changes their results. Cost includes all reserved slots. Each team shows its four limits (— means unprotected). Click a team to try it again.')}</p>`
+        ? `<div class="sc-comparison"><table><thead><tr>${[this.t('Workers / Stripe', 'Workers / Stripe'), this.t('Tiempo', 'Time'), this.t('Incidencia', 'Incident'), this.t('Coste', 'Cost'), this.t('Pagos/u', 'Payments/u')].map((title) => `<th scope="col">${title}</th>`).join('')}</tr></thead><tbody>${this.history.map((trial, index) => `<tr><td>${button(`replay:${index}`, `${trial.config.workers} W / ${trial.config.capacities[1]} ${trial.won ? '✓' : ''}`, `aria-label="${this.t('Preparar esta configuración', 'Prepare this configuration')}"`)}<small class="sc-trial-config">${trial.config.capacities.map((limit) => limit).join(' / ')}</small></td><td>${number(trial.seconds, 1)} s</td><td>${trial.outageStep == null ? '—' : this.t('Paso', 'Step') + ' ' + (trial.outageStep + 1)}</td><td>${number(trial.cost)} u</td><td>${number(trial.completed / (trial.cost || 1), 3)}</td></tr>`).join('')}</tbody></table></div><p class="sc-call-hint">${this.t('Se guardan los últimos 8 intentos terminados en esta sesión. La reproducción ×1, ×2 o ×4 no altera sus resultados. El coste incluye todas las plazas reservadas. Bajo cada equipo aparecen las cuatro capacidades. Pulsa un equipo para volver a probarlo.', 'The last 8 finished trials are kept in this session. Playback at ×1, ×2 or ×4 never changes their results. Cost includes all reserved slots. Each team shows its four resource capacities. Click a team to try it again.')}</p>`
         : `<p>${this.t('Completa un intento para empezar a comparar. No guardamos los que reinicias a medias.', 'Finish a trial to start comparing. Runs reset halfway are not saved.')}</p>`,
       this.t('Seguir probando', 'Keep experimenting'),
     );

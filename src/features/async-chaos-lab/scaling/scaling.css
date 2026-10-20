@@ -7,6 +7,7 @@ queue-scaling-game {
   --sc-green: #35825c;
   --sc-amber: #ac7724;
   --sc-coral: #c65a56;
+  --qs-wash: var(--sc-wash);
   --sc-wash: color-mix(in srgb, var(--color-rule) 24%, var(--color-paper));
   display: block;
   font-size: var(--font-size-small);
@@ -65,15 +66,6 @@ queue-scaling-game .sc-mission strong {
 queue-scaling-game .sc-mission p > span {
   color: var(--color-text-soft);
   font-size: 0.68rem;
-}
-queue-scaling-game .sc-mission > button {
-  margin-left: auto;
-  border: 1px solid var(--color-rule);
-  border-radius: 50%;
-  background: var(--color-paper);
-  width: 30px;
-  height: 30px;
-  flex-shrink: 0;
 }
 queue-scaling-game .sc-board {
   display: grid;
@@ -136,14 +128,6 @@ queue-scaling-game .sc-queue {
   flex: 1;
   position: relative;
 }
-queue-scaling-game .sc-queue::after {
-  content: '→';
-  position: absolute;
-  right: -1.4rem;
-  top: 30%;
-  font: 1.25rem/1 var(--font-family-display);
-  color: var(--color-text-soft);
-}
 queue-scaling-game .sc-queue header {
   display: flex;
   align-items: baseline;
@@ -184,7 +168,7 @@ queue-scaling-game .sc-team {
   border-radius: var(--radius-medium);
   padding: 0.65rem 0.75rem;
   background: var(--sc-wash);
-  margin-bottom: 0.85rem;
+  margin-bottom: 0.55rem;
 }
 queue-scaling-game .sc-team-heading {
   display: flex;
@@ -278,15 +262,6 @@ queue-scaling-game .sc-step {
     border-color 0.2s,
     box-shadow 0.2s;
 }
-queue-scaling-game .sc-step:not(:last-child)::after {
-  content: '→';
-  position: absolute;
-  top: 42%;
-  right: -0.6rem;
-  z-index: 1;
-  font: 0.8rem/1 var(--font-family-display);
-  color: var(--color-text-muted);
-}
 queue-scaling-game .sc-step.is-working {
   border-color: var(--sc-green);
   box-shadow: inset 0 3px 0 var(--sc-green);
@@ -321,16 +296,6 @@ queue-scaling-game .sc-step-heading > strong {
   min-height: 1.1rem;
   overflow-wrap: anywhere;
 }
-queue-scaling-game .sc-step-detail {
-  display: block;
-  margin-top: 0.3rem;
-  color: var(--color-text-soft);
-  font-size: 0.48rem;
-}
-queue-scaling-game .sc-step-heading:hover .sc-step-detail {
-  color: var(--sc-blue);
-  text-decoration: underline;
-}
 queue-scaling-game .sc-resource {
   display: flex;
   justify-content: space-between;
@@ -357,14 +322,14 @@ queue-scaling-game .sc-slots {
   flex-wrap: wrap;
   gap: 0.2rem;
   align-content: start;
-  min-height: 32px;
-  padding-top: 0.4rem;
+  min-height: 48px;
+  padding-top: 0.3rem;
 }
 queue-scaling-game .sc-wait {
   border-top: 1px dashed var(--color-rule);
   padding-top: 0.3rem;
   margin-top: 0.3rem;
-  height: 40px;
+  height: 48px;
 }
 queue-scaling-game .sc-wait > small {
   display: block;
@@ -410,7 +375,7 @@ queue-scaling-game .sc-job[data-status='waiting'] {
   color: var(--sc-amber);
   background: color-mix(in srgb, var(--sc-amber) 9%, var(--color-paper));
 }
-queue-scaling-game .sc-job:is([data-status='retry'], [data-status='failed']) {
+queue-scaling-game .sc-job[data-status='failed'] {
   border-color: var(--sc-coral);
   color: var(--sc-coral);
   border-style: dashed;
@@ -426,34 +391,6 @@ queue-scaling-game .sc-step-controls {
   margin-top: 0.5rem;
   padding-top: 0.4rem;
 }
-queue-scaling-game .sc-step-controls > label:first-child {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.2rem;
-  font-size: 0.5rem;
-}
-queue-scaling-game input[type='number'] {
-  width: 39px;
-  padding: 0.15rem 0.2rem;
-  background: color-mix(in srgb, var(--sc-blue) 8%, var(--color-paper));
-  border: 1px solid var(--sc-blue);
-  border-radius: 4px;
-  font: 600 0.7rem/1.4 var(--font-family-display);
-}
-queue-scaling-game .sc-protection {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.48rem;
-  margin-top: 0.4rem;
-  cursor: pointer;
-}
-queue-scaling-game .sc-protection input {
-  accent-color: var(--sc-green);
-  width: 14px;
-  height: 14px;
-}
 queue-scaling-game .sc-step-controls > small {
   display: block;
   font-size: 0.45rem;
@@ -464,10 +401,10 @@ queue-scaling-game .sc-delivered {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  margin-top: 0.75rem;
-  padding-top: 0.5rem;
+  margin-top: 0.4rem;
+  padding-top: 0.3rem;
   border-top: 1px solid var(--color-rule);
-  min-height: 31px;
+  min-height: 23px;
 }
 queue-scaling-game .sc-delivered > span {
   font: 0.5rem/1.3 var(--font-family-mono);
@@ -489,69 +426,15 @@ queue-scaling-game .sc-delivered .sc-job {
 queue-scaling-game .sc-delivered > b {
   font: 500 0.7rem/1.3 var(--font-family-mono);
 }
-queue-scaling-game .sc-inspector {
-  position: absolute;
-  inset: -1px;
-  z-index: 5;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  overflow-y: auto;
-  padding: 0.65rem;
-  border: 1px solid var(--sc-blue);
-  border-radius: var(--radius-medium);
-  background: var(--color-paper);
-  box-shadow: 0 4px 16px rgb(0 0 0 / 0.1);
-}
-queue-scaling-game .sc-inspector header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.3rem;
-}
-queue-scaling-game .sc-inspector strong {
-  font: 600 0.75rem/1.3 var(--font-family-display);
-  overflow-wrap: anywhere;
-}
-queue-scaling-game .sc-inspector p {
-  font-size: 0.6rem;
-  line-height: 1.55;
-  margin: 0;
-}
-queue-scaling-game .sc-inspector small {
-  color: var(--color-text-soft);
-  font-size: 0.48rem;
-  line-height: 1.5;
-}
-queue-scaling-game .sc-inspector button {
-  border: 0;
-  background: none;
-  padding: 0;
-}
-queue-scaling-game .sc-inspector header > button {
-  flex-shrink: 0;
-  width: 24px;
-  height: 24px;
-  font-size: 1rem;
-  line-height: 1;
-}
-queue-scaling-game .sc-inspector button.sc-upgrade {
-  margin-top: auto;
-  background: var(--color-accent);
-  color: var(--color-accent-ink);
-  padding: 0.5rem;
-  border-radius: var(--radius-small);
-  font: 600 0.6rem/1.3 var(--font-family-display);
-}
 queue-scaling-game .sc-radio {
   display: flex;
   align-items: center;
   gap: 0.7rem;
-  min-height: 56px;
+  min-height: 44px;
   background: color-mix(in srgb, var(--sc-blue) 5%, var(--color-paper));
   border-left: 3px solid var(--sc-blue);
   padding: 0.45rem 0.8rem;
-  margin-top: 0.7rem;
+  margin-top: 0.4rem;
   border-radius: 0 var(--radius-small) var(--radius-small) 0;
 }
 queue-scaling-game .sc-radio .qs-figure {
@@ -577,8 +460,8 @@ queue-scaling-game .sc-dock {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 0.65rem;
-  padding: 0.75rem 0;
-  margin-top: 0.25rem;
+  padding: 0.5rem 0;
+  margin-top: 0.15rem;
   position: sticky;
   bottom: 0;
   background: var(--color-paper);
@@ -906,10 +789,7 @@ queue-scaling-game .sc-trial-config {
   queue-scaling-game .sc-dock-metrics {
     gap: 0.4rem;
   }
-  queue-scaling-game .sc-queue::after {
-    right: -1rem;
   }
-}
 @media (max-width: 700px) {
   queue-scaling-game {
     padding-bottom: 100px;
@@ -941,10 +821,7 @@ queue-scaling-game .sc-trial-config {
   queue-scaling-game .sc-queue {
     padding: 0.5rem;
   }
-  queue-scaling-game .sc-queue::after {
-    display: none;
-  }
-  queue-scaling-game .sc-queue-jobs {
+    queue-scaling-game .sc-queue-jobs {
     grid-template-columns: repeat(8, minmax(0, 1fr));
     min-height: 65px;
   }
@@ -962,20 +839,14 @@ queue-scaling-game .sc-trial-config {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.5rem;
   }
-  queue-scaling-game .sc-step:not(:last-child)::after {
-    display: none;
-  }
-  queue-scaling-game .sc-step {
+    queue-scaling-game .sc-step {
     padding: 0.6rem;
   }
   queue-scaling-game .sc-step-heading > strong {
     min-height: 0;
     font-size: 0.85rem;
   }
-  queue-scaling-game .sc-step-detail {
-    display: none;
-  }
-  queue-scaling-game .sc-slots {
+    queue-scaling-game .sc-slots {
     min-height: 30px;
   }
   queue-scaling-game .sc-wait {
@@ -986,9 +857,6 @@ queue-scaling-game .sc-trial-config {
     flex-wrap: wrap;
     gap: 0.4rem;
     justify-content: space-between;
-  }
-  queue-scaling-game .sc-protection {
-    margin-top: 0;
   }
   queue-scaling-game .sc-dock {
     position: fixed;
@@ -1006,20 +874,7 @@ queue-scaling-game .sc-trial-config {
     width: 100%;
     justify-content: space-between;
   }
-  queue-scaling-game .sc-inspector {
-    position: fixed;
-    inset: auto var(--space-6) calc(115px + env(safe-area-inset-bottom, 0px));
-    max-height: 40dvh;
-    padding: 1rem;
-    z-index: 9;
-  }
-  queue-scaling-game .sc-inspector p {
-    font-size: 0.75rem;
-  }
-  queue-scaling-game .sc-inspector small {
-    font-size: 0.6rem;
-  }
-  queue-scaling-game .sc-trial-bar > span {
+        queue-scaling-game .sc-trial-bar > span {
     display: none;
   }
   queue-scaling-game .sc-radio {
@@ -1039,3 +894,59 @@ queue-scaling-game .sc-trial-config {
     grid-template-columns: 1fr;
   }
 }
+
+/* Keep admission decisions on the diagram, with the consequence in plain sight. */
+queue-scaling-game .sc-radio [data-radio] > button {
+  border: 0;
+  background: none;
+  color: inherit;
+  margin-left: 0.6rem;
+  font-size: 0.8rem;
+}
+queue-scaling-game .sc-job {
+  white-space: nowrap;
+}
+queue-scaling-game .sc-step.is-down {
+  border: 2px solid var(--sc-coral);
+  background: color-mix(in srgb, var(--sc-coral) 9%, var(--color-paper));
+  box-shadow: inset 0 4px 0 var(--sc-coral);
+}
+queue-scaling-game .sc-step.is-down .sc-resource {
+  color: var(--sc-coral);
+  font-weight: 700;
+}
+queue-scaling-game.is-broken .sc-step:not(.is-down) {
+  opacity: 0.55;
+}
+queue-scaling-game.is-broken .sc-worker.is-busy {
+  color: var(--sc-coral);
+  border-color: var(--sc-coral);
+  background: color-mix(in srgb, var(--sc-coral) 8%, var(--color-paper));
+}
+
+queue-scaling-game .sc-first-result { grid-template-columns: 1fr; }
+queue-scaling-game .sc-first-trial { color: var(--color-text-soft); font-size: 0.75rem; }
+
+
+queue-scaling-game * { box-sizing: border-box; }
+
+queue-scaling-game .sc-step-controls { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; font-size: 0.65rem; }
+queue-scaling-game .sc-capacity-control { display: flex; align-items: center; gap: 0.25rem; }
+queue-scaling-game .sc-capacity-control button { width: 28px; height: 28px; padding: 0; border: 1px solid var(--sc-blue); border-radius: 4px; color: var(--sc-blue); background: var(--sc-wash); }
+queue-scaling-game .sc-capacity-control output { min-width: 1.2rem; font-weight: 600; text-align: center; }
+queue-scaling-game .sc-capacity-cost { display: block; min-height: 1em; margin-top: 0.3rem; color: var(--color-text-soft); font-size: 0.5rem; }
+
+/* Share the existing award vocabulary without adding another board panel. */
+queue-scaling-game .sc-dialog {
+  --qs-wash: var(--sc-wash);
+  --qs-scene-rule: var(--color-rule);
+  --qs-scene-soft: var(--color-text-soft);
+}
+queue-scaling-game .sc-result-awards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
+  gap: 0 1rem;
+}
+
+queue-scaling-game .sc-result-awards .qs-earned { margin-top: 1rem; gap: 0.5rem; }
+queue-scaling-game .sc-result-awards .qs-earned p { font-size: 0.65rem; line-height: 1.5; }

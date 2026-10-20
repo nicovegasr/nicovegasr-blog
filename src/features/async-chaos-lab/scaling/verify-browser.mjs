@@ -134,10 +134,6 @@ try {
     });
   };
   const action = (name) => click(`[data-action="${name}"]`);
-  const closeInspector = async () => {
-    if (await evaluate('!document.querySelector("[data-inspector]").hidden'))
-      await action('inspector-close');
-  };
   const phase = () =>
     evaluate('document.querySelector("queue-scaling-game").dataset.phase');
   const dialogText = () =>
@@ -145,7 +141,7 @@ try {
   const stopped = () => waitFor('document.querySelector("dialog").open');
   const close = async () => {
     if (await evaluate('document.querySelector("dialog").open'))
-      await action('modal-primary');
+      await action((await evaluate('document.querySelector("dialog").classList.contains("qs-outcome")')) ? 'close' : 'modal-primary');
   };
   const screenshot = async (name) => {
     await new Promise((r) => setTimeout(r, 260));
@@ -181,310 +177,175 @@ try {
   await load();
   assert.match(await dialogText(), /Todo funciona/);
   await screenshot('01-intro');
-  assert.equal(
-    await evaluate('document.querySelectorAll("[data-job]").length'),
-    24,
-  );
-  assert.equal(
-    await evaluate('document.querySelectorAll(".qs-levels a").length'),
-    3,
-  );
-  await evaluate('window.reviewInterval=35');
   await close();
+  assert.equal(await phase(), 'ready');
+  await click('.qs-achievements summary');
+  assert.equal(await evaluate('document.querySelectorAll("[data-achievement]").length'), 3);
+  assert.equal(await evaluate('document.querySelectorAll("[data-achievement].is-unlocked").length'), 0);
+  await click('.qs-achievements summary');
+  assert.equal(await evaluate('document.querySelectorAll("[data-limit], [data-admission], [data-protect], [data-inspector], [data-action^=crash]").length'), 0, 'no separate admission fields or manual failures');
+  assert.equal(await evaluate('document.querySelectorAll(".sc-capacity-control").length'), 4);
+  assert.equal(await evaluate('getComputedStyle(document.querySelector(".sc-step"),"::after").content'), 'none', 'no arrows between steps');
+  assert.equal(await evaluate('getComputedStyle(document.querySelector(".sc-queue"),"::after").content'), 'none', 'no queue arrow');
+  await evaluate('window.reviewInterval=35');
+  await action('play');
   await waitFor('document.querySelector("[data-time]").textContent!=="0 s"');
   await action('play');
   assert.equal(await phase(), 'paused');
-  const pausedTime = await evaluate(
-    'document.querySelector("[data-time]").textContent',
-  );
+  const pausedTime = await evaluate('document.querySelector("[data-time]").textContent');
   await action('speed:4');
   await new Promise((r) => setTimeout(r, 120));
-  assert.equal(
-    await evaluate('document.querySelector("[data-time]").textContent'),
-    pausedTime,
-  );
-  await screenshot('02-one-worker-paused');
+  assert.equal(await evaluate('document.querySelector("[data-time]").textContent'), pausedTime);
   await evaluate('window.reviewInterval=4');
   await playToOutcome();
-  assert.equal(await phase(), 'complete');
   assert.match(await dialogText(), /144 s/);
+  assert.equal(await evaluate('document.querySelectorAll("[data-earned]").length'), 0);
+  assert.match(await dialogText(), /primer intento completado/);
+  assert.doesNotMatch(await dialogText(), /TU INTENTO ANTERIOR/);
   await close();
   for (let i = 0; i < 3; i++) await action('more');
-  await playToOutcome();
-  assert.equal(await phase(), 'complete');
-  assert.doesNotMatch(await dialogText(), /MISIÓN SUPERADA/);
-  assert.match(await dialogText(), /Más pods/);
-  assert.match(await dialogText(), /39 s/);
-  await screenshot('02b-first-improvement');
-  await close();
-  await closeInspector();
-  for (let i = 0; i < 4; i++) await action('more'); // 8 workers unlock the waiting-gate story.
-  await playToOutcome();
-  assert.equal(await phase(), 'paused');
-  assert.match(await dialogText(), /misma puerta/);
-  await screenshot('03-bottleneck-call');
-  await close();
-  await closeInspector();
-  assert.equal(
-    await evaluate(
-      'document.querySelectorAll("[data-controls]:not([hidden])").length',
-    ),
-    4,
-  );
-  assert.equal(
-    (await evaluate(
-      `document.querySelectorAll('[data-location="waiting-1"] > button').length`,
-    )) >= 2,
-    true,
-  );
-  await screenshot('04-waiting-at-stripe');
-  assert.equal(
-    await evaluate(
-      'document.querySelector(".sc-trial-bar").getBoundingClientRect().bottom<=innerHeight',
-    ),
-    true,
-    'the full desktop lab fits one viewport',
-  );
-  await playToOutcome();
-  assert.match(await dialogText(), /28 s/);
-  assert.match(await dialogText(), /224 u/);
-  await close();
-  await closeInspector();
-  assert.equal(
-    await evaluate(
-      'document.querySelectorAll("[data-worker]:not([hidden])").length',
-    ),
-    8,
-  );
-  assert.equal(
-    await evaluate('document.querySelector("[data-action=more]").disabled'),
-    true,
-  );
-  assert.equal(
-    await evaluate('document.querySelector("[data-action=double]")===null'),
-    true,
-  );
-  await action('compare');
-  assert.equal(
-    await evaluate('document.querySelectorAll("dialog tbody tr").length'),
-    3,
-  );
-  await screenshot('05-comparison');
-  await action('replay:2');
-  assert.equal(
-    await evaluate('document.querySelector("[data-workers]").textContent'),
-    '8',
-  );
+
+  // Four workers arrive at Stripe automatically. Three service slots cannot take four calls.
+  for (let run = 0; run < 2; run++) {
+    await action('reset');
+    await evaluate('window.reviewInterval=80');
+    await action('play');
+    assert.equal(await evaluate('document.querySelectorAll(\'[data-location="active-0"] > button\').length'), 4);
+    await stopped();
+    assert.equal(await phase(), 'blocked');
+    assert.match(await dialogText(), /GAME LOSS/);
+    assert.match(await dialogText(), /paso 2/);
+    assert.equal(await evaluate('document.querySelector("dialog").classList.contains("qs-outcome")'), true);
+    assert.equal(await evaluate('document.querySelectorAll("[data-job]").length'), 24);
+    assert.notEqual(await evaluate('getComputedStyle(document.querySelector("dialog")).clipPath'), 'none', 'shared incident ticket has a torn bottom edge');
+    assert.equal(await evaluate('document.querySelectorAll("[data-earned]").length'), run === 0 ? 1 : 0, 'new awards appear once, not on every replay');
+    await screenshot(run === 0 ? '02-incident-ticket-with-awards' : '02-automatic-stripe-loss');
+    await close();
+    assert.equal(await evaluate('document.querySelector(\'[data-step="1"]\').classList.contains("is-down")'), true);
+  }
+  await screenshot('03-broken-chain');
+  // Capacity upgrades change the resource itself, with no second hidden limit.
+  await action('grow:1');
+  assert.equal(await evaluate('document.querySelector(\'[data-resource-size="1"]\').textContent'), '4');
   assert.equal(await phase(), 'ready');
-  await click('[data-protect="1"]');
+  await evaluate('window.reviewInterval=4');
   await playToOutcome();
-  assert.equal(await phase(), 'paused');
-  assert.match(await dialogText(), /repetir trabajo/);
-  await screenshot('06-rejections');
+  assert.match(await dialogText(), /paso 3/);
+  await screenshot('04-next-service-fails');
   await close();
-  await closeInspector();
-  await playToOutcome();
-  assert.equal(await phase(), 'complete');
-  assert.match(await dialogText(), /16 rechazos/);
-  assert.match(await dialogText(), /32 s/);
-  assert.equal(
-    await evaluate(
-      'document.querySelectorAll("[data-location=done] > button").length',
-    ),
-    24,
-  );
-  await close();
-  await click('[data-protect="1"]'); // Restore the original three-slot admission limit.
-  await action('inspect:1');
-  await screenshot('06b-step-resource');
-  assert.equal(
-    await evaluate(
-      `(()=>{const panel=document.querySelector('[data-inspector]').getBoundingClientRect();const step=document.querySelector('[data-step="1"]').getBoundingClientRect();return panel.width<=step.width+3})()`,
-    ),
-    true,
-    'resource details cover only their own step',
-  );
-  await action('upgrade');
-  assert.equal(
-    await evaluate('document.querySelector("[data-inspector]").hidden'),
-    true,
-    'the contract choice closes its panel',
-  );
-  assert.equal(
-    await evaluate('document.activeElement.dataset.limit'),
-    '1',
-    'focus moves to the newly relevant admission limit',
-  );
-  assert.equal(
-    await evaluate(
-      `Array.from(document.querySelectorAll('[data-location="pending"] [data-job]')).map(node=>Number(node.dataset.job)).join(',')`,
-    ),
-    Array.from({ length: 24 }, (_, i) => i + 1).join(','),
-    'reset keeps the visual queue in FIFO order',
-  );
-  await closeInspector();
-  // Expanding the receiver must not silently tune the application's limit.
-  assert.equal(
-    await evaluate(`document.querySelector('[data-limit="1"]').value`),
-    '3',
-  );
-  await playToOutcome();
-  assert.equal(await phase(), 'paused');
-  assert.match(await dialogText(), /Seguimos usando tres/);
-  await close();
-  assert.equal(await evaluate('document.activeElement.dataset.limit'), '1');
+  await action('grow:2');
+  await action('grow:2');
+  assert.equal(await evaluate('document.querySelector(\'[data-resource-size="2"]\').textContent'), '4');
   await playToOutcome();
   assert.equal(await phase(), 'complete');
-  assert.doesNotMatch(await dialogText(), /MISIÓN SUPERADA/);
+  assert.match(await dialogText(), /MISIÓN SUPERADA/);
+  assert.match(await dialogText(), /36 s/);
+  assert.match(await dialogText(), /252 u/);
+  assert.match(await dialogText(), /TU INTENTO ANTERIOR/);
+  assert.match(await dialogText(), /144 s/);
+  assert.deepEqual(await evaluate('Array.from(document.querySelectorAll("[data-earned]")).map(el=>el.dataset.earned)'), ['on-time', 'minimum-team']);
+  await screenshot('05-four-worker-win');
   await close();
-  await evaluate(
-    `(()=>{const field=document.querySelector('[data-limit="1"]');field.value='8';field.dispatchEvent(new Event('change',{bubbles:true}));})()`,
-  );
-  await playToOutcome();
-  assert.equal(await phase(), 'paused');
-  assert.match(await dialogText(), /Aparece otra/);
-  await screenshot('07-database-call');
-  await close();
-  await closeInspector();
-  await screenshot('08-database-wait');
+  await action('reset');
   await playToOutcome();
   assert.match(await dialogText(), /MISIÓN SUPERADA/);
-  assert.match(await dialogText(), /21 s/);
-  await screenshot('09-mission-complete');
+  assert.match(await dialogText(), /36 s/);
+  assert.equal(await evaluate('document.querySelectorAll("[data-earned]").length'), 0, 'repeated wins do not repeat award notices');
   await close();
-  await action('less');
-  await action('less');
+  assert.equal(await evaluate('document.querySelector(".sc-trial-bar").getBoundingClientRect().bottom<=innerHeight'), true, 'desktop fits one screen');
+  await screenshot('06-no-arrows-or-panels');
+  await click('.qs-achievements summary');
+  assert.equal(await evaluate('document.querySelectorAll("[data-achievement].is-unlocked").length'), 3);
+  await screenshot('12-achievement-catalogue');
+  await click('.qs-achievements summary');
+  // Overload is tested at a different service too.
+  await action('shrink:3');
+  await action('shrink:3');
+  await playToOutcome();
+  assert.match(await dialogText(), /paso 4/);
+  await close();
+  await action('grow:3');
+  await action('grow:3');
+  // Six occupied slots only appear after six workers and real receiving capacity exist.
+  for (let i = 0; i < 2; i++) await action('more');
+  for (const step of [0, 1, 2]) {
+    await action(`grow:${step}`);
+    await action(`grow:${step}`);
+  }
+  await action('grow:3');
+  await evaluate('window.reviewInterval=80');
+  await action('play');
+  await waitFor('document.querySelectorAll(\'[data-location="active-1"] > button\').length===6');
+  await action('play');
+  assert.equal(await evaluate('document.querySelectorAll(\'[data-location="active-1"] > button\').length'), 6);
+  assert.match(await evaluate('document.querySelector(\'[data-capacity="1"]\').textContent'), /6\/6/);
+  await screenshot('07-six-real-service-slots');
+  await evaluate('window.reviewInterval=4');
   await playToOutcome();
   assert.match(await dialogText(), /MISIÓN SUPERADA/);
-  assert.match(await dialogText(), /26 s/);
   await close();
+  await action('compare');
+  assert.equal((await evaluate('document.querySelectorAll("dialog tbody tr").length')) > 1, true);
+  await screenshot('08-comparison');
+  await action('replay:0');
+  assert.equal(await phase(), 'ready');
   await action('names');
   const hostile = '<img src=x onerror="window.scalingXss=1">';
-  await evaluate(
-    `(()=>{for(const [key,value] of Object.entries(${JSON.stringify({ api: hostile, 'step-1': 'Cobrar mi pedido', 'job-0': 'Pedido de Ana' })})){const input=document.querySelector('[data-rename="'+key+'"]');input.value=value;input.dispatchEvent(new Event('input',{bubbles:true}));}})()`,
-  );
+  await evaluate(`(()=>{for(const [key,value] of Object.entries(${JSON.stringify({ api: hostile, 'step-1': 'Cobrar mi pedido', 'job-0': 'Pedido de Ana' })})){const input=document.querySelector('[data-rename="'+key+'"]');input.value=value;input.dispatchEvent(new Event('input',{bubbles:true}));}})()`);
   await close();
-  assert.equal(
-    await evaluate('document.querySelector("[data-name=api]").textContent'),
-    hostile,
-  );
+  assert.equal(await evaluate('document.querySelector("[data-name=api]").textContent'), hostile);
   await action('job:1');
-  assert.match(
-    await evaluate('document.querySelector("[data-radio]").textContent'),
-    /Pedido de Ana/,
-  );
-  assert.equal(
-    await evaluate(
-      'window.scalingXss===undefined&&!document.querySelector("queue-scaling-game img")',
-    ),
-    true,
-  );
-  await load();
-  assert.equal(
-    await evaluate('document.querySelector("[data-name=api]").textContent'),
-    hostile,
-  );
-  assert.equal(await evaluate('document.querySelector("dialog").open'), false);
-  await evaluate(
-    `(()=>{const key='async-scaling-v1-es';const saved=JSON.parse(sessionStorage.getItem(key));delete saved.names;sessionStorage.setItem(key,JSON.stringify(saved));})()`,
-  );
-  await load();
-  await evaluate('document.documentElement.dataset.theme="dark"');
-  await screenshot('10-dark');
-  await send('Emulation.setDeviceMetricsOverride', {
-    width: 390,
-    height: 844,
-    deviceScaleFactor: 1,
-    mobile: true,
-  });
-  assert.equal(
-    await evaluate(
-      '(()=>{const r=document.querySelector("[data-action=play]").getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight})()',
-    ),
-    true,
-    'mobile transport is visible before scrolling',
-  );
-  await screenshot('11-mobile');
-  assert.equal(
-    await evaluate('document.documentElement.scrollWidth<=innerWidth'),
-    true,
-    'no mobile horizontal overflow',
-  );
-  await evaluate(
-    'window.scrollTo(0,document.querySelector(".sc-trial-bar").getBoundingClientRect().bottom+scrollY)',
-  );
-  assert.equal(
-    await evaluate(
-      'document.querySelector("[data-action=play]").getBoundingClientRect().bottom<=innerHeight',
-    ),
-    true,
-  );
-  await send('Emulation.setDeviceMetricsOverride', {
-    width: 1280,
-    height: 800,
-    deviceScaleFactor: 1,
-    mobile: false,
-  });
-  await send('Emulation.setEmulatedMedia', {
-    features: [{ name: 'prefers-reduced-motion', value: 'reduce' }],
-  });
-  await load('en');
-  assert.match(await dialogText(), /Too slowly/);
-  await close();
-  await stopped();
-  assert.match(await dialogText(), /144 s/);
-  assert.equal(
-    await evaluate(
-      'document.querySelectorAll("[data-location=done] > button").length',
-    ),
-    24,
-  );
-  await screenshot('12-english');
-  assert(
-    networkRequests.every(
-      (request) =>
-        new URL(request.url).origin === new URL(base).origin &&
-        request.method === 'GET',
-    ),
-    'static resources only; no service requests',
-  );
-  for (const [path, level] of [
-    ['async-chaos-lab', 1],
-    ['worker-steps', 2],
-  ]) {
-    await send('Page.navigate', { url: `${base}/es/laboratorios/${path}/` });
-    await waitFor(
-      '!!document.querySelector("queue-stories-game [data-action=play]")',
-    );
-    assert.equal(
-      await evaluate('document.querySelectorAll(".qs-levels a").length'),
-      3,
-    );
-    assert.equal(
-      await evaluate(
-        'document.querySelector(".qs-levels [aria-current=page] span").textContent',
-      ),
-      `0${level}`,
-    );
-    await screenshot(`header-level-${level}`);
-  }
-  const blockedStorage = await send('Page.addScriptToEvaluateOnNewDocument', {
-    source:
-      'Object.defineProperty(window,"sessionStorage",{get(){throw Error("Storage blocked in review")}});',
-  });
+  assert.match(await evaluate('document.querySelector("[data-radio]").textContent'), /Pedido de Ana/);
+  assert.equal(await evaluate('window.scalingXss===undefined&&!document.querySelector("queue-scaling-game img")'), true);
   await load();
   assert.match(await dialogText(), /Todo funciona/);
   await close();
-  await stopped();
+  assert.equal(await phase(), 'ready');
+  await evaluate('document.documentElement.dataset.theme="dark"');
+  await screenshot('09-dark');
+  await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+  await load();
+  await close();
+  assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth'), true);
+  assert.equal(await evaluate('(()=>{const r=document.querySelector(".sc-dock").getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight})()'), true);
+  await screenshot('10-mobile');
+  for (let i = 0; i < 3; i++) await action('more');
+  await playToOutcome();
+  assert.match(await dialogText(), /GAME LOSS/);
+  assert.equal(await evaluate('document.querySelector("dialog").getBoundingClientRect().width<=innerWidth'), true);
+  await screenshot('13-mobile-incident-ticket');
+  await close();
+  await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 800, deviceScaleFactor: 1, mobile: false });
+  await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+  await load('en');
+  assert.match(await dialogText(), /Too slowly/);
+  assert.match(await evaluate('document.querySelector("[data-achievement-summary]").textContent'), /3\/3/, 'unlocks persist across reloads and locales');
+  await close();
+  await playToOutcome();
+  assert.match(await dialogText(), /144 s/);
+  assert.equal(await evaluate('document.querySelectorAll("[data-earned]").length'), 0);
+  await screenshot('11-english');
+  for (const path of ['async-chaos-lab', 'worker-steps']) {
+    await send('Page.navigate', { url: `${base}/es/laboratorios/${path}/` });
+    await waitFor('!!document.querySelector("queue-stories-game [data-action=play]")');
+    assert.equal(await evaluate('document.querySelector("dialog").open'), true);
+    assert.match(await dialogText(), /LLAMADA ENTRANTE/);
+    if (path === 'async-chaos-lab') {
+      await click('[data-action=dismiss]');
+      assert.equal(await evaluate('getComputedStyle(document.querySelector(".qs-node-setting select")).appearance'), 'none');
+      assert.equal(await evaluate('parseFloat(getComputedStyle(document.querySelector(".qs-node-setting"),"::after").right) === parseFloat(getComputedStyle(document.documentElement).fontSize)'), true);
+      await screenshot('14-queue-select-chevrons');
+    }
+  }
+  const blockedStorage = await send('Page.addScriptToEvaluateOnNewDocument', { source: 'Object.defineProperty(window,"sessionStorage",{get(){throw Error("Storage blocked in review")}});' });
+  await load();
+  await close();
+  await playToOutcome();
   assert.equal(await phase(), 'complete');
-  await send('Page.removeScriptToEvaluateOnNewDocument', {
-    identifier: blockedStorage.identifier,
-  });
+  await send('Page.removeScriptToEvaluateOnNewDocument', { identifier: blockedStorage.identifier });
+  assert(networkRequests.every(request => new URL(request.url).origin === new URL(base).origin && request.method === 'GET'), 'static resources only');
   assert.deepEqual(errors, []);
-  console.log(
-    'PASS scaling: one-screen desktop, baseline, Play/Pause/speed, 4/6/8 workers, bottleneck unlock, rejection/retry, shifted DB bottleneck, efficient wins, comparisons, names/XSS, session, mobile, EN, dark, reduced motion. Screenshots:',
-    output,
-  );
+  console.log('PASS: automatic overloads at Stripe/database/email, real capacity upgrades, repeated starts, four-worker win, six occupied service slots, shared serrated Game Loss on desktop/mobile, all achievement criteria/catalogue/deduplication/session persistence, no arrows/manual failure/admission controls, own trial comparison, introductions, pause/speed, mobile, EN, dark, reduced motion, names/XSS, blocked storage. Screenshots:', output);
 } finally {
   socket?.close();
   browser.kill();

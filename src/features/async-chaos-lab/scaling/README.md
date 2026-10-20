@@ -1,114 +1,119 @@
-# Lab 3: scaling a reliable worker
+# Lab 3: scaling workers and their services
 
 Routes: `/es/laboratorios/scaling/` and `/en/labs/scaling/`.
 
-This level assumes the reliability taught in labs 1 and 2. It never connects to
-Stripe, sends email, or writes to a database. Astro generates static pages; a
-native custom element runs the simulation in the browser. No new dependencies,
-API routes, backend, or Cloudflare Functions are involved.
+This remains a static Astro page with a native custom element. Processing happens
+in a deterministic browser simulation: no backend, real service calls, Cloudflare
+Functions or new dependencies.
 
-## Where to change what
+## Files
 
-- `engine.ts`: jobs, resource admission, fixed clock, retry scheduling and costs.
-- `engine.test.ts`: ownership, effects, shared capacities, retries and timing.
-- `content.ts`: bilingual on-call scenes, names and resource explanations.
-- `controller.ts`: playback, rendering, dialogs, session history and discovery.
-- `scaling.css`: feature-scoped layout, packet motion and state signals.
-- `../ScalingPage.astro`: static page wrapper; `../LabHeader.astro`: shared navigation.
-- `verify-browser.mjs`: real browser interactions, layout and screenshot checks.
+- `engine.ts`: payments, worker ownership, physical capacities, overloads and cost.
+- `achievements.ts` / `achievements.test.ts`: actual-run rewards and minimum-team proof.
+- `engine.test.ts`: repeatability, capacity, overloads, effects and mission rules.
+- `controller.ts`: playback, diagram, introductions and session comparison.
+- `content.ts`: bilingual names and introductory call.
+- `scaling.css`: feature-scoped layout and signals.
+- `verify-browser.mjs`: browser interactions and screenshots.
+- `../outcome-shell.ts`: the same outcome scene used by all three levels.
 
-## The simulation in one pass
+## Simulation rules
 
-`createScaling(config)` creates 24 pending payments. `playScaling` assigns one
-payment to each available worker and admits work into the first phase. Every
-`tickScaling` advances the simulated clock by **0.5 seconds**. At a boundary it:
+24 payments traverse validation, charging, account activation and confirmation.
+The phases take 1, 3, 1 and 1 simulated seconds. Each worker owns one payment
+throughout that sequence. Workers claim the next pending payment when free.
+The workload is a pipeline, not fixed-size batches.
 
-1. Accounts for the interval just spent working or waiting.
-2. Completes due operations and makes delayed retries eligible again.
-3. Releases workers whose payments completed all four phases.
-4. Gives idle workers the oldest pending payments.
-5. Admits waiting payments in waiting-time/ID order into available resources.
+`capacities` is the actual capacity of each resource. Defaults are 4 CPU units,
+3 simultaneous payment-service calls, 2 database writes and 5 email requests.
+There is no second per-phase admission setting, waiting policy, separate queue
+control, random incident or manual failure button.
 
-The four operations take 1, 3, 1 and 1 seconds. Shared capacities are 4 CPU units,
-3 concurrent payment-service calls, 2 concurrent database writes and 5 concurrent
-email calls. A worker retains its payment through processing, local waiting and
-retry backoff. It cannot claim another payment until that one finishes.
+When CPU is full, computation waits for a core. External calls are sent as soon
+as their workers reach the phase. In this scenario, a receiving service collapses
+when offered more concurrent work than its capacity. Exactly filling it is safe.
+A collapse stops the experiment, marks work at that phase as interrupted, retains
+all payments/effects and shows the broken chain with the shared Game Loss scene.
 
-An enabled admission limit is capped by the known receiver capacity: excess work
-waits locally. Disabling it sends excess calls to a **fictional rejecting
-receiver**. Rejections occur before applying an effect. Each delayed attempt
-uses bounded exponential backoff and deterministic jitter derived from job,
-phase, rejection count and seed. CPU contention still queues rather than
-inventing HTTP-style CPU errors. After 12 rejections of a single phase, processing
-stops with the job retained as failed; there is no silent loss or infinite loop.
+Overload collapse is a deliberate scenario rule, not a claim that every real
+service crashes on one excess request. A real receiver may reject, queue, shed
+load or degrade instead. This level concentrates on sizing services for the work
+sent to them; reliability and ambiguous effects are covered by lab 2.
 
-`pauseScaling` freezes time. Playback speeds only change how frequently the UI
-requests ticks. A resumed or accelerated run therefore produces the same result.
-The page pauses when its tab becomes hidden and cleans up its timer on disconnect.
+With four workers:
 
-## Why the bottleneck can move
+1. Original capacity: four calls reach Stripe's three slots; step 2 fails at 1 s.
+2. Expand Stripe to four: calls finish, but four activations exceed the database's
+   two slots; step 3 fails at 4 s.
+3. Expand the database to four: the same team completes all payments in 36 s.
+4. Reducing email capacity below that incoming burst exposes a failure at step 4.
 
-Lowering or removing a concurrency limit does **not** increase service capacity.
-The optional Stripe contract upgrade increases the actual shared capacity from
-3 to 9 calls; its duration stays 3 seconds. Only after that upgrade can the
-two-write database become the dominant resource wait with these durations.
-The UI makes the extra capacity and its cost explicit. The upgrade deliberately
-preserves the application’s existing admission limit. A contextual call explains
-why buying extra receiver capacity does not help while the step still admits
-only three calls. The player must tune that limit on the phase itself.
+The simulation uses fixed 0.5-second ticks. FPS and playback speed do not change
+results. The same configuration produces identical events and initial payments.
+There are no hidden worker-count failures or infinite retries.
 
-The first visible Stripe queue unlocks controls and pauses for a short call.
-A four-worker trial unlocks the controls and celebrates horizontal-scaling progress without awarding victory, even
-if its waiting line was too small to trigger that call. Other calls react to
-the first actual rejection, to unused capacity after an upgrade, and to a database queue after the admission limit is adjusted.
-Calls occur once per browser session; experiments remain freely repeatable.
+## Interaction and presentation
 
-## Costs and the mission
+All three levels open with an on-call introduction; closing it leaves the system
+editable without starting playback. Lab 3's resource capacity is adjusted directly
+on each node using minus/plus controls, from 1 to 8 units. Each change prepares a
+fresh attempt. Pause before changing workers or resources.
 
-One unit is one reserved worker-second. Every extra Stripe slot also costs one
-unit per simulated second. The original resource contract is included:
+Worker chips show their payment and phase. Payment chips show their owning
+worker while in flight. Busy, waiting and failed states use labels as well as
+color. There are no arrows or floating resource inspectors between phases.
+Small packet motion respects reduced motion; hidden tabs pause automatically.
 
-`cost = seconds * workers + seconds * (stripeCapacity - 3)`
+The first completed attempt shows only its own result. Later completions compare
+with the last completed attempt in history, never a computed one-worker reference.
+Names and the last eight attempts live in optional version-4 `sessionStorage`.
+Blocked storage does not prevent playback. Names are escaped and length-limited.
 
-Idle and waiting workers remain reserved. These are teaching units, not prices
-or measured CPU/RAM consumption. Efficiency is completed payments per unit.
-The mission accepts any configuration that completes all 24 payments within
-26 simulated seconds with at most 8 available workers, costs at most 400 units and has no rejections. There is
-no hidden score or worker-count penalty.
+## Mission and resource cost
 
-Reproducible examples from the default seed and original contract:
+Complete all 24 payments in at most 37 simulated seconds, without an overload,
+within 400 teaching units and with at most eight workers. A correctly prepared
+four-worker team wins. Different larger teams/capacities can also succeed.
 
-| Workers | Seconds | Units | Rejections |
-| ------- | ------- | ----- | ---------- |
-| 1       | 144     | 144   | 0          |
-| 4       | 39      | 156   | 0          |
-| 8       | 28      | 224   | 0          |
+`cost = seconds * (workers + sum(max(0, capacity - includedCapacity)))`
 
-With 8 workers and unprotected Stripe, the same batch takes 32 seconds and
-has 16 rejections/retries. Expanding Stripe to 9 slots while leaving the local
-limit at 3 still takes 28 seconds, so that alone cannot win. With 8 workers and
-a protected admission limit of 8, the batch takes 21 seconds and 294 units;
-the database now accumulates more waiting time than Stripe. Six workers with
-a limit of 6 also win in 26 seconds; seven with a limit of 4 win in 25 seconds.
-The general engine still supports 24 workers for regression experiments, but
-the playable mission only offers eight and never awards an oversized team victory. The baseline displayed by the UI comes from running the
-one-worker engine, not from a separate formula.
+The included capacities are `[4, 3, 2, 5]`. Every extra unit costs one teaching
+unit per simulated second. Reserved workers cost the same while idle or waiting.
+Reducing included capacity does not generate a negative bill. These are explicit
+teaching units, not real prices or CPU/RAM measurements.
 
-## Interaction and persistence
+Examples from the engine:
 
-Workers are added one at a time on the team itself; no worker multiplier is offered. Playback speed controls remain separate. Click a phase for its explanation and,
-once unlocked, the Stripe upgrade. Per-phase admission controls sit inside each
-phase. Pause before changing configuration: every configuration change prepares
-a fresh trial. Renaming changes the live labels without resetting processing.
-Click a payment or worker to hear what that payment is currently doing.
+| Workers | CPU / Stripe / DB / Email | Result |
+| ------- | ------------------------- | ------ |
+| 1 | 4 / 3 / 2 / 5 | Complete in 144 s; slow |
+| 4 | 4 / 3 / 2 / 5 | Stripe collapses at 1 s |
+| 4 | 4 / 4 / 2 / 5 | Database collapses at 4 s |
+| 4 | 4 / 4 / 4 / 5 | Win in 36 s, 252 units |
+| 6 | 6 / 6 / 6 / 6 | Win in 24 s, 384 units |
 
-The last eight finished trials, discovery flags and names are kept in
-`sessionStorage`. Reset does not erase the comparison. Older victory flags are recomputed against the current mission; oversized historical teams are excluded. Reload begins a new
-one-worker run while preserving session history. Blocked storage does not stop
-the lab. Names are length-limited and escaped before insertion into HTML.
-Motion preferences disable packet flight and decorative pulsing.
+## Achievements
 
-## Verification
+Three optional achievements cover worker-only scaling, timely completion and
+winning with the minimum team. Eligibility comes from terminal engine state,
+not button clicks. New awards appear in the existing result scene once.
+The catalogue uses the same expandable session-achievements section as labs 1
+and 2. Player descriptions do not reveal the winning worker count or a resource
+configuration.
+
+The minimum team is four: each of 24 payments holds a worker for six seconds,
+so three workers require at least 48 seconds. A feasible four-worker configuration
+finishes in 36 seconds. The minimum-team reward requires the full mission verdict,
+including the budget. Timely completion alone has its own reward.
+
+Unlocks persist in a locale-independent session-storage
+key. Resetting a trial retains them; storage denial leaves in-memory play intact.
+No extra result dialogs or external requests are introduced.
+
+The shared loss scene has a serrated bottom edge, like an incident ticket, in all
+three levels. Its content remains scrollable on small screens.
+
+## Verification and limits
 
 ```sh
 npm run test:run
@@ -117,20 +122,11 @@ npm run build
 GAME_TEST_URL=http://127.0.0.1:4321 node src/features/async-chaos-lab/scaling/verify-browser.mjs
 ```
 
-The browser check uses the existing Brave installation, with an isolated
-headless profile under `.astro/`. Override `GAME_BROWSER` for another Chromium
-binary. Screenshots are saved under `.astro/scaling-review/`; the disposable
-profile is removed on exit. The check accelerates only its own simulation timer.
+The browser check uses Brave and an isolated disposable profile under `.astro/`.
+Override `GAME_BROWSER` for another Chromium binary. Screenshots go under
+`.astro/scaling-review/`. Test timer acceleration affects only its own browser.
 
-## Deliberate simplifications
-
-- This is a finite burst of 24 payments, not an unbounded arrival-rate model.
-- CPU capacity is a fixed pool, not a model of scheduling or CPU slowdown.
-- Resources have fixed latency and capacity. There are no network timeouts,
-  rate-per-second quotas, database row locks, lease expiry or process crashes.
-- Concurrency control does not prove transactional consistency or prevent data
-  races. The database scene says so explicitly.
-- Retry rejection is known to happen before an effect. Ambiguous external
-  outcomes, stable-ID support and local checkpoints belong to lab 2.
-- This level does not model separate queues/worker pools for every stage.
-  Every payment retains a global worker slot throughout the pipeline.
+This is a finite burst with fixed latencies and capacities, not an arrival-rate
+or realistic CPU-scheduling model. It does not model row locks, leases, timeouts,
+request-per-second quotas, separate worker pools or distributed admission control.
+Concurrency capacity does not prove transaction consistency or prevent data races.
