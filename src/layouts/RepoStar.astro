@@ -1,0 +1,65 @@
+---
+import type { Locale } from '@/i18n/locale';
+import { getTranslator } from '@/i18n/translator';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const translate = getTranslator(locale);
+---
+
+<a
+  class="repo-star"
+  href="https://github.com/nicovegasr/nicovegasr-blog"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <span>{translate('blog.starPrompt')}</span>
+  <img
+    src="https://img.shields.io/github/stars/nicovegasr/nicovegasr-blog?style=social"
+    alt={translate('blog.starCount')}
+    width="80"
+    height="20"
+    decoding="async"
+    referrerpolicy="no-referrer"
+  />
+</a>
+
+<style>
+  .repo-star {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+    min-height: 44px;
+    margin-top: var(--space-2);
+    padding-block: var(--space-2);
+    color: var(--color-text-soft);
+    font-size: var(--font-size-small);
+    line-height: 1.5;
+    text-decoration: none;
+  }
+
+  .repo-star span {
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+
+  .repo-star img {
+    flex-shrink: 0;
+    width: auto;
+    height: 20px;
+    max-width: none;
+  }
+
+  .repo-star:hover span,
+  .repo-star:focus-visible span {
+    color: var(--color-ink);
+    text-decoration-thickness: 3px;
+  }
+
+</style>

@@ -21,6 +21,8 @@ export const spanish = {
   'blog.introText':
     'Me gusta investigar y entender cómo funcionan las herramientas que usamos en el día a día.',
   'blog.introLink': 'Más sobre mí →',
+  'blog.starPrompt': '¿Te ha servido?',
+  'blog.starCount': 'Estrellas del repositorio en GitHub',
   'blog.readingTime': 'min de lectura',
   'blog.readMore': 'Leer →',
   'blog.empty': 'Aún no hay artículos publicados.',

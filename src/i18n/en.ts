@@ -23,6 +23,8 @@ export const english: Dictionary = {
   'blog.introText':
     'I enjoy exploring and understanding how the tools we use every day work.',
   'blog.introLink': 'More about me →',
+  'blog.starPrompt': 'Found it useful?',
+  'blog.starCount': 'GitHub repository stars',
   'blog.readingTime': 'min read',
   'blog.readMore': 'Read →',
   'blog.empty': 'No articles published yet.',
