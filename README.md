@@ -24,6 +24,7 @@ npm run build
 - [Arquitectura técnica](docs/technical/architecture.md)
 - [Guía de estilo](docs/design/styleguide.md)
 - [Guía para imágenes](docs/design/images-styles.md)
+- [Guía para vídeos y producción](videos/README.md)
 
 ## Stack
 
