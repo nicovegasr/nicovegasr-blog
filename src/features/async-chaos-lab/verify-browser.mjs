@@ -140,9 +140,19 @@ try {
     if (await evaluate('!!document.querySelector("dialog[open]")'))
       await click('dismiss');
   };
-  const setting = (key) =>
-    clickSelector(`queue-stories-game [data-setting="${key}"]`);
+  const setting = async (key) => {
+    if (key.startsWith('remember-')) {
+      const open = await evaluate('document.querySelector(".qs-step-editor:popover-open")?.id');
+      if (open) await clickSelector(`#${open} [popovertargetaction=hide]`);
+    }
+    await clickSelector(`queue-stories-game [data-setting="${key}"]`);
+  };
   const select = async (key, value) => {
+    if (key.startsWith('kind-')) {
+      const step = Number(key.split('-')[1]);
+      if (!(await evaluate(`document.querySelector('[data-step-editor="${step}"]').matches(':popover-open')`)))
+        await clickSelector(`button[popovertarget="qs-step-options-${step}"]:not([popovertargetaction])`);
+    }
     await evaluate(
       `(()=>{const el=document.querySelector('queue-stories-game [data-setting="${key}"]');el.value=${JSON.stringify(String(value))};el.dispatchEvent(new Event('change',{bubbles:true}));})()`,
     );
@@ -194,6 +204,10 @@ try {
       'document.fonts.ready.then(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))))',
     );
     await evaluate('document.querySelector("astro-dev-toolbar")?.remove()');
+    assert.equal(await evaluate('document.querySelector("dialog").open'), true, 'each level opens with an on-call introduction');
+    assert.match(await evaluate('document.querySelector("dialog").textContent'), /LLAMADA ENTRANTE|INCOMING CALL/);
+    await click('dismiss');
+    assert.equal(await evaluate('document.querySelector("queue-stories-game").dataset.phase'), 'ready', 'the introduction leaves the system editable');
   };
   const phase = () =>
     evaluate('document.querySelector("queue-stories-game").dataset.phase');
@@ -601,6 +615,12 @@ try {
     'worker fits desktop',
   );
   await screenshot('worker-initial');
+  const diagramBefore = await evaluate('document.querySelector(".qs-worker-interior").getBoundingClientRect().height');
+  await clickSelector('button[popovertarget="qs-step-options-3"]:not([popovertargetaction])');
+  assert.equal(await evaluate('document.querySelector(".qs-worker-interior").getBoundingClientRect().height'), diagramBefore, 'opening step configuration does not resize the chain');
+  await screenshot('worker-step-editor');
+  await clickSelector('[data-step-editor="3"] [popovertargetaction=hide]');
+
   await click('guide');
   assert.match(
     await evaluate('document.querySelector("dialog").textContent'),
@@ -676,17 +696,14 @@ try {
     before,
   );
   // Pure/local work is independent of external-effect deduplication.
-  await evaluate(
-    'document.querySelectorAll(".qs-step-options details").forEach(e=>e.open=true)',
-  );
   for (const i of [0, 1, 2, 3]) {
     await select('kind-' + i, 'check');
     assert.equal(
       await evaluate(
-        `[...document.querySelectorAll('.qs-step-options details')].every(details=>details.open)`,
+        `document.querySelector('[data-step-editor="${i}"]').matches(':popover-open')`,
       ),
       true,
-      'changing one action preserves expanded step options',
+      'changing an action preserves its configuration panel',
     );
     if (
       await evaluate(

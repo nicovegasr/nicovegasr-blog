@@ -272,8 +272,8 @@ export function guideBeat(c: Context): GuideBeat {
             'The provider recognizes the same ID. Start another trial to check that it records only one send.',
           )
         : t(
-            `En «Opciones del paso» de «${c.lastStep}», activa que el proveedor reconozca el mismo ID.`,
-            `Under “Step options” for “${c.lastStep}”, enable receiver support for the same ID.`,
+            `En «Configurar paso» de «${c.lastStep}», activa que el proveedor reconozca el mismo ID.`,
+            `Under “Configure step” for “${c.lastStep}”, enable receiver support for the same ID.`,
           ),
       s.config.steps[3]?.providerDeduplication ? null : 'provider',
     );

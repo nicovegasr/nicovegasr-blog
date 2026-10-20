@@ -376,20 +376,12 @@ queue-stories-game .qs-step-options label {
   font-size: 0.75rem;
   line-height: 1.4;
 }
-queue-stories-game .qs-step-options details {
-  margin-top: 0.5rem;
-  font-size: 0.65rem;
-  color: var(--color-text-soft);
-}
-queue-stories-game .qs-step-options details[open] {
-  padding-top: 0.3rem;
-}
 queue-stories-game .qs-step-options .qs-kind-label {
   align-items: flex-start;
   flex-direction: column;
   margin-block: 0.6rem;
 }
-queue-stories-game summary {
+:is(queue-stories-game, queue-scaling-game) summary {
   cursor: pointer;
   font-family: var(--font-family-display);
 }
@@ -403,43 +395,43 @@ queue-stories-game .qs-result-metrics b {
   font: 600 1.25rem/1 var(--font-family-display);
   margin-right: 0.3rem;
 }
-queue-stories-game .qs-achievements {
+:is(queue-stories-game, queue-scaling-game) .qs-achievements {
   border: 1px solid var(--color-rule);
   margin-block: 1rem;
 }
-queue-stories-game .qs-achievements > p {
+:is(queue-stories-game, queue-scaling-game) .qs-achievements > p {
   font-size: 0.7rem;
   color: var(--color-text-soft);
 }
-queue-stories-game [data-achievements] {
+:is(queue-stories-game, queue-scaling-game) [data-achievements] {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
   margin-top: 1rem;
 }
-queue-stories-game [data-achievements] article {
+:is(queue-stories-game, queue-scaling-game) [data-achievements] article {
   display: flex;
   gap: 0.75rem;
   border: 1px dashed var(--color-rule);
   padding: 0.75rem;
   color: var(--color-text-soft);
 }
-queue-stories-game [data-achievements] article.is-unlocked {
+:is(queue-stories-game, queue-scaling-game) [data-achievements] article.is-unlocked {
   border: 2px solid var(--color-ink);
   color: var(--color-ink);
   background: var(--qs-wash);
 }
-queue-stories-game [data-achievements] article > span {
+:is(queue-stories-game, queue-scaling-game) [data-achievements] article > span {
   font-size: 1.5rem;
 }
-queue-stories-game [data-achievements] h3 {
+:is(queue-stories-game, queue-scaling-game) [data-achievements] h3 {
   font: 600 0.9rem/1.3 var(--font-family-display);
   margin: 0;
 }
-queue-stories-game [data-achievements] p {
+:is(queue-stories-game, queue-scaling-game) [data-achievements] p {
   font-size: 0.75rem;
 }
-queue-stories-game [data-achievements] small {
+:is(queue-stories-game, queue-scaling-game) [data-achievements] small {
   font-size: 0.65rem;
 }
 queue-stories-game .qs-toast:not(:empty) {
@@ -459,7 +451,7 @@ queue-stories-game .qs-toast strong {
   margin: 0.5rem 0;
 }
 /* An outcome is a scene with evidence, rather than an alert card. */
-queue-stories-game .qs-outcome {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome {
   --qs-scene-ink: var(--color-ink);
   --qs-scene-soft: var(--color-text-soft);
   --qs-scene-rule: var(--color-rule);
@@ -471,21 +463,21 @@ queue-stories-game .qs-outcome {
   background: var(--color-paper);
   color: var(--qs-scene-ink);
 }
-queue-stories-game .qs-outcome[data-tone='loss'] {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome[data-tone='loss'] {
   --qs-scene-ink: #f2f2f2;
   --qs-scene-soft: #b5b5b5;
   --qs-scene-rule: #424244;
   background: rgb(12 12 13 / 0.93);
 }
-queue-stories-game .qs-outcome :focus-visible {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome :focus-visible {
   outline-color: var(--qs-scene-ink);
 }
-queue-stories-game .qs-outcome-shell {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-shell {
   margin: auto;
   display: flex;
   flex-direction: column;
 }
-queue-stories-game .qs-outcome-top {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -493,11 +485,11 @@ queue-stories-game .qs-outcome-top {
   color: var(--qs-scene-soft);
   font: 0.6rem/1.5 var(--font-family-mono);
 }
-queue-stories-game .qs-outcome-top > span > span {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-top > span > span {
   margin: 0 0.5rem;
   opacity: 0.5;
 }
-queue-stories-game .qs-outcome-top button {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-top button {
   background: none;
   border: 0;
   padding: 0.5rem 0;
@@ -505,17 +497,17 @@ queue-stories-game .qs-outcome-top button {
   font-size: 0.7rem;
   white-space: nowrap;
 }
-queue-stories-game .qs-outcome-top button:hover {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-top button:hover {
   background: none;
   color: var(--qs-scene-ink);
   text-decoration: underline;
   text-underline-offset: 0.3em;
 }
-queue-stories-game .qs-outcome-content {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-content {
   width: 100%;
   max-width: 860px;
 }
-queue-stories-game .qs-outcome-kicker {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-kicker {
   display: flex;
   align-items: center;
   gap: 0.65rem;
@@ -524,54 +516,54 @@ queue-stories-game .qs-outcome-kicker {
   color: var(--qs-scene-soft);
   margin: 0 0 1rem;
 }
-queue-stories-game .qs-outcome-kicker > span {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-kicker > span {
   font-size: 1.25rem;
   color: var(--qs-scene-ink);
 }
-queue-stories-game .qs-outcome h2 {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome h2 {
   font: 500 clamp(2rem, 5vw, 3.8rem)/1.02 var(--font-family-display);
   letter-spacing: -0.06em;
   margin: 0 0 1.5rem;
   max-width: 19ch;
   text-wrap: balance;
 }
-queue-stories-game .qs-outcome #qs-outcome-text {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome #qs-outcome-text {
   font: 0.9rem/1.65 var(--font-family-body);
   max-width: 78ch;
   margin: 1.5rem 0 0.5rem;
   overflow-wrap: anywhere;
 }
-queue-stories-game .qs-outcome-actions {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-actions {
   display: flex;
   align-items: center;
   gap: 1.25rem;
   flex-wrap: wrap;
   margin-top: 1.5rem;
 }
-queue-stories-game .qs-outcome-actions button {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-actions button {
   font-size: 0.8rem;
   min-height: 42px;
 }
-queue-stories-game .qs-outcome-actions [data-primary] {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-actions [data-primary] {
   padding: 0.7rem 1rem;
   border: 0;
   background: var(--qs-scene-ink);
   color: var(--color-paper);
 }
-queue-stories-game
+:is(queue-stories-game, queue-scaling-game)
   .qs-outcome[data-tone='loss']
   .qs-outcome-actions
   [data-primary] {
   color: #0c0c0d;
 }
-queue-stories-game .qs-outcome-actions [data-primary]::after {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-actions [data-primary]::after {
   content: ' →';
   margin-left: 0.5rem;
 }
-queue-stories-game .qs-outcome-actions [data-primary]::before {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-actions [data-primary]::before {
   display: none;
 }
-queue-stories-game .qs-outcome-actions button:not([data-primary]) {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-actions button:not([data-primary]) {
   background: none;
   border: 0;
   border-radius: 0;
@@ -580,7 +572,7 @@ queue-stories-game .qs-outcome-actions button:not([data-primary]) {
   text-decoration: underline;
   text-underline-offset: 0.3em;
 }
-queue-stories-game .qs-outcome-actions button:hover {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-actions button:hover {
   opacity: 0.8;
 }
 queue-stories-game .qs-ticket-row {
@@ -750,7 +742,7 @@ queue-stories-game .qs-ack-evidence strong {
   font: 500 0.9rem/1.4 var(--font-family-display);
   overflow-wrap: anywhere;
 }
-queue-stories-game .qs-outcome .qs-earned {
+:is(queue-stories-game, queue-scaling-game) .qs-earned {
   display: flex;
   gap: 0.75rem;
   border-top: 1px solid var(--qs-scene-rule);
@@ -758,21 +750,21 @@ queue-stories-game .qs-outcome .qs-earned {
   margin-top: 1.5rem;
   max-width: 78ch;
 }
-queue-stories-game .qs-earned > span {
+:is(queue-stories-game, queue-scaling-game) .qs-earned > span {
   font-size: 1.3rem;
 }
-queue-stories-game .qs-earned .qs-award-label {
+:is(queue-stories-game, queue-scaling-game) .qs-earned .qs-award-label {
   display: block;
   font: 0.5rem/1.5 var(--font-family-mono);
   letter-spacing: 0.05em;
   color: var(--qs-scene-soft);
 }
-queue-stories-game .qs-earned strong {
+:is(queue-stories-game, queue-scaling-game) .qs-earned strong {
   display: block;
   font: 500 0.85rem/1.4 var(--font-family-display);
   margin: 0.25rem 0;
 }
-queue-stories-game .qs-earned p {
+:is(queue-stories-game, queue-scaling-game) .qs-earned p {
   font: 0.7rem/1.6 var(--font-family-body);
   color: var(--qs-scene-soft);
   margin: 0;
@@ -810,16 +802,16 @@ queue-stories-game .qs-earned p {
   queue-stories-game .qs-job.is-working .qs-job-icon {
     animation: qs-message 0.65s ease-out infinite;
   }
-  queue-stories-game .qs-outcome[open] .qs-outcome-content {
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome[open] .qs-outcome-content {
     animation: qs-scene-in 0.35s ease-out both;
   }
-  queue-stories-game .qs-outcome[open]::backdrop {
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome[open]::backdrop {
     animation: qs-darken 0.7s ease-out;
   }
-  queue-stories-game .qs-outcome[open] .qs-ticket.is-lost {
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome[open] .qs-ticket.is-lost {
     animation: qs-forget 2.4s ease-out both;
   }
-  queue-stories-game .qs-outcome[open] .qs-ticket.is-lost:nth-child(3) {
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome[open] .qs-ticket.is-lost:nth-child(3) {
     animation-delay: 0.16s;
   }
   @keyframes qs-work {
@@ -915,28 +907,28 @@ queue-stories-game[data-phase='duplicate'] .qs-step.is-active {
     border: 0;
     padding: 0;
   }
-  queue-stories-game .qs-outcome-shell {
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome-shell {
     padding: 1rem 1.1rem 1.5rem;
   }
-  queue-stories-game .qs-outcome-top {
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome-top {
     align-items: flex-start;
     font-size: 0.5rem;
   }
-  queue-stories-game .qs-outcome-top > span {
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome-top > span {
     max-width: 140px;
   }
-  queue-stories-game .qs-outcome-top button {
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome-top button {
     font-size: 0.6rem;
   }
-  queue-stories-game .qs-outcome-content {
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome-content {
     padding: 2rem 0;
     margin: auto;
   }
-  queue-stories-game .qs-outcome h2 {
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome h2 {
     font-size: clamp(2rem, 8vw, 3rem);
     margin-bottom: 1.25rem;
   }
-  queue-stories-game .qs-outcome #qs-outcome-text {
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome #qs-outcome-text {
     font-size: 0.8rem;
     line-height: 1.6;
   }
@@ -951,12 +943,12 @@ queue-stories-game[data-phase='duplicate'] .qs-step.is-active {
   queue-stories-game .qs-ticket > strong {
     font-size: 0.85rem;
   }
-  queue-stories-game .qs-outcome-actions {
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome-actions {
     align-items: stretch;
     gap: 0.75rem;
     flex-direction: column;
   }
-  queue-stories-game .qs-outcome-actions button {
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome-actions button {
     font-size: 0.75rem;
   }
   queue-stories-game .qs-action-evidence {
@@ -1133,7 +1125,7 @@ queue-stories-game .qs-led {
 }
 
 /* All outcomes stay over the actual diagram. Recoverable incidents use a lighter scrim. */
-queue-stories-game .qs-outcome {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome {
   inset: 0;
   margin: auto;
   width: min(760px, calc(100vw - 2rem));
@@ -1143,30 +1135,30 @@ queue-stories-game .qs-outcome {
   border-radius: 14px;
   box-shadow: 0 24px 100px rgb(0 0 0 / 0.22);
 }
-queue-stories-game .qs-outcome::backdrop {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome::backdrop {
   background: rgb(10 10 10 / 0.8);
   backdrop-filter: blur(3px);
 }
-queue-stories-game .qs-outcome-shell {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-shell {
   min-height: 0;
   width: 100%;
   padding: 1.25rem 1.75rem 1.5rem;
 }
-queue-stories-game .qs-outcome-content {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-content {
   margin: 0;
   padding: 1.5rem 0 0;
 }
-queue-stories-game .qs-outcome h2 {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome h2 {
   font-size: clamp(1.8rem, 4vw, 2.8rem);
 }
-queue-stories-game .qs-outcome[data-tone='incident'],
-queue-stories-game .qs-outcome[data-tone='story'] {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome[data-tone='incident'],
+:is(queue-stories-game, queue-scaling-game) .qs-outcome[data-tone='story'] {
   width: min(660px, calc(100vw - 2rem));
   background: var(--color-paper);
   color: var(--color-ink);
 }
-queue-stories-game .qs-outcome[data-tone='incident']::backdrop,
-queue-stories-game .qs-outcome[data-tone='story']::backdrop {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome[data-tone='incident']::backdrop,
+:is(queue-stories-game, queue-scaling-game) .qs-outcome[data-tone='story']::backdrop {
   background: rgb(10 10 10 / 0.4);
   backdrop-filter: blur(2px);
   animation: none;
@@ -1263,11 +1255,11 @@ queue-stories-game .qs-call-shell #qs-outcome-text p {
   margin: 0 0 0.8rem;
 }
 @media (max-width: 700px) {
-  queue-stories-game .qs-outcome-shell,
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome-shell,
   queue-stories-game .qs-call-shell {
     padding: 1rem 1.1rem 1.25rem;
   }
-  queue-stories-game .qs-outcome-content {
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome-content {
     margin: 0;
     padding: 1.25rem 0 0;
   }
@@ -1298,7 +1290,7 @@ queue-stories-game .qs-call-shell #qs-outcome-text p {
     animation-delay: 0.65s;
   }
 
-  queue-stories-game .qs-outcome[open] .qs-call-shell {
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome[open] .qs-call-shell {
     animation: qs-call-in 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
   }
   @keyframes qs-packet {
@@ -1484,7 +1476,7 @@ queue-stories-game .qs-result-metrics b {
   font-size: 0.9rem;
   color: var(--color-ink);
 }
-queue-stories-game .qs-achievements {
+:is(queue-stories-game, queue-scaling-game) .qs-achievements {
   padding: 0.6rem 0.8rem;
   margin: 0.6rem 0;
   font-size: 0.7rem;
@@ -1550,16 +1542,16 @@ queue-stories-game .qs-achievements {
     flex-direction: column;
     width: 100%;
   }
-  queue-stories-game [data-achievements] {
+  :is(queue-stories-game, queue-scaling-game) [data-achievements] {
     grid-template-columns: 1fr;
   }
 }
 
 /* Decisions look editable; live work uses green with labels and symbols. */
 queue-stories-game .qs-node-setting {
-  border: 1px solid color-mix(in srgb, var(--qs-storage) 48%, var(--color-rule));
-  border-radius: 9px;
-  background: color-mix(in srgb, var(--qs-storage) 7%, var(--color-paper));
+  border: 0;
+  border-radius: 0;
+  background: none;
   cursor: pointer;
 }
 queue-stories-game .qs-setting-title {
@@ -1583,7 +1575,7 @@ queue-stories-game .qs-node-setting select {
 queue-stories-game .qs-node-setting:hover,
 queue-stories-game .qs-node-setting:focus-within {
   border-color: var(--qs-storage);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--qs-storage) 12%, transparent);
+  box-shadow: none;
 }
 queue-stories-game .qs-job.is-working {
   background: color-mix(in srgb, var(--qs-ok) 12%, var(--color-paper));
@@ -1645,12 +1637,6 @@ queue-stories-game .qs-worker-interior .qs-step-options {
   gap: 0.4rem;
   flex-wrap: wrap;
 }
-queue-stories-game .qs-worker-interior .qs-step-options details {
-  margin-top: 0;
-}
-queue-stories-game .qs-worker-interior .qs-step-options details[open] {
-  flex-basis: 100%;
-}
 @media (max-width: 580px) {
   queue-stories-game .qs-worker-interior > header .qs-active-job {
     max-width: 100%;
@@ -1671,7 +1657,7 @@ queue-stories-game .qs-phone-conversation .qs-phone-aside {
   color: var(--color-text-soft);
 }
 
-queue-stories-game .qs-fatal-caller {
+:is(queue-stories-game, queue-scaling-game) .qs-fatal-caller {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -1680,43 +1666,43 @@ queue-stories-game .qs-fatal-caller {
   font: 0.5rem/1.4 var(--font-family-mono);
   letter-spacing: 0.04em;
 }
-queue-stories-game .qs-fatal-caller > .qs-figure {
+:is(queue-stories-game, queue-scaling-game) .qs-fatal-caller > .qs-figure {
   width: 23px;
   height: 23px;
   color: var(--qs-scene-soft);
 }
-queue-stories-game .qs-outcome .qs-fatal-caller + #qs-outcome-text {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome .qs-fatal-caller + #qs-outcome-text {
   margin-top: 0.5rem;
 }
 
 /* A loss should read as the moment of the experiment, not a small status label. */
-queue-stories-game .qs-outcome[data-tone='loss'] {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome[data-tone='loss'] {
   width: min(880px, calc(100vw - 2rem));
 }
-queue-stories-game .qs-outcome[data-tone='loss'] .qs-outcome-kicker {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome[data-tone='loss'] .qs-outcome-kicker {
   color: #ff8179;
   font-size: clamp(1rem, 2.2vw, 1.35rem);
   font-weight: 700;
   letter-spacing: 0.09em;
   margin-bottom: 1.25rem;
 }
-queue-stories-game .qs-outcome[data-tone='loss'] .qs-outcome-kicker > span {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome[data-tone='loss'] .qs-outcome-kicker > span {
   color: #ff8179;
   font-size: 1.5em;
 }
-queue-stories-game .qs-outcome[data-tone='loss'] h2 {
+:is(queue-stories-game, queue-scaling-game) .qs-outcome[data-tone='loss'] h2 {
   font-size: clamp(2.6rem, 6vw, 4.25rem);
   max-width: 17ch;
 }
 @media (max-width: 700px) {
-  queue-stories-game .qs-outcome[data-tone='loss'] {
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome[data-tone='loss'] {
     width: calc(100vw - 1rem);
     max-height: calc(100dvh - 1rem);
   }
-  queue-stories-game .qs-outcome[data-tone='loss'] .qs-outcome-kicker {
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome[data-tone='loss'] .qs-outcome-kicker {
     font-size: clamp(0.9rem, 4vw, 1.1rem);
   }
-  queue-stories-game .qs-outcome[data-tone='loss'] h2 {
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome[data-tone='loss'] h2 {
     font-size: clamp(2.25rem, 10vw, 3.2rem);
   }
 }
@@ -1761,15 +1747,15 @@ queue-stories-game .qs-node-heading .qs-eyebrow {
   margin-bottom: 0.15rem;
 }
 queue-stories-game .qs-node-setting {
-  padding: 0.35rem 0.45rem;
-  gap: 0.25rem;
-  margin: 0.5rem 0 0.2rem;
+  padding: 0;
+  gap: 0.3rem;
+  margin: 0.6rem 0 0.2rem;
 }
 queue-stories-game .qs-setting-title {
   font-size: 0.72rem;
 }
 queue-stories-game .qs-choice-note {
-  min-height: 0;
+  min-height: 1.4em;
   font: 0.65rem/1.4 var(--font-family-body);
   margin: 0.2rem 0 0.5rem;
   max-width: none;
@@ -1923,8 +1909,7 @@ queue-stories-game .qs-step-options > label {
   scroll-margin-block: 110px 90px;
 }
 queue-stories-game.is-guided .qs-result-metrics,
-queue-stories-game.is-guided .qs-achievements,
-queue-stories-game.is-guided .qs-step-options details:not(:has([data-guide-focus])) {
+queue-stories-game.is-guided .qs-achievements {
   display: none;
 }
 queue-stories-game.is-guided .qs-dock {
@@ -2007,4 +1992,75 @@ queue-stories-game .qs-payments-header .qs-edit-controls {
   queue-stories-game .qs-payments-header .qs-job-strip {
     width: 100%;
   }
+}
+
+/* Configuration opens independently of the four-step diagram. */
+queue-stories-game .qs-node-setting select {
+  box-sizing: border-box;
+  height: 40px;
+  min-height: 40px;
+  padding: 0.4rem 0.55rem;
+  border-radius: 5px;
+  line-height: 1.3;
+}
+queue-stories-game .qs-step-configure {
+  border: 0;
+  padding: 0.15rem 0;
+  background: none;
+  color: var(--qs-api);
+  font-size: 0.65rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+queue-stories-game .qs-step-editor {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  height: fit-content;
+  width: min(460px, calc(100vw - 2rem));
+  max-height: calc(100dvh - 3rem);
+  box-sizing: border-box;
+  overflow-y: auto;
+  padding: 1.15rem;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-medium);
+  color: var(--color-ink);
+  background: var(--color-paper);
+  box-shadow: 0 12px 48px rgb(0 0 0 / 0.18);
+}
+queue-stories-game .qs-step-editor::backdrop { background: rgb(0 0 0 / 0.25); }
+queue-stories-game .qs-step-editor header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+queue-stories-game .qs-step-editor header > button { border: 0; background: none; color: inherit; font-size: 1.2rem; padding: 0.15rem; }
+queue-stories-game .qs-step-editor label { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.75rem; line-height: 1.4; }
+queue-stories-game .qs-step-editor label.qs-kind-label { display: grid; gap: 0.4rem; margin-block: 0.75rem; }
+queue-stories-game .qs-step-editor select { width: 100%; min-height: 40px; box-sizing: border-box; font: inherit; color: inherit; background: var(--color-paper); border: 1px solid var(--color-text-soft); border-radius: 5px; padding: 0.45rem; }
+queue-stories-game .qs-step-editor input[type='checkbox'] { margin: 0.1rem 0 0; width: 18px; height: 18px; flex-shrink: 0; accent-color: var(--qs-api); }
+queue-stories-game .qs-step-editor p, queue-stories-game .qs-step-editor small { display: block; margin: 0.5rem 0 0; font: 0.68rem/1.5 var(--font-family-body); color: var(--color-text-soft); }
+
+/* The shared loss scene reads as a torn incident ticket. */
+:is(queue-stories-game, queue-scaling-game) .qs-outcome[data-tone='loss'] {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), 98% 100%, 96% calc(100% - 12px), 94% 100%, 92% calc(100% - 12px), 90% 100%, 88% calc(100% - 12px), 86% 100%, 84% calc(100% - 12px), 82% 100%, 80% calc(100% - 12px), 78% 100%, 76% calc(100% - 12px), 74% 100%, 72% calc(100% - 12px), 70% 100%, 68% calc(100% - 12px), 66% 100%, 64% calc(100% - 12px), 62% 100%, 60% calc(100% - 12px), 58% 100%, 56% calc(100% - 12px), 54% 100%, 52% calc(100% - 12px), 50% 100%, 48% calc(100% - 12px), 46% 100%, 44% calc(100% - 12px), 42% 100%, 40% calc(100% - 12px), 38% 100%, 36% calc(100% - 12px), 34% 100%, 32% calc(100% - 12px), 30% 100%, 28% calc(100% - 12px), 26% 100%, 24% calc(100% - 12px), 22% 100%, 20% calc(100% - 12px), 18% 100%, 16% calc(100% - 12px), 14% 100%, 12% calc(100% - 12px), 10% 100%, 8% calc(100% - 12px), 6% 100%, 4% calc(100% - 12px), 2% 100%, 0% calc(100% - 12px));
+}
+:is(queue-stories-game, queue-scaling-game) .qs-outcome[data-tone='loss'] .qs-outcome-shell {
+  padding-bottom: 2rem;
+}
+
+/* Keep native select interaction, with an inset chevron independent of the OS. */
+queue-stories-game .qs-node-setting { position: relative; }
+queue-stories-game .qs-node-setting select { appearance: none; padding-right: 2.25rem; }
+queue-stories-game .qs-node-setting::after {
+  content: '';
+  position: absolute;
+  right: 1rem;
+  bottom: 17px;
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid var(--color-ink);
+  border-bottom: 1.5px solid var(--color-ink);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+@media (forced-colors: active) {
+  queue-stories-game .qs-node-setting select { appearance: auto; }
+  queue-stories-game .qs-node-setting::after { display: none; }
 }

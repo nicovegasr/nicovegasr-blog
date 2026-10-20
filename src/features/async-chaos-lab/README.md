@@ -25,6 +25,11 @@ the fault/checkpoint state machine of labs 1 and 2. It shares their static Astro
 wrapper, navigation, visual language and native custom-element approach. See
 [`scaling/README.md`](./scaling/README.md) for its model, costs and reproduction.
 
+All three labs open with an on-call introduction. Dismissing it leaves the
+configuration editable and does not start processing. Lab 2's **Configure step**
+opens a native popover without changing the diagram's dimensions. All fatal
+outcomes share `outcome-shell.ts` and the same `qs-outcome` styles.
+
 In labs 1 and 2, use Start/Pause and explicitly retry when an incident interrupts processing.
 Tutorial opens a short teammate call. The optional guided walkthrough follows
 actual failures and lets the player change the diagram. Finishing keeps the

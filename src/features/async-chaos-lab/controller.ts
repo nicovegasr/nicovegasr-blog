@@ -1,3 +1,4 @@
+import { outcomeShell } from './outcome-shell';
 import {
   JOB_COUNT,
   advance,
@@ -160,6 +161,7 @@ class QueueStories extends HTMLElement {
     document.addEventListener('visibilitychange', this.onVisibility);
     this.buildSteps();
     this.update();
+    this.showTutorial(true);
   }
   disconnectedCallback() {
     this.stop();
@@ -276,9 +278,7 @@ class QueueStories extends HTMLElement {
           </div>
           <label class="qs-node-setting"
             ><span class="qs-setting-title"
-              >${this.t('Dónde esperan', 'Where they wait')}<small
-                >${this.t('Elegir', 'Choose')} ↕</small
-              ></span
+              >${this.t('Dónde esperan', 'Where they wait')}</span
             ><select data-setting="storage">
               <option value="ram">
                 ${this.t('RAM del worker', 'Worker RAM')}
@@ -300,9 +300,7 @@ class QueueStories extends HTMLElement {
           </div>
           <label class="qs-node-setting"
             ><span class="qs-setting-title"
-              >${this.t('Si el pago vuelve', 'If the payment returns')}<small
-                >${this.t('Elegir', 'Choose')} ↕</small
-              ></span
+              >${this.t('Si el pago vuelve', 'If the payment returns')}</span
             ><select data-setting="protect">
               <option value="off">
                 ${this.t('No comprobar su ID', 'Do not check its ID')}
@@ -410,10 +408,9 @@ class QueueStories extends HTMLElement {
                       />
                       ${this.t('Recordar por ID', 'Remember by ID')}</label
                     >
-                    <details>
-                      <summary>
-                        ${this.t('Opciones del paso', 'Step options')}
-                      </summary>
+                    <button type="button" class="qs-step-configure" popovertarget="qs-step-options-${i}">${this.t('Configurar paso', 'Configure step')} ↗</button>
+                    <div class="qs-step-editor" id="qs-step-options-${i}" popover="auto" data-step-editor="${i}">
+                      <header><strong>${esc(this.step(i))}</strong><button type="button" popovertarget="qs-step-options-${i}" popovertargetaction="hide" aria-label="${this.t('Cerrar opciones', 'Close options')}">×</button></header>
                       <small class="qs-step-tradeoff"
                         >${isSafeToRepeat(step.kind) ? this.t('Opcional aquí: ahorra repetir trabajo.', 'Optional here: saves repeated work.') : this.t('Evita repetirlo si su marca llegó a guardarse.', 'Avoids repeating it if its marker was saved.')}</small
                       ><label class="qs-kind-label"
@@ -443,7 +440,7 @@ class QueueStories extends HTMLElement {
                                 ${this.t('Esta acción concreta puede repetirse con seguridad. No necesita deduplicación del proveedor.', 'This particular action is safe to repeat. It does not need receiver deduplication.')}
                               </p>`
                       }
-                    </details>
+                    </div>
                   </div>`
                 : ''
             }
@@ -718,18 +715,18 @@ class QueueStories extends HTMLElement {
       )
     ) {
       const expanded = [
-        ...this.querySelectorAll<HTMLDetailsElement>(
-          '.qs-step-options details',
+        ...this.querySelectorAll<HTMLElement>(
+          '.qs-step-editor',
         ),
-      ].map((details) => details.open);
+      ].map((panel) => panel.matches(':popover-open'));
       step.kind = input.value as ActionKind;
       step.providerDeduplication = false;
       this.buildSteps();
       [
-        ...this.querySelectorAll<HTMLDetailsElement>(
-          '.qs-step-options details',
+        ...this.querySelectorAll<HTMLElement>(
+          '.qs-step-editor',
         ),
-      ].forEach((details, index) => (details.open = expanded[index] ?? false));
+      ].forEach((panel, index) => { if (expanded[index]) panel.showPopover(); });
       this.q<HTMLSelectElement>(`[data-setting="kind-${i}"]`).focus({
         preventScroll: true,
       });
@@ -987,7 +984,7 @@ class QueueStories extends HTMLElement {
           ? `[data-setting="provider-${this.guide === 'email' ? this.config.steps.length - 1 : this.state.step}"]`
           : targets[beat.target];
       const node = this.querySelector<HTMLElement>(this.guideTarget);
-      node?.closest('details')?.setAttribute('open', '');
+      node?.closest<HTMLElement>('[popover]')?.showPopover();
       node?.setAttribute('data-guide-focus', 'true');
       node?.setAttribute('aria-describedby', 'qs-guide-task');
     }
@@ -1046,7 +1043,7 @@ class QueueStories extends HTMLElement {
         </div>`,
     );
   }
-  private showTutorial() {
+  private showTutorial(introduction = false) {
     this.stop();
     this.closeOutcome();
     const d = this.q<HTMLDialogElement>('[data-outcome]');
@@ -1058,8 +1055,8 @@ class QueueStories extends HTMLElement {
             'Three payments. Shall we get them moving?',
           )
         : this.t(
-            'Un momento antes de darle otra vez.',
-            'A moment before you run it again.',
+            'El pago está guardado. Falta terminarlo.',
+            'The payment is saved. Now finish it.',
           );
     const lines =
       this.level === 1
@@ -1083,8 +1080,8 @@ class QueueStories extends HTMLElement {
               'The payments are already saved. Now look inside the worker: it checks the data, charges, activates the subscription and sends the email.',
             ),
             this.t(
-              'Cada paso tiene «Recordar por ID». Tú decides qué debería recordar el siguiente intento. En «Opciones del paso» también puedes cambiar lo que hace cada caja.',
-              'Each step has “Remember by ID”. You decide what the next attempt should remember. Under “Step options”, you can also change what each box does.',
+              'Cada paso tiene «Recordar por ID». Tú decides qué debería recordar el siguiente intento. En «Configurar paso» también puedes cambiar lo que hace cada caja.',
+              'Each step has “Remember by ID”. You decide what the next attempt should remember. Under “Configure step”, you can also change what each box does.',
             ),
             this.t(
               'Que el worker vuelva a empezar no devuelve el dinero al cliente. Así que eso de cobrar otra vez… mejor lo vigilamos, ¿eh?',
@@ -1111,7 +1108,7 @@ class QueueStories extends HTMLElement {
         ${lines.map((line, i) => /* HTML */ `<p${i === lines.length - 1 ? ' class="qs-phone-aside"' : ''}>${esc(line)}</p>`).join('')}
       </div>
       <div class="qs-outcome-actions">
-        ${button('tutorial-start', this.guide !== 'off' ? this.t('Continuar el recorrido', 'Continue walkthrough') : this.t('Vamos a procesarlos', 'Let us process them')).replace('<button ', '<button data-primary ')}${button('walkthrough', this.t('Prefiero un recorrido guiado', 'I would prefer a guided walkthrough'))}
+        ${button(introduction ? 'dismiss' : 'tutorial-start', introduction ? this.t('Déjame ver el sistema', 'Show me the system') : this.guide !== 'off' ? this.t('Continuar el recorrido', 'Continue walkthrough') : this.t('Vamos a procesarlos', 'Let us process them')).replace('<button ', '<button data-primary ')}${button('walkthrough', this.t('Prefiero un recorrido guiado', 'I would prefer a guided walkthrough'))}
       </div>
     </div>`;
     d.showModal();
@@ -1416,28 +1413,11 @@ class QueueStories extends HTMLElement {
         </div>`;
       })
       .join('');
-    d.innerHTML = /* HTML */ `<div class="qs-outcome-shell">
-      <header class="qs-outcome-top">
-        <span
-          >ASYNC CHAOS LAB
-          <span aria-hidden="true">/</span> ${this.t('Ensayo', 'Trial')}
-          ${String(this.runId + 1).padStart(2, '0')}</span
-        >${button('dismiss', this.t('Volver al esquema ×', 'Back to diagram ×'))}
-      </header>
-      <div class="qs-outcome-content">
-        <p class="qs-outcome-kicker">
-          <span aria-hidden="true">${fatal ? '×' : '✓'}</span>${kicker}
-        </p>
-        <h2 id="qs-outcome-title">${esc(title)}</h2>
-        <div class="qs-outcome-visual">${this.outcomeEvidence()}</div>
-        ${fatal ? /* HTML */ `<p class="qs-fatal-caller">${labFigure('phone')}<span>${this.t('TU COMPAÑERO DE GUARDIA', 'YOUR ON-CALL TEAMMATE')}</span></p>` : ''}
-        <p id="qs-outcome-text">${text}</p>
-        <div class="qs-outcome-actions">
-          ${button(action, label).replace('<button ', '<button data-primary ')}${this.level === 2 && this.guide !== 'off' && won && !this.config.steps.every((s) => s.remember) ? button('lesson', this.t('Opcional: ahorrar trabajo', 'Optional: save repeated work')) : ''}${action !== 'dismiss' ? button('dismiss', this.t('Revisar el esquema', 'Review diagram')) : ''}
-        </div>
-        ${awards}
-      </div>
-    </div>`;
+    d.innerHTML = outcomeShell({
+      es: this.es, trial: this.runId + 1, fatal, kicker, title,
+      evidence: this.outcomeEvidence(), text, awards,
+      actions: `${button(action, label).replace('<button ', '<button data-primary ')}${this.level === 2 && this.guide !== 'off' && won && !this.config.steps.every((s) => s.remember) ? button('lesson', this.t('Opcional: ahorrar trabajo', 'Optional: save repeated work')) : ''}${action !== 'dismiss' ? button('dismiss', this.t('Revisar el esquema', 'Review diagram')) : ''}`,
+    });
     if (!d.open) d.showModal();
     d.scrollTop = 0;
     d.querySelector<HTMLButtonElement>('[data-primary]')?.focus({
