@@ -31,6 +31,13 @@ opens a native popover without changing the diagram's dimensions. All fatal
 outcomes share `outcome-shell.ts` and the same `qs-outcome` styles.
 
 In labs 1 and 2, use Start/Pause and explicitly retry when an incident interrupts processing.
+The shared transport offers ×1, ×2, ×3 and ×4 playback. Switching speed preserves
+the current payment, progress and pause state, and never changes simulated results.
+The short incident/restart reveal keeps its reading time at every speed.
+Lab 2 reveals the interrupted step after the retry dialog closes, then highlights
+the first step before processing the same payment again. Pausing, resetting,
+changing configuration, hiding the tab or disconnecting cancels the transition.
+Reduced motion skips this animated delay. The engine does not advance during it.
 Tutorial opens a short teammate call. The optional guided walkthrough follows
 actual failures and lets the player change the diagram. Finishing keeps the
 successful configuration; leaving early restores the previous trial.
@@ -110,7 +117,7 @@ the explicit retry action. HTTP 202 does not imply completion or durability.
 Durable job storage and recovery are assumed. The default actions are validation,
 a simulated Stripe charge, setting a local subscription active, and sending a
 simulated confirmation. Payment #2 fails before activation takes effect; #3 sends
-the confirmation, then the worker crashes before saving its checkpoint. Every
+the confirmation, but the response times out before a checkpoint can be saved. Every
 scripted fault occurs once per run.
 
 Each action can be renamed and assigned one of five behaviors:
@@ -123,13 +130,25 @@ Each action can be renamed and assigned one of five behaviors:
 | `external`  | Applies another external effect unless the receiver deduplicates. |
 | `notify`    | Sends another notification unless the receiver deduplicates.      |
 
-Remember by ID writes a durable checkpoint after the action succeeds. Later
-attempts skip that job/step when its checkpoint exists. Remembering the charge
-prevents the earlier charge from being repeated; the final email still becomes
-uncertain if the worker crashes before its checkpoint. Only a receiver that
-recognizes the same stable notification ID can make that retry safe. Remembering
-additional repeatable actions trades extra stored state for less repeated work.
-With all four remembered and provider deduplication enabled for the email, five
+**Save progress after confirmation** writes a durable checkpoint once the worker
+receives success and stores it. A later retry can skip that action. For the charge,
+this prevents a second charge after its confirmation was saved.
+
+Provider deduplication covers a different moment: the service may perform the email
+send, but its response times out before the worker can save a checkpoint. The worker
+cannot tell whether to retry. Retrying may duplicate the email; not retrying may lose
+the confirmation. A stable key recognized by the receiver lets it return the original
+result for the retry. The two controls are related because both prevent repeated
+effects, but the local checkpoint cannot cover a lost response; provider deduplication
+can cover that gap when the service supports it. Neither guarantees exactly-once
+physical delivery.
+
+The interface shows both controls on external steps and explains the moment each one
+covers. Provider protection requires receiver support for a stable operation ID.
+Saving progress for repeatable local actions trades additional stored state for less
+repeated work.
+
+With all four checkpoints enabled and provider deduplication enabled for the email, five
 previous successful actions are skipped and 14 action attempts occur, including
 the two interrupted attempts. Failed actions are still executed again.
 
@@ -139,10 +158,12 @@ protection. A safe replay may waste work without violating data integrity.
 
 ### A checkpoint is not an exactly-once guarantee
 
-The scripted last-payment failure and engine-only `gap: 'charge' | 'email'`
-regression scenarios crash after an external effect and before its local
-checkpoint. A local marker cannot protect an operation that finished without that
-marker being written. Retrying can duplicate it.
+The scripted last-payment scenario models the email service accepting the message
+and timing out before its response reaches the worker. The worker has no local
+checkpoint, so retrying can duplicate the send. The engine-only `gap: 'charge' |
+'email'` regression scenarios model the same lost-confirmation window after an
+external effect. A local marker cannot protect an operation whose confirmation never
+arrived to be saved.
 
 `providerDeduplication` simulates a receiver that recognizes the same immutable
 job/step operation key and returns the existing result. This support is conditional,

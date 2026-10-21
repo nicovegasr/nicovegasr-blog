@@ -241,16 +241,16 @@ export function guideBeat(c: Context): GuideBeat {
       stage === 'partial' ? 1 : 3,
       s.incident === 'email-uncertain'
         ? t(
-            'El email salió, pero no sabemos si volverá a salir.',
-            'The email was sent, but we do not know if it will be sent again.',
+            'Timeout: el email pudo llegar; no recibimos confirmación.',
+            'Timeout: the email may have arrived; we got no confirmation.',
           )
         : t('Cobrado. Todavía sin activar.', 'Charged. Still inactive.'),
       t(
         s.incident === 'email-uncertain'
-          ? `${c.job}: el proveedor aceptó el email y el worker cayó antes de guardar ese avance. Si lo repites, el cliente podría recibirlo dos veces.`
+          ? `${c.job}: el servicio pudo aceptar el email, pero se perdió su respuesta por timeout. Reintentar puede duplicarlo; no reintentar puede dejar al cliente sin confirmación.`
           : `${c.job} quedó a medias. Los pasos con ✓ ya terminaron; reiniciar el worker no deshace esos resultados.`,
         s.incident === 'email-uncertain'
-          ? `${c.job}: the provider accepted the email and the worker crashed before saving that progress. Retrying may send it twice.`
+          ? `${c.job}: the service may have accepted the email, but its response timed out. Retrying may duplicate it; not retrying may leave the customer without confirmation.`
           : `${c.job} stopped halfway. Steps marked ✓ finished; restarting the worker does not undo those results.`,
       ),
       t(
@@ -261,10 +261,10 @@ export function guideBeat(c: Context): GuideBeat {
   if (stage === 'email')
     return beat(
       3,
-      t('El worker no sabe si el email salió.', 'The worker cannot tell whether the email was sent.'),
+      t('El timeout deja el envío en duda.', 'The timeout leaves delivery uncertain.'),
       t(
-        `«${c.lastStep}» ya produjo el efecto, pero el worker cayó antes de guardar su marca. Si repite la acción, puede duplicar el email.`,
-        `“${c.lastStep}” already produced the effect, but the worker crashed before saving its marker. Repeating the action can send a duplicate email.`,
+        `La solicitud de «${c.lastStep}» agotó el tiempo de espera. El servicio pudo enviar el email, pero su respuesta no llegó al worker y no se guardó la marca. Reintentar sin deduplicación puede duplicarlo.`,
+        `The “${c.lastStep}” request timed out. The service may have sent the email, but its response never reached the worker, so no marker was saved. Retrying without deduplication can send it twice.`,
       ),
       s.config.steps[3]?.providerDeduplication
         ? t(
@@ -272,8 +272,8 @@ export function guideBeat(c: Context): GuideBeat {
             'The provider recognizes the same ID. Start another trial to check that it records only one send.',
           )
         : t(
-            `En «Configurar paso» de «${c.lastStep}», activa que el proveedor reconozca el mismo ID.`,
-            `Under “Configure step” for “${c.lastStep}”, enable receiver support for the same ID.`,
+            `Activa la deduplicación por clave en el servicio de correo.`,
+            `Enable key-based deduplication at the email service.`,
           ),
       s.config.steps[3]?.providerDeduplication ? null : 'provider',
     );
@@ -286,8 +286,8 @@ export function guideBeat(c: Context): GuideBeat {
         'In this trial the charge finished before the crash. Saving its progress will let the next attempt skip it.',
       ),
       t(
-        `Activa «Recordar por ID» en «${c.chargeStep}».`,
-        `Enable “Remember by ID” in “${c.chargeStep}”.`,
+        `Activa «Guardar avance al recibir confirmación» en «${c.chargeStep}».`,
+        `Enable “Save progress after confirmation” on “${c.chargeStep}”.`,
       ),
       'charge',
     );
@@ -296,13 +296,13 @@ export function guideBeat(c: Context): GuideBeat {
       3,
       t('El reintento duplicó un efecto.', 'The retry duplicated an effect.'),
       t(
-        `«${c.steps[s.step] ?? c.lastStep}» ya había producido un efecto para ${c.job}. El worker cayó antes de guardar el avance y al volver a intentarlo lo produjo otra vez.`,
-        `“${c.steps[s.step] ?? c.lastStep}” had already produced an effect for ${c.job}. The worker crashed before saving progress, so the retry produced it again.`,
+        `«${c.steps[s.step] ?? c.lastStep}» produjo un efecto para ${c.job}, pero se perdió la confirmación antes de guardar el avance local. Al reintentar, el efecto se aplicó otra vez.`,
+        `“${c.steps[s.step] ?? c.lastStep}” produced an effect for ${c.job}, but confirmation was lost before local progress was saved. The retry applied it again.`,
       ),
       isExternal(s.config.steps[s.step]?.kind ?? 'check')
         ? t(
-            `Activa la deduplicación del proveedor para «${c.steps[s.step] ?? c.lastStep}» y repite el ensayo.`,
-            `Enable receiver deduplication for “${c.steps[s.step] ?? c.lastStep}” and run the trial again.`,
+            `Activa la deduplicación por clave en el proveedor y repite el ensayo.`,
+            `Enable key-based deduplication at the provider and run the trial again.`,
           )
         : t(
             'Cambia cómo se protege este efecto antes de repetir el ensayo.',

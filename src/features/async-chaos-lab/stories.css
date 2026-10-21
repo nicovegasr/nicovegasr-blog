@@ -702,7 +702,18 @@ queue-stories-game .qs-action-evidence article.is-finished {
 }
 queue-stories-game .qs-action-evidence article.was-interrupted {
   border-top-style: dashed;
-  border-color: var(--qs-scene-ink);
+  border-color: var(--qs-fault);
+  background: color-mix(in srgb, var(--qs-fault) 8%, transparent);
+  color: var(--qs-fault);
+}
+queue-stories-game .qs-action-evidence article.is-uncertain {
+  border-color: var(--qs-compute);
+  background: color-mix(in srgb, var(--qs-compute) 8%, transparent);
+  color: var(--qs-compute);
+}
+queue-stories-game .qs-action-evidence :is(.was-interrupted, .is-uncertain) .qs-evidence-step,
+queue-stories-game .qs-action-evidence :is(.was-interrupted, .is-uncertain) .qs-evidence-step b {
+  color: inherit;
 }
 queue-stories-game .qs-evidence-step {
   display: flex;
@@ -1281,13 +1292,13 @@ queue-stories-game .qs-call-shell #qs-outcome-text p {
 }
 @media (prefers-reduced-motion: no-preference) {
   queue-stories-game.is-playing .qs-arrow::after {
-    animation: qs-packet 0.65s ease-in-out infinite;
+    animation: qs-packet var(--qs-tick-duration, 650ms) ease-in-out infinite;
   }
   queue-stories-game.is-playing .qs-led {
-    animation: qs-led 1.3s ease-in-out infinite;
+    animation: qs-led calc(var(--qs-tick-duration, 650ms) * 2) ease-in-out infinite;
   }
   queue-stories-game.is-playing .qs-led:last-child {
-    animation-delay: 0.65s;
+    animation-delay: var(--qs-tick-duration, 650ms);
   }
 
   :is(queue-stories-game, queue-scaling-game) .qs-outcome[open] .qs-call-shell {
@@ -1340,6 +1351,36 @@ queue-stories-game .qs-dock {
   border-radius: 14px;
   background: var(--color-paper);
   box-shadow: 0 5px 24px rgb(0 0 0 / 0.1);
+}
+queue-stories-game .qs-speeds {
+  display: flex;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-small);
+  padding: 2px;
+}
+queue-stories-game .qs-speeds button {
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--color-text-soft);
+  font: 0.6rem/1 var(--font-family-mono);
+  min-height: 30px;
+  padding: 0.3rem 0.4rem;
+}
+queue-stories-game .qs-speeds button[aria-pressed='true'] {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+@media (max-width: 580px) {
+  queue-stories-game .qs-dock {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+  }
+  queue-stories-game .qs-speeds {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: center;
+  }
 }
 queue-stories-game .qs-transport,
 queue-stories-game .qs-tools {
@@ -2063,4 +2104,68 @@ queue-stories-game .qs-node-setting::after {
 @media (forced-colors: active) {
   queue-stories-game .qs-node-setting select { appearance: auto; }
   queue-stories-game .qs-node-setting::after { display: none; }
+}
+
+queue-stories-game .qs-worker-interior .qs-step-options > .qs-provider-option {
+  flex-basis: 100%;
+  align-items: flex-start;
+}
+queue-stories-game .qs-provider-option > input {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+queue-stories-game .qs-provider-hint {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--color-text-soft);
+  font: 0.65rem/1.4 var(--font-family-body);
+}
+
+queue-stories-game .qs-step.is-failed {
+  border-color: var(--qs-fault);
+  border-left-color: var(--qs-fault);
+  background: color-mix(in srgb, var(--qs-fault) 8%, var(--color-paper));
+}
+queue-stories-game .qs-step.is-failed .qs-step-heading,
+queue-stories-game .qs-step.is-failed .qs-step-state {
+  color: var(--qs-fault);
+}
+queue-stories-game .qs-step.is-failed .qs-step-number {
+  border-color: var(--qs-fault);
+}
+
+queue-stories-game .qs-step.is-uncertain,
+queue-stories-game .qs-step.is-restarting {
+  border-color: var(--qs-compute);
+  background: color-mix(in srgb, var(--qs-compute) 9%, var(--color-paper));
+}
+queue-stories-game .qs-step.is-uncertain .qs-step-state,
+queue-stories-game .qs-step.is-uncertain [data-step-icon],
+queue-stories-game .qs-step.is-restarting .qs-step-state {
+  color: var(--qs-compute);
+  font-weight: 600;
+}
+queue-stories-game .qs-step.is-retry-origin {
+  --qs-retry-color: var(--qs-fault);
+  animation: qs-reveal-incident 1.3s ease-out both;
+}
+queue-stories-game .qs-step.is-uncertain.is-retry-origin {
+  --qs-retry-color: var(--qs-compute);
+}
+queue-stories-game .qs-step.is-restarting {
+  animation: qs-restart-step 0.85s ease-out both;
+}
+@keyframes qs-reveal-incident {
+  0%, 60% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--qs-retry-color) 35%, transparent); }
+  35%, 100% { box-shadow: 0 0 0 0 transparent; }
+}
+@keyframes qs-restart-step {
+  from { box-shadow: inset 0 0 0 3px var(--qs-compute); }
+  to { box-shadow: inset 0 0 0 0 transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  queue-stories-game .qs-step.is-retry-origin,
+  queue-stories-game .qs-step.is-restarting {
+    animation: none;
+  }
 }

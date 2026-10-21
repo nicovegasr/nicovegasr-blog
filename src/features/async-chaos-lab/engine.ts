@@ -43,6 +43,7 @@ export type EventKind =
   | 'skipped'
   | 'provider-dedup'
   | 'worker-crash'
+  | 'response-timeout'
   | 'ack-lost'
   | 'recovered'
   | 'duplicate'
@@ -271,15 +272,15 @@ export function advance(previous: SimulationState): SimulationState {
       pauseForIncident(state, 'effect-uncertain');
       return state;
     }
-    // Payment #3: the email was accepted, but the worker dies before saving
-    // its checkpoint. On retry, only receiver-side deduplication can help.
+    // Payment #3: the service accepts the email, but its response times out
+    // before the worker can save a checkpoint. A retry is ambiguous locally.
     if (
       config.level === 2 &&
       job.id === 3 &&
       state.step === 3 &&
       injectFaultOnce(state, 'email-3')
     ) {
-      recordEvent(state, 'worker-crash');
+      recordEvent(state, 'response-timeout');
       pauseForIncident(state, 'email-uncertain');
       return state;
     }

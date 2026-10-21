@@ -65,7 +65,7 @@ describe('Walkthrough instructions follow observed state', () => {
     expect(state.step).toBe(1);
     const result = beat(state, 'charge');
     expect(result.target).toBe('charge');
-    expect(result.task).toContain('Recordar por ID');
+    expect(result.task).toContain('Guardar avance al recibir confirmación');
   });
 
   it('points to receiver deduplication after the final email is duplicated', () => {
@@ -78,6 +78,6 @@ describe('Walkthrough instructions follow observed state', () => {
     const result = beat(duplicate, 'email');
     expect(result.target).toBe('provider');
     expect(result.story).toContain('My notification');
-    expect(result.task).toContain('proveedor');
+    expect(result.task).toContain('deduplicación por clave');
   });
 });

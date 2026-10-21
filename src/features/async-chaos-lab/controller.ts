@@ -26,7 +26,10 @@ class QueueStories extends HTMLElement {
   private labels!: Labels;
   private defaults!: Labels;
   private timer: ReturnType<typeof setInterval> | undefined;
+  private retryTimer: ReturnType<typeof setTimeout> | undefined;
+  private retryStage: 'failure' | 'restart' | undefined;
   private playing = false;
+  private speed = 1;
   private guide: GuideStage = 'off';
   private backup:
     | {
@@ -107,6 +110,9 @@ class QueueStories extends HTMLElement {
           >
             <span aria-hidden="true">↺</span>
           </button>
+        </div>
+        <div class="qs-speeds" role="group" aria-label="${this.t('Velocidad de reproducción', 'Playback speed')}">
+          ${[1, 2, 3, 4].map((speed) => button(`speed:${speed}`, `×${speed}`).replace('<button ', `<button aria-pressed="${speed === this.speed}" `)).join('')}
         </div>
         <div
           class="qs-progress"
@@ -406,7 +412,7 @@ class QueueStories extends HTMLElement {
                         data-setting="remember-${i}"
                         ${step.remember ? 'checked' : ''}
                       />
-                      ${this.t('Recordar por ID', 'Remember by ID')}</label
+                      ${this.t('Guardar avance al recibir confirmación', 'Save progress after confirmation')}</label
                     >
                     <button type="button" class="qs-step-configure" popovertarget="qs-step-options-${i}">${this.t('Configurar paso', 'Configure step')} ↗</button>
                     <div class="qs-step-editor" id="qs-step-options-${i}" popover="auto" data-step-editor="${i}">
@@ -421,17 +427,7 @@ class QueueStories extends HTMLElement {
                         </select></label
                       >${
                         isExternal(step.kind)
-                          ? /* HTML */ `<label
-                                ><input
-                                  type="checkbox"
-                                  data-setting="provider-${i}"
-                                  ${step.providerDeduplication ? 'checked' : ''}
-                                />
-                                ${this.t('El proveedor reconoce el mismo ID (simulado)', 'Provider recognizes the same ID (simulated)')}</label
-                              >
-                              <p>
-                                ${this.t('Necesita soporte del proveedor: puede reconocer la operación aunque no hayas guardado tu marca local.', 'Requires receiver support: it can recognize the operation even when your local marker was not saved.')}
-                              </p>`
+                          ? /* HTML */ `<p>${this.t('Permite saltar este paso cuando llegó su confirmación y guardamos la marca.', 'Lets the worker skip this step after confirmation was received and saved.')}</p>`
                           : step.kind === 'append'
                             ? /* HTML */ `<p>
                                 ${this.t('Es local, pero añadir otra fila cambia el resultado. La idempotencia también importa dentro de tu sistema.', 'It is local, but adding another row changes the result. Idempotency also matters inside your system.')}
@@ -441,6 +437,7 @@ class QueueStories extends HTMLElement {
                               </p>`
                       }
                     </div>
+                    ${isExternal(step.kind) ? /* HTML */ `<label class="qs-provider-option"><input type="checkbox" data-setting="provider-${i}" aria-describedby="qs-provider-hint-${i}" ${step.providerDeduplication ? 'checked' : ''} /><span>${this.t('Deduplicar en el servicio por clave (simulado)', 'Deduplicate at the service by key (simulated)')}<small class="qs-provider-hint" id="qs-provider-hint-${i}">${this.t('Cubre el timeout: el servicio reconoce la misma clave aunque se pierda su respuesta.', 'Covers a timeout: the service recognizes the same key even if its response is lost.')}</small></span></label>` : ''}
                   </div>`
                 : ''
             }
@@ -475,13 +472,52 @@ class QueueStories extends HTMLElement {
   };
   private stop() {
     clearInterval(this.timer);
+    clearTimeout(this.retryTimer);
     this.timer = undefined;
+    this.retryTimer = undefined;
+    this.retryStage = undefined;
     this.playing = false;
   }
   private closeOutcome() {
     this.querySelector<HTMLDialogElement>('[data-outcome]')?.close();
   }
   private start() {
+    if (
+      this.level === 2 &&
+      this.state.phase === 'incident' &&
+      !matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      this.revealRetry();
+      return;
+    }
+    this.resumeProcessing();
+  }
+  private revealRetry() {
+    this.closeOutcome();
+    this.stop();
+    this.inspected = -1;
+    this.retryStage = 'failure';
+    this.update();
+    this.q(`[data-step-card="${this.state.step}"]`).scrollIntoView({
+      block: 'center',
+      behavior: 'smooth',
+    });
+    this.q<HTMLButtonElement>('.qs-dock [data-action=play]').focus({
+      preventScroll: true,
+    });
+    // Let the player locate the interrupted step before showing the restart.
+    // These timers only delay playback; the engine still owns all progress.
+    this.retryTimer = setTimeout(() => {
+      this.retryStage = 'restart';
+      this.update();
+      this.q('[data-step-card="0"]').scrollIntoView({
+        block: 'nearest',
+        behavior: 'smooth',
+      });
+      this.retryTimer = setTimeout(() => this.resumeProcessing(), 850);
+    }, 1300);
+  }
+  private resumeProcessing() {
     this.closeOutcome();
     this.stop();
     this.notices = [];
@@ -496,12 +532,16 @@ class QueueStories extends HTMLElement {
     this.state = advance(this.state);
     if (this.state.phase !== 'running') this.stop();
     this.update();
+    this.schedulePlayback();
+  }
+  private schedulePlayback() {
+    clearInterval(this.timer);
     if (!this.playing) return;
     this.timer = setInterval(() => {
       this.state = advance(this.state);
       if (this.state.phase !== 'running') this.stop();
       this.update();
-    }, 650);
+    }, 650 / this.speed);
   }
   private reset() {
     this.closeOutcome();
@@ -564,8 +604,12 @@ class QueueStories extends HTMLElement {
     if (!b || b.disabled) return;
     const [action, value] = b.dataset.action!.split(':');
     if (action === 'play') {
-      if (this.playing) this.stop();
+      if (this.playing || this.retryStage) this.stop();
       else this.start();
+    }
+    if (action === 'speed' && [1, 2, 3, 4].includes(Number(value))) {
+      this.speed = Number(value);
+      this.schedulePlayback();
     }
     if (action === 'reset') this.reset();
     if (action === 'inspect') {
@@ -846,6 +890,18 @@ class QueueStories extends HTMLElement {
       j = esc(this.job(Math.max(s.active, 0))),
       step = esc(this.step(s.step)),
       previous = esc(this.step(Math.max(0, s.step - 1)));
+    if (this.retryStage)
+      return this.retryStage === 'failure'
+        ? [
+            this.t(`EL INCIDENTE OCURRIÓ EN EL PASO ${s.step + 1}`, `THE INCIDENT HAPPENED AT STEP ${s.step + 1}`),
+            s.incident === 'email-uncertain'
+              ? this.t(`«${step}»: no llegó confirmación. El envío pudo ocurrir; el worker no tiene una marca guardada.`, `“${step}”: no confirmation arrived. The send may have happened; the worker has no saved marker.`)
+              : this.t(`«${step}» no terminó. Los pasos anteriores ya produjeron sus resultados.`, `“${step}” did not complete. Earlier steps already produced their results.`),
+          ]
+        : [
+            this.t('REINICIANDO EL WORKER · MISMO PAGO', 'RESTARTING THE WORKER · SAME PAYMENT'),
+            this.t(`Volvemos al inicio de «${j}». Los efectos anteriores siguen existiendo; solo se saltarán los pasos cuyo avance se guardó.`, `Returning to the start of “${j}”. Earlier effects still exist; only steps with saved progress will be skipped.`),
+          ];
     if (s.phase === 'duplicate')
       return [
         this.t('DUPLICASTE EFECTOS SIN QUERER', 'YOU DUPLICATED EFFECTS'),
@@ -854,6 +910,11 @@ class QueueStories extends HTMLElement {
               `Cobraste dos veces a «${j}». El primer cobro no se deshizo al caer el worker. Reintentar el pago completo volvió a pasar por Stripe.`,
               `You charged “${j}” twice. The first charge was not undone when the worker crashed. Retrying the whole payment went through Stripe again.`,
             )
+          : isExternal(this.config.steps[s.step]?.kind ?? 'check') && this.config.steps[s.step]?.remember
+            ? this.t(
+                `«${step}» produjo dos efectos para «${j}»: la respuesta se perdió antes de guardar el avance local. Esa marca no evita la repetición tras un timeout. Activa la deduplicación por clave en el proveedor y prueba de nuevo.`,
+                `“${step}” produced two effects for “${j}”: the response was lost before local progress was saved. That marker cannot prevent a retry after a timeout. Enable provider deduplication by key and try again.`,
+              )
           : this.t(
               `«${step}» produjo dos efectos para «${j}». Reiniciar el worker no deshizo el primero.`,
               `“${step}” produced two effects for “${j}”. Restarting the worker did not undo the first.`,
@@ -878,17 +939,17 @@ class QueueStories extends HTMLElement {
           this.customSteps()
             ? this.t('La acción pudo completarse.', 'The action may have completed.')
             : this.t(
-                'El email pudo salir. Su avance no quedó guardado.',
-                'The email may have gone out. Its progress was not saved.',
+                'Timeout al enviar. El email pudo llegar, pero no recibimos confirmación.',
+                'Email request timed out. It may have arrived, but we got no confirmation.',
               ),
           this.customSteps()
             ? this.t(
-                `El worker cayó después de «${step}» para «${j}», antes de guardar el resultado. Si la acción ya ocurrió, repetirla puede duplicarla.`,
-                `The worker crashed after “${step}” for “${j}”, before saving the result. If the action already happened, retrying can duplicate it.`,
+                `La solicitud de «${step}» agotó el tiempo para «${j}». La acción pudo completarse, pero no llegó confirmación y no se guardó el resultado. Reintentar puede duplicarla.`,
+                `The request for “${step}” timed out for “${j}”. The action may have completed, but no confirmation arrived and no result was saved. Retrying can duplicate it.`,
               )
             : this.t(
-                `«${j}» ya recibió el email, pero el worker cayó antes de guardar que lo había enviado. Si lo repites sin que el proveedor reconozca un ID estable, puede llegarle dos veces.`,
-                `“${j}” already received the email, but the worker crashed before saving that it sent it. If you retry without receiver support for a stable ID, it may arrive twice.`,
+                `El servicio de correo pudo aceptar el mensaje, pero su respuesta se perdió por timeout. El worker no guardó el avance: reintentar puede duplicar el email; no reintentar puede dejar al cliente sin confirmación.`,
+                `The email service may have accepted the message, but its response was lost to a timeout. The worker did not save progress: retrying may duplicate the email; not retrying may leave the customer without confirmation.`,
               ),
         ];
       return [
@@ -1080,8 +1141,8 @@ class QueueStories extends HTMLElement {
               'The payments are already saved. Now look inside the worker: it checks the data, charges, activates the subscription and sends the email.',
             ),
             this.t(
-              'Cada paso tiene «Recordar por ID». Tú decides qué debería recordar el siguiente intento. En «Configurar paso» también puedes cambiar lo que hace cada caja.',
-              'Each step has “Remember by ID”. You decide what the next attempt should remember. Under “Configure step”, you can also change what each box does.',
+              'En los pasos externos verás dos protecciones. «Guardar avance al recibir confirmación» permite saltar el paso al reintentar. La deduplicación del proveedor cubre el timeout: puede que el servicio hiciera el envío aunque no recibimos su respuesta.',
+              'External steps show two protections. “Save progress after confirmation” lets the worker skip a step on retry. Provider deduplication covers a timeout: the service may have sent the message even though its reply never arrived.',
             ),
             this.t(
               'Que el worker vuelva a empezar no devuelve el dinero al cliente. Así que eso de cobrar otra vez… mejor lo vigilamos, ¿eh?',
@@ -1195,12 +1256,12 @@ class QueueStories extends HTMLElement {
     if (!this.customSteps() && s.incident === 'email-uncertain')
       return {
         title: this.t(
-          'El email salió, pero no sabemos si repetirlo.',
-          'The email was sent, but we do not know whether to retry it.',
+          'Timeout: el email pudo llegar; no hay confirmación.',
+          'Timeout: the email may have arrived; there is no confirmation.',
         ),
         report: this.t(
-          `Otro problema con ${job}: el proveedor aceptó el email, pero el worker cayó antes de guardar el envío. Si lo mandamos otra vez, puede recibir dos confirmaciones.`,
-          `Another issue with ${job}: the provider accepted the email, but the worker crashed before saving the send. If we send it again, the customer may receive two confirmations.`,
+          `El servicio de correo pudo aceptar el mensaje, pero su respuesta se perdió por timeout. El worker no guardó el avance: reintentar puede duplicarlo; no reintentar puede dejar al cliente sin confirmación.`,
+          `The email service may have accepted the message, but its response was lost to a timeout. The worker saved no progress: retrying may duplicate it; not retrying may leave the customer without confirmation.`,
         ),
       };
     return {
@@ -1308,13 +1369,13 @@ class QueueStories extends HTMLElement {
             .map(
               (st, i) =>
                 /* HTML */ `<article
-                  class="${st.effects ? 'is-finished' : i === s.step ? 'was-interrupted' : ''}"
+                  class="${i === s.step && s.incident === 'email-uncertain' ? 'is-uncertain' : st.effects ? 'is-finished' : i === s.step ? 'was-interrupted' : ''}"
                 >
                   <span class="qs-evidence-step"
                     >${String(i + 1).padStart(2, '0')}
-                    <b>${st.effects ? '✓' : i === s.step ? '×' : '○'}</b></span
+                    <b>${i === s.step && s.incident === 'email-uncertain' ? '?' : st.effects ? '✓' : i === s.step ? '×' : '○'}</b></span
                   ><strong>${esc(this.step(i))}</strong
-                  ><small>${this.resultLabel(i, st.effects)}</small>
+                  ><small>${i === s.step && s.incident === 'email-uncertain' ? this.t('Sin confirmar · timeout', 'Unconfirmed · timeout') : this.resultLabel(i, st.effects)}</small>
                 </article>`,
             )
             .join('')}
@@ -1561,7 +1622,11 @@ class QueueStories extends HTMLElement {
       shown = this.inspected >= 0 ? this.inspected : Math.max(0, s.active),
       j = s.jobs[shown]!;
     this.dataset.phase = s.phase;
-    this.classList.toggle('is-playing', this.playing);
+    this.dataset.retryStage = this.retryStage ?? '';
+    this.style.setProperty('--qs-tick-duration', `${650 / this.speed}ms`);
+    for (const speed of [1, 2, 3, 4])
+      this.q(`[data-action="speed:${speed}"]`).setAttribute('aria-pressed', String(speed === this.speed));
+    this.classList.toggle('is-playing', this.playing || !!this.retryStage);
     this.classList.toggle('is-guided', this.guide !== 'off');
     this.classList.toggle(
       'is-worker-down',
@@ -1573,7 +1638,9 @@ class QueueStories extends HTMLElement {
     for (const play of this.querySelectorAll<HTMLButtonElement>(
       '[data-action=play]',
     ))
-      play.textContent = this.playing
+      play.textContent = this.retryStage
+        ? this.t('Pausar reinicio', 'Pause restart')
+        : this.playing
         ? this.t('Pausar', 'Pause')
         : s.phase === 'incident'
           ? this.t('Reprocesar pago', 'Reprocess payment')
@@ -1683,15 +1750,27 @@ class QueueStories extends HTMLElement {
         : `${this.inspected >= 0 ? this.t('Viendo: ', 'Inspecting: ') : ''}${this.job(shown)} · ID ${String(shown + 1).padStart(2, '0')}${j.status === 'working' && s.active === shown ? ' → ' + (s.cursor === 'ack' ? this.t('Confirmar fin', 'Confirm completion') : this.step(s.step)) : ''}`;
     for (let i = 0; i < this.config.steps.length; i++) {
       const st = j.steps[i]!,
+        retryOrigin = this.retryStage === 'failure' && s.active === shown && s.step === i,
+        restarting = this.retryStage === 'restart' && s.active === shown && i === 0,
+        uncertain = s.phase === 'incident' && s.incident === 'email-uncertain' && s.active === shown && s.step === i,
+        failed =
+          s.phase === 'incident' &&
+          s.incident === 'activation-failed' &&
+          s.active === shown &&
+          s.step === i,
         active =
           s.active === shown &&
           j.status === 'working' &&
           s.step === i &&
           ['execute', 'save'].includes(s.cursor);
       this.q(`[data-step-card="${i}"]`).className =
-        `qs-step ${active ? 'is-active' : ''} ${st.effects > 1 ? 'has-duplicate' : ''}`;
+        `qs-step ${active ? 'is-active' : ''} ${failed ? 'is-failed' : ''} ${uncertain ? 'is-uncertain' : ''} ${retryOrigin ? 'is-retry-origin' : ''} ${restarting ? 'is-restarting' : ''} ${st.effects > 1 ? 'has-duplicate' : ''}`;
       this.q(`[data-step-icon="${i}"]`).textContent =
-        st.effects > 1
+        restarting
+          ? '↻'
+          : uncertain
+            ? '?'
+          : failed || st.effects > 1
           ? '×'
           : st.skipped
             ? '↷'
@@ -1705,6 +1784,15 @@ class QueueStories extends HTMLElement {
           ? active
             ? `▶ ID ${String(shown + 1).padStart(2, '0')} · ${this.job(shown)}`
             : `${this.resultLabel(i, st.effects)}${st.skipped ? ' · ' + st.skipped + ' ↷' : ''}`
+          : restarting
+            ? this.t('↻ Reiniciando · volvemos al primer paso del mismo pago', '↻ Restarting · back to the first step of the same payment')
+          : uncertain
+            ? this.t(`? Paso ${i + 1} sin confirmar · timeout tras solicitar el envío`, `? Step ${i + 1} unconfirmed · timeout after requesting the send`)
+          : failed
+            ? this.t(
+                `× Paso ${i + 1} falló · no llegó a completarse`,
+                `× Step ${i + 1} failed · did not complete`,
+              )
           : active
             ? s.cursor === 'save'
               ? this.t(

@@ -141,7 +141,7 @@ try {
       await click('dismiss');
   };
   const setting = async (key) => {
-    if (key.startsWith('remember-')) {
+    if (key.startsWith('remember-') || key.startsWith('provider-')) {
       const open = await evaluate('document.querySelector(".qs-step-editor:popover-open")?.id');
       if (open) await clickSelector(`#${open} [popovertargetaction=hide]`);
     }
@@ -215,7 +215,7 @@ try {
     evaluate('document.querySelector("[data-feedback]").textContent');
   const untilStop = async () =>
     evaluate(
-      `new Promise((resolve,reject)=>{const end=Date.now()+5000;const check=()=>{const phase=document.querySelector('queue-stories-game').dataset.phase;if(['incident','won','lost','duplicate'].includes(phase))resolve(phase);else if(Date.now()>end)reject(Error('No incident/outcome: '+phase));else requestAnimationFrame(check)};check()})`,
+      `new Promise((resolve,reject)=>{const end=Date.now()+8000;const check=()=>{const game=document.querySelector('queue-stories-game');const phase=game.dataset.phase;if(!game.dataset.retryStage&&['incident','won','lost','duplicate'].includes(phase))resolve(phase);else if(Date.now()>end)reject(Error('No incident/outcome: '+phase));else requestAnimationFrame(check)};check()})`,
     );
   const runToStop = async () => {
     await click('play');
@@ -614,6 +614,15 @@ try {
     true,
     'worker fits desktop',
   );
+  assert.equal(
+    await evaluate('document.querySelector("[data-setting=provider-3]").closest("[popover]") === null'),
+    true,
+    'receiver protection is visible without opening step configuration',
+  );
+  assert.match(
+    await evaluate('document.querySelector("[data-setting=remember-3]").closest("label").textContent'),
+    /Guardar avance al recibir confirmación/,
+  );
   await screenshot('worker-initial');
   const diagramBefore = await evaluate('document.querySelector(".qs-worker-interior").getBoundingClientRect().height');
   await clickSelector('button[popovertarget="qs-step-options-3"]:not([popovertargetaction])');
@@ -624,7 +633,7 @@ try {
   await click('guide');
   assert.match(
     await evaluate('document.querySelector("dialog").textContent'),
-    /Recordar por ID/,
+    /Guardar avance al recibir confirmación/,
   );
   await click('walkthrough');
   await guidedFits();
@@ -637,12 +646,23 @@ try {
     /Ha pagado y no puede entrar/,
   );
   await screenshot('worker-partial-effect');
+  assert.equal(
+    await evaluate('document.querySelector("[data-step-card=\\"2\\"]").classList.contains("is-failed")'),
+    true,
+    'the interrupted activation step is marked as failed',
+  );
+  assert.match(
+    await evaluate('document.querySelector("[data-step-state=\\"2\\"]").textContent'),
+    /Paso 3 falló/,
+  );
   await runToStop();
   assert.equal(await phase(), 'duplicate');
   await click('lesson');
   await setting('remember-1');
+  await setting('remember-3');
   await finish();
   assert.equal(await phase(), 'duplicate');
+  assert.match(await feedback(), /respuesta se perdió antes de guardar el avance local.*deduplicación por clave/);
   assert.match(await feedback(), /Enviar confirmación|confirmación|efecto/i);
   await click('lesson');
   assert.equal(
@@ -654,7 +674,7 @@ try {
   assert.equal(await phase(), 'won');
   await screenshot('worker-safe-but-wasteful');
   await click('lesson');
-  for (const i of [0, 2, 3]) await setting('remember-' + i);
+  for (const i of [0, 2]) await setting('remember-' + i);
   await finish();
   assert.equal(await phase(), 'won');
   assert.match(await feedback(), /Saltaste 5 pasos/);
