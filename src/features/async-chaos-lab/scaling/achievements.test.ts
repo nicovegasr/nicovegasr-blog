@@ -3,7 +3,7 @@ import { eligibleAchievements, minimumWorkers, scalingAchievements } from './ach
 import { createScaling, pauseScaling, playScaling, runScaling, scalingDefaults, scalingMetrics, scalingVerdict } from './engine';
 import type { ScalingConfig } from './engine';
 
-const run = (workers: number, capacities: ScalingConfig['capacities']) => runScaling({ ...scalingDefaults(), workers, capacities });
+const run = (workers: number, capacities: ScalingConfig['capacities']) => runScaling({ ...scalingDefaults(), workers, capacities, rateLimits: { 1: Math.max(3, capacities[1]), 3: Math.max(5, capacities[3]) } });
 const awards = (workers: number, capacities: ScalingConfig['capacities']) => eligibleAchievements(run(workers, capacities));
 
 describe('Scaling achievements', () => {
@@ -31,7 +31,7 @@ describe('Scaling achievements', () => {
   });
   it('distinguishes timely completion from an affordable victory', () => {
     const result = run(8, [8, 8, 8, 8]);
-    expect(scalingMetrics(result)).toMatchObject({ seconds: 18, cost: 468 });
+    expect(scalingMetrics(result)).toMatchObject({ seconds: 18, cost: 612 });
     expect(eligibleAchievements(result)).toEqual(['on-time']);
     expect(scalingVerdict(result).won).toBe(false);
   });
@@ -47,6 +47,11 @@ describe('Scaling achievements', () => {
     expect(scalingVerdict(result).won).toBe(true);
     expect(eligibleAchievements(result)).toContain('minimum-team');
     expect(awards(6, [6, 6, 6, 6])).not.toContain('minimum-team');
+  });
+  it('does not award a trial stopped by a 429', () => {
+    const s = runScaling({ ...scalingDefaults(), workers: 4, capacities: [4, 4, 2, 5] });
+    expect(s.phase).toBe('rate-limited');
+    expect(eligibleAchievements(s)).toEqual([]);
   });
   it('keeps the catalogue focused without revealing the winning worker count', () => {
     expect(scalingAchievements.map(({ id }) => id)).toEqual(['pods-only', 'on-time', 'minimum-team']);

@@ -205,65 +205,85 @@ try {
   await close();
   for (let i = 0; i < 3; i++) await action('more');
 
-  // Four workers arrive at Stripe automatically. Three service slots cannot take four calls.
+  // Full concurrent slots queue locally; no request is sent until admission.
   for (let run = 0; run < 2; run++) {
     await action('reset');
     await evaluate('window.reviewInterval=80');
     await action('play');
-    assert.equal(await evaluate('document.querySelectorAll(\'[data-location="active-0"] > button\').length'), 4);
-    await stopped();
-    assert.equal(await phase(), 'blocked');
-    assert.match(await dialogText(), /GAME LOSS/);
-    assert.match(await dialogText(), /paso 2/);
-    assert.equal(await evaluate('document.querySelector("dialog").classList.contains("qs-outcome")'), true);
-    assert.equal(await evaluate('document.querySelectorAll("[data-job]").length'), 24);
-    assert.notEqual(await evaluate('getComputedStyle(document.querySelector("dialog")).clipPath'), 'none', 'shared incident ticket has a torn bottom edge');
-    assert.equal(await evaluate('document.querySelectorAll("[data-earned]").length'), run === 0 ? 1 : 0, 'new awards appear once, not on every replay');
-    await screenshot(run === 0 ? '02-incident-ticket-with-awards' : '02-automatic-stripe-loss');
+    await waitFor(`document.querySelectorAll('[data-location="waiting-1"] > button').length===1`);
+    await action('play');
+    assert.equal(await phase(), 'paused');
+    assert.equal(await evaluate(`document.querySelectorAll('[data-location="active-1"] > button').length`), 3);
+    assert.equal(await evaluate(`document.querySelectorAll('[data-location="waiting-1"] > button').length`), 1);
+    await screenshot('02-local-admission-queue');
+    await evaluate('window.reviewInterval=4');
+    await playToOutcome();
+    assert.equal(await phase(), 'complete');
+    assert.match(await dialogText(), /39 s/);
+    assert.match(await dialogText(), /156 u/);
+    assert.equal(await evaluate('document.querySelectorAll("[data-earned]").length'), run === 0 ? 1 : 0);
     await close();
-    assert.equal(await evaluate('document.querySelector(\'[data-step="1"]\').classList.contains("is-down")'), true);
   }
-  await screenshot('03-broken-chain');
-  // Capacity upgrades change the resource itself, with no second hidden limit.
+  // A concurrency upgrade can still exceed the independent HTTP quota.
   await action('grow:1');
-  assert.equal(await evaluate('document.querySelector(\'[data-resource-size="1"]\').textContent'), '4');
-  assert.equal(await phase(), 'ready');
-  await evaluate('window.reviewInterval=4');
   await playToOutcome();
-  assert.match(await dialogText(), /paso 3/);
-  await screenshot('04-next-service-fails');
+  assert.equal(await phase(), 'rate-limited');
+  assert.match(await dialogText(), /HTTP 429/);
+  assert.match(await dialogText(), /servicio sigue activo/);
+  assert.equal(await evaluate(`document.querySelectorAll('[data-location="active-1"] > button').length`), 3);
+  assert.match(await evaluate(`document.querySelector('[data-capacity="1"]').textContent`), /3\/4/);
+  assert.equal(await evaluate('document.querySelectorAll("[data-job][data-status=rejected]").length'), 1);
+  assert.notEqual(await evaluate('getComputedStyle(document.querySelector("dialog")).clipPath'), 'none');
+  await screenshot('03-http-429-with-free-slot');
   await close();
-  await action('grow:2');
-  await action('grow:2');
-  assert.equal(await evaluate('document.querySelector(\'[data-resource-size="2"]\').textContent'), '4');
+  // Buying quota changes request rate, not the number of simultaneous slots.
+  await action('rate-more:1');
+  assert.equal(await evaluate(`document.querySelector('[data-rate-limit="1"]').textContent`), '4');
   await playToOutcome();
   assert.equal(await phase(), 'complete');
   assert.match(await dialogText(), /MISIÓN SUPERADA/);
-  assert.match(await dialogText(), /36 s/);
-  assert.match(await dialogText(), /252 u/);
-  assert.match(await dialogText(), /TU INTENTO ANTERIOR/);
-  assert.match(await dialogText(), /144 s/);
+  assert.match(await dialogText(), /37 s/);
+  assert.match(await dialogText(), /222 u/);
   assert.deepEqual(await evaluate('Array.from(document.querySelectorAll("[data-earned]")).map(el=>el.dataset.earned)'), ['on-time', 'minimum-team']);
+  await screenshot('04-win-with-database-waiting');
+  await close();
+  await action('grow:2');
+  await action('grow:2');
+  await playToOutcome();
+  assert.equal(await phase(), 'complete');
+  assert.match(await dialogText(), /36 s/);
+  assert.match(await dialogText(), /288 u/);
+  assert.match(await dialogText(), /TU INTENTO ANTERIOR/);
+  assert.match(await dialogText(), /37 s/);
+  assert.equal(await evaluate('document.querySelectorAll("[data-earned]").length'), 0);
   await screenshot('05-four-worker-win');
   await close();
   await action('reset');
   await playToOutcome();
   assert.match(await dialogText(), /MISIÓN SUPERADA/);
-  assert.match(await dialogText(), /36 s/);
-  assert.equal(await evaluate('document.querySelectorAll("[data-earned]").length'), 0, 'repeated wins do not repeat award notices');
+  assert.equal(await evaluate('document.querySelectorAll("[data-earned]").length'), 0);
   await close();
-  assert.equal(await evaluate('document.querySelector(".sc-trial-bar").getBoundingClientRect().bottom<=innerHeight'), true, 'desktop fits one screen');
+  await evaluate('document.querySelector(".sc-dock").scrollIntoView({block:"nearest"})');
+  assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth'), true, 'desktop has no horizontal overflow');
   await screenshot('06-no-arrows-or-panels');
   await click('.qs-achievements summary');
   assert.equal(await evaluate('document.querySelectorAll("[data-achievement].is-unlocked").length'), 3);
   await screenshot('12-achievement-catalogue');
   await click('.qs-achievements summary');
-  // Overload is tested at a different service too.
+  // Email can queue for slots and independently reject an excessive request rate.
   await action('shrink:3');
   await action('shrink:3');
   await playToOutcome();
-  assert.match(await dialogText(), /paso 4/);
+  assert.equal(await phase(), 'complete');
+  assert.match(await dialogText(), /37 s/);
   await close();
+  for (let i = 0; i < 3; i++) await action('rate-less:3');
+  await playToOutcome();
+  assert.equal(await phase(), 'rate-limited');
+  assert.match(await dialogText(), /HTTP 429/);
+  await screenshot('07-email-quota-rejection');
+  await close();
+  for (let i = 0; i < 3; i++) await action('rate-more:3');
   await action('grow:3');
   await action('grow:3');
   // Six occupied slots only appear after six workers and real receiving capacity exist.
@@ -273,6 +293,9 @@ try {
     await action(`grow:${step}`);
   }
   await action('grow:3');
+  await action('rate-more:1');
+  await action('rate-more:1');
+  await action('rate-more:3');
   await evaluate('window.reviewInterval=80');
   await action('play');
   await waitFor('document.querySelectorAll(\'[data-location="active-1"] > button\').length===6');
@@ -282,7 +305,9 @@ try {
   await screenshot('07-six-real-service-slots');
   await evaluate('window.reviewInterval=4');
   await playToOutcome();
-  assert.match(await dialogText(), /MISIÓN SUPERADA/);
+  assert.equal(await phase(), 'complete');
+  assert.match(await dialogText(), /480 u/);
+  assert.doesNotMatch(await dialogText(), /MISIÓN SUPERADA/);
   await close();
   await action('compare');
   assert.equal((await evaluate('document.querySelectorAll("dialog tbody tr").length')) > 1, true);
@@ -310,8 +335,10 @@ try {
   assert.equal(await evaluate('(()=>{const r=document.querySelector(".sc-dock").getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight})()'), true);
   await screenshot('10-mobile');
   for (let i = 0; i < 3; i++) await action('more');
+  await action('grow:1');
   await playToOutcome();
-  assert.match(await dialogText(), /GAME LOSS/);
+  assert.equal(await phase(), 'rate-limited');
+  assert.match(await dialogText(), /HTTP 429/);
   assert.equal(await evaluate('document.querySelector("dialog").getBoundingClientRect().width<=innerWidth'), true);
   await screenshot('13-mobile-incident-ticket');
   await close();
@@ -345,7 +372,7 @@ try {
   await send('Page.removeScriptToEvaluateOnNewDocument', { identifier: blockedStorage.identifier });
   assert(networkRequests.every(request => new URL(request.url).origin === new URL(base).origin && request.method === 'GET'), 'static resources only');
   assert.deepEqual(errors, []);
-  console.log('PASS: automatic overloads at Stripe/database/email, real capacity upgrades, repeated starts, four-worker win, six occupied service slots, shared serrated Game Loss on desktop/mobile, all achievement criteria/catalogue/deduplication/session persistence, no arrows/manual failure/admission controls, own trial comparison, introductions, pause/speed, mobile, EN, dark, reduced motion, names/XSS, blocked storage. Screenshots:', output);
+  console.log('PASS: FIFO admission queues, independent Stripe/email HTTP quotas and 429 rejections with free slots, real capacity and quota upgrades, repeated starts, four-worker win, six occupied slots with quota cost, shared serrated 429 result on desktop/mobile, all achievement criteria/catalogue/deduplication/session persistence, no arrows/manual failure/admission controls, own trial comparison, introductions, pause/speed, mobile, EN, dark, reduced motion, names/XSS, blocked storage. Screenshots:', output);
 } finally {
   socket?.close();
   browser.kill();

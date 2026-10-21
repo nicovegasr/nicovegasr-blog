@@ -312,6 +312,13 @@ queue-scaling-game .sc-worker[data-pose='paused'] {
   border-color: var(--color-rule);
   background: var(--color-paper);
 }
+queue-scaling-game .sc-worker[data-pose='rejected'],
+queue-scaling-game .sc-job[data-status='rejected'] {
+  color: var(--sc-coral);
+  border-color: var(--sc-coral);
+  background: color-mix(in srgb, var(--sc-coral) 8%, var(--color-paper));
+}
+queue-scaling-game .sc-job[data-status='rejected'] { border-style: dashed; }
 queue-scaling-game .sc-flow {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -442,12 +449,7 @@ queue-scaling-game .sc-job[data-status='waiting'] {
   color: var(--sc-amber);
   background: color-mix(in srgb, var(--sc-amber) 9%, var(--color-paper));
 }
-queue-scaling-game .sc-job[data-status='failed'] {
-  border-color: var(--sc-coral);
-  color: var(--sc-coral);
-  border-style: dashed;
-  background: color-mix(in srgb, var(--sc-coral) 9%, var(--color-paper));
-}
+
 queue-scaling-game .sc-job[data-status='done'] {
   border-color: transparent;
   background: color-mix(in srgb, var(--sc-green) 10%, var(--color-paper));
@@ -973,23 +975,10 @@ queue-scaling-game .sc-radio [data-radio] > button {
 queue-scaling-game .sc-job {
   white-space: nowrap;
 }
-queue-scaling-game .sc-step.is-down {
-  border: 2px solid var(--sc-coral);
-  background: color-mix(in srgb, var(--sc-coral) 9%, var(--color-paper));
-  box-shadow: inset 0 4px 0 var(--sc-coral);
-}
-queue-scaling-game .sc-step.is-down .sc-resource {
-  color: var(--sc-coral);
-  font-weight: 700;
-}
-queue-scaling-game.is-broken .sc-step:not(.is-down) {
-  opacity: 0.55;
-}
-queue-scaling-game .sc-worker[data-pose='interrupted'] {
-  color: var(--sc-coral);
-  border-color: var(--sc-coral);
-  background: color-mix(in srgb, var(--sc-coral) 8%, var(--color-paper));
-}
+
+
+
+
 
 queue-scaling-game .sc-first-result { grid-template-columns: 1fr; }
 queue-scaling-game .sc-first-trial { color: var(--color-text-soft); font-size: 0.75rem; }
@@ -1002,6 +991,31 @@ queue-scaling-game .sc-capacity-control { display: flex; align-items: center; ga
 queue-scaling-game .sc-capacity-control button { width: 28px; height: 28px; padding: 0; border: 1px solid var(--sc-blue); border-radius: 4px; color: var(--sc-blue); background: var(--sc-wash); }
 queue-scaling-game .sc-capacity-control output { min-width: 1.2rem; font-weight: 600; text-align: center; }
 queue-scaling-game .sc-capacity-cost { display: block; min-height: 1em; margin-top: 0.3rem; color: var(--color-text-soft); font-size: 0.5rem; }
+queue-scaling-game .sc-rate-controls {
+  border-top: 1px dashed var(--color-rule);
+  margin-top: 0.45rem;
+  padding-top: 0.45rem;
+}
+queue-scaling-game .sc-rate-usage {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--color-text-soft);
+  font: 0.5rem/1.4 var(--font-family-mono);
+}
+queue-scaling-game .sc-step.is-rejected .sc-rate-usage { color: var(--sc-coral); }
+queue-scaling-game .sc-rate-evidence strong {
+  display: block;
+  font: 600 2.4rem/1 var(--font-family-display);
+}
+queue-scaling-game .sc-rate-evidence p {
+  font: 0.7rem/1.5 var(--font-family-mono);
+  margin-top: 0.8rem;
+}
+queue-scaling-game .sc-rejected-result {
+  display: block;
+  color: var(--sc-coral);
+  margin-top: 0.2rem;
+}
 
 /* Share the existing award vocabulary without adding another board panel. */
 queue-scaling-game .sc-dialog {

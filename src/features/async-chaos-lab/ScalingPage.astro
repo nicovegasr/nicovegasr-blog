@@ -11,7 +11,7 @@ const es = locale === 'es';
 const title = es ? 'Tu sistema se queda pequeño.' : 'Your system is growing.';
 ---
 <BaseLayout locale={locale} title={`${title} · Async Chaos Lab`}
-  description={es ? '24 pagos. Un worker. Descubre dónde espera tu sistema y aceléralo sin desbordar sus servicios.' : '24 payments. One worker. Find where your system waits and speed it up without overwhelming its services.'}
+  description={es ? '24 pagos. Un worker. Equilibra workers, plazas simultáneas y cuotas HTTP: espera por capacidad o descubre un rechazo 429.' : '24 payments. One worker. Balance workers, concurrent slots and HTTP quotas: wait for capacity or discover a 429 rejection.'}
   alternatePaths={{ es: labPath('es', 3), en: labPath('en', 3) }}>
   <LabHeader locale={locale} level={3} title={title} />
   <queue-scaling-game data-locale={locale}></queue-scaling-game>

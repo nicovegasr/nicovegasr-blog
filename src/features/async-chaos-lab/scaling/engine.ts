@@ -5,16 +5,21 @@ export const AVAILABLE_WORKERS = 8;
 export const TARGET_SECONDS = 37;
 export const TARGET_COST = 400;
 export type Four<T> = [T, T, T, T];
+export type HttpStep = 1 | 3;
+export const isHttpStep = (step: number): step is HttpStep => step === 1 || step === 3;
+export const BASE_RATE_LIMITS: Record<HttpStep, number> = { 1: 3, 3: 5 };
+export const RATE_WINDOW_TICKS = 1 / TICK_SECONDS;
 export type ScalingConfig = {
   workers: number;
   capacities: Four<number>;
   durations: Four<number>; // ticks, including time spent using the resource
+  rateLimits: Record<HttpStep, number>; // accepted HTTP requests per fixed 1 s window
 };
 export type Payment = {
   id: number;
   worker: number | null;
   step: number;
-  status: 'pending' | 'waiting' | 'running' | 'done' | 'failed';
+  status: 'pending' | 'waiting' | 'running' | 'done' | 'rejected';
   until: number;
   waitingSince: number;
   effects: Four<number>;
@@ -23,23 +28,26 @@ export type ScalingEvent = {
   tick: number;
   job: number;
   step: number;
-  kind: 'started' | 'step-done' | 'service-down' | 'completed';
+  kind: 'started' | 'step-done' | 'completed' | 'rate-limit';
 };
 export type ScalingState = {
   config: ScalingConfig;
-  phase: 'ready' | 'running' | 'paused' | 'complete' | 'blocked';
+  phase: 'ready' | 'running' | 'paused' | 'complete' | 'rate-limited';
   tick: number;
   jobs: Payment[];
-  outageStep: number | null;
   waitTicks: Four<number>;
   busyTicks: Four<number>;
   peak: Four<number>;
   events: ScalingEvent[];
+  rateWindow: number;
+  requestsInWindow: Four<number>;
+  rateLimit: { step: HttpStep; job: number; limit: number; retryAfterSeconds: number } | null;
 };
 export const scalingDefaults = (): ScalingConfig => ({
   workers: 1,
   capacities: [4, 3, 2, 5],
   durations: [2, 6, 2, 2],
+  rateLimits: { ...BASE_RATE_LIMITS },
 });
 export const BASE_CAPACITIES: Four<number> = [4, 3, 2, 5];
 export const resourceCapacities = (config: ScalingConfig): Four<number> => config.capacities;
@@ -54,7 +62,9 @@ export function createScaling(config = scalingDefaults()): ScalingState {
     config.capacities.some((capacity) => !Number.isInteger(capacity) || capacity < 1 || capacity > 8) ||
     config.durations.some(
       (ticks) => !Number.isInteger(ticks) || ticks < 1 || ticks > 120,
-    )
+    ) ||
+    !config.rateLimits ||
+    ([1, 3] as const).some((step) => !Number.isInteger(config.rateLimits[step]) || config.rateLimits[step] < 1 || config.rateLimits[step] > 8)
   )
     throw new Error('Invalid scaling configuration');
   return {
@@ -70,17 +80,24 @@ export function createScaling(config = scalingDefaults()): ScalingState {
       waitingSince: 0,
       effects: [0, 0, 0, 0],
     })),
-    outageStep: null,
     waitTicks: [0, 0, 0, 0],
     busyTicks: [0, 0, 0, 0],
     peak: [0, 0, 0, 0],
     events: [],
+    rateWindow: 0,
+    requestsInWindow: [0, 0, 0, 0],
+    rateLimit: null,
   };
 }
 function event(state: ScalingState, job: Payment, kind: ScalingEvent['kind']) {
   state.events.push({ tick: state.tick, job: job.id, step: job.step, kind });
 }
 function schedule(state: ScalingState) {
+  const window = Math.floor(state.tick / RATE_WINDOW_TICKS);
+  if (window !== state.rateWindow) {
+    state.rateWindow = window;
+    state.requestsInWindow = [0, 0, 0, 0];
+  }
   const occupied = new Set(state.jobs.map((job) => job.worker));
   for (let worker = 1; worker <= state.config.workers; worker++) {
     if (occupied.has(worker)) continue;
@@ -99,17 +116,25 @@ function schedule(state: ScalingState) {
       .filter((job) => job.step === step && job.status === 'waiting')
       .sort((a, b) => a.waitingSince - b.waitingSince || a.id - b.id);
     for (const job of waiting) {
-      if (active >= capacities[step]!) {
-        // CPU work waits for a core. External calls are sent immediately:
-        // excess demand collapses the receiving service in this scenario.
-        if (step === 0) continue;
-        state.phase = 'blocked';
-        state.outageStep = step;
-        for (const affected of state.jobs)
-          if (affected.step === step && affected.worker !== null)
-            affected.status = 'failed';
-        state.events.push({ tick: state.tick, job: job.id, step, kind: 'service-down' });
-        return;
+      // Explicit per-resource admission: the worker retains its payment and
+      // waits locally before sending a call. Async I/O alone does not do this.
+      // FIFO keeps later arrivals from overtaking a worker already waiting.
+      if (active >= capacities[step]!) break;
+      if (isHttpStep(step)) {
+        const limit = state.config.rateLimits[step];
+        // The provider quota is independent of the worker's concurrency gate.
+        // A free slot does not guarantee that another request will be accepted.
+        if (state.requestsInWindow[step] >= limit) {
+          job.status = 'rejected';
+          state.phase = 'rate-limited';
+          state.rateLimit = {
+            step, job: job.id, limit,
+            retryAfterSeconds: ((window + 1) * RATE_WINDOW_TICKS - state.tick) * TICK_SECONDS,
+          };
+          event(state, job, 'rate-limit');
+          return;
+        }
+        state.requestsInWindow[step]++;
       }
       job.status = 'running';
       job.until = state.tick + state.config.durations[step]!;
@@ -168,6 +193,9 @@ export function scalingMetrics(state: ScalingState) {
   const extraCapacity = state.config.capacities.reduce((total, capacity, step) =>
     total + Math.max(0, capacity - BASE_CAPACITIES[step]!), 0);
   const extraServiceCost = seconds * extraCapacity;
+  const extraQuota = ([1, 3] as const).reduce((sum, step) =>
+    sum + Math.max(0, state.config.rateLimits[step] - BASE_RATE_LIMITS[step]), 0);
+  const extraRateCost = seconds * extraQuota;
   return {
     seconds,
     completed,
@@ -176,14 +204,16 @@ export function scalingMetrics(state: ScalingState) {
     waiting: state.jobs.filter(
       (job) => job.status === 'waiting',
     ).length,
+    waitingSeconds: state.waitTicks.reduce((sum, ticks) => sum + ticks, 0) * TICK_SECONDS,
     throughput: seconds ? completed / seconds : 0,
     workerCost,
     extraServiceCost,
-    cost: workerCost + extraServiceCost,
+    extraRateCost,
+    cost: workerCost + extraServiceCost + extraRateCost,
     // Completed payments per unit reserved. No hidden score or arbitrary penalty.
     efficiency:
-      workerCost + extraServiceCost
-        ? completed / (workerCost + extraServiceCost)
+      workerCost + extraServiceCost + extraRateCost
+        ? completed / (workerCost + extraServiceCost + extraRateCost)
         : 0,
     steps: [0, 1, 2, 3].map((step) => ({
       active: state.jobs.filter(
@@ -194,8 +224,8 @@ export function scalingMetrics(state: ScalingState) {
           job.step === step &&
           (job.status === 'waiting'),
       ),
-      interrupted: state.jobs.filter((job) => job.step === step && job.status === 'failed'),
       capacity: resourceCapacities(state.config)[step]!,
+      rejected: state.jobs.filter((job) => job.step === step && job.status === 'rejected'),
       utilization: state.tick
         ? state.busyTicks[step]! /
           (state.tick * resourceCapacities(state.config)[step]!)
@@ -206,8 +236,7 @@ export function scalingMetrics(state: ScalingState) {
 export function scalingVerdict(state: ScalingState) {
   const metrics = scalingMetrics(state);
   const safe =
-    state.outageStep === null &&
-    state.jobs.every((job) => job.effects.every((count) => count === 1));
+    state.rateLimit === null && state.jobs.every((job) => job.effects.every((count) => count === 1));
   return {
     fast: metrics.seconds <= TARGET_SECONDS,
     economical: metrics.cost <= TARGET_COST,
