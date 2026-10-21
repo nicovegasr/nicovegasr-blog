@@ -215,7 +215,7 @@ try {
     evaluate('document.querySelector("[data-feedback]").textContent');
   const untilStop = async () =>
     evaluate(
-      `new Promise((resolve,reject)=>{const end=Date.now()+8000;const check=()=>{const game=document.querySelector('queue-stories-game');const phase=game.dataset.phase;if(!game.dataset.retryStage&&['incident','won','lost','duplicate'].includes(phase))resolve(phase);else if(Date.now()>end)reject(Error('No incident/outcome: '+phase));else requestAnimationFrame(check)};check()})`,
+      `new Promise((resolve,reject)=>{const end=Date.now()+8000;const check=()=>{const game=document.querySelector('queue-stories-game');const phase=game.dataset.phase;if(!game.dataset.retryStage&&!game.dataset.outcomePending&&['incident','won','lost','duplicate'].includes(phase))resolve(phase);else if(Date.now()>end)reject(Error('No incident/outcome: '+phase));else requestAnimationFrame(check)};check()})`,
     );
   const runToStop = async () => {
     await click('play');
@@ -609,10 +609,10 @@ try {
   assert.equal(await visibleDock(), true, 'worker transport visible');
   assert.equal(
     await evaluate(
-      'document.querySelector(".qs-worker-interior").getBoundingClientRect().bottom<=innerHeight',
+      '(()=>{const stage=document.querySelector("[data-worker-journey]").getBoundingClientRect();const steps=document.querySelector("[data-steps]").getBoundingClientRect();const worker=document.querySelector(".qs-worker-interior").getBoundingClientRect();return stage.bottom<=steps.top&&stage.left>=worker.left&&stage.right<=worker.right})()',
     ),
     true,
-    'worker fits desktop',
+    'the character has a reserved stage above the step controls',
   );
   assert.equal(
     await evaluate('document.querySelector("[data-setting=provider-3]").closest("[popover]") === null'),

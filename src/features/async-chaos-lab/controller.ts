@@ -17,6 +17,7 @@ import { guideBeat } from './guide';
 import type { GuideStage } from './guide';
 import { labFigure } from './figures';
 import type { AchievementId } from './achievements';
+import { actorMarkup, workerFrame, WorkerActor } from './worker-actor';
 
 const button = (action: string, label: string) =>
   /* HTML */ `<button type="button" data-action="${action}">${label}</button>`;
@@ -28,6 +29,8 @@ class QueueStories extends HTMLElement {
   private timer: ReturnType<typeof setInterval> | undefined;
   private retryTimer: ReturnType<typeof setTimeout> | undefined;
   private retryStage: 'failure' | 'restart' | undefined;
+  private actor: WorkerActor | undefined;
+  private outcomeTimer: ReturnType<typeof setTimeout> | undefined;
   private playing = false;
   private speed = 1;
   private guide: GuideStage = 'off';
@@ -166,6 +169,7 @@ class QueueStories extends HTMLElement {
     this.addEventListener('input', this.onInput);
     document.addEventListener('visibilitychange', this.onVisibility);
     this.buildSteps();
+    this.actor = new WorkerActor(this.q('[data-worker-actor]'), this.config.steps.length);
     this.update();
     this.showTutorial(true);
   }
@@ -318,6 +322,7 @@ class QueueStories extends HTMLElement {
           >
           <p class="qs-choice-note" data-protection-note></p>
           <div class="qs-active-job" data-active-job></div>
+          ${this.workerJourney()}
           <div class="qs-worker-steps" data-steps></div>
         </section>
       </div>
@@ -347,8 +352,18 @@ class QueueStories extends HTMLElement {
           </div>
           <div class="qs-active-job" data-active-job></div>
         </header>
+        ${this.workerJourney()}
         <div class="qs-worker-steps" data-steps></div>
       </section>`;
+  }
+  private workerJourney() {
+    return /* HTML */ `<div class="qs-worker-journey" data-worker-journey>
+      <div class="qs-actor-track">
+        <div class="qs-actor-stations" aria-hidden="true">${this.config.steps.map((_, i) => `<span data-actor-station="${i}">${String(i + 1).padStart(2, '0')}</span>`).join('')}</div>
+        ${actorMarkup()}
+      </div>
+      <p class="qs-actor-caption" data-actor-caption></p>
+    </div>`;
   }
   private actionNature(kind: ActionKind) {
     return this.t(
@@ -473,6 +488,10 @@ class QueueStories extends HTMLElement {
   private stop() {
     clearInterval(this.timer);
     clearTimeout(this.retryTimer);
+    clearTimeout(this.outcomeTimer);
+    this.outcomeTimer = undefined;
+    this.dataset.outcomePending = '';
+    this.actor?.stop();
     this.timer = undefined;
     this.retryTimer = undefined;
     this.retryStage = undefined;
@@ -483,7 +502,6 @@ class QueueStories extends HTMLElement {
   }
   private start() {
     if (
-      this.level === 2 &&
       this.state.phase === 'incident' &&
       !matchMedia('(prefers-reduced-motion: reduce)').matches
     ) {
@@ -498,7 +516,7 @@ class QueueStories extends HTMLElement {
     this.inspected = -1;
     this.retryStage = 'failure';
     this.update();
-    this.q(`[data-step-card="${this.state.step}"]`).scrollIntoView({
+    this.q('[data-worker-journey]').scrollIntoView({
       block: 'center',
       behavior: 'smooth',
     });
@@ -510,10 +528,7 @@ class QueueStories extends HTMLElement {
     this.retryTimer = setTimeout(() => {
       this.retryStage = 'restart';
       this.update();
-      this.q('[data-step-card="0"]').scrollIntoView({
-        block: 'nearest',
-        behavior: 'smooth',
-      });
+      // The actor's journey back to station 01 occupies this playback delay.
       this.retryTimer = setTimeout(() => this.resumeProcessing(), 850);
     }, 1300);
   }
@@ -1406,12 +1421,24 @@ class QueueStories extends HTMLElement {
       </div>
     </div>`;
   }
-  private renderOutcome() {
+  private renderOutcome(revealed = false) {
     const s = this.state;
     if (!['incident', 'won', 'lost', 'duplicate'].includes(s.phase)) return;
     const key = this.outcomeKey();
     if (this.lastOutcome === key) return;
     this.lastOutcome = key;
+    if (!revealed && s.phase !== 'won' && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      // Let the character react before a dialog obscures the worker stage.
+      this.dataset.outcomePending = 'true';
+      this.outcomeTimer = setTimeout(() => {
+        this.outcomeTimer = undefined;
+        this.dataset.outcomePending = '';
+        if (!this.isConnected || this.outcomeKey() !== key || this.retryStage) return;
+        this.lastOutcome = '';
+        this.renderOutcome(true);
+      }, 700);
+      return;
+    }
     if (s.phase === 'incident') {
       this.renderIncident();
       return;
@@ -1804,6 +1831,7 @@ class QueueStories extends HTMLElement {
               ? this.t('Pendiente', 'Pending')
               : `${st.executions} ${this.t(st.executions === 1 ? 'intento' : 'intentos', st.executions === 1 ? 'attempt' : 'attempts')} · ${this.resultLabel(i, st.effects)}${st.checkpoint ? ' · ✓ ' + this.t('guardado', 'saved') : ''}${st.skipped ? ' · ' + st.skipped + ' ↷' : ''}`;
     }
+    this.renderActor();
     const [title, text] = this.feedback();
     this.replace(
       '[data-feedback]',
@@ -1814,6 +1842,32 @@ class QueueStories extends HTMLElement {
     this.checkAchievements();
     this.renderGuide();
     this.renderOutcome();
+  }
+  private renderActor() {
+    const frame = workerFrame(this.state, this.retryStage);
+    this.actor?.render(frame, this.speed, this.playing || !!this.retryStage,
+      matchMedia('(prefers-reduced-motion: reduce)').matches);
+    this.q('[data-worker-journey]').dataset.actorState = frame.state;
+    for (let i = 0; i < this.config.steps.length; i++) {
+      const station = this.q(`[data-actor-station="${i}"]`);
+      station.classList.toggle('is-current', i === frame.step);
+      const progress = this.state.jobs[Math.max(0, this.state.active)]!.steps[i]!;
+      station.classList.toggle('is-finished', progress.effects > 0 && !(frame.state === 'uncertain' && i === frame.step));
+    }
+    const caption: Record<typeof frame.state, string> = {
+      idle: this.t('Worker preparado · esperando un pago', 'Worker ready · waiting for a payment'),
+      working: this.t(`${frame.step + 1} · ${this.step(frame.step)}`, `${frame.step + 1} · ${this.step(frame.step)}`),
+      saving: this.t('Guardando la marca de este paso · ✓', 'Saving this step’s checkpoint · ✓'),
+      skipping: this.t(`↷ Paso ${frame.step + 1} guardado · lo saltamos`, `↷ Step ${frame.step + 1} saved · skipping it`),
+      dead: this.t('Worker caído · sus efectos anteriores siguen existiendo', 'Worker crashed · earlier effects still exist'),
+      uncertain: this.t('Sigue vivo · esperando una confirmación que no llegó', 'Still alive · waiting for a confirmation that never arrived'),
+      duplicate: this.t('¡Otra vez! · el mismo ID produjo dos efectos', 'Again! · the same ID produced two effects'),
+      returning: ['activation-failed', 'worker-retry'].includes(this.state.incident)
+        ? this.t('Nuevo worker · mismo pago · volvemos a 01', 'New worker · same payment · back to 01')
+        : this.t('Mismo worker · mismo pago · volvemos a 01', 'Same worker · same payment · back to 01'),
+      done: this.t('Pago completado · trabajo entregado', 'Payment complete · work delivered'),
+    };
+    this.q('[data-actor-caption]').textContent = `${!this.playing && !this.retryStage && this.state.phase === 'running' ? this.t('En pausa · ', 'Paused · ') : ''}${caption[frame.state]}`;
   }
 }
 if (!customElements.get('queue-stories-game'))

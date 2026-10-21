@@ -20,6 +20,10 @@ import { callCopy, scalingNames } from './content';
 import type { Names } from './content';
 import { cleanLabel, escapeHtml as esc } from '../labels';
 import { labFigure } from '../figures';
+import walkingAtlas from '../assets/worker-walk-atlas.webp?url';
+import reactionsAtlas from '../assets/worker-reactions.webp?url';
+import { teamWorkerFrame } from './team-actors';
+import type { TeamPose } from './team-actors';
 
 type Trial = {
   config: ScalingConfig;
@@ -76,7 +80,7 @@ class QueueScaling extends HTMLElement {
         <div class="sc-machine">
           <div class="sc-team">
             <div class="sc-team-heading">${labFigure('worker')}<div><small data-team-summary>${this.t('EQUIPO · HASTA 8 WORKERS', 'TEAM · UP TO 8 WORKERS')}</small><strong data-name="worker"></strong></div><div class="sc-hire">${button('less', '−', `aria-label="${this.t('Quitar un worker', 'Remove one worker')}" data-config`)}<output data-workers>1</output>${button('more', '+', `aria-label="${this.t('Añadir un worker', 'Add one worker')}" data-config`)}</div></div>
-            <div class="sc-worker-rack" data-worker-rack>${Array.from({ length: AVAILABLE_WORKERS }, (_, i) => button(`worker:${i + 1}`, `<span>W${String(i + 1).padStart(2, '0')}</span><b>—</b>`, `data-worker="${i + 1}" class="sc-worker" hidden`)).join('')}</div>
+            <div class="sc-worker-rack" data-worker-rack>${Array.from({ length: AVAILABLE_WORKERS }, (_, i) => button(`worker:${i + 1}`, `<span class="sc-worker-name">W${String(i + 1).padStart(2, '0')}</span><span class="sc-worker-character" aria-hidden="true"><span class="sc-worker-sprite"></span><span class="sc-worker-signal" data-worker-signal></span></span><b>—</b><small data-worker-status></small>`, `data-worker="${i + 1}" class="sc-worker" hidden`)).join('')}</div>
           </div>
           <div class="sc-flow">${[0, 1, 2, 3].map((step) => this.stepCard(step)).join('')}</div>
           <div class="sc-delivered"><span>✓ ${this.t('Completados', 'Completed')}</span><div data-location="done"></div><b data-done>0/24</b></div>
@@ -390,6 +394,7 @@ class QueueScaling extends HTMLElement {
       metrics = scalingMetrics(state),
       playing = state.phase === 'running';
     this.dataset.phase = state.phase;
+    this.style.setProperty('--sc-worker-tempo', `${1000 / this.speed}ms`);
     this.classList.toggle('is-playing', playing);
     this.classList.toggle('is-broken', state.phase === 'blocked');
     this.querySelectorAll<HTMLElement>('[data-name]').forEach((node) => {
@@ -404,7 +409,7 @@ class QueueScaling extends HTMLElement {
     this.q('[data-occupied]').textContent =
       `${metrics.occupied}/${this.config.workers} ${this.t('ocupados', 'busy')}`;
     this.q('[data-waiting]').textContent =
-      `${metrics.waiting} ${this.t('esperando', 'waiting')}`;
+      `${metrics.waiting} ${this.t('en cola de CPU', 'waiting for CPU')}`;
     this.q('[data-cost]').textContent =
       `${this.t('Coste', 'Cost')} ${number(metrics.cost)} u`;
     this.q('[data-action=play]').textContent = playing
@@ -431,12 +436,34 @@ class QueueScaling extends HTMLElement {
     this.renderJobs();
     this.querySelectorAll<HTMLElement>('[data-worker]').forEach((worker) => {
       const id = Number(worker.dataset.worker),
-        job = state.jobs.find((job) => job.worker === id);
+        job = state.jobs.find((job) => job.worker === id),
+        frame = teamWorkerFrame(state, id);
       worker.hidden = id > this.config.workers;
       worker.classList.toggle('is-busy', !!job);
-      worker.classList.toggle('is-waiting', !!job && job.status !== 'running');
-      worker.title = `${this.names.worker} ${id} · ${job ? `${this.names.jobs[job.id - 1]} · ${this.names.steps[job.step]}` : this.t('libre', 'idle')}`;
+      worker.classList.toggle('is-waiting', frame.pose.startsWith('waiting'));
+      worker.dataset.pose = frame.pose;
+      const labels: Record<TeamPose, string> = {
+        idle: this.t('Libre', 'Idle'),
+        working: this.t('Validando', 'Validating'),
+        'waiting-cpu': this.t('Espera CPU', 'Waiting for CPU'),
+        'waiting-service': this.t('Espera respuesta', 'Awaiting reply'),
+        interrupted: this.t('Servicio caído', 'Service down'),
+        paused: this.t('En pausa', 'Paused'),
+        done: this.t('Completado', 'Complete'),
+      };
+      worker.title = `${this.names.worker} ${id} · ${labels[frame.pose]}${job ? ` · ${this.names.jobs[job.id - 1]} · ${this.names.steps[job.step]}` : ''}`;
+      worker.setAttribute('aria-label', worker.title);
       worker.querySelector('b')!.textContent = job ? `#${job.id} · P${job.step + 1}` : '—';
+      worker.querySelector('[data-worker-status]')!.textContent = labels[frame.pose];
+      worker.querySelector('[data-worker-signal]')!.textContent = {
+        idle: '', working: '⚙', 'waiting-cpu': '◷', 'waiting-service': '◷',
+        interrupted: '!', paused: 'Ⅱ', done: '✓',
+      }[frame.pose];
+      const reaction = frame.pose === 'interrupted' || frame.pose === 'done',
+        pose = frame.pose === 'interrupted' ? 2 : frame.pose === 'done' ? 5 : frame.pose.startsWith('waiting') ? 4 : 3,
+        sprite = worker.querySelector<HTMLElement>('.sc-worker-sprite')!;
+      sprite.style.backgroundImage = `url('${reaction ? reactionsAtlas : walkingAtlas}')`;
+      sprite.style.backgroundPosition = `${(pose % 3) * 50}% ${Math.floor(pose / 3) * 100}%`;
     });
     this.q('[data-team-summary]').textContent = this.t(
       `EQUIPO · ${metrics.occupied}/${this.config.workers} WORKERS OCUPADOS`,

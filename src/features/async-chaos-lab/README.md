@@ -34,10 +34,18 @@ In labs 1 and 2, use Start/Pause and explicitly retry when an incident interrupt
 The shared transport offers ×1, ×2, ×3 and ×4 playback. Switching speed preserves
 the current payment, progress and pause state, and never changes simulated results.
 The short incident/restart reveal keeps its reading time at every speed.
-Lab 2 reveals the interrupted step after the retry dialog closes, then highlights
-the first step before processing the same payment again. Pausing, resetting,
+Labs 1 and 2 reserve a small numbered stage for the film's white character. It
+carries the immutable payment ID between steps, falls when the worker process
+crashes, and stays alive and uncertain on response timeouts. Saved checkpoints
+produce a skip gesture. A new neutral walking atlas supplies actual alternating
+footsteps; the film atlas is reused only for the surprised and completed poses.
+After a retry dialog closes, the character returns from the interrupted station
+to station 01 before processing the same payment again. Pausing, resetting,
 changing configuration, hiding the tab or disconnecting cancels the transition.
 Reduced motion skips this animated delay. The engine does not advance during it.
+Calls wait 700 ms for the initial reaction; the actor and its walking animation
+never commit results or decide when a job succeeds. The actor has its own reserved
+space and cannot intercept clicks on the diagram.
 Tutorial opens a short teammate call. The optional guided walkthrough follows
 actual failures and lets the player change the diagram. Finishing keeps the
 successful configuration; leaving early restores the previous trial.

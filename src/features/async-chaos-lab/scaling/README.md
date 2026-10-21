@@ -59,10 +59,20 @@ editable without starting playback. Lab 3's resource capacity is adjusted direct
 on each node using minus/plus controls, from 1 to 8 units. Each change prepares a
 fresh attempt. Pause before changing workers or resources.
 
-Worker chips show their payment and phase. Payment chips show their owning
-worker while in flight. Busy, waiting and failed states use labels as well as
-color. There are no arrows or floating resource inspectors between phases.
-Small packet motion respects reduced motion; hidden tabs pause automatically.
+Each hired worker has a small character at its own station. The card retains its
+worker ID, payment ID and phase, and remains clickable to inspect its payment.
+Neutral characters are idle; CPU work shows a gear; CPU queueing and external
+calls awaiting a response show a thinking pose and clock. A caller interrupted by
+a service outage is surprised, never dead: the worker process did not crash.
+Workers at other phases freeze when the experiment stops. More hired workers
+add visible stations without adding characters to the payment flow itself.
+
+These poses are derived by `team-actors.ts` from actual payment ownership and
+simulation state. The shared character atlases are reused without new generated
+assets. Packet motion and the worker's small state signals respect reduced motion;
+hidden tabs pause automatically. Payment chips still show their owning worker
+while in flight. Busy, waiting and failed states use labels as well as color.
+There are no arrows or floating resource inspectors between phases.
 
 The first completed attempt shows only its own result. Later completions compare
 with the last completed attempt in history, never a computed one-worker reference.

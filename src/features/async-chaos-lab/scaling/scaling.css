@@ -218,22 +218,84 @@ queue-scaling-game .sc-hire output {
 }
 queue-scaling-game .sc-worker-rack {
   display: flex;
-  gap: 0.2rem;
+  gap: 0.4rem;
   flex-wrap: wrap;
   margin-top: 0.4rem;
   min-height: 21px;
 }
 queue-scaling-game .sc-worker {
-  display: inline-flex;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.15rem;
-  padding: 0.22rem 0.15rem;
+  justify-content: flex-start;
+  gap: 0.2rem;
+  width: 82px;
+  flex: 0 0 82px;
+  padding: 0.35rem 0.2rem;
   border: 1px solid var(--color-rule);
-  border-radius: 3px;
+  border-radius: 7px;
   background: var(--color-paper);
-  color: var(--color-text-muted);
-  font: 0.42rem/1 var(--font-family-mono);
-  min-width: 32px;
+  color: var(--color-text-soft);
+  font: 0.55rem/1.3 var(--font-family-mono);
+  min-width: 0;
+  animation: sc-worker-arrive 240ms ease-out both;
+}
+queue-scaling-game .sc-worker-name {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+queue-scaling-game .sc-worker-character {
+  position: relative;
+  display: block;
+  width: 64px;
+  height: 64px;
+  pointer-events: none;
+}
+queue-scaling-game .sc-worker-sprite {
+  position: absolute;
+  inset: 0;
+  background-size: 300% 200%;
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  transform-origin: 50% 85%;
+}
+queue-scaling-game .sc-worker-signal {
+  position: absolute;
+  top: 0;
+  right: -2px;
+  color: inherit;
+  font: 600 0.95rem/1 var(--font-family-display);
+}
+queue-scaling-game .sc-worker > b { white-space: nowrap; }
+queue-scaling-game .sc-worker [data-worker-status] {
+  font: 0.5rem/1.3 var(--font-family-display);
+  min-height: 2.6em;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+queue-scaling-game .sc-worker[data-pose='done'] {
+  color: var(--sc-green);
+  border-color: var(--sc-green);
+}
+queue-scaling-game.is-playing .sc-worker[data-pose='working'] .sc-worker-signal {
+  animation: sc-worker-gear var(--sc-worker-tempo, 1000ms) linear infinite;
+}
+queue-scaling-game.is-playing .sc-worker[data-pose^='waiting'] .sc-worker-signal {
+  animation: sc-worker-clock var(--sc-worker-tempo, 1000ms) steps(4, end) infinite;
+}
+@keyframes sc-worker-arrive {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes sc-worker-gear { to { transform: rotate(360deg); } }
+@keyframes sc-worker-clock { to { transform: rotate(360deg); } }
+@media (max-width: 580px) {
+  queue-scaling-game .sc-worker { width: 72px; flex-basis: 72px; }
+  queue-scaling-game .sc-worker-rack { gap: 0.3rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  queue-scaling-game .sc-worker,
+  queue-scaling-game .sc-worker-signal { animation: none !important; }
 }
 queue-scaling-game .sc-worker.is-busy {
   color: var(--sc-green);
@@ -244,6 +306,11 @@ queue-scaling-game .sc-worker.is-waiting {
   color: var(--sc-amber);
   border-color: var(--sc-amber);
   background: color-mix(in srgb, var(--sc-amber) 8%, var(--color-paper));
+}
+queue-scaling-game .sc-worker[data-pose='paused'] {
+  color: var(--color-text-soft);
+  border-color: var(--color-rule);
+  background: var(--color-paper);
 }
 queue-scaling-game .sc-flow {
   display: grid;
@@ -918,7 +985,7 @@ queue-scaling-game .sc-step.is-down .sc-resource {
 queue-scaling-game.is-broken .sc-step:not(.is-down) {
   opacity: 0.55;
 }
-queue-scaling-game.is-broken .sc-worker.is-busy {
+queue-scaling-game .sc-worker[data-pose='interrupted'] {
   color: var(--sc-coral);
   border-color: var(--sc-coral);
   background: color-mix(in srgb, var(--sc-coral) 8%, var(--color-paper));
