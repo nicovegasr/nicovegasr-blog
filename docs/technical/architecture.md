@@ -105,4 +105,4 @@ Use the Node.js version and startup commands documented in the root README. For 
 
 5. After route or page-composition changes, inspect the generated ES/EN HTML and verify links and selected content. After visual changes, inspect desktop and mobile layouts; a passing build does not establish visual quality.
 
-See the [visual guide](../design/styleguide.md) and read the [image guide](../design/images-styles.md) before creating or editing graphical assets.
+See the [visual guide](../design/styleguide.md). Before creating or editing graphical assets, read the image guide in the private studio repository (`studio/images/images-styles.md`).

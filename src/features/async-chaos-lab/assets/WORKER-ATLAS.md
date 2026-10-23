@@ -2,7 +2,7 @@
 
 `worker-walk-atlas.webp` is a 1536 × 1024 transparent, 3-column × 2-row atlas.
 It was created with the built-in ImageGen tool using
-`videos/async-chaos-lab/assets/mascot-atlas.png` as the character identity reference.
+the mascot atlas from the private studio repository as the character identity reference.
 The generated PNG was converted to WebP with alpha preserved; no poses were
 cropped, reconstructed, or drawn over outside ImageGen.
 

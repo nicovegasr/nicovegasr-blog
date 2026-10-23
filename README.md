@@ -23,8 +23,9 @@ npm run build
 
 - [Arquitectura técnica](docs/technical/architecture.md)
 - [Guía de estilo](docs/design/styleguide.md)
-- [Guía para imágenes](docs/design/images-styles.md)
-- [Guía para vídeos y producción](videos/README.md)
+
+La producción audiovisual (vídeos, guía de imágenes, voz) vive en un repositorio
+privado aparte que se clona en `studio/` (ignorado por este repo).
 
 ## Stack
 
