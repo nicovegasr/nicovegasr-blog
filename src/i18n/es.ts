@@ -3,7 +3,7 @@ export const spanish = {
   'site.description':
     'Blog personal de Nicolás Vegas, ingeniero informático con mentalidad DevOps. Hablo sobre desarrollo de software y hago cosas.',
 
-  'navigation.blog': 'Blog',
+  'navigation.home': 'Inicio',
   'navigation.about': 'Sobre mí',
   'navigation.menu': 'Menú',
   'navigation.sections': 'Secciones',
