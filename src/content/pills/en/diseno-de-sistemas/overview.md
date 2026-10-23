@@ -1,6 +1,5 @@
 ---
 kind: 'series'
-draft: true
 title: 'System design'
 summary: 'Design decisions from the code up: how to understand, test, and change a solution without turning every modification into a new problem.'
 icon: 'design'
