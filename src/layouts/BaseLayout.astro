@@ -21,6 +21,7 @@ interface Props {
   openGraphType?: 'website' | 'article';
   clientNavigation?: boolean;
   alternatePaths?: Partial<Record<Locale, string>>;
+  showFooterSocialLinks?: boolean;
 }
 
 const {
@@ -30,6 +31,7 @@ const {
   openGraphType = 'website',
   clientNavigation = false,
   alternatePaths = {},
+  showFooterSocialLinks = true,
 } = Astro.props;
 const translate = getTranslator(locale);
 
@@ -111,7 +113,7 @@ const pathForLocale = (target: Locale): string =>
     <main>
       <slot />
     </main>
-    <Footer locale={locale} />
+    <Footer locale={locale} showSocialLinks={showFooterSocialLinks} />
 
     <script>
       let revealObserver: IntersectionObserver | undefined;

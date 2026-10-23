@@ -14,7 +14,7 @@ const translate = getTranslator(locale);
 const series = await findPillSeriesCatalog(locale);
 ---
 
-<BaseLayout locale={locale}>
+<BaseLayout locale={locale} showFooterSocialLinks={false}>
   <section class="intro reveal">
     <h1>{translate('blog.introTitle')}</h1>
     <p class="lead">
