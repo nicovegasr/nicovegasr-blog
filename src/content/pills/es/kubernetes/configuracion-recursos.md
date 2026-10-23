@@ -4,7 +4,6 @@ title: 'Configuración, Secrets y recursos'
 subtitle: 'lo que cambia sin reconstruir la imagen'
 icon: 'config'
 order: 6
-bonus: false
 publicationDate: 2026-10-13
 ---
 

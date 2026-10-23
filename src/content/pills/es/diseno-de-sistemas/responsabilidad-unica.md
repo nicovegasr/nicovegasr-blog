@@ -4,7 +4,6 @@ title: 'Principio de responsabilidad única (SRP)'
 subtitle: 'una responsabilidad puede abarcar todo un proceso'
 icon: 'responsibility'
 order: 2
-bonus: false
 publicationDate: 2026-10-12
 ---
 

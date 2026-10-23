@@ -4,7 +4,6 @@ title: 'Keep It Simple, Stupid (KISS)'
 subtitle: 'handle complexity without adding more'
 icon: 'simple'
 order: 1
-bonus: false
 publicationDate: 2026-10-12
 ---
 

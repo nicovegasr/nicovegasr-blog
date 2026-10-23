@@ -4,7 +4,6 @@ title: 'Backend'
 subtitle: 'el servicio que hace el trabajo'
 icon: 'server'
 order: 5
-bonus: false
 publicationDate: 2026-08-21
 ---
 

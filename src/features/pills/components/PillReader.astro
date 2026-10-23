@@ -4,7 +4,7 @@ import { getTranslator } from '@/i18n/translator';
 import type { Pill, PillSeries } from '@/features/pills/pill';
 import { pillLeafSlugOf } from '@/features/pills/pill';
 import { findNextPillSeries, findRenderablePill } from '@/features/pills/pill-repository';
-import { buildPagePath, buildPillPath, buildPillSeriesPath } from '@/i18n/routes';
+import { buildPagePath, buildPillPath } from '@/i18n/routes';
 import PillIcon from './PillIcon.astro';
 import ReadingTime from '@/shared/reading-time/ReadingTime.astro';
 
@@ -12,21 +12,18 @@ interface Props {
   locale: Locale;
   series: PillSeries;
   pills: readonly Pill[];
-  hasSummary: boolean;
   activePillSlug?: string | undefined;
 }
 
-const { locale, series, pills, hasSummary, activePillSlug } = Astro.props;
-const seriesPath = buildPillSeriesPath(locale, series.slug);
+const { locale, series, pills, activePillSlug } = Astro.props;
 const translate = getTranslator(locale);
-let coreNumber = 0;
-const chapters = pills.map((pill) => {
+const chapters = pills.map((pill, index) => {
   const slug = pillLeafSlugOf(pill.slug);
   return {
     ...pill,
     leaf: slug,
     isActive: activePillSlug ? slug === activePillSlug : pill === pills[0],
-    number: pill.bonus ? '＋' : String(++coreNumber).padStart(2, '0'),
+    number: String(index + 1).padStart(2, '0'),
     href: `${buildPillPath(locale, series.slug, slug)}#pill-reading`,
   };
 });
@@ -84,7 +81,7 @@ const Content = rendered?.Content;
               <span class="station"><PillIcon icon={chapter.icon} /></span>
               <span class="stop-copy">
                 <span class="stop-number">
-                  {chapter.bonus ? translate('pills.reader.bonus') : `${translate('pills.reader.chapter')} ${chapter.number}`}
+                  {translate('pills.reader.chapter')} {chapter.number}
                 </span>
                 <strong>{chapter.title}</strong>
                 <span class="stop-description">{chapter.subtitle}</span>
@@ -95,17 +92,6 @@ const Content = rendered?.Content;
             </a>
           </li>
         ))}
-        {hasSummary && (
-          <li>
-            <a href={`${seriesPath}#resumen`}>
-              <span class="station"><PillIcon icon="summary" /></span>
-              <span class="stop-copy"><strong>{translate('pills.summary')}</strong></span>
-              <span class="stop-arrow" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path d="M12 5v14m-6-6 6 6 6-6" /></svg>
-              </span>
-            </a>
-          </li>
-        )}
       </ol>
     </nav>
   </aside>
@@ -114,7 +100,7 @@ const Content = rendered?.Content;
     {selected && rendered && Content && (
       <section class="chapter-page" data-pill-swipe id="pill-reading" aria-labelledby="chapter-title" aria-keyshortcuts="ArrowLeft ArrowRight">
         <div class="page-meta">
-          <span>{selected.bonus ? translate('pills.reader.bonus') : `${translate('pills.reader.chapter')} ${selected.number}`}</span>
+          <span>{translate('pills.reader.chapter')} {selected.number}</span>
           <ReadingTime minutes={rendered.readingTimeInMinutes} locale={locale} />
         </div>
         <header class="chapter-heading">
@@ -136,22 +122,11 @@ const Content = rendered?.Content;
                 <span class="pagination-copy">{nextSeries ? `${translate('pills.reader.nextSeries')}: ${nextSeries.series.title}` : translate('pills.reader.next')}<strong>{forward.title}</strong></span>
                 <span class="pagination-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></span>
               </a>
-            ) : hasSummary ? (
-              <a href={`${seriesPath}#resumen`} class="next-chapter">
-                <span class="pagination-copy">{translate('pills.reader.next')}<strong>{translate('pills.summary')}</strong></span>
-                <span class="pagination-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></span>
-              </a>
             ) : (
               <a href={buildPagePath('pills', locale)} class="back-link">{translate('pills.reader.allSeries')} →</a>
             )}
           </nav>
         </footer>
-      </section>
-    )}
-    {hasSummary && !activePillSlug && (
-      <section class="summary-page prose" id="resumen" aria-labelledby="summary-title">
-        <h2 id="summary-title" tabindex="-1">{translate('pills.summary')}</h2>
-        <slot name="summary" />
       </section>
     )}
   </div>
@@ -511,11 +486,6 @@ const Content = rendered?.Content;
     align-self: center;
     text-align: right;
   }
-  .summary-page {
-    padding: var(--space-8);
-    scroll-margin-top: var(--space-24);
-    border-top: 1px solid var(--color-rule);
-  }
   @media (hover: hover) {
     .journey a:not([aria-current]):hover .station {
       transform: scale(1.08);
@@ -594,9 +564,6 @@ const Content = rendered?.Content;
     }
     .pagination-copy strong {
       font-size: var(--font-size-small);
-    }
-    .summary-page {
-      padding-inline: 0;
     }
     .chapter-heading {
       padding-top: var(--space-8);

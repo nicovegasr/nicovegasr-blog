@@ -4,7 +4,6 @@ title: 'Compose'
 subtitle: 'orchestration'
 icon: 'compose'
 order: 6
-bonus: false
 publicationDate: 2026-07-19
 ---
 

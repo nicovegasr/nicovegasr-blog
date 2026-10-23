@@ -4,7 +4,6 @@ title: 'Base de datos'
 subtitle: 'guardar y encontrar'
 icon: 'database'
 order: 6
-bonus: false
 publicationDate: 2026-08-21
 ---
 

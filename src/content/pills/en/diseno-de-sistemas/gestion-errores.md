@@ -4,7 +4,6 @@ title: 'Error handling'
 subtitle: 'give each failure a place and an explicit response'
 icon: 'error-flow'
 order: 7
-bonus: false
 publicationDate: 2026-10-12
 ---
 

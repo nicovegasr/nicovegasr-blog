@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import {
-  hasSummaryBody,
   isPublished,
   neighboringPills,
   pillLeafSlugOf,
@@ -19,7 +18,6 @@ const buildPill = (overrides: Partial<Pill> = {}): Pill => ({
   subtitle: 'qué es',
   icon: 'container',
   order: 1,
-  bonus: false,
   publicationDate: new Date('2026-01-01'),
   lastUpdateDate: undefined,
   ...overrides,
@@ -54,7 +52,7 @@ describe('seriesOrder', () => {
 });
 
 describe('railOrder', () => {
-  it('sorts core pills by order', () => {
+  it('sorts pills by order', () => {
     const pills = [
       buildPill({ slug: 'docker/b', order: 2 }),
       buildPill({ slug: 'docker/a', order: 1 }),
@@ -66,48 +64,12 @@ describe('railOrder', () => {
       'docker/c',
     ]);
   });
-
-  it('places bonus pills after every core pill, regardless of order', () => {
-    const pills = [
-      buildPill({ slug: 'docker/bonus', order: 0, bonus: true }),
-      buildPill({ slug: 'docker/core', order: 5, bonus: false }),
-    ];
-    expect(railOrder(pills).map((pill) => pill.slug)).toEqual([
-      'docker/core',
-      'docker/bonus',
-    ]);
-  });
-
-  it('sorts bonus pills among themselves by order', () => {
-    const pills = [
-      buildPill({ slug: 'docker/core', order: 1 }),
-      buildPill({ slug: 'docker/bonus-2', order: 2, bonus: true }),
-      buildPill({ slug: 'docker/bonus-1', order: 1, bonus: true }),
-    ];
-    expect(railOrder(pills).map((pill) => pill.slug)).toEqual([
-      'docker/core',
-      'docker/bonus-1',
-      'docker/bonus-2',
-    ]);
-  });
 });
 
 describe('seriesSlugOf / pillLeafSlugOf', () => {
   it('splits the series from the pill leaf', () => {
     expect(seriesSlugOf('docker/dockerfile')).toBe('docker');
     expect(pillLeafSlugOf('docker/dockerfile')).toBe('dockerfile');
-  });
-});
-
-describe('hasSummaryBody', () => {
-  it('is false for empty, whitespace-only or comment-only bodies', () => {
-    expect(hasSummaryBody('')).toBe(false);
-    expect(hasSummaryBody('  \n  ')).toBe(false);
-    expect(hasSummaryBody('<!-- pendiente de escribir -->')).toBe(false);
-  });
-
-  it('is true when there is real content', () => {
-    expect(hasSummaryBody('Resumen de la serie')).toBe(true);
   });
 });
 

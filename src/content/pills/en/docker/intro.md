@@ -4,7 +4,6 @@ title: 'What is Docker?'
 subtitle: 'the platform'
 icon: 'container'
 order: 1
-bonus: false
 publicationDate: 2026-07-03
 ---
 

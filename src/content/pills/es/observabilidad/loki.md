@@ -4,7 +4,6 @@ title: 'Loki'
 subtitle: 'almacenar y consultar logs'
 icon: 'loki'
 order: 3
-bonus: false
 publicationDate: 2026-08-27
 ---
 

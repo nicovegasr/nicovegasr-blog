@@ -1,7 +1,6 @@
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import type { Locale } from '@/i18n/locale';
 import {
-  hasSummaryBody,
   isPublished,
   pillLeafSlugOf,
   railOrder,
@@ -52,7 +51,6 @@ const toPill = (entry: PillItemEntry): Pill | null => {
     subtitle: entry.data.subtitle,
     icon: entry.data.icon,
     order: entry.data.order,
-    bonus: entry.data.bonus,
     publicationDate: entry.data.publicationDate,
     lastUpdateDate: entry.data.lastUpdateDate,
   };
@@ -125,12 +123,8 @@ export const findAllPublishedPills = async (
 type RenderableSeries = {
   series: PillSeries;
   pills: readonly Pill[];
-  hasSummary: boolean;
-  SummaryContent: Awaited<ReturnType<typeof render>>['Content'];
 };
 
-// Returns the series plus its rendered markdown body (the summary). The only
-// place that renders the series body; the page consumes both together.
 export const findRenderablePillSeries = async (
   locale: Locale,
   series: string,
@@ -151,12 +145,9 @@ export const findRenderablePillSeries = async (
     return null;
   }
 
-  const { Content } = await render(entry);
   return {
     series: pillSeries,
     pills: await publishedPillsOf(locale, series),
-    hasSummary: hasSummaryBody(entry.body ?? ''),
-    SummaryContent: Content,
   };
 };
 

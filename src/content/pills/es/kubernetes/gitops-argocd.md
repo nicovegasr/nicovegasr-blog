@@ -4,7 +4,6 @@ title: 'GitOps y Argo CD'
 subtitle: 'sincronizar lo aprobado con el clúster'
 icon: 'gitops'
 order: 11
-bonus: false
 publicationDate: 2026-10-13
 ---
 

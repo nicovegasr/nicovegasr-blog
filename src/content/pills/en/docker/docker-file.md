@@ -4,7 +4,6 @@ title: 'Dockerfile'
 subtitle: 'the recipe'
 icon: 'dockerfile'
 order: 2
-bonus: false
 publicationDate: 2026-07-04
 ---
 

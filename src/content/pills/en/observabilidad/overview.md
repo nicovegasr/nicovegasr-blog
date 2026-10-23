@@ -6,8 +6,3 @@ icon: 'observability'
 order: 3
 publicationDate: 2026-08-28
 ---
-
-<!--
-  Body = the series SUMMARY (the schemas that tie every concept together).
-  Intentionally empty, like the other series.
--->

@@ -4,7 +4,6 @@ title: 'Tempo'
 subtitle: 'storing and querying traces'
 icon: 'traces'
 order: 5
-bonus: false
 publicationDate: 2026-08-27
 ---
 

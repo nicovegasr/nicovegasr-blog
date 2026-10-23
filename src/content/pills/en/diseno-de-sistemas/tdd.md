@@ -4,7 +4,6 @@ title: 'TDD and tests that guide design'
 subtitle: 'advance by behavior rather than private methods'
 icon: 'tdd'
 order: 11
-bonus: false
 publicationDate: 2026-10-12
 ---
 

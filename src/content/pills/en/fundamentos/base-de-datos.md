@@ -4,7 +4,6 @@ title: 'Database'
 subtitle: 'store and find'
 icon: 'database'
 order: 6
-bonus: false
 publicationDate: 2026-08-21
 ---
 

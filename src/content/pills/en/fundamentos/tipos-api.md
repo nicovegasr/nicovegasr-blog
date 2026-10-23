@@ -4,7 +4,6 @@ title: 'Types of APIs'
 subtitle: 'four web styles'
 icon: 'network'
 order: 2
-bonus: false
 publicationDate: 2026-08-21
 ---
 

@@ -4,7 +4,6 @@ title: 'Kubernetes architecture and costs'
 subtitle: 'what it gives an application developer'
 icon: 'cluster-cost'
 order: 1
-bonus: false
 publicationDate: 2026-10-13
 ---
 

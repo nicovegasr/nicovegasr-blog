@@ -4,7 +4,6 @@ title: 'Creational patterns: Builder and Factory'
 subtitle: 'build a valid value and choose who produces it'
 icon: 'creation'
 order: 8
-bonus: false
 publicationDate: 2026-10-12
 ---
 

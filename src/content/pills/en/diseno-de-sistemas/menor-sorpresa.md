@@ -4,7 +4,6 @@ title: 'Principle of least surprise'
 subtitle: 'behavior should match what the interface promises'
 icon: 'predictable'
 order: 3
-bonus: false
 publicationDate: 2026-10-12
 ---
 

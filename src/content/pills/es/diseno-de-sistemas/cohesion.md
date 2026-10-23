@@ -4,7 +4,6 @@ title: 'Cohesión'
 subtitle: 'que el código reúna las decisiones que le pertenecen'
 icon: 'cohesion'
 order: 4
-bonus: false
 publicationDate: 2026-10-12
 ---
 

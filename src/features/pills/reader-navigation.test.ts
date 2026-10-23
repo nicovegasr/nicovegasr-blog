@@ -25,7 +25,6 @@ const reader = (key = 'es/docker', selected = 0) => {
   const links = [
     link('/intro/#pill-reading', selected === 0),
     link('/images/#pill-reading', selected === 1),
-    link('/docker/#resumen'),
   ];
   const focus = vi.fn();
   const index = {
@@ -33,12 +32,7 @@ const reader = (key = 'es/docker', selected = 0) => {
     scrollHeight: 700,
     clientHeight: 200,
     getBoundingClientRect: () => ({ top: 100, bottom: 300 }),
-    querySelector: (selector: string) =>
-      selector.includes('#resumen')
-        ? links[2]
-        : selector === 'a[data-pill-link]'
-          ? links[0]
-          : links.find((item) => item.getAttribute('aria-current')),
+    querySelector: () => links.find((item) => item.getAttribute('aria-current')),
     querySelectorAll: () => links,
   };
   const panel = {
@@ -52,15 +46,13 @@ const reader = (key = 'es/docker', selected = 0) => {
     panel,
     dataset: { pillReader: key },
     getBoundingClientRect: () => ({ top: 0, bottom: 1200 }),
-    querySelectorAll: () => links.slice(0, 2),
+    querySelectorAll: () => links,
     querySelector: (selector: string) =>
       selector === '.contents'
         ? index
         : selector === '.reading-desk'
           ? panel
-          : selector === '#resumen'
-            ? null
-            : { focus, getBoundingClientRect: () => ({ top: 220 }) },
+          : { focus, getBoundingClientRect: () => ({ top: 220 }) },
   };
 };
 
@@ -71,7 +63,6 @@ const emit = (name: string, fields = {}) =>
 const beforeSwap = (
   incoming: ReturnType<typeof reader>,
   navigationType = 'push',
-  hash = '#pill-reading',
   ready = Promise.resolve(),
 ) => {
   const event = Object.assign(new Event('astro:before-swap'), {
@@ -82,7 +73,7 @@ const beforeSwap = (
     viewTransition: { ready, skipTransition: vi.fn() },
     swap: vi.fn(),
     navigationType,
-    to: new URL(`https://example.test/images/${hash}`),
+    to: new URL('https://example.test/images/#pill-reading'),
   });
   documentEvents.dispatchEvent(event);
   event.swap();
@@ -128,7 +119,7 @@ describe('notebook navigation lifecycle', () => {
   });
 
   it('handles the expected native transition rejection when snapshots are skipped', async () => {
-    beforeSwap(reader('es/docker', 1), 'push', '#pill-reading',
+    beforeSwap(reader('es/docker', 1), 'push',
       Promise.reject(new DOMException('Transition skipped', 'AbortError')));
     // Vitest also fails this test if the rejected ready promise is unhandled.
     await Promise.resolve();
@@ -197,58 +188,5 @@ describe('notebook navigation lifecycle', () => {
     expect(current.links[1]!.getAttribute('aria-current')).toBe('page');
     expect(current.focus).not.toHaveBeenCalled();
     expect(window.scrollTo).not.toHaveBeenCalled();
-  });
-
-  it('marks the summary instead of the first chapter for summary navigation', () => {
-    beforeSwap(reader(), 'push', '#resumen');
-    expect(current.links[0]!.getAttribute('aria-current')).toBeNull();
-    expect(current.links[2]!.getAttribute('aria-current')).toBe('page');
-  });
-});
-
-describe('summary anchor selection', () => {
-  const showSummary = () => {
-    const select = current.querySelector;
-    current.querySelector = (selector: string) => selector === '#resumen'
-      ? { focus: current.focus, getBoundingClientRect: () => ({ top: 220 }) }
-      : select(selector);
-  };
-
-  it('marks a directly visited summary when Astro finishes loading the page', () => {
-    showSummary();
-    location.hash = '#resumen';
-    emit('astro:page-load');
-    expect(current.links[2]!.getAttribute('aria-current')).toBe('page');
-    expect(current.links[0]!.hasAttribute('aria-current')).toBe(false);
-  });
-
-  it('updates after an Astro same-page click that changes history without hashchange', async () => {
-    showSummary();
-    class AnchorTarget {
-      closest = () => ({
-        href: 'https://example.test/docker/#resumen',
-        target: '',
-        hasAttribute: () => false,
-      });
-    }
-    vi.stubGlobal('Element', AnchorTarget);
-    const event = Object.assign(new Event('click', { cancelable: true }), { button: 0 });
-    Object.defineProperty(event, 'target', { value: new AnchorTarget() });
-    documentEvents.dispatchEvent(event);
-    // Simulate the URL update performed by Astro's click handler.
-    location.hash = '#resumen';
-    await Promise.resolve();
-    expect(current.links[2]!.hasAttribute('aria-current')).toBe(true);
-  });
-
-  it('follows hash changes and back/forward without a document swap', () => {
-    showSummary();
-    location.hash = '#resumen';
-    window.dispatchEvent(new Event('hashchange'));
-    expect(current.links[2]!.hasAttribute('aria-current')).toBe(true);
-    location.hash = '#pill-reading';
-    window.dispatchEvent(new Event('popstate'));
-    expect(current.links[0]!.hasAttribute('aria-current')).toBe(true);
-    expect(current.links[2]!.hasAttribute('aria-current')).toBe(false);
   });
 });

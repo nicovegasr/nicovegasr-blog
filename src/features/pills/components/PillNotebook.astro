@@ -21,7 +21,7 @@ const { locale, seriesSlug, activePillSlug } = Astro.props;
 const renderable = await findRenderablePillSeries(locale, seriesSlug);
 if (!renderable)
   throw new Error(`Pill series not found: ${locale}/${seriesSlug}`);
-const { series, pills, hasSummary, SummaryContent } = renderable;
+const { series, pills } = renderable;
 const activePill = pills.find(
   (pill) => pillLeafSlugOf(pill.slug) === activePillSlug,
 );
@@ -53,9 +53,7 @@ const alternatePaths = {
       <h1>{series.title}</h1>
       <p class="series-summary">{series.summary}</p>
     </header>
-    <PillReader locale={locale} series={series} pills={pills} hasSummary={hasSummary} activePillSlug={activePillSlug}>
-      <Fragment slot="summary"><SummaryContent /></Fragment>
-    </PillReader>
+    <PillReader locale={locale} series={series} pills={pills} activePillSlug={activePillSlug} />
   </article>
   <ReaderKeyboardTip locale={locale} />
 </BaseLayout>

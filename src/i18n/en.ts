@@ -49,7 +49,6 @@ export const english: Dictionary = {
   'pills.heading': 'Learning pills',
   'pills.comingSoonText':
     "Concrete concepts explained small, to nail the fundamentals without detours. They'll start showing up here soon.",
-  'pills.summary': 'Summary',
   'pills.reader.keyboardTipLabel': 'Navigation tip',
   'pills.reader.keyboardTip': 'Use the ← and → arrow keys to switch pills.',
   'pills.reader.dismissKeyboardTip': 'Dismiss navigation tip',
@@ -57,7 +56,6 @@ export const english: Dictionary = {
   'pills.reader.allSeries': 'View all series',
   'pills.reader.heading': 'The journey',
   'pills.reader.chapter': 'Chapter',
-  'pills.reader.bonus': 'Extra',
   'pills.reader.next': 'Next',
   'pills.reader.previous': 'Previous',
   'pills.reader.back': 'Back to the journey',

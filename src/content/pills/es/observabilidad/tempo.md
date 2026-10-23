@@ -4,7 +4,6 @@ title: 'Tempo'
 subtitle: 'almacenar y consultar trazas'
 icon: 'traces'
 order: 5
-bonus: false
 publicationDate: 2026-08-27
 ---
 

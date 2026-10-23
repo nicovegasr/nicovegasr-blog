@@ -4,7 +4,6 @@ title: 'Inbound and outbound networking'
 subtitle: 'publish the API and restrict communication'
 icon: 'network'
 order: 9
-bonus: false
 publicationDate: 2026-10-13
 ---
 

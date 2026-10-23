@@ -4,7 +4,6 @@ title: 'Probes and availability'
 subtitle: 'start, receive traffic and recover'
 icon: 'probe'
 order: 7
-bonus: false
 publicationDate: 2026-10-13
 ---
 

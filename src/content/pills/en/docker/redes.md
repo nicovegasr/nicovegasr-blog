@@ -4,7 +4,6 @@ title: 'Networking'
 subtitle: 'communication'
 icon: 'network'
 order: 5
-bonus: false
 publicationDate: 2026-07-12
 ---
 

@@ -4,7 +4,6 @@ title: 'De la aplicación a la imagen'
 subtitle: 'construcción, registro e identidad'
 icon: 'image'
 order: 2
-bonus: false
 publicationDate: 2026-10-13
 ---
 

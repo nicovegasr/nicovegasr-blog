@@ -4,7 +4,6 @@ title: 'Asincronía y reintentos'
 subtitle: 'elegir si un intento debe sobrevivir al proceso'
 icon: 'retry'
 order: 9
-bonus: false
 publicationDate: 2026-10-12
 ---
 

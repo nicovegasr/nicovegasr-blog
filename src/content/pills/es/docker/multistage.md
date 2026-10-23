@@ -4,7 +4,6 @@ title: 'Multi-stage build'
 subtitle: 'imágenes más ligeras'
 icon: 'layers'
 order: 4
-bonus: false
 publicationDate: 2026-07-05
 ---
 

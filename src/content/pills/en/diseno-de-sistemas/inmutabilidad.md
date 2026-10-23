@@ -4,7 +4,6 @@ title: 'Immutability and state management'
 subtitle: 'decide when a value may change and who sees it'
 icon: 'snapshot'
 order: 6
-bonus: false
 publicationDate: 2026-10-12
 ---
 

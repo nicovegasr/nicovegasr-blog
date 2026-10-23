@@ -4,7 +4,6 @@ title: 'Probes y disponibilidad'
 subtitle: 'arrancar, recibir tráfico y recuperarse'
 icon: 'probe'
 order: 7
-bonus: false
 publicationDate: 2026-10-13
 ---
 

@@ -4,7 +4,6 @@ title: 'From application to image'
 subtitle: 'build, registry and identity'
 icon: 'image'
 order: 2
-bonus: false
 publicationDate: 2026-10-13
 ---
 

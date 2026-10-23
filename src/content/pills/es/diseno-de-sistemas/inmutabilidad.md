@@ -4,7 +4,6 @@ title: 'Inmutabilidad y gestión del estado'
 subtitle: 'decidir cuándo puede cambiar un valor y quién lo ve'
 icon: 'snapshot'
 order: 6
-bonus: false
 publicationDate: 2026-10-12
 ---
 

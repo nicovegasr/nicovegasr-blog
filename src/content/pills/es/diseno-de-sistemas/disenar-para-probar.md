@@ -4,7 +4,6 @@ title: 'Diseñar para poder probar'
 subtitle: 'hacer visibles las entradas y los límites de una decisión'
 icon: 'testable'
 order: 10
-bonus: false
 publicationDate: 2026-10-12
 ---
 

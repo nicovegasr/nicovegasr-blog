@@ -6,8 +6,3 @@ icon: 'observability'
 order: 3
 publicationDate: 2026-08-28
 ---
-
-<!--
-  Cuerpo = RESUMEN de la serie (esquemas que atan todos los conceptos).
-  Vacío a propósito, igual que el resto de series.
--->

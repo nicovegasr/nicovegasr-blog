@@ -4,7 +4,6 @@ title: 'Pods, nodes and lifecycle'
 subtitle: 'where the process lives'
 icon: 'pod'
 order: 4
-bonus: false
 publicationDate: 2026-10-13
 ---
 

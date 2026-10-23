@@ -4,7 +4,6 @@ title: 'Manifests and desired state'
 subtitle: 'declare, observe and reconcile'
 icon: 'desired-state'
 order: 3
-bonus: false
 publicationDate: 2026-10-13
 ---
 

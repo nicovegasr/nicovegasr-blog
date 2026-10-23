@@ -4,7 +4,6 @@ title: 'What is an SDK?'
 subtitle: 'the toolkit'
 icon: 'layers'
 order: 3
-bonus: false
 publicationDate: 2026-08-21
 ---
 

@@ -4,7 +4,6 @@ title: 'Arquitectura y costes de Kubernetes'
 subtitle: 'qué aporta al desarrollar una aplicación'
 icon: 'cluster-cost'
 order: 1
-bonus: false
 publicationDate: 2026-10-13
 ---
 

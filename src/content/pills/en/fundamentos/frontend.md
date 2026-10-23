@@ -4,7 +4,6 @@ title: 'Frontend'
 subtitle: 'from code to browser'
 icon: 'frontend'
 order: 4
-bonus: false
 publicationDate: 2026-08-21
 ---
 

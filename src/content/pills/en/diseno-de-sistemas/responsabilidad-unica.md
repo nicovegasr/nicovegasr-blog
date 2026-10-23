@@ -4,7 +4,6 @@ title: 'Single Responsibility Principle (SRP)'
 subtitle: 'one responsibility can cover an entire process'
 icon: 'responsibility'
 order: 2
-bonus: false
 publicationDate: 2026-10-12
 ---
 

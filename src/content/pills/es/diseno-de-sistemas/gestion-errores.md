@@ -4,7 +4,6 @@ title: 'Gestión de errores'
 subtitle: 'dar a cada fallo un lugar y una respuesta explícita'
 icon: 'error-flow'
 order: 7
-bonus: false
 publicationDate: 2026-10-12
 ---
 

@@ -4,7 +4,6 @@ title: 'Designing for testability'
 subtitle: 'make a decision’s inputs and boundaries visible'
 icon: 'testable'
 order: 10
-bonus: false
 publicationDate: 2026-10-12
 ---
 

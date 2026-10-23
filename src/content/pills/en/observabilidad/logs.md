@@ -4,7 +4,6 @@ title: 'Logging system'
 subtitle: 'from code to destination'
 icon: 'logs'
 order: 2
-bonus: false
 publicationDate: 2026-08-28
 ---
 

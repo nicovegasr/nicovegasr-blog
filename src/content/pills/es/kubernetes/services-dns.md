@@ -4,7 +4,6 @@ title: 'Services, DNS y tráfico interno'
 subtitle: 'una dirección estable para Pods cambiantes'
 icon: 'service'
 order: 8
-bonus: false
 publicationDate: 2026-10-13
 ---
 

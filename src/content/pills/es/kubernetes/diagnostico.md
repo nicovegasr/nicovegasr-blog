@@ -4,7 +4,6 @@ title: 'Métricas, eventos y diagnóstico'
 subtitle: 'averiguar dónde falló el recorrido'
 icon: 'diagnosis'
 order: 12
-bonus: false
 publicationDate: 2026-10-13
 ---
 

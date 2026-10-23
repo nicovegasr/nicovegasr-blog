@@ -4,7 +4,6 @@ title: 'Volúmenes'
 subtitle: 'la persistencia'
 icon: 'volume'
 order: 3
-bonus: false
 publicationDate: 2026-07-05
 ---
 

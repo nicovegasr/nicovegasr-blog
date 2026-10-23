@@ -4,7 +4,6 @@ title: 'Grafana'
 subtitle: 'explorar y relacionar señales'
 icon: 'dashboard'
 order: 6
-bonus: false
 publicationDate: 2026-08-27
 ---
 

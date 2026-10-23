@@ -4,7 +4,6 @@ title: 'Cohesion'
 subtitle: 'keep related decisions where they belong'
 icon: 'cohesion'
 order: 4
-bonus: false
 publicationDate: 2026-10-12
 ---
 

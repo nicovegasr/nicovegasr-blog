@@ -4,7 +4,6 @@ title: '¿Qué es una API?'
 subtitle: 'el contrato'
 icon: 'api'
 order: 1
-bonus: false
 publicationDate: 2026-08-21
 ---
 

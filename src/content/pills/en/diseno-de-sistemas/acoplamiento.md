@@ -4,7 +4,6 @@ title: 'Coupling'
 subtitle: 'choose which details each piece depends on'
 icon: 'coupling'
 order: 5
-bonus: false
 publicationDate: 2026-10-12
 ---
 

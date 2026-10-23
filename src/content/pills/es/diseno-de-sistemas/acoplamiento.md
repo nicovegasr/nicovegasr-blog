@@ -4,7 +4,6 @@ title: 'Acoplamiento'
 subtitle: 'elegir de qué detalles depende cada pieza'
 icon: 'coupling'
 order: 5
-bonus: false
 publicationDate: 2026-10-12
 ---
 

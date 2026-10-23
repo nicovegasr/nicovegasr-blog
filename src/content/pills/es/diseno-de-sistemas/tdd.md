@@ -4,7 +4,6 @@ title: 'TDD y pruebas que guían el diseño'
 subtitle: 'avanzar por comportamientos, no por métodos privados'
 icon: 'tdd'
 order: 11
-bonus: false
 publicationDate: 2026-10-12
 ---
 

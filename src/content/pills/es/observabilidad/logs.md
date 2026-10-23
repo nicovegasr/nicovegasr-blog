@@ -4,7 +4,6 @@ title: 'Sistema de logs'
 subtitle: 'del código al destino'
 icon: 'logs'
 order: 2
-bonus: false
 publicationDate: 2026-08-28
 ---
 

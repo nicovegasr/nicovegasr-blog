@@ -28,7 +28,7 @@ const pillEntry = (locale: string) => ({
   body: 'Inventory introduction',
   data: {
     kind: 'pill', title: 'Introduction', subtitle: 'Inventory basics',
-    icon: 'foundation', order: 1, bonus: false,
+    icon: 'foundation', order: 1,
     publicationDate: new Date('2020-01-01'),
   },
 });
@@ -126,13 +126,11 @@ describe('next published series', () => {
     expect(await findNextPillSeries('es', 'unknown')).toBeNull();
   });
 
-  it('starts with the first core pill rather than an earlier-numbered bonus or future pill', async () => {
-    const bonus = { ...pill('next'), id: 'es/next/bonus',
-      data: { ...pill('next').data, bonus: true, order: 0 } };
+  it('starts with the first published pill rather than an earlier-numbered future pill', async () => {
     const future = { ...pill('next'), id: 'es/next/future',
       data: { ...pill('next').data, order: -1, publicationDate: new Date('2999-01-01') } };
     getCollection.mockResolvedValue([
-      series('current', 1), series('next', 2), bonus, future, pill('next'),
+      series('current', 1), series('next', 2), future, pill('next'),
     ]);
     expect(await findNextPillSeries('es', 'current')).toEqual({
       series: expect.objectContaining({ slug: 'next' }),

@@ -4,7 +4,6 @@ title: 'Patrones creacionales: Builder y Factory'
 subtitle: 'construir un valor válido y elegir quién lo produce'
 icon: 'creation'
 order: 8
-bonus: false
 publicationDate: 2026-10-12
 ---
 

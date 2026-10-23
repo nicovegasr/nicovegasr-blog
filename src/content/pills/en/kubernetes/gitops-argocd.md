@@ -4,7 +4,6 @@ title: 'GitOps and Argo CD'
 subtitle: 'synchronize approved intent with the cluster'
 icon: 'gitops'
 order: 11
-bonus: false
 publicationDate: 2026-10-13
 ---
 

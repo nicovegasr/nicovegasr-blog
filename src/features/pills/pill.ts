@@ -8,7 +8,6 @@ export type Pill = {
   readonly subtitle: string;
   readonly icon: string;
   readonly order: number;
-  readonly bonus: boolean;
   readonly publicationDate: Date;
   readonly lastUpdateDate: Date | undefined;
 };
@@ -42,18 +41,8 @@ const byOrderAscending = (a: Pill, b: Pill): number => a.order - b.order;
 export const seriesOrder = (series: readonly PillSeries[]): PillSeries[] =>
   [...series].sort((a, b) => a.order - b.order);
 
-// The rail reads as a guided path: core pills first (by order), then bonus
-// pills (by order). The summary stop is appended by the component, not here.
-export const railOrder = (pills: readonly Pill[]): Pill[] => {
-  const core = pills.filter((pill) => !pill.bonus).sort(byOrderAscending);
-  const bonus = pills.filter((pill) => pill.bonus).sort(byOrderAscending);
-  return [...core, ...bonus];
-};
-
-// The series summary only exists once its markdown body has real content; a body
-// that is empty or only HTML comments (author notes) yields no summary stop.
-export const hasSummaryBody = (body: string): boolean =>
-  body.replace(/<!--[\s\S]*?-->/g, '').trim().length > 0;
+export const railOrder = (pills: readonly Pill[]): Pill[] =>
+  [...pills].sort(byOrderAscending);
 
 // Previous/next pill around the current one within an already-ordered rail, so a
 // pill page can offer sequential navigation. Undefined at the ends.

@@ -4,7 +4,6 @@ title: 'Volumes'
 subtitle: 'persistence'
 icon: 'volume'
 order: 3
-bonus: false
 publicationDate: 2026-07-05
 ---
 

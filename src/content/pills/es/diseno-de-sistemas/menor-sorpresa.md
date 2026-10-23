@@ -4,7 +4,6 @@ title: 'Principio de la menor sorpresa'
 subtitle: 'el comportamiento debe seguir la promesa de la interfaz'
 icon: 'predictable'
 order: 3
-bonus: false
 publicationDate: 2026-10-12
 ---
 

@@ -4,7 +4,6 @@ title: 'Deployments, réplicas y actualizaciones'
 subtitle: 'cambiar la versión sin cortar el servicio'
 icon: 'deployment'
 order: 5
-bonus: false
 publicationDate: 2026-10-13
 ---
 

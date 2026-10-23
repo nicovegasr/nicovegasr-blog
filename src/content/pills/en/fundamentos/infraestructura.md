@@ -4,7 +4,6 @@ title: 'Infrastructure'
 subtitle: 'how an application reaches and stays in production'
 icon: 'infrastructure'
 order: 7
-bonus: false
 publicationDate: 2026-08-21
 ---
 

@@ -4,7 +4,6 @@ title: 'Deployments, replicas and updates'
 subtitle: 'change versions without cutting traffic'
 icon: 'deployment'
 order: 5
-bonus: false
 publicationDate: 2026-10-13
 ---
 

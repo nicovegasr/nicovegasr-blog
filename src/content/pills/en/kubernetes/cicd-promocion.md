@@ -4,7 +4,6 @@ title: 'CI/CD and environment promotion'
 subtitle: 'move the same artifact with control'
 icon: 'pipeline'
 order: 10
-bonus: false
 publicationDate: 2026-10-13
 ---
 

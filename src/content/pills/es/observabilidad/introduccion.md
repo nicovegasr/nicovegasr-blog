@@ -4,7 +4,6 @@ title: 'Observabilidad'
 subtitle: 'ver el comportamiento del sistema'
 icon: 'observability'
 order: 1
-bonus: false
 publicationDate: 2026-08-28
 ---
 

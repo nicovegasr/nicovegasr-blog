@@ -4,7 +4,6 @@ title: 'OpenTelemetry'
 subtitle: 'the instrumentation layer'
 icon: 'telemetry'
 order: 7
-bonus: false
 publicationDate: 2026-08-27
 ---
 

@@ -4,7 +4,6 @@ title: 'CI/CD y promoción entre entornos'
 subtitle: 'mover el mismo artefacto con control'
 icon: 'pipeline'
 order: 10
-bonus: false
 publicationDate: 2026-10-13
 ---
 

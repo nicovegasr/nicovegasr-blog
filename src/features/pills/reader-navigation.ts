@@ -6,7 +6,7 @@ import {
 // Only transient DOM state is carried between static pages. Astro owns URL,
 // history, metadata, loading failures, and the navigation lifecycle.
 let pendingIndex:
-  | { key: string; scrollTop: number; focusArticle: boolean; target: string }
+  | { key: string; scrollTop: number; focusArticle: boolean }
   | undefined;
 let panelAnimation: Animation | undefined;
 
@@ -45,7 +45,6 @@ const prepareNavigation = (event: TransitionBeforeSwapEvent) => {
     key: current.dataset.pillReader!,
     scrollTop: index.scrollTop,
     focusArticle: event.navigationType !== 'traverse',
-    target: event.to.hash === '#resumen' ? '#resumen' : '#pill-reading',
   };
 
   const currentPanel = current.querySelector<HTMLElement>('.reading-desk');
@@ -62,10 +61,9 @@ const prepareNavigation = (event: TransitionBeforeSwapEvent) => {
       console.error('Reader view transition failed', error);
   });
   event.viewTransition.skipTransition();
-  const target = pendingIndex.target;
   event.swap = () => {
     swapReadingPanel(event.newDocument, currentPanel, incomingPanel);
-    updateSelection(index, nextIndex, target);
+    updateSelection(index, nextIndex);
   };
 };
 
@@ -84,13 +82,8 @@ const swapReadingPanel = (
     currentLanguage.replaceWith(incomingLanguage);
 };
 
-const updateSelection = (
-  index: HTMLElement,
-  incoming: HTMLElement,
-  target: string,
-) => {
-  const selector = target === '#resumen' ? 'a[href$="#resumen"]' : 'a[aria-current]';
-  const activeHref = incoming.querySelector(selector)?.getAttribute('href');
+const updateSelection = (index: HTMLElement, incoming: HTMLElement) => {
+  const activeHref = incoming.querySelector('a[aria-current]')?.getAttribute('href');
   index.querySelectorAll('a').forEach((link) => {
     if (link.getAttribute('href') === activeHref)
       link.setAttribute('aria-current', 'page');
@@ -135,7 +128,7 @@ const restoreReader = () => {
   if (!reader || !pending || reader.dataset.pillReader !== pending.key) return;
   const index = reader.querySelector<HTMLElement>('.contents');
   if (index) index.scrollTop = pending.scrollTop;
-  if (pending.focusArticle) alignReadingTarget(reader, pending.target);
+  if (pending.focusArticle) alignReadingTarget(reader, '#pill-reading');
   animateReadingPanel(reader);
 };
 
@@ -144,53 +137,12 @@ const finishNavigation = () => {
   if (!reader) return;
   const index = reader.querySelector<HTMLElement>('.contents');
   if (index) revealSelection(index);
-  if (pendingIndex?.focusArticle) {
-    const target =
-      location.hash === '#resumen' ? '#summary-title' : '#chapter-title';
-    reader.querySelector<HTMLElement>(target)?.focus({ preventScroll: true });
-  }
+  if (pendingIndex?.focusArticle)
+    reader.querySelector<HTMLElement>('#chapter-title')?.focus({ preventScroll: true });
   pendingIndex = undefined;
 };
 
-// Hash-only navigation does not run Astro's swap lifecycle. Keep the summary
-// and first chapter selection in sync on direct visits and browser history.
-const syncAnchorSelection = () => {
-  const reader = readerIn(document);
-  if (!reader?.querySelector('#resumen')) return;
-  const index = reader.querySelector<HTMLElement>('.contents');
-  if (!index) return;
-  const active = location.hash === '#resumen'
-    ? index.querySelector('a[href$="#resumen"]')
-    : index.querySelector('a[data-pill-link]');
-  if (!active) return;
-  index.querySelectorAll('a').forEach((link) => {
-    if (link === active) link.setAttribute('aria-current', 'page');
-    else link.removeAttribute('aria-current');
-  });
-};
-
-// Astro uses pushState for same-page links, which need not emit hashchange.
-// Read the resulting URL after its click handler has processed the anchor.
-document.addEventListener('click', (event) => {
-  if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
-    return;
-  if (!(event.target instanceof Element)) return;
-  const link = event.target.closest<HTMLAnchorElement>('a[href]');
-  if (!link || link.target === '_blank' || link.hasAttribute('download')) return;
-  const destination = new URL(link.href);
-  if (destination.origin === location.origin &&
-      destination.pathname === location.pathname &&
-      destination.search === location.search)
-    queueMicrotask(syncAnchorSelection);
-});
-
 document.addEventListener('astro:before-swap', prepareNavigation);
 document.addEventListener('astro:after-swap', restoreReader);
-document.addEventListener('astro:page-load', () => {
-  syncAnchorSelection();
-  finishNavigation();
-});
-window.addEventListener('hashchange', syncAnchorSelection);
-window.addEventListener('popstate', syncAnchorSelection);
-syncAnchorSelection();
+document.addEventListener('astro:page-load', finishNavigation);
 finishNavigation();

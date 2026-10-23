@@ -4,7 +4,6 @@ title: 'Services, DNS and internal traffic'
 subtitle: 'one stable address for changing Pods'
 icon: 'service'
 order: 8
-bonus: false
 publicationDate: 2026-10-13
 ---
 

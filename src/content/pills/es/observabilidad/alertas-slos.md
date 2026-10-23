@@ -4,7 +4,6 @@ title: 'Alertas y SLOs'
 subtitle: 'medir para actuar'
 icon: 'alert'
 order: 8
-bonus: false
 publicationDate: 2026-08-27
 ---
 

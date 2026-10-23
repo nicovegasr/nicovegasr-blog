@@ -4,7 +4,6 @@ title: 'Metrics, events and diagnosis'
 subtitle: 'find where the journey failed'
 icon: 'diagnosis'
 order: 12
-bonus: false
 publicationDate: 2026-10-13
 ---
 
