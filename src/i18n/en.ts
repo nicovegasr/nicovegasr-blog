@@ -61,6 +61,7 @@ export const english: Dictionary = {
   'pills.reader.next': 'Next',
   'pills.reader.previous': 'Previous',
   'pills.reader.back': 'Back to the journey',
+  'pills.reader.toggleIndex': 'Show or hide the journey',
   'pills.reader.paginationLabel': 'Between pills',
   'pills.seriesCount': 'pills',
 

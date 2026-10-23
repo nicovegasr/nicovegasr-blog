@@ -59,6 +59,7 @@ export const spanish = {
   'pills.reader.next': 'Siguiente',
   'pills.reader.previous': 'Anterior',
   'pills.reader.back': 'Volver al recorrido',
+  'pills.reader.toggleIndex': 'Mostrar u ocultar el recorrido',
   'pills.reader.paginationLabel': 'Entre píldoras',
   'pills.seriesCount': 'píldoras',
 

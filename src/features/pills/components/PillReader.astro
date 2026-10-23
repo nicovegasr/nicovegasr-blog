@@ -47,7 +47,14 @@ const Content = rendered?.Content;
 ---
 
 <div class="notebook" id="pill-contents" tabindex="-1" data-pill-reader={`${locale}/${series.slug}`}>
+  <script is:inline>
+    try {
+      if (localStorage.getItem('pills.index.collapsed') === 'true')
+        document.currentScript.parentElement.setAttribute('data-index-collapsed', '');
+    } catch {}
+  </script>
   <aside
+    id="pill-index"
     class="contents"
     transition:persist={`pill-index-${locale}-${series.slug}`}
     transition:animate="none"
@@ -57,12 +64,23 @@ const Content = rendered?.Content;
       <span class="count">
         {String(pills.length).padStart(2, '0')} {translate('pills.seriesCount')}
       </span>
+      <button
+        type="button"
+        class="index-toggle"
+        data-pill-index-toggle
+        aria-controls="pill-index"
+        aria-expanded="true"
+        aria-label={translate('pills.reader.toggleIndex')}
+        title={translate('pills.reader.toggleIndex')}
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2" /><path d="M9.5 4.5v15" /></svg>
+      </button>
     </div>
     <nav aria-label={translate('pills.reader.heading')}>
       <ol class="journey">
         {chapters.map((chapter) => (
           <li>
-            <a href={chapter.href} data-pill-link aria-current={chapter.isActive ? 'page' : undefined}>
+            <a href={chapter.href} data-pill-link title={chapter.title} aria-current={chapter.isActive ? 'page' : undefined}>
               <span class="station"><PillIcon icon={chapter.icon} /></span>
               <span class="stop-copy">
                 <span class="stop-number">
@@ -143,6 +161,7 @@ const Content = rendered?.Content;
   import '../reader-navigation';
   import '../reader-keyboard-navigation';
   import '../reader-swipe-navigation';
+  import '../reader-index-toggle';
 </script>
 
 <style>
@@ -184,6 +203,60 @@ const Content = rendered?.Content;
   .count {
     color: var(--color-text-soft);
     white-space: nowrap;
+    margin-left: auto;
+  }
+  .index-toggle {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-small);
+    background: var(--color-paper);
+    color: var(--color-text-soft);
+    cursor: pointer;
+    transition:
+      color var(--motion-duration-fast),
+      border-color var(--motion-duration-fast);
+  }
+  .index-toggle:hover {
+    color: var(--color-ink);
+    border-color: var(--color-ink);
+  }
+  .index-toggle svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linejoin: round;
+  }
+  @media (min-width: 801px) {
+    .notebook[data-index-collapsed] {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+    .notebook[data-index-collapsed] .contents {
+      padding-right: var(--space-4);
+    }
+    .notebook[data-index-collapsed] .contents-heading {
+      justify-content: center;
+    }
+    .notebook[data-index-collapsed] :is(.eyebrow, .count, .stop-arrow) {
+      display: none;
+    }
+    .notebook[data-index-collapsed] .journey a {
+      grid-template-columns: var(--station-size);
+    }
+    /* Keep chapter names as each link's accessible name while only icons show. */
+    .notebook[data-index-collapsed] .stop-copy {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
   }
   .journey {
     --station-size: 42px;
@@ -455,6 +528,9 @@ const Content = rendered?.Content;
   @media (max-width: 800px) {
     .notebook {
       grid-template-columns: 1fr;
+    }
+    .index-toggle {
+      display: none;
     }
     .contents {
       position: static;
