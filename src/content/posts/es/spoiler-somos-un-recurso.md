@@ -2,7 +2,7 @@
 title: "Spoiler: somos un recurso"
 publicationDate: 2026-08-30
 summary: "Una reflexión personal sobre autonomía, liderazgo y el lugar de quienes construyen software en un mercado donde generar código con IA es cada vez más barato, pero el criterio sigue siendo caro."
-tags: ["reflexiones", "inteligencia-artificial", "industria", "carrera"]
+tags: ["reflections", "artificial-intelligence", "industry", "career"]
 translationSlug: "spoiler-were-a-resource"
 ---
 

@@ -2,7 +2,7 @@
 title: "Gradle — Velocidad, modularidad y control en tus builds"
 publicationDate: 2025-05-21
 summary: "Cómo funciona Gradle por dentro —directorios, conceptos clave, ciclo de vida del build, ficheros y propiedades— y cómo usarlo para imponer una arquitectura hexagonal entre módulos."
-tags: ["java", "gradle", "build-tools", "arquitectura"]
+tags: ["java", "gradle", "build-tools", "architecture"]
 translationSlug: "gradle-speed-modularity-and-control"
 ---
 

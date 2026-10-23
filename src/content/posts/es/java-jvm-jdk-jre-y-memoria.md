@@ -2,7 +2,7 @@
 title: "Java — JVM, JDK, JRE y memoria"
 publicationDate: 2025-05-15
 summary: "Cómo funciona Java por dentro —JDK, JRE, JVM, JIT, memoria y Garbage Collector— para tomar mejores decisiones de diseño, optimizar el rendimiento y reducir costes de infraestructura."
-tags: ["java", "jvm", "memoria", "rendimiento", "optimización"]
+tags: ["java", "jvm", "memory", "performance", "optimization"]
 translationSlug: "java-jvm-jdk-jre-and-memory"
 ---
 

@@ -2,7 +2,7 @@
 title: "Notes app — ¿Arquitectura en el frontend?"
 publicationDate: 2024-06-09
 summary: "Reflexiones sobre cómo estructurar un proyecto frontend en React: desacoplar las llamadas HTTP, envolver react-query en hooks propios y aplicar el patrón repository en el cliente."
-tags: ["frontend", "react", "arquitectura", "typescript"]
+tags: ["frontend", "react", "architecture", "typescript"]
 translationSlug: "notes-app-frontend-architecture"
 ---
 
