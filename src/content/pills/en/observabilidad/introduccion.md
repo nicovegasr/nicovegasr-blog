@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Observability'
-subtitle: 'seeing system behavior'
+subtitle: 'Seeing system behavior'
 icon: 'observability'
 order: 1
 publicationDate: 2026-08-28

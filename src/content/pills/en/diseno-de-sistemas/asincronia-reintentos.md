@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Asynchrony and retries'
-subtitle: 'choose whether an attempt must survive the process'
+subtitle: 'Choose whether an attempt must survive the process'
 icon: 'retry'
 order: 9
 publicationDate: 2026-10-12

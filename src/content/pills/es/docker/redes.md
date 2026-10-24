@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Redes'
-subtitle: 'la comunicación'
+subtitle: 'La comunicación'
 icon: 'network'
 order: 5
 publicationDate: 2026-07-12

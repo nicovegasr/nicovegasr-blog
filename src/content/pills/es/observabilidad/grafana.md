@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Grafana'
-subtitle: 'explorar y relacionar señales'
+subtitle: 'Explorar y relacionar señales'
 icon: 'dashboard'
 order: 6
 publicationDate: 2026-08-27

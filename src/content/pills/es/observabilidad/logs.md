@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Sistema de logs'
-subtitle: 'del código al destino'
+subtitle: 'Del código al destino'
 icon: 'logs'
 order: 2
 publicationDate: 2026-08-28

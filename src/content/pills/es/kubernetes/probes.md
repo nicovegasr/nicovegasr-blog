@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Probes y disponibilidad'
-subtitle: 'arrancar, recibir tráfico y recuperarse'
+subtitle: 'Arrancar, recibir tráfico y recuperarse'
 icon: 'probe'
 order: 7
 publicationDate: 2026-10-13

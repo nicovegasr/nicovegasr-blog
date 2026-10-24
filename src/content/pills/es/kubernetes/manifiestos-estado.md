@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Manifiestos y estado deseado'
-subtitle: 'declarar, observar y reconciliar'
+subtitle: 'Declarar, observar y reconciliar'
 icon: 'desired-state'
 order: 3
 publicationDate: 2026-10-13

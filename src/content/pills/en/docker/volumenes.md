@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Volumes'
-subtitle: 'persistence'
+subtitle: 'Persistence'
 icon: 'volume'
 order: 3
 publicationDate: 2026-07-05

@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Patrones creacionales: Builder y Factory'
-subtitle: 'construir un valor válido y elegir quién lo produce'
+subtitle: 'Construir un valor válido y elegir quién lo produce'
 icon: 'creation'
 order: 8
 publicationDate: 2026-10-12

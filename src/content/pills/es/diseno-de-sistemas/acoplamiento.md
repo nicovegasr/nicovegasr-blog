@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Acoplamiento'
-subtitle: 'elegir de qué detalles depende cada pieza'
+subtitle: 'Elegir de qué detalles depende cada pieza'
 icon: 'coupling'
 order: 5
 publicationDate: 2026-10-12

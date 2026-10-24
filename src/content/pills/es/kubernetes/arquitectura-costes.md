@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Arquitectura y costes de Kubernetes'
-subtitle: 'qué aporta al desarrollar una aplicación'
+subtitle: 'Qué aporta al desarrollar una aplicación'
 icon: 'cluster-cost'
 order: 1
 publicationDate: 2026-10-13

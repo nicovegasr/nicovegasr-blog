@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'What is Docker?'
-subtitle: 'the platform'
+subtitle: 'The platform'
 icon: 'container'
 order: 1
 publicationDate: 2026-07-03

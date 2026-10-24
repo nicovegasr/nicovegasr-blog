@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Error handling'
-subtitle: 'give each failure a place and an explicit response'
+subtitle: 'Give each failure a place and an explicit response'
 icon: 'error-flow'
 order: 7
 publicationDate: 2026-10-12

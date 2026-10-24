@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Prometheus'
-subtitle: 'storing and querying metrics'
+subtitle: 'Storing and querying metrics'
 icon: 'metrics'
 order: 4
 publicationDate: 2026-08-27

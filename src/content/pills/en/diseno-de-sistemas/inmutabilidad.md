@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Immutability and state management'
-subtitle: 'decide when a value may change and who sees it'
+subtitle: 'Decide when a value may change and who sees it'
 icon: 'snapshot'
 order: 6
 publicationDate: 2026-10-12

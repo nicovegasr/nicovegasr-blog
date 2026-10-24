@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Prometheus'
-subtitle: 'almacenar y consultar métricas'
+subtitle: 'Almacenar y consultar métricas'
 icon: 'metrics'
 order: 4
 publicationDate: 2026-08-27

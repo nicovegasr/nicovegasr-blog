@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Loki'
-subtitle: 'storing and querying logs'
+subtitle: 'Storing and querying logs'
 icon: 'loki'
 order: 3
 publicationDate: 2026-08-27

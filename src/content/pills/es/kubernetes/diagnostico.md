@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Métricas, eventos y diagnóstico'
-subtitle: 'averiguar dónde falló el recorrido'
+subtitle: 'Averiguar dónde falló el recorrido'
 icon: 'diagnosis'
 order: 12
 publicationDate: 2026-10-13

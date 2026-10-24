@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Creational patterns: Builder and Factory'
-subtitle: 'build a valid value and choose who produces it'
+subtitle: 'Build a valid value and choose who produces it'
 icon: 'creation'
 order: 8
 publicationDate: 2026-10-12

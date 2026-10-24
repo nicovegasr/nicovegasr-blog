@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'GitOps and Argo CD'
-subtitle: 'synchronize approved intent with the cluster'
+subtitle: 'Synchronize approved intent with the cluster'
 icon: 'gitops'
 order: 11
 publicationDate: 2026-10-13

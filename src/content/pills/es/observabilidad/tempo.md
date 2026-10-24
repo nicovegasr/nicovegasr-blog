@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Tempo'
-subtitle: 'almacenar y consultar trazas'
+subtitle: 'Almacenar y consultar trazas'
 icon: 'traces'
 order: 5
 publicationDate: 2026-08-27

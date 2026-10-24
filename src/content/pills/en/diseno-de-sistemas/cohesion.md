@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Cohesion'
-subtitle: 'keep related decisions where they belong'
+subtitle: 'Keep related decisions where they belong'
 icon: 'cohesion'
 order: 4
 publicationDate: 2026-10-12

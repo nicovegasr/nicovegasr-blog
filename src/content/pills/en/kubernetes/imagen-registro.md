@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'From application to image'
-subtitle: 'build, registry and identity'
+subtitle: 'Build, registry and identity'
 icon: 'image'
 order: 2
 publicationDate: 2026-10-13

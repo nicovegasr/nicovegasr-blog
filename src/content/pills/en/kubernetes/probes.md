@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Probes and availability'
-subtitle: 'start, receive traffic and recover'
+subtitle: 'Start, receive traffic and recover'
 icon: 'probe'
 order: 7
 publicationDate: 2026-10-13

@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Pods, nodos y ciclo de vida'
-subtitle: 'dónde vive el proceso'
+subtitle: 'Dónde vive el proceso'
 icon: 'pod'
 order: 4
 publicationDate: 2026-10-13

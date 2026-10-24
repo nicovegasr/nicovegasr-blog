@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Base de datos'
-subtitle: 'guardar y encontrar'
+subtitle: 'Guardar y encontrar'
 icon: 'database'
 order: 6
 publicationDate: 2026-08-21

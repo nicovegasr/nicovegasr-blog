@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Inmutabilidad y gestión del estado'
-subtitle: 'decidir cuándo puede cambiar un valor y quién lo ve'
+subtitle: 'Decidir cuándo puede cambiar un valor y quién lo ve'
 icon: 'snapshot'
 order: 6
 publicationDate: 2026-10-12

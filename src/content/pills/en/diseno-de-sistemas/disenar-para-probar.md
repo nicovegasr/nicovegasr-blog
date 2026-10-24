@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Designing for testability'
-subtitle: 'make a decision’s inputs and boundaries visible'
+subtitle: 'Make a decision’s inputs and boundaries visible'
 icon: 'testable'
 order: 10
 publicationDate: 2026-10-12

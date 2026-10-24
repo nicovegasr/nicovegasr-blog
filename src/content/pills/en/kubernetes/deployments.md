@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Deployments, replicas and updates'
-subtitle: 'change versions without cutting traffic'
+subtitle: 'Change versions without cutting traffic'
 icon: 'deployment'
 order: 5
 publicationDate: 2026-10-13

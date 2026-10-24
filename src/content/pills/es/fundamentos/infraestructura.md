@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Infraestructura'
-subtitle: 'cómo una aplicación llega y se mantiene en producción'
+subtitle: 'Cómo una aplicación llega y se mantiene en producción'
 icon: 'infrastructure'
 order: 7
 publicationDate: 2026-08-21

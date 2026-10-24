@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: '¿Qué es una API?'
-subtitle: 'el contrato'
+subtitle: 'El contrato'
 icon: 'api'
 order: 1
 publicationDate: 2026-08-21

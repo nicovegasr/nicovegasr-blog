@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Dockerfile'
-subtitle: 'the recipe'
+subtitle: 'The recipe'
 icon: 'dockerfile'
 order: 2
 publicationDate: 2026-07-04

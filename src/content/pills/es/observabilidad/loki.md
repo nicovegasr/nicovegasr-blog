@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Loki'
-subtitle: 'almacenar y consultar logs'
+subtitle: 'Almacenar y consultar logs'
 icon: 'loki'
 order: 3
 publicationDate: 2026-08-27

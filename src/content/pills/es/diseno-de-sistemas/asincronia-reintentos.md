@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Asincronía y reintentos'
-subtitle: 'elegir si un intento debe sobrevivir al proceso'
+subtitle: 'Elegir si un intento debe sobrevivir al proceso'
 icon: 'retry'
 order: 9
 publicationDate: 2026-10-12

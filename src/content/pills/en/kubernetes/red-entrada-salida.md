@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Inbound and outbound networking'
-subtitle: 'publish the API and restrict communication'
+subtitle: 'Publish the API and restrict communication'
 icon: 'network'
 order: 9
 publicationDate: 2026-10-13

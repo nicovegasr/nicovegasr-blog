@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'TDD y pruebas que guían el diseño'
-subtitle: 'avanzar por comportamientos, no por métodos privados'
+subtitle: 'Avanzar por comportamientos, no por métodos privados'
 icon: 'tdd'
 order: 11
 publicationDate: 2026-10-12

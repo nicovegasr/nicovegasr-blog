@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'OpenTelemetry'
-subtitle: 'the instrumentation layer'
+subtitle: 'The instrumentation layer'
 icon: 'telemetry'
 order: 7
 publicationDate: 2026-08-27

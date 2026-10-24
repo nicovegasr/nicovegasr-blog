@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Networking'
-subtitle: 'communication'
+subtitle: 'Communication'
 icon: 'network'
 order: 5
 publicationDate: 2026-07-12

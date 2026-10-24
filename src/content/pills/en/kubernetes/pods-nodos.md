@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Pods, nodes and lifecycle'
-subtitle: 'where the process lives'
+subtitle: 'Where the process lives'
 icon: 'pod'
 order: 4
 publicationDate: 2026-10-13

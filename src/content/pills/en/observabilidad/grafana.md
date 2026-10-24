@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Grafana'
-subtitle: 'exploring and connecting signals'
+subtitle: 'Exploring and connecting signals'
 icon: 'dashboard'
 order: 6
 publicationDate: 2026-08-27

@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Manifests and desired state'
-subtitle: 'declare, observe and reconcile'
+subtitle: 'Declare, observe and reconcile'
 icon: 'desired-state'
 order: 3
 publicationDate: 2026-10-13

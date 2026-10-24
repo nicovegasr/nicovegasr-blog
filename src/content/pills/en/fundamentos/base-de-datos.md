@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Database'
-subtitle: 'store and find'
+subtitle: 'Store and find'
 icon: 'database'
 order: 6
 publicationDate: 2026-08-21

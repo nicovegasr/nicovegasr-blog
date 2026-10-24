@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Alerting and SLOs'
-subtitle: 'measuring in order to act'
+subtitle: 'Measuring in order to act'
 icon: 'alert'
 order: 8
 publicationDate: 2026-08-27

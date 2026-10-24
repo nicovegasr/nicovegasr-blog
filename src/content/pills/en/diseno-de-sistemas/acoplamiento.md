@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Coupling'
-subtitle: 'choose which details each piece depends on'
+subtitle: 'Choose which details each piece depends on'
 icon: 'coupling'
 order: 5
 publicationDate: 2026-10-12

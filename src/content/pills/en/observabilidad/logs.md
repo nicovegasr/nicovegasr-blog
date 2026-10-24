@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Logging system'
-subtitle: 'from code to destination'
+subtitle: 'From code to destination'
 icon: 'logs'
 order: 2
 publicationDate: 2026-08-28

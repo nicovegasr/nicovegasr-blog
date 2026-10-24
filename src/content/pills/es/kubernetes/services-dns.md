@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Services, DNS y tráfico interno'
-subtitle: 'una dirección estable para Pods cambiantes'
+subtitle: 'Una dirección estable para Pods cambiantes'
 icon: 'service'
 order: 8
 publicationDate: 2026-10-13

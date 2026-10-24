@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'CI/CD y promoción entre entornos'
-subtitle: 'mover el mismo artefacto con control'
+subtitle: 'Mover el mismo artefacto con control'
 icon: 'pipeline'
 order: 10
 publicationDate: 2026-10-13

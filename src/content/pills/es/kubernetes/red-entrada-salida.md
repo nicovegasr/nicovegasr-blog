@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Entrada y salida de red'
-subtitle: 'publicar la API y limitar comunicaciones'
+subtitle: 'Publicar la API y limitar comunicaciones'
 icon: 'network'
 order: 9
 publicationDate: 2026-10-13

@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Principle of least surprise'
-subtitle: 'behavior should match what the interface promises'
+subtitle: 'Behavior should match what the interface promises'
 icon: 'predictable'
 order: 3
 publicationDate: 2026-10-12

@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Principio de la menor sorpresa'
-subtitle: 'el comportamiento debe seguir la promesa de la interfaz'
+subtitle: 'El comportamiento debe seguir la promesa de la interfaz'
 icon: 'predictable'
 order: 3
 publicationDate: 2026-10-12

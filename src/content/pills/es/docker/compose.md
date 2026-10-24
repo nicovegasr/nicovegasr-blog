@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Compose'
-subtitle: 'la orquestación'
+subtitle: 'La orquestación'
 icon: 'compose'
 order: 6
 publicationDate: 2026-07-19

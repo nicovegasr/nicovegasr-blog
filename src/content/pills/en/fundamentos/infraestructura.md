@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Infrastructure'
-subtitle: 'how an application reaches and stays in production'
+subtitle: 'How an application reaches and stays in production'
 icon: 'infrastructure'
 order: 7
 publicationDate: 2026-08-21

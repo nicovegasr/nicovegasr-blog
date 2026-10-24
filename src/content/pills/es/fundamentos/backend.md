@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Backend'
-subtitle: 'el servicio que hace el trabajo'
+subtitle: 'El servicio que hace el trabajo'
 icon: 'server'
 order: 5
 publicationDate: 2026-08-21

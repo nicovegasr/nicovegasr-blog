@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Tempo'
-subtitle: 'storing and querying traces'
+subtitle: 'Storing and querying traces'
 icon: 'traces'
 order: 5
 publicationDate: 2026-08-27

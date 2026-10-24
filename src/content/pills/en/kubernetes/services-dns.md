@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Services, DNS and internal traffic'
-subtitle: 'one stable address for changing Pods'
+subtitle: 'One stable address for changing Pods'
 icon: 'service'
 order: 8
 publicationDate: 2026-10-13

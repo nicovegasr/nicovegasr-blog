@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'What is an SDK?'
-subtitle: 'the toolkit'
+subtitle: 'The toolkit'
 icon: 'layers'
 order: 3
 publicationDate: 2026-08-21

@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Volúmenes'
-subtitle: 'la persistencia'
+subtitle: 'La persistencia'
 icon: 'volume'
 order: 3
 publicationDate: 2026-07-05

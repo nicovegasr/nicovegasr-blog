@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Diseñar para poder probar'
-subtitle: 'hacer visibles las entradas y los límites de una decisión'
+subtitle: 'Hacer visibles las entradas y los límites de una decisión'
 icon: 'testable'
 order: 10
 publicationDate: 2026-10-12

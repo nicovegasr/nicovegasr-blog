@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Types of APIs'
-subtitle: 'four web styles'
+subtitle: 'Four web styles'
 icon: 'network'
 order: 2
 publicationDate: 2026-08-21

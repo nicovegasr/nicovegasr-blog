@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'De la aplicación a la imagen'
-subtitle: 'construcción, registro e identidad'
+subtitle: 'Construcción, registro e identidad'
 icon: 'image'
 order: 2
 publicationDate: 2026-10-13

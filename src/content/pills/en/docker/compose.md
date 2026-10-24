@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Compose'
-subtitle: 'orchestration'
+subtitle: 'Orchestration'
 icon: 'compose'
 order: 6
 publicationDate: 2026-07-19

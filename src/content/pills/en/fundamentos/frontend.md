@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Frontend'
-subtitle: 'from code to browser'
+subtitle: 'From code to browser'
 icon: 'frontend'
 order: 4
 publicationDate: 2026-08-21

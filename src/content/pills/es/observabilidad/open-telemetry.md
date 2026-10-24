@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'OpenTelemetry'
-subtitle: 'la instrumentación'
+subtitle: 'La instrumentación'
 icon: 'telemetry'
 order: 7
 publicationDate: 2026-08-27

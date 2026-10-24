@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Alertas y SLOs'
-subtitle: 'medir para actuar'
+subtitle: 'Medir para actuar'
 icon: 'alert'
 order: 8
 publicationDate: 2026-08-27

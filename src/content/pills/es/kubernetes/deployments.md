@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Deployments, réplicas y actualizaciones'
-subtitle: 'cambiar la versión sin cortar el servicio'
+subtitle: 'Cambiar la versión sin cortar el servicio'
 icon: 'deployment'
 order: 5
 publicationDate: 2026-10-13

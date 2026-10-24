@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Metrics, events and diagnosis'
-subtitle: 'find where the journey failed'
+subtitle: 'Find where the journey failed'
 icon: 'diagnosis'
 order: 12
 publicationDate: 2026-10-13

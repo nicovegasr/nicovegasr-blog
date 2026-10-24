@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'CI/CD and environment promotion'
-subtitle: 'move the same artifact with control'
+subtitle: 'Move the same artifact with control'
 icon: 'pipeline'
 order: 10
 publicationDate: 2026-10-13

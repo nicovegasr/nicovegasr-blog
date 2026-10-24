@@ -1,7 +1,7 @@
 ---
 kind: 'pill'
 title: 'Kubernetes architecture and costs'
-subtitle: 'what it gives an application developer'
+subtitle: 'What it gives an application developer'
 icon: 'cluster-cost'
 order: 1
 publicationDate: 2026-10-13
