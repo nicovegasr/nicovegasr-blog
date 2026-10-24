@@ -1,5 +1,16 @@
 # Project instructions
 
+## Technical writing
+
+- Before creating or substantially rewriting any technical content for the blog,
+  including articles and pills, read and follow
+  [`studio/editorial/technical-writing.md`](studio/editorial/technical-writing.md).
+- Read the current content and related entries before drafting. Use the guide to
+  preserve Nicolás's voice, technical precision, and any planned series continuity.
+- The guide lives in the private studio repository checked out in `studio/`.
+  If it is missing, ask for that checkout before drafting; do not substitute a
+  generic writing style.
+
 ## Image generation
 
 - Before generating or editing any image for the blog, read and follow
