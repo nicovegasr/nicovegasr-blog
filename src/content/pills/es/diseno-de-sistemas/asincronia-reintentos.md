@@ -1,30 +1,38 @@
 ---
 kind: 'pill'
-title: 'Asincronía y reintentos'
-subtitle: 'Elegir si un intento debe sobrevivir al proceso'
+title: 'Reintentos'
+subtitle: 'Repetir el guardado sin crear otro fichero'
 icon: 'retry'
-order: 9
+order: 8
+momentStage: 'async-retries'
 publicationDate: 2026-10-12
 ---
 
-Una tarea asíncrona permite aceptar una petición y terminar el trabajo después. Reintentarla exige decidir **cuánto tiempo puede esperar** y **qué ocurre si el proceso desaparece**. Un bucle en memoria y un trabajo persistido responden a necesidades distintas.
+Un timeout indica que no llegó una respuesta a tiempo. La operación puede haberse completado, así que repetirla exige saber qué ocurrirá si ya se había ejecutado.
 
-## El timeout no dice si la operación terminó
+## Mes 18: el informe está guardado, pero no se sabe
 
-Una API acepta la generación de un informe y un worker lo sube a un almacenamiento externo. La subida puede devolver un timeout. A veces bastan unos segundos para recuperarse; otras veces el proveedor está caído durante minutos. Además, un timeout no confirma si el fichero llegó: pudo guardarse aunque la respuesta no volviera.
+`ReportArchive.save(report)` termina con un timeout. El almacenamiento ha guardado el informe, pero la respuesta se ha perdido. Al reintentar, el adaptador genera un nombre de fichero nuevo y vuelve a subir el contenido. Ahora hay dos copias del mismo informe.
 
-## Reintentos breves dentro del worker
+## La decisión: el mismo informe usa la misma clave
 
-Un fallo transitorio corto admite un número **acotado** de reintentos dentro del worker, con [espera creciente y algo de variación](https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_mitigate_interaction_failure_limit_retries.html) entre intentos. Hace falta un límite total de tiempo: multiplicar los intentos de la API, el worker y el SDK puede convertir tres reintentos por capa en muchas llamadas al proveedor. Un error de credenciales o de formato no se arregla repitiendo la misma llamada.
+El informe se genera una vez, antes de intentar guardarlo. Cada intento conserva su identificador y su contenido. `ObjectStorageArchive` usa ese identificador para construir la clave:
 
-## Cuando el trabajo debe sobrevivir al proceso
+~~~ts
+await storageSdk.putObject({
+  key: `reports/${report.id}.csv`,
+  body: report.content,
+});
+~~~
 
-Si la operación debe continuar tras un reinicio o una caída larga, se guarda en una cola o almacén de tareas duradero **antes** de responder que ha sido aceptada. El worker [confirma el trabajo](https://www.rabbitmq.com/docs/reliability) después de completarlo; si cae antes, puede entregarse de nuevo. La entrega duradera protege el trabajo, pero implica aceptar que el mismo trabajo puede ejecutarse más de una vez.
+En este almacenamiento, escribir sobre una clave existente reemplaza su contenido. Si el primer intento funcionó, el siguiente vuelve a escribir el mismo fichero. Si no llegó a guardarse, lo crea. En ambos casos queda una sola entrada para ese informe.
 
-![Un reintento en memoria se pierde al caer el proceso; un trabajo persistido puede entregarse de nuevo a otro worker, que debe reconocer el mismo identificador](../../images/diseno-de-sistemas/asincronia-reintentos/retries-es.webp)
+Ese guardado es [idempotente](https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/): repetirlo mantiene el mismo resultado. El fichero puede haberse escrito varias veces; no hace falta que el trabajo se ejecute una sola vez para evitar el duplicado.
 
-El informe necesita un `reportId` estable y una clave de almacenamiento derivada de él. Si la primera subida tuvo éxito pero se perdió la respuesta, el siguiente intento debe detectar que es el mismo resultado o sobrescribirlo de forma segura; generar una clave nueva crearía duplicados. La idempotencia debe abarcar también cualquier cambio de estado o notificación posterior: una subida idempotente no protege esos efectos por sí sola.
+En el [Async Chaos Lab](/es/laboratorios/async-chaos-lab/) puedes provocar una confirmación perdida y ver qué ocurre al repetir el trabajo.
 
-## La decisión operativa
+**Lo que cuesta:** conservar el identificador y el contenido entre intentos, y comprobar qué hace el destino al recibir la misma clave. Cambiar el nombre en cada intento vuelve a crear duplicados.
 
-Un reintento duradero añade cola, estado, supervisión y una política para trabajos que agotan sus intentos. Registrar cada intento y su causa ayuda a distinguir una incidencia temporal de uno que requiere intervención. Se justifica cuando perder el trabajo al morir el proceso sería peor que mantener esa infraestructura; para una llamada corta y segura, el reintento acotado en memoria puede ser suficiente.
+**Antes de reintentar, hay que saber qué pasa si la operación ya se completó.**
+
+*Ahora marketing quiere campañas de precio por fechas.*

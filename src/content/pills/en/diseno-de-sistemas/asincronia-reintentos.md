@@ -1,30 +1,38 @@
 ---
 kind: 'pill'
-title: 'Asynchrony and retries'
-subtitle: 'Choose whether an attempt must survive the process'
+title: 'Retries'
+subtitle: 'Repeat the save without creating another file'
 icon: 'retry'
-order: 9
+order: 8
+momentStage: 'async-retries'
 publicationDate: 2026-10-12
 ---
 
-An asynchronous task lets an API accept a request and finish the work later. Retrying it requires deciding **how long it may wait** and **what happens if the process disappears**. An in-memory loop and a persisted job answer different needs.
+A timeout means a response did not arrive in time. The operation may have completed, so retrying it requires knowing what will happen if it already ran.
 
-## A timeout does not reveal whether the operation finished
+## Month 18: the report was saved, but the caller cannot tell
 
-An API accepts a request to generate a report, and a worker uploads it to external storage. The upload may time out. Sometimes a few seconds are enough to recover; at other times the provider is down for minutes. A timeout also does not confirm whether the file arrived: it may have been saved even if the response never returned.
+`ReportArchive.save(report)` ends with a timeout. Storage has saved the report, but the response was lost. On retry, the adapter generates a new filename and uploads the content again. There are now two copies of the same report.
 
-## Brief retries inside the worker
+## The decision: the same report uses the same key
 
-A short transient failure may justify a **bounded** number of attempts inside the worker, with [increasing delays and some variation](https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_mitigate_interaction_failure_limit_retries.html) between attempts. There must also be an overall time limit: multiplying attempts across the API, worker, and SDK can turn three retries per layer into many provider calls. A credentials or format error will not be fixed by repeating the same call.
+The report is generated once, before attempting to save it. Every attempt retains its identifier and content. `ObjectStorageArchive` uses that identifier to build the key:
 
-## When the job must survive the process
+~~~ts
+await storageSdk.putObject({
+  key: `reports/${report.id}.csv`,
+  body: report.content,
+});
+~~~
 
-If the operation must continue after a restart or a long outage, it goes into a durable queue or task store **before** the API responds that it has been accepted. The worker [acknowledges it](https://www.rabbitmq.com/docs/reliability) after completing the work; if it dies first, the job may be delivered again. Durable delivery protects the job, but means accepting that the same job may run more than once.
+In this storage system, writing to an existing key replaces its content. If the first attempt worked, the next one writes the same file again. If it was not saved, the next attempt creates it. Either way, there is a single entry for that report.
 
-![An in-memory retry is lost when its process dies; a persisted job can be delivered again to another worker, which must recognize the same identifier](../../images/diseno-de-sistemas/asincronia-reintentos/retries-en.webp)
+This save operation is [idempotent](https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/): repeating it leaves the same result. The file may have been written several times; the work does not need to run exactly once to avoid the duplicate.
 
-The report needs a stable `reportId` and a storage key derived from it. If the first upload succeeded but the response was lost, the next attempt must recognize the same result or overwrite it safely; generating a new key would create duplicates. Idempotency must also cover later state changes or notifications: an idempotent upload alone does not protect those effects.
+In the [Async Chaos Lab](/en/labs/async-chaos-lab/), you can cause a lost confirmation and see what happens when the work is repeated.
 
-## The operational decision
+**What it costs:** retaining the identifier and content between attempts, and checking what the destination does when it receives the same key. Choosing a new filename on every attempt creates duplicates again.
 
-A durable retry adds a queue, state, monitoring, and a policy for jobs that exhaust their attempts. Recording each attempt and its cause helps distinguish a temporary incident from one that needs intervention. It makes sense when losing the job with the process would be worse than maintaining that infrastructure; for a short, safe call, a bounded in-memory retry may be enough.
+**Before retrying, understand what happens if the operation has already completed.**
+
+*Next, marketing wants date-based price campaigns.*
