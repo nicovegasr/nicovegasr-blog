@@ -137,9 +137,6 @@ export const PILL_ICONS: Readonly<Record<string, PillIconDrawing>> = {
     // Two explicit outcomes, without miniature punctuation inside the symbol.
     body: ['M8 3a3 3 0 0 1 3 3v6h15V8c0-1 1-2 2-1l9 7a2 2 0 0 1 0 3l-9 7c-1 1-2 0-2-1v-5H11v7a3 3 0 0 0 3 3h7v-4c0-1 1-2 2-1l7 5a2 2 0 0 1 0 3l-7 5c-1 1-2 0-2-1v-1h-7a9 9 0 0 1-9-9V6a3 3 0 0 1 3-3Z'],
   },
-  creation: {
-    body: ['m20 3 15 8c1 .5 1 1.5 0 2l-15 8-15-8c-1-.5-1-1.5 0-2ZM4 17l13 7v13L5 30a2 2 0 0 1-1-2Zm19 7 13-7v11a2 2 0 0 1-1 2l-12 7Z'],
-  },
   retry: {
     // Waiting between attempts has a distinct silhouette from the TDD loop.
     body: ['M8 3h24a3 3 0 0 1 0 6H8a3 3 0 0 1 0-6Zm0 28h24a3 3 0 0 1 0 6H8a3 3 0 0 1 0-6Z', 'M10 9h20c0 6-3 8-6 11 3 3 6 5 6 11H10c0-6 3-8 6-11-3-3-6-5-6-11Zm6 4c1 3 2 4 4 5 2-1 3-2 4-5Zm4 11-5 6h10Z'],
