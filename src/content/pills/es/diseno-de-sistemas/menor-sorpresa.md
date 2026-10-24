@@ -4,28 +4,31 @@ title: 'Principio de la menor sorpresa'
 subtitle: 'El comportamiento debe seguir la promesa de la interfaz'
 icon: 'predictable'
 order: 3
+systemMapStage: 'least-surprise'
 publicationDate: 2026-10-12
 ---
 
-El principio de la menor sorpresa pide que una pieza de software se comporte como espera quien conoce su contrato. El nombre importa, pero la promesa también está en los efectos que produce, los errores que devuelve y el momento en que hace cada cosa.
+El principio de la menor sorpresa pide que una pieza se comporte como espera quien conoce su contrato. El nombre importa, pero la promesa también incluye los efectos que produce, los errores que devuelve y el momento en que hace cada cosa.
 
-## Una previsualización que escribe
+## Mes 9: una previsualización que escribe
 
-Una pantalla permite previsualizar la importación de un CSV de productos. Muestra qué filas son válidas y cuáles fallarán antes de que alguien confirme la carga. El método `previewImport(file)` devuelve ese informe, pero también guarda las filas válidas en la base de datos. Abrir la pantalla dos veces modifica el inventario dos veces.
+Negocio quiere revisar un fichero antes de importarlo: qué registros son válidos y cuáles fallarán. Se añade `previewImport(file)`, que reutiliza los lectores y `InventoryRecord`. Devuelve el informe esperado, pero también guarda los registros válidos. Si alguien abre la previsualización dos veces, ese stock se suma dos veces.
 
-El resultado visible parece correcto. La sorpresa está en un efecto lateral que nadie esperaría de una previsualización.
+El informe parece correcto. La sorpresa está en un efecto que nadie espera de una previsualización.
 
-## Dos contratos visibles
-
-La operación que **evalúa** el CSV y la que **confirma** la importación tienen contratos distintos. Ambas pueden compartir el parseo y las reglas de validación, pero solo la segunda escribe. Si los datos o las reglas pueden cambiar entre la vista previa y la confirmación, esta última debe volver a validar antes de guardar: la vista previa informa, no garantiza un resultado futuro.
+## La decisión: dos operaciones, dos contratos
 
 ~~~text
-previewImport(file) → leer + validar → ImportPreview
+previewImport(file) → leer + validar           → ImportPreview
 confirmImport(file) → leer + validar → guardar → ImportResult
 ~~~
 
-El contrato se comprueba desde fuera: previsualizar no cambia el inventario; confirmar sí devuelve el resultado de la escritura. Un error de formato puede aparecer en ambos caminos. Un fallo al guardar solo pertenece al segundo.
+Las dos comparten lectores y reglas; solo la segunda escribe. Si los datos o las reglas pueden cambiar entre la previsualización y la confirmación, `confirmImport` vuelve a validar antes de guardar: la previsualización informa, no garantiza el resultado.
 
-## La promesa también incluye los efectos
+El contrato se comprueba desde fuera: previsualizar no cambia el inventario y confirmar devuelve el resultado de la escritura. Un error de formato puede aparecer en ambos caminos; un fallo al guardar, solo en el segundo.
 
-La separación añade dos entradas públicas, pero elimina una duda peligrosa: quien llama a `previewImport` puede usarla sin investigar efectos ocultos. Si el producto decide que la previsualización reserve stock, debe cambiar el contrato y hacerlo visible, no esconderlo detrás del mismo nombre. Un buen nombre ayuda; la conducta observable es la prueba de que la promesa se cumple.
+**Lo que cuesta:** dos entradas públicas en lugar de una, y la validación se ejecuta dos veces. Si algún día la previsualización tiene que reservar stock, ese efecto debe aparecer en su contrato y en su nombre, no esconderse detrás de `preview`.
+
+**Un buen nombre ayuda, pero la promesa se cumple en la conducta observable: lo que devuelve y lo que cambia.**
+
+*La importación ya no sorprende. Pero en la ejecución nocturna, los últimos registros de un fichero salen con precios calculados con otras reglas que los primeros.*

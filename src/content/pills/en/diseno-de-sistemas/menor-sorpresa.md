@@ -4,28 +4,31 @@ title: 'Principle of least surprise'
 subtitle: 'Behavior should match what the interface promises'
 icon: 'predictable'
 order: 3
+systemMapStage: 'least-surprise'
 publicationDate: 2026-10-12
 ---
 
-The principle of least surprise asks software to behave as someone familiar with its contract would expect. The name matters, but the promise also includes its effects, the errors it returns, and when it does each thing.
+The principle of least surprise asks a piece of software to behave as someone who knows its contract would expect. The name matters, but the promise also includes the effects it produces, the errors it returns, and when it does each thing.
 
-## A preview that writes
+## Month 9: a preview that writes
 
-A screen previews the import of a product CSV. It shows which rows are valid and which will fail before anyone confirms the upload. The `previewImport(file)` method returns that report, but it also saves valid rows to the database. Opening the screen twice changes the inventory twice.
+The business wants to review a file before importing it: which records are valid and which will fail. A new `previewImport(file)` reuses the readers and `InventoryRecord`. It returns the expected report, but it also saves the valid records. If someone opens the preview twice, that stock is added twice.
 
-The visible result looks right. The surprise lies in a side effect that nobody would expect from a preview.
+The report looks right. The surprise is an effect nobody expects from a preview.
 
-## Two visible contracts
-
-The operation that **evaluates** the CSV and the one that **confirms** the import have different contracts. They can share parsing and validation rules, but only the second writes. If data or rules can change between preview and confirmation, confirmation must validate again before saving: a preview informs, but cannot guarantee a future result.
+## The decision: two operations, two contracts
 
 ~~~text
-previewImport(file) → read + validate → ImportPreview
-confirmImport(file) → read + validate → save → ImportResult
+previewImport(file) → read + validate          → ImportPreview
+confirmImport(file) → read + validate → save   → ImportResult
 ~~~
 
-The contract can be checked from the outside: previewing does not change inventory; confirming returns the result of the write. A format error can appear on either path. A failure to save belongs only to the second.
+Both share the readers and the rules; only the second one writes. If the data or the rules can change between the preview and the confirmation, `confirmImport` validates again before saving: the preview informs, it doesn't guarantee the outcome.
 
-## The promise includes effects
+The contract can be checked from the outside: previewing doesn't change the inventory, and confirming returns the result of the write. A format error can show up on both paths; a failure while saving, only on the second.
 
-The separation adds two public entry points, but removes a dangerous doubt: callers can use `previewImport` without investigating hidden effects. If the product decides that previewing should reserve stock, the contract must change and make that effect visible rather than hiding it behind the same name. A good name helps; observable behavior proves the promise is kept.
+**What it costs:** two public entry points instead of one, and validation runs twice. If the preview ever has to reserve stock, that effect must show up in its contract and its name, not hide behind `preview`.
+
+**A good name helps, but the promise is kept in observable behavior: what it returns and what it changes.**
+
+*The import no longer surprises anyone. But in the nightly run, the last records in a file come out priced with different rules than the first ones.*
