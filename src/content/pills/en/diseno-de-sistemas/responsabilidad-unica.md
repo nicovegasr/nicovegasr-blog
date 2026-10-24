@@ -1,39 +1,60 @@
 ---
 kind: 'pill'
 title: 'Single Responsibility Principle (SRP)'
-subtitle: 'one responsibility can cover an entire process'
+subtitle: 'Split by reasons to change, not by steps'
 icon: 'responsibility'
 order: 2
+systemMapStage: 'srp'
 publicationDate: 2026-10-12
 ---
 
-The Single Responsibility Principle (SRP) helps decide which code belongs together according to its [reason to change](https://blog.cleancoder.com/uncle-bob/2014/05/08/SingleReponsibilityPrinciple.html). Counting methods or verbs does not reveal that boundary: a use case can have one responsibility and still need several steps to fulfill it.
+The Single Responsibility Principle (SRP) suggests keeping together code that changes for the same [reason](https://blog.cleancoder.com/uncle-bob/2014/05/08/SingleReponsibilityPrinciple.html) and separating code that changes for different ones. Counting methods or steps doesn't reveal that boundary.
 
-## One operation, several steps
+## Month 8: a new rule for every supplier
 
-An asynchronous process receives a JSON file containing a user's data. Before saving it, the process needs a valid `User`. It must read the file, check its expected shape, and build the user. Are those three responsibilities of the use case?
+Each importer reader translates its supplier's JSON and, along the way, checks that the record is valid: a code is present and the quantity isn't negative. That works until the business decides product codes must be eight characters long. Every reader has to change. One gets missed, and that supplier's six-character codes keep coming in.
 
-`GenerateUserFromFile` is responsible for a complete operation: obtain a valid user or explain why that was impossible. It may coordinate collaborators with different knowledge. The reader interprets JSON; `User.from` checks the user's invariants as it builds one.
+The readers change for two reasons: when a supplier changes its format, and when the inventory rules change.
 
-![GenerateUserFromFile coordinates JsonReader and User.from to obtain a valid User; format, flow, and rules are separate reasons to change](../../images/diseno-de-sistemas/responsabilidad-unica/srp-boundary-en.webp)
-
-In code, the coordination can look like this:
+## The decision: the reader translates, the record decides
 
 ~~~ts
-class GenerateUserFromFile {
-  constructor(private readonly reader: JsonReader) {}
-
-  public execute(file: UserFile): User {
-    const data = this.reader.read(file);
-    return User.from(data);
+class NorthReader implements InventoryReader {
+  read(file: InventoryFile): InventoryRecord[] {
+    return parseJson(file).map((item) =>
+      InventoryRecord.from({ code: item.code, quantity: item.qty }),
+    );
   }
 }
 ~~~
 
-If the JSON cannot be read or data required by `User.from` is missing, no user is built. The outer process decides what to do with the error and when to save the user. Persistence is a separate decision from construction.
+The reader only knows where each field lives in its supplier's JSON. `InventoryRecord.from` applies the rules that make a record valid and rejects it when they aren't met. When a format changes, you touch its reader; when a rule changes, you touch `InventoryRecord`.
 
-## Where to split and where to keep things together
+~~~ts
+class InventoryRecord {
+  private constructor(
+    public readonly code: string,
+    public readonly quantity: number,
+  ) {}
 
-The JSON format and the rules that make a `User` valid can evolve for different reasons. That is a useful boundary if the reader is reused or has complexity of its own. Splitting `read`, `validateFormat`, and `toUser` into classes merely because they are three steps, however, makes the flow harder to follow without isolating a real change.
+  static from(data: { code: string; quantity: number }): InventoryRecord {
+    if (data.code.length !== 8) {
+      throw new Error('Product code must have eight characters');
+    }
+    if (data.quantity < 0) {
+      throw new Error('Quantity must not be negative');
+    }
+    return new InventoryRecord(data.code, data.quantity);
+  }
+}
+~~~
 
-The example uses a `JsonReader` to show that boundary, but an initial implementation can keep reading as a private method if it only serves this flow. A separate creation policy may also make sense when its rules change for a reason of their own; then it must be clear what the policy checks and which invariants `User.from` protects, without duplicating the same rule. **A responsibility is defined by the decision it protects, not by the number of calls it coordinates.**
+## Three steps, one responsibility
+
+Separating doesn't mean one class per step. The reader parses, maps fields and asks `InventoryRecord` to build the record, and it still has a single reason to change: its supplier's format. In this case, splitting it into `JsonParser`, `FieldMapper` and `RecordBuilder` would add pieces without us having identified separate reasons for each to change.
+
+**What it costs:** there is one more piece, and you need to follow the call to `InventoryRecord.from` to find the rules. In return, inventory rules can change without modifying the format-reading logic, even with a single supplier. With several readers, it also avoids repeating those rules.
+
+**A responsibility is recognized by the reason that makes it change, not by the number of steps it coordinates.**
+
+*The importer now reads and validates. Next, the business wants to see what will be imported before confirming it.*

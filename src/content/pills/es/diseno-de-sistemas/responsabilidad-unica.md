@@ -1,39 +1,60 @@
 ---
 kind: 'pill'
 title: 'Principio de responsabilidad única (SRP)'
-subtitle: 'una responsabilidad puede abarcar todo un proceso'
+subtitle: 'Separar por motivos de cambio, no por pasos'
 icon: 'responsibility'
 order: 2
+systemMapStage: 'srp'
 publicationDate: 2026-10-12
 ---
 
-El Principio de Responsabilidad Única (SRP) ayuda a decidir qué código conviene mantener junto según su [motivo de cambio](https://blog.cleancoder.com/uncle-bob/2014/05/08/SingleReponsibilityPrinciple.html). Contar métodos o verbos no revela esa frontera: un caso de uso puede tener una sola responsabilidad y necesitar varios pasos para cumplirla.
+El Principio de Responsabilidad Única (SRP) propone mantener junto el código que cambia por el mismo [motivo](https://blog.cleancoder.com/uncle-bob/2014/05/08/SingleReponsibilityPrinciple.html) y separar el que cambia por motivos distintos. Contar métodos o pasos no revela esa frontera.
 
-## Una operación con varios pasos
+## Mes 8: una regla nueva para todos los proveedores
 
-Un proceso asíncrono recibe un fichero JSON con los datos de un usuario. Antes de guardarlo necesita obtener un `User` válido. Hay que leer el fichero, comprobar si tiene la forma esperada y construir el usuario. ¿Son tres responsabilidades del caso de uso?
+Cada lector del importador traduce el JSON de su proveedor y, de paso, comprueba que el registro es válido: código presente y cantidad no negativa. Funciona hasta que negocio decide que los códigos de producto deben tener ocho caracteres. Hay que cambiar todos los lectores. Se olvida uno, y los códigos de seis caracteres de ese proveedor siguen entrando.
 
-`GenerateUserFromFile` responde por una operación completa: obtener un usuario válido o explicar por qué no se pudo. Puede coordinar colaboradores con conocimientos distintos. El lector interpreta JSON; `User.from` comprueba las invariantes del usuario al construirlo.
+Los lectores cambian por dos motivos: cuando un proveedor modifica su formato y cuando cambian las reglas del inventario.
 
-![GenerateUserFromFile coordina JsonReader y User.from para obtener un User válido; formato, flujo y reglas son motivos de cambio distintos](../../images/diseno-de-sistemas/responsabilidad-unica/srp-boundary-es.webp)
-
-En código, la coordinación puede ser así:
+## La decisión: el lector traduce, el registro decide
 
 ~~~ts
-class GenerateUserFromFile {
-  constructor(private readonly reader: JsonReader) {}
-
-  public execute(file: UserFile): User {
-    const data = this.reader.read(file);
-    return User.from(data);
+class NorthReader implements InventoryReader {
+  read(file: InventoryFile): InventoryRecord[] {
+    return parseJson(file).map((item) =>
+      InventoryRecord.from({ code: item.code, quantity: item.qty }),
+    );
   }
 }
 ~~~
 
-Si el JSON no se puede leer o faltan datos exigidos por `User.from`, no se construye el usuario. El proceso exterior decide qué hacer con ese error y cuándo guardarlo. Esa decisión de persistencia no forma parte de la construcción.
+El lector solo sabe dónde está cada dato en el JSON de su proveedor. `InventoryRecord.from` aplica las reglas que hacen válido un registro y lo rechaza si no se cumplen. Cuando cambia un formato, se toca su lector; cuando cambia una regla, se toca `InventoryRecord`.
 
-## Dónde separar y dónde mantener junto
+~~~ts
+class InventoryRecord {
+  private constructor(
+    public readonly code: string,
+    public readonly quantity: number,
+  ) {}
 
-El formato JSON y las reglas que hacen válido a `User` pueden evolucionar por motivos distintos. Esa es una frontera útil si el lector se reutiliza o tiene complejidad propia. En cambio, separar `read`, `validateFormat` y `toUser` en clases por ser tres pasos obliga a recorrer más piezas sin aislar un cambio real.
+  static from(data: { code: string; quantity: number }): InventoryRecord {
+    if (data.code.length !== 8) {
+      throw new Error('Product code must have eight characters');
+    }
+    if (data.quantity < 0) {
+      throw new Error('Quantity must not be negative');
+    }
+    return new InventoryRecord(data.code, data.quantity);
+  }
+}
+~~~
 
-El ejemplo usa un `JsonReader` para mostrar la frontera, pero una implementación inicial puede mantener la lectura como método privado si solo sirve a este flujo. También puede existir una política de creación separada cuando sus reglas cambian por una razón propia; en ese caso hay que definir qué valida la política y qué invariantes conserva `User.from`, sin duplicar la misma regla en ambos sitios. **Una responsabilidad se reconoce por la decisión que protege, no por el número de llamadas que coordina.**
+## Tres pasos, una responsabilidad
+
+Separar no significa crear una clase por paso. El lector parsea, traduce campos y pide a `InventoryRecord` que construya el registro, y sigue teniendo un único motivo de cambio: el formato de su proveedor. En este caso, dividirlo en `JsonParser`, `FieldMapper` y `RecordBuilder` añadiría piezas sin que hayamos identificado motivos de cambio propios para cada una.
+
+**Lo que cuesta:** hay una pieza más y hay que seguir la llamada a `InventoryRecord.from` para consultar las reglas. A cambio, las reglas del inventario pueden cambiar sin modificar la lectura del formato, incluso con un solo proveedor. Con varios lectores, además, se evita repetirlas.
+
+**Una responsabilidad se reconoce por el motivo que la hace cambiar, no por el número de pasos que coordina.**
+
+*El importador ya lee y valida. Ahora negocio quiere ver qué se va a importar antes de confirmarlo.*

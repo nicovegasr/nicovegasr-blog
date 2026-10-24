@@ -1,56 +1,51 @@
 ---
 kind: 'pill'
 title: 'Keep It Simple, Stupid (KISS)'
-subtitle: 'handle complexity without adding more'
+subtitle: 'Handle complexity without adding more'
 icon: 'simple'
 order: 1
+systemMapStage: 'kiss'
 publicationDate: 2026-10-12
 ---
 
-**Keep things simple.** That is the idea behind KISS (*Keep It Simple, Stupid*). A straightforward problem should only need a straightforward solution. A complex problem needs a design that handles its complexity and lets people work with it.
+**KISS** (*Keep It Simple, Stupid*) asks you to use the simplest solution that actually solves the problem. Simple doesn't mean ignoring its complexity; it means avoiding complexity you don't need.
 
-An interface can help simplify things. A twenty-line function can make your life miserable. The difference becomes clear when you need to understand or change the code.
+Imagine a retail chain that imports inventory from its suppliers. This is the system we'll see grow throughout the series.
 
-## A hundred jobs reading files
+## Month 1: one supplier, one function
 
-Imagine a hundred Spring Batch jobs importing inventory from different suppliers. Files arrive as JSON, XML, and fixed-width text, where each field occupies specific positions. Two fixed-width files can have completely different layouts: sharing a format does not mean they can be read in the same way.
+A single supplier sends its inventory as JSON. One function reads it and returns inventory records. Nothing else is needed.
 
-Some suppliers change their layouts frequently. This week, the product code occupies positions 1 through 12; next week, it occupies positions 1 through 16, shifting the fields that follow.
+## Month 3: another `if`
 
-The code has two difficulties to handle: understanding each layout and maintaining it as it changes. That is **inherent complexity**: it comes with the problem we have agreed to solve.
+More suppliers arrive, each with its own structure. The quick move is to add a branch:
 
-## Where do you change that file's reading logic?
+~~~ts
+if (supplier === 'north') { code = item.code; }
+else if (supplier === 'south') { code = item.product.sku; }
+// ...and one more if for every new supplier
+~~~
 
-An initial solution might copy the reading logic into every job that needs it. This seems convenient: each job has all its code close at hand. But if eight jobs read the same layout and the supplier changes it, you now have eight places to review. You also have eight opportunities to leave a copy using the old positions.
+Each `if` looks like the simple option. The reading logic ends up copied into the cron jobs that import stock, reconcile it and export it.
 
-We can put that logic in one reader and reuse it across the eight jobs. Different layouts get their own readers. All readers provide inventory records through a common interface:
+## Month 6: a supplier renames a field
+
+A supplier switches `code` to `sku`. Two cron jobs get updated; the third keeps looking for `code`, gets `undefined` and loads products with no code. The process finishes without reporting a problem.
+
+The variation between suppliers is **inherent complexity**: it comes with the problem. Duplicating the reading logic across several processes is **added complexity**: we put it there.
+
+## The decision: one reader per format
 
 ~~~ts
 interface InventoryReader {
-  read(file: InventoryFile): Iterable<InventoryRecord>;
+  read(file: InventoryFile): InventoryRecord[];
 }
 ~~~
 
-Each job receives the reader it needs and works with its records. It does not need to know the file positions or choose between every format in the system.
+Each structure has its own reader, and all three cron jobs reuse it. When a supplier changes its format, you touch one reader and its tests.
 
-~~~text
-Job A ─┐
-Job B ─┼→ SupplierStockReader → inventory records
-Job C ─┘
+**What it costs:** one interface and one reader per format. A configurable engine or a plugin system would add more pieces to maintain. That may be worthwhile if you need to onboard formats without deploying.
 
-Job D ──→ WarehouseXmlReader → inventory records
-~~~
+**An `if` can be enough. Here, separate readers make changes simpler: each format is interpreted in one place.**
 
-When the first file's layout changes, you update `SupplierStockReader` and its tests. The jobs still ask for records in the same way. If a field's meaning also changes, you will need to review how processing uses it: an interface cannot make that change disappear.
-
-**Here, the abstraction simplifies maintenance.** Centralizing means keeping each layout's reading logic in one known place, rather than putting all hundred formats into one giant class.
-
-## Complexity we add ourselves
-
-Copies scattered across jobs are **added complexity**: the supplier did not force us to duplicate its format. Nor does it require us to build a plugin system, a ten-class hierarchy, or a configurable engine before we can read the file.
-
-Those mechanisms can make sense when they meet a concrete need. If formats change frequently and must be introduced without deploying code, describing them through configuration may be worthwhile. That configuration will also need to be understood, checked, and maintained; being generic does not automatically make it simpler.
-
-For one small file used by one process, a function may be enough. For a hundred actual layouts, organizing their readers and sharing a contract may be the simplest solution to maintain.
-
-**KISS asks for a design that makes the actual problem easier to solve, with all its complexity, and makes every added mechanism earn its place.**
+*The importer now reads every format well. The problem now is that it does too much.*
