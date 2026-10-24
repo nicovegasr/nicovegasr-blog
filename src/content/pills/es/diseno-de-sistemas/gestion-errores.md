@@ -1,31 +1,59 @@
 ---
 kind: 'pill'
 title: 'Gestión de errores'
-subtitle: 'Dar a cada fallo un lugar y una respuesta explícita'
+subtitle: 'Gestionar cada fallo sin perder sus datos'
 icon: 'error-flow'
-order: 7
+order: 6
+momentStage: 'error-handling'
 publicationDate: 2026-10-12
 ---
 
-Gestionar errores consiste en decidir **qué fallos forman parte del contrato** de una operación y dónde se traducen los fallos de sus dependencias. `Result`, `Either` y `try-catch` ayudan en puntos distintos de esa decisión.
+Gestionar errores implica distinguirlos y tener los datos necesarios para decidir qué hacer con cada uno. Si se capturan para devolver un `null` o continuar como si nada, esa información se pierde por el camino.
 
-## Dos fallos que piden respuestas distintas
+## Mes 13: tres fallos, un solo log
 
-Una persona configura una alerta de inventario. El umbral debe ser positivo y el producto debe existir. La validación puede rechazar la petición de forma normal. Al guardar la alerta, además, la base de datos puede no responder. Si ambos casos se convierten en un `null` o en un `catch` general, quien llama no sabe si debe corregir los datos o esperar a que vuelva el servicio.
+Para crear una alerta de stock se indica un producto y un umbral. El caso de uso valida la entrada, busca el producto y guarda la alerta, con todo dentro de un `try-catch`:
 
-## Hacer explícitos los resultados esperados
-
-`Result<AlertRule, ValidationError>` expresa los dos resultados de validar el umbral y construir la regla. Un `Ok` contiene una regla válida; un `Err` explica qué dato corregir. `Either` representa la misma idea de dos caminos, aunque sus nombres y convenciones varían entre librerías. Comprobar que el producto existe requiere una consulta: «no existe» es un resultado esperado; «no puedo consultar» es un fallo de disponibilidad.
-
-~~~text
-Entrada → validar umbral → Err(ValidationError) → corregir entrada
-          └→ Ok(AlertRule) → buscar producto → no existe → corregir ID
-                                  └→ existe → guardar → alerta creada
-Buscar o guardar → fallo del proveedor → error de disponibilidad
+~~~ts
+try {
+  // validar umbral, buscar producto, guardar alerta
+} catch (error) {
+  logger.error('Error al crear la alerta');
+  return null;
+}
 ~~~
 
-## Traducir el fallo donde se conoce su origen
+El panel recibe `null` y el log dice «Error al crear la alerta». Pero puede haber fallado porque el umbral era negativo, porque el producto no existía o porque la base de datos estaba caída. Son fallos distintos y se ha perdido lo necesario para tratarlos por separado.
 
-El adaptador de persistencia captura las excepciones relevantes del cliente de base de datos y las traduce a un error de disponibilidad que entiende la aplicación. Ahí tiene un lugar concreto `try-catch`; ponerlo alrededor de cada función dispersaría la política de errores. La capa de entrada decide después cómo comunicar el fallo: datos a corregir o servicio temporalmente indisponible. Conviene conservar la causa original en los logs para investigar el incidente, sin exponer detalles del proveedor en la respuesta pública.
+## La decisión: cada error con sus datos
 
-Un [tipo `Result`](https://doc.rust-lang.org/core/result/enum.Result.html) hace visibles sus dos variantes cuando el lenguaje y las herramientas lo apoyan. Su utilidad no depende de convertir **todos** los fallos en valores. La frontera importante es que un dato inválido, un producto inexistente y una dependencia caída no se presenten como el mismo problema.
+El umbral negativo tiene un error propio, con el valor recibido y el producto para el que se intentaba crear la alerta:
+
+~~~ts
+const error = {
+  type: 'invalid-threshold',
+  message: 'Stock alert threshold must not be negative',
+  metadata: { productCode, threshold },
+};
+~~~
+
+Su tipo permite distinguirlo del producto inexistente, y sus metadatos dicen con qué entrada ocurrió. Si lo que falla es la conexión, se conserva la excepción original con su stack y su causa.
+
+El error sigue subiendo hasta donde se decide qué significa hacia el exterior. Allí también se registra, añadiendo el contexto de la operación:
+
+~~~ts
+logger.error(
+  { operation: 'create-alert', requestId, error },
+  'Stock alert creation failed',
+);
+~~~
+
+Ahora el registro permite saber qué falló, para qué producto y en qué petición. El logger debe conservar también el stack y la causa si recibe una excepción. Que un error sea de dominio y se sepa qué responder no lo hace menos útil para observabilidad.
+
+Si una capa captura el fallo para añadir contexto, después lo propaga conservando la causa. Registrarlo y devolver `null` volvería a dejar al resto sin saber qué pasó. El log se escribe una vez al final de ese recorrido, sin repetirlo en cada capa.
+
+**Lo que cuesta:** decidir qué datos necesita cada error. Un mensaje genérico se queda corto; guardar datos sin relación con el fallo añade ruido.
+
+**Cada error por separado, con sus metadatos y sin silenciarlo por el camino.**
+
+*Ahora dirección pide informes de inventario, y algunos tienen que archivarse en dos sitios.*
