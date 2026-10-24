@@ -1,4 +1,4 @@
-// Original 40-unit drawings: solid silhouettes, clipped corners and real cutouts.
+// Original 40-unit drawings: solid silhouettes and real transparent cutouts.
 // Each body path uses evenodd so its holes stay transparent in either theme.
 export interface PillIconDrawing {
   body: readonly string[];
@@ -115,48 +115,41 @@ export const PILL_ICONS: Readonly<Record<string, PillIconDrawing>> = {
     signal: 'M11 12h9v4h-9Z',
   },
   simple: {
-    body: ['M3 4h34v7H3ZM3 17h25v7H3ZM3 30h15v7H3Z'],
-    signal: 'M30 17h7v7h-7Z',
+    body: ['M6 5h28a3 3 0 0 1 0 6H6a3 3 0 0 1 0-6Zm0 12h20a3 3 0 0 1 0 6H6a3 3 0 0 1 0-6Zm0 12h10a3 3 0 0 1 0 6H6a3 3 0 0 1 0-6Z'],
   },
   responsibility: {
-    body: ['M20 1a19 19 0 1 0 0 38 19 19 0 0 0 0-38Zm0 6a13 13 0 1 1 0 26 13 13 0 0 1 0-26Zm0 5a8 8 0 1 0 0 16 8 8 0 0 0 0-16Z'],
-    signal: 'M17 17h6v6h-6Z',
+    body: ['M20 3a17 17 0 1 0 0 34 17 17 0 0 0 0-34Zm0 6a11 11 0 1 1 0 22 11 11 0 0 1 0-22Zm0 6a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z'],
   },
   predictable: {
-    body: ['M2 17h18V9l12 11-12 11v-8H2ZM33 3h6v34h-6Z'],
-    signal: 'M33 15h6v10h-6Z',
+    body: ['M6 16h17v-6c0-2 2-3 3.5-1.5l10 10a2 2 0 0 1 0 3l-10 10C25 33 23 32 23 30v-6H6a4 4 0 0 1 0-8Z'],
   },
   cohesion: {
-    body: ['M2 2h12v12H2ZM26 2h12v12H26ZM2 26h12v12H2ZM26 26h12v12H26Z', 'm11 11 9 5 9-5 3 3-8 6 8 6-3 3-9-5-9 5-3-3 8-6-8-6Z'],
-    signal: 'M16 16h8v8h-8Z',
+    // A magnet: two sides held together by one continuous body.
+    body: ['M5 8a3 3 0 0 1 3-3h3a3 3 0 0 1 3 3v13a6 6 0 0 0 12 0V8a3 3 0 0 1 3-3h3a3 3 0 0 1 3 3v13a15 15 0 0 1-30 0ZM5 13v4h9v-4Zm21 0v4h9v-4Z'],
   },
   coupling: {
-    body: ['M2 4h15v16H2ZM7 9v6h5V9ZM23 20h15v16H23ZM28 25v6h5v-6Z', 'm15 12 13 12-4 4-13-12Z'],
-    signal: 'm17 14 9 8-4 4-9-8Z',
+    body: ['M22 5a10 10 0 0 1 14 14l-7 7-4-4 7-7a4.3 4.3 0 0 0-6-6l-7 7-4-4ZM18 35A10 10 0 0 1 4 21l7-7 4 4-7 7a4.3 4.3 0 0 0 6 6l7-7 4 4Z', 'm12 24 12-12a2.8 2.8 0 0 1 4 4L16 28a2.8 2.8 0 0 1-4-4Z'],
   },
   snapshot: {
-    body: ['M6 2h21l7 7v29H6ZM11 10v4h18v-4Zm0 8v4h18v-4Zm0 8v4h10v-4Z'],
-    signal: 'M25 26h4v7h-4Z',
+    body: ['M8 3h14a3 3 0 0 1 3 3v1H12a5 5 0 0 0-5 5v18H5a3 3 0 0 1-3-3V9a6 6 0 0 1 6-6Z', 'M15 10h12l9 9v15a3 3 0 0 1-3 3H15a3 3 0 0 1-3-3V13a3 3 0 0 1 3-3Zm10 2v9h9Zm-7 14v4h12v-4Z'],
   },
   'error-flow': {
-    body: ['M2 2h6v12h13V8l10 9-10 9v-6H2ZM28 23h6v8h5l-8 8-8-8h5Z'],
-    signal: 'M28 2h6v10h-6Zm0 13h6v5h-6Z',
+    // Two explicit outcomes, without miniature punctuation inside the symbol.
+    body: ['M8 3a3 3 0 0 1 3 3v6h15V8c0-1 1-2 2-1l9 7a2 2 0 0 1 0 3l-9 7c-1 1-2 0-2-1v-5H11v7a3 3 0 0 0 3 3h7v-4c0-1 1-2 2-1l7 5a2 2 0 0 1 0 3l-7 5c-1 1-2 0-2-1v-1h-7a9 9 0 0 1-9-9V6a3 3 0 0 1 3-3Z'],
   },
   creation: {
-    body: ['M2 2h14v13H2ZM6 6v5h6V6ZM24 2h14v13H24ZM28 6v5h6V6ZM6 29h28v10H6ZM11 33v3h18v-3Z', 'M7 15h5v6h16v-6h5v11H7Z'],
-    signal: 'M17 18h6v12h-6Z',
+    body: ['m20 3 15 8c1 .5 1 1.5 0 2l-15 8-15-8c-1-.5-1-1.5 0-2ZM4 17l13 7v13L5 30a2 2 0 0 1-1-2Zm19 7 13-7v11a2 2 0 0 1-1 2l-12 7Z'],
   },
   retry: {
-    body: ['M20 2c6 0 11 3 15 7V2h5v18H22v-5h10C26 5 10 8 8 19c-2 10 10 17 18 11l4 5C16 46-3 33 2 17 4 8 11 2 20 2Z'],
-    signal: 'M17 17h6v12h-6Zm-3 3h12v6H14Z',
+    // Waiting between attempts has a distinct silhouette from the TDD loop.
+    body: ['M8 3h24a3 3 0 0 1 0 6H8a3 3 0 0 1 0-6Zm0 28h24a3 3 0 0 1 0 6H8a3 3 0 0 1 0-6Z', 'M10 9h20c0 6-3 8-6 11 3 3 6 5 6 11H10c0-6 3-8 6-11-3-3-6-5-6-11Zm6 4c1 3 2 4 4 5 2-1 3-2 4-5Zm4 11-5 6h10Z'],
   },
   testable: {
-    body: ['M2 3h29l7 7v23H2ZM7 10v18h26V10ZM9 36h22v4H9Z', 'm10 19 4-4 5 5 9-10 4 4-13 14Z'],
-    signal: 'm10 19 4-4 5 5 9-10 4 4-13 14Z',
+    body: ['M14 3h12a2 2 0 0 1 0 4h-1v9l11 15c2 3 0 6-3 6H7c-3 0-5-3-3-6l11-15V7h-1a2 2 0 0 1 0-4Zm5 4v11l-5 7h12l-5-7V7Zm-8 23v3h18v-3Z'],
   },
   tdd: {
-    body: ['M20 2c6 0 11 3 15 7V2h5v18H22v-5h10C26 5 10 8 8 19c-2 10 10 17 18 11l4 5C16 46-3 33 2 17 4 8 11 2 20 2Z'],
-    signal: 'm12 22 4-4 4 4 8-9 4 4-12 13Z',
+    // The development loop has two opposed arrows, not the retry clock.
+    body: ['M20 4A16 16 0 0 0 4 20h6a10 10 0 0 1 18-6h-5c-2 0-2.5 2-1 3l11 6c1 .5 3-.5 3-2V8c0-2-2-2.5-3-1l-1.5 2A16 16 0 0 0 20 4ZM30 20a10 10 0 0 1-18 6h5c2 0 2.5-2 1-3L7 17c-1-.5-3 .5-3 2v13c0 2 2 2.5 3 1l1.5-2A16 16 0 0 0 36 20Z'],
   },
   observability: {
     body: ['M1 20C10 3 30 3 39 20 30 37 10 37 1 20Zm7 0c7 10 17 10 24 0C25 10 15 10 8 20Zm12-7a7 7 0 1 0 0 14 7 7 0 0 0 0-14Z'],

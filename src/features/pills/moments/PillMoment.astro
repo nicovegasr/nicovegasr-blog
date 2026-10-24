@@ -1,0 +1,125 @@
+---
+import type { Locale } from '@/i18n/locale';
+import type { SystemMapStage } from '../system-map/system-map';
+import { momentFor } from './moments';
+import MomentScene from './MomentScene.astro';
+
+interface Props { locale: Locale; stage: SystemMapStage }
+const { locale, stage } = Astro.props;
+const moment = momentFor(stage, locale);
+const initial = moment?.frames[0];
+const reset = locale === 'es' ? 'Volver a empezar' : 'Start again';
+---
+
+{moment && initial && (
+  <pill-moment data-stage={stage} data-locale={locale} data-frame="0" role="group" aria-label={moment.title} hidden>
+    <div class="moment-heading">
+      <span>{moment.title}</span>
+      <button class="reset" type="button" data-reset aria-label={reset} title={reset}>↺</button>
+    </div>
+    <div class="moment-body">
+      <MomentScene stage={stage} />
+      <div class="moment-copy" role="status" aria-live="polite" aria-atomic="true">
+        <span class="badge" data-badge>{initial.badge}</span>
+        <strong data-detail>{initial.detail}</strong>
+        <span class="previous" data-previous hidden></span>
+        <span class="note" data-note>{initial.note}</span>
+      </div>
+    </div>
+    <div class="actions" data-actions aria-label={moment.title}>
+      {initial.actions.map(action => <button type="button" data-next={action.next}>{action.label}</button>)}
+    </div>
+  </pill-moment>
+)}
+
+<script>
+  import { momentFor } from './moments';
+  import { isSystemMapStage } from '../system-map/system-map';
+
+  class PillMoment extends HTMLElement {
+    connectedCallback() {
+      const stage = this.dataset.stage;
+      if (!stage || !isSystemMapStage(stage)) return;
+      const moment = momentFor(stage, this.dataset.locale === 'en' ? 'en' : 'es');
+      if (!moment) return;
+      this.hidden = false;
+      this.onclick = event => {
+        if (!(event.target instanceof Element)) return;
+        const button = event.target.closest<HTMLButtonElement>('button');
+        if (!button) return;
+        const index = button.hasAttribute('data-reset') ? 0 : Number(button.dataset.next);
+        const frame = moment.frames[index];
+        if (!frame) return;
+        this.dataset.frame = String(index);
+        this.dataset.tone = frame.tone ?? '';
+        const setText = (selector: string, value: string) => {
+          const element = this.querySelector<HTMLElement>(selector);
+          if (element) element.textContent = value;
+        };
+        setText('[data-badge]', frame.badge);
+        setText('[data-detail]', frame.detail);
+        setText('[data-note]', frame.note);
+        const previous = this.querySelector<HTMLElement>('[data-previous]');
+        if (previous) {
+          previous.hidden = !frame.previous;
+          previous.textContent = frame.previous ?? '';
+        }
+        const actions = this.querySelector<HTMLElement>('[data-actions]');
+        if (actions) {
+          actions.replaceChildren(...frame.actions.map(action => {
+            const next = document.createElement('button');
+            next.type = 'button';
+            next.dataset.next = String(action.next);
+            next.textContent = action.label;
+            return next;
+          }));
+        }
+        // Keep keyboard focus inside the interaction when its button is replaced.
+        const nextAction = this.querySelector<HTMLButtonElement>('[data-actions] button');
+        const resetButton = this.querySelector<HTMLButtonElement>('[data-reset]');
+        (button.hasAttribute('data-reset') ? button : nextAction ?? resetButton)?.focus({ preventScroll: true });
+        if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          this.querySelector('.moment-copy')?.animate(
+            [{ opacity: 0.45 }, { opacity: 1 }],
+            { duration: 220, easing: 'ease-out' },
+          );
+        }
+      };
+    }
+  }
+  if (!customElements.get('pill-moment')) customElements.define('pill-moment', PillMoment);
+</script>
+
+<style>
+  pill-moment {
+    display: block;
+    max-width: 30rem;
+    margin-top: var(--space-8);
+    padding: var(--space-4);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-medium);
+    background: var(--color-paper);
+  }
+  pill-moment[hidden] { display: none; }
+  .moment-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-3); }
+  .moment-heading > span { font: 0.6875rem var(--font-family-mono); color: var(--color-text-soft); }
+  button { cursor: pointer; color: var(--color-ink); }
+  button:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 3px; }
+  .reset { border: 0; background: transparent; font-size: 1.25rem; width: 32px; height: 32px; border-radius: 50%; }
+  .reset:hover { background: color-mix(in srgb, var(--color-ink) 5%, transparent); }
+  .moment-body { display: flex; align-items: center; gap: var(--space-3); }
+  .moment-copy { display: grid; gap: 4px; min-width: 0; }
+  .badge { font: 0.6875rem var(--font-family-mono); color: var(--color-text-soft); overflow-wrap: anywhere; }
+  strong { font-size: 0.875rem; font-weight: 600; line-height: 1.4; }
+  .note, .previous { font-size: 0.75rem; line-height: 1.5; color: var(--color-text-soft); }
+  .previous { border-left: 2px solid var(--color-rule); padding-left: 8px; }
+  .previous[hidden] { display: none; }
+  .actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); }
+  .actions:empty { margin: 0; }
+  .actions { justify-content: flex-end; }
+  /* Client-created buttons need the same styles as the initial server markup. */
+  .actions :global(button) { font: inherit; font-size: 0.75rem; line-height: 1.4; padding: 9px 12px; border: 1px solid var(--color-rule); border-radius: var(--radius-small); background: transparent; color: var(--color-ink); cursor: pointer; min-height: 36px; }
+  .actions :global(button:first-child) { background: var(--color-accent); color: var(--color-accent-ink); border-color: var(--color-accent-ink); }
+  .actions :global(button:hover) { border-color: var(--color-ink); }
+  .actions :global(button:focus-visible) { outline: 2px solid var(--color-ink); outline-offset: 3px; }
+</style>

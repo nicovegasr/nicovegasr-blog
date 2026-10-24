@@ -7,7 +7,7 @@ import { findNextPillSeries, findRenderablePill } from '@/features/pills/pill-re
 import { buildPagePath, buildPillPath } from '@/i18n/routes';
 import PillIcon from './PillIcon.astro';
 import ReadingTime from '@/shared/reading-time/ReadingTime.astro';
-import SystemMap from '@/features/pills/system-map/SystemMap.astro';
+import PillMoment from '@/features/pills/moments/PillMoment.astro';
 
 interface Props {
   locale: Locale;
@@ -109,7 +109,7 @@ const Content = rendered?.Content;
           <p class="chapter-subtitle">{selected.subtitle}</p>
         </header>
         <div class="chapter-body prose"><Content /></div>
-        {selected.systemMapStage && <SystemMap locale={locale} stage={selected.systemMapStage} />}
+        {selected.systemMapStage && <PillMoment locale={locale} stage={selected.systemMapStage} />}
         <footer class="page-footer">
           <span class="folio">{selected.number} <span>/ {String(pills.length).padStart(2, '0')}</span></span>
           <nav class="chapter-pagination" aria-label={translate('pills.reader.paginationLabel')}>
@@ -271,6 +271,7 @@ const Content = rendered?.Content;
     border-radius: var(--radius-small);
   }
   .station {
+    --pill-icon-signal: currentColor;
     width: var(--station-size);
     height: var(--station-size);
     border: 1px solid var(--color-rule);

@@ -1,0 +1,106 @@
+---
+import type { SystemMapStage } from '../system-map/system-map';
+interface Props { stage: SystemMapStage }
+const { stage } = Astro.props;
+---
+
+<svg class="scene" viewBox="0 0 120 108" aria-hidden="true" focusable="false">
+  {stage === 'cohesion' && <>
+    <path class="ground" d="M8 94h104" />
+    <g class="catalog-item">
+      <rect class="paper" x="20" y="10" width="80" height="74" rx="6" />
+      <path class="mug" d="M38 29h31v23c0 9-5 13-15 13s-16-4-16-13ZM69 34h5a9 9 0 0 1 0 18h-5" />
+      <path class="steam" d="M48 22v-6m10 6v-6" />
+      <path class="shelf" d="M30 73h60" />
+    </g>
+    <g class="stock"><circle cx="46" cy="94" r="4" /><circle cx="60" cy="94" r="4" /><circle cx="74" cy="94" r="4" /></g>
+    <g class="done"><circle class="accent" cx="88" cy="29" r="12" /><path d="m82 29 4 4 8-9" /></g>
+  </>}
+  {stage === 'immutability' && <>
+    <g class="old-file">
+      <rect class="paper" x="22" y="12" width="60" height="78" rx="4" />
+      <path class="lines" d="M33 29h26m-26 9h36M33 47h17" />
+      <circle cx="53" cy="68" r="10" /><path d="M53 61v8m0 4v1" />
+    </g>
+    <g class="new-file">
+      <rect class="paper" x="46" y="23" width="60" height="78" rx="4" />
+      <path class="lines" d="M57 40h26m-26 9h36M57 58h17" />
+      <circle class="accent" cx="77" cy="79" r="11" /><path d="m71 79 4 4 8-9" />
+    </g>
+  </>}
+  {stage === 'kiss' && <>
+    <g class="north-ticket"><path class="paper" d="M9 9h39v33H9Z" /><path d="m16 32 0-13 12 13V19" /><path class="lines" d="M35 20h6m-6 7h6m-6 7h6" /></g>
+    <g class="south-ticket"><path class="paper" d="M9 57h39v33H9Z" /><path d="M28 66H17v7h11v8H17" /><path class="lines" d="M35 66h6m-6 7h6m-6 7h6" /></g>
+    <path class="route" d="M48 25h9q7 0 7 13v24q0 13 7 13h5M48 74h9" />
+    <g class="receipt"><path class="paper" d="M76 40h34v53l-5-3-6 3-6-3-6 3-6-3-5 3Z" /><path class="lines" d="M83 50h20m-20 7h13m-13 7h20" /><path class="receipt-check" d="m83 77 5 5 13-13" /></g>
+  </>}
+  {stage === 'srp' && <>
+    <g class="tags">
+      <path class="paper" d="M10 17h70l15 17-15 17H10ZM10 62h70l15 17-15 17H10Z" />
+      <circle cx="78" cy="34" r="3" /><circle cx="78" cy="79" r="3" />
+      <path class="lines" d="M21 29h44m-44 9h30M21 74h44m-44 9h30" />
+    </g>
+    <g class="rule-stamp"><circle class="accent" cx="94" cy="55" r="20" /><text x="94" y="63" text-anchor="middle">8</text></g>
+    <g class="rejected"><path d="m56 25 14 14m0-14L56 39m0 31 14 14m0-14L56 84" /></g>
+  </>}
+  {stage === 'coupling' && <>
+    <path class="route" d="M60 43v12M25 72V55h70v17" />
+    <g class="cloud"><path class="paper" d="M12 97a11 11 0 0 1-1-22 15 15 0 0 1 28-2 12 12 0 0 1 0 24Z" /></g>
+    <g class="folder"><path class="paper" d="M76 76v-7h15l5 7h15v23H76Z" /><path d="M76 81h35" /></g>
+    <g class="traveling-file"><path class="paper" d="M46 8h20l9 9v26H46Z" /><path d="M66 8v10h9M52 25h16m-16 6h16" /></g>
+  </>}
+  {stage === 'async-retries' && <>
+    <path class="route" d="M26 60V21h21m27 0h24v39" />
+    <g class="archive-file"><rect class="paper" x="44" y="10" width="32" height="47" rx="3" /><path d="M51 21h18m-18 7h18" /><text x="60" y="44" text-anchor="middle">042</text></g>
+    <path class="tray paper" d="m15 70 9-14h15l6 9h30l6-9h15l9 14v26H15Z" /><path d="M15 73h90" />
+    <g class="lost-reply"><circle class="paper" cx="97" cy="24" r="12" /><path d="m92 19 10 10m0-10L92 29" /></g>
+    <g class="received"><circle class="accent" cx="97" cy="24" r="12" /><path d="m91 24 4 4 8-9" /></g>
+  </>}
+</svg>
+
+<style>
+  .scene { width: 112px; height: 104px; flex-shrink: 0; fill: none; stroke: var(--color-ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
+  .paper { fill: var(--color-paper); }
+  .accent, .stock circle { fill: var(--color-accent); }
+  .mug { fill: color-mix(in srgb, var(--color-accent) 25%, var(--color-paper)); }
+  .ground, .shelf, .lines, .steam { stroke: var(--color-text-muted); }
+  .route { stroke: var(--color-text-muted); stroke-dasharray: 2 4; }
+  text { fill: var(--color-ink); stroke: none; font-family: var(--font-family-mono); font-size: 10px; }
+  .rule-stamp text { font-size: 24px; font-weight: 600; }
+  .scene g { transform-box: fill-box; transform-origin: center; transition: transform 400ms var(--motion-easing), opacity 300ms ease; }
+  .done, .new-file, .rule-stamp, .rejected, .lost-reply, .received { opacity: 0; }
+  .done { transform: scale(0.5) rotate(-20deg); }
+  .stock circle { transition: opacity 250ms ease, transform 400ms ease; }
+  .stock circle:nth-child(2) { transition-delay: 70ms; }
+  .stock circle:nth-child(3) { transition-delay: 140ms; }
+  :global(pill-moment[data-stage='cohesion'][data-frame='1']) .catalog-item { animation: nudge 300ms ease; }
+  :global(pill-moment[data-stage='cohesion']:is([data-frame='2'], [data-frame='3'])) .stock circle { opacity: 0; transform: translateY(8px); }
+  :global(pill-moment[data-stage='cohesion'][data-frame='3']) .catalog-item { transform: translateY(6px) rotate(-4deg); opacity: 0.35; }
+  :global(pill-moment[data-stage='cohesion'][data-frame='3']) .done { opacity: 1; transform: scale(1) rotate(0); }
+  .old-file { transform: rotate(-7deg); }
+  .new-file { transform: translate(-18px, -6px) rotate(-7deg); }
+  :global(pill-moment[data-stage='immutability'][data-frame='1']) .old-file { transform: translateX(-10px) rotate(-12deg); opacity: 0.45; }
+  :global(pill-moment[data-stage='immutability'][data-frame='1']) .new-file { transform: translate(0) rotate(4deg); opacity: 1; }
+  .receipt { opacity: 0.3; }
+  .receipt-check { stroke-dasharray: 28; stroke-dashoffset: 28; transition: stroke-dashoffset 350ms ease; }
+  :global(pill-moment[data-stage='kiss']:not([data-frame='0'])) .receipt { opacity: 1; }
+  :global(pill-moment[data-stage='kiss']:not([data-frame='0'])) .receipt-check { stroke-dashoffset: 0; }
+  :global(pill-moment[data-stage='kiss'][data-frame='1']) .north-ticket .paper,
+  :global(pill-moment[data-stage='kiss'][data-frame='2']) .south-ticket .paper { fill: var(--color-accent); }
+  :global(pill-moment[data-stage='kiss'][data-frame='1']) .south-ticket,
+  :global(pill-moment[data-stage='kiss'][data-frame='2']) .north-ticket { opacity: 0.3; }
+  .rule-stamp { transform: rotate(-25deg) scale(1.4); }
+  :global(pill-moment[data-stage='srp'][data-frame='1']) .rule-stamp { opacity: 1; transform: rotate(8deg) scale(1); }
+  :global(pill-moment[data-stage='srp'][data-frame='1']) .rejected { opacity: 1; transition-delay: 180ms; }
+  :global(pill-moment[data-stage='coupling'][data-frame='1']) .traveling-file { transform: translate(-34px, 32px) rotate(-8deg); }
+  :global(pill-moment[data-stage='coupling'][data-frame='2']) .traveling-file { transform: translate(32px, 32px) rotate(8deg); }
+  :global(pill-moment[data-stage='coupling'][data-frame='1']) .cloud .paper,
+  :global(pill-moment[data-stage='coupling'][data-frame='2']) .folder .paper { fill: var(--color-accent); }
+  :global(pill-moment[data-stage='async-retries']:not([data-frame='0'])) .archive-file { transform: translateY(24px); }
+  :global(pill-moment[data-stage='async-retries'][data-frame='1']) .lost-reply,
+  :global(pill-moment[data-stage='async-retries'][data-frame='2']) .received { opacity: 1; }
+  :global(pill-moment[data-stage='async-retries'][data-frame='2']) .tray { fill: color-mix(in srgb, var(--color-accent) 20%, var(--color-paper)); }
+  @keyframes nudge { 25% { transform: translateX(-3px) rotate(-2deg); } 75% { transform: translateX(3px) rotate(2deg); } }
+  @media (prefers-reduced-motion: reduce) { .scene g, .stock circle, .receipt-check { transition: none; animation: none !important; } }
+  @media (max-width: 480px) { .scene { width: 88px; height: 88px; } }
+</style>
