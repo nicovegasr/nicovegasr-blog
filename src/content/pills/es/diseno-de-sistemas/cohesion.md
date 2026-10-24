@@ -3,32 +3,60 @@ kind: 'pill'
 title: 'Cohesión'
 subtitle: 'Que el código reúna las decisiones que le pertenecen'
 icon: 'cohesion'
-order: 4
+order: 5
+systemMapStage: 'cohesion'
 publicationDate: 2026-10-12
 ---
 
-La cohesión indica si las decisiones de una pieza pertenecen al mismo propósito. Cuando una regla y los datos que gobierna quedan lejos, entender un cambio exige recorrer el sistema; cuando todo se amontona en una sola clase, también.
+La cohesión indica si las decisiones de una pieza pertenecen al mismo propósito. Cuando una regla queda lejos de los datos que gobierna, entender un cambio exige recorrer el sistema; cuando todo se amontona en una sola clase, también.
 
-## La regla está fuera del usuario
+## Mes 12: dos sitios que descatalogan
 
-Para dar de baja a un usuario sin borrar su historial, un servicio consulta `user.status.value`, comprueba si ya está de baja y escribe `user.deletedAt.value`. Otro proceso hace la misma comprobación con una condición ligeramente distinta. Ahora hay dos lugares que deciden cuándo puede producirse la baja, y el `User` es poco más que un contenedor de propiedades.
+Un producto solo puede descatalogarse si no quedan unidades en stock, tanto desde el proceso automático como desde el panel de administración.
 
-## Mover la transición a quien la conoce
+Si un proveedor deja de enviar un producto durante varias importaciones, el cron job de conciliación comprueba su estado y su stock antes de marcarlo como descatalogado y registrar la fecha. El servicio del panel repite esa lógica, pero olvida comprobar el stock: permite descatalogar un producto del que aún quedan unidades. La misma regla está implementada en dos sitios y ya no se cumple en ambos. `Product` es poco más que un contenedor de campos.
 
-`User` puede hacerse cargo de la transición con `user.markForRemoval(now)`. El método comprueba si la baja es válida y actualiza su estado en una operación. El caso de uso coordina la carga y el guardado; el modelo decide cómo cambia un usuario. Así, otro flujo que quiera darlo de baja no necesita reconstruir la misma condición.
+## La decisión: mover la regla a quien la conoce
 
-~~~text
-RemoveUser → cargar User → user.markForRemoval(now) → guardar User
-                         └→ regla de baja y cambio de estado
+`Product` reúne los datos y la regla de descatalogación en `product.discontinue(now)`. Este método comprueba el stock y devuelve un nuevo producto con el estado y la fecha de descatalogación, sin modificar el original:
+
+~~~ts
+class Product {
+  private constructor(
+    readonly code: string,
+    readonly stock: number,
+    readonly status: 'active' | 'discontinued',
+    readonly discontinuedAt?: Date,
+  ) {}
+
+  discontinue(now: Date): Product {
+    if (this.stock > 0) {
+      throw new Error('Cannot discontinue a product with stock remaining');
+    }
+
+    return new Product(
+      this.code,
+      this.stock,
+      'discontinued',
+      this.discontinuedAt ?? now,
+    );
+  }
+}
 ~~~
 
-## Señales para revisar la frontera
+Los casos de uso cargan el producto y guardan la nueva versión que devuelve `discontinue`. Si ya estaba descatalogado, conserva la fecha original. Si quedan unidades, rechaza la transición. El producto original permanece intacto en todos los casos.
 
-Varias ideas ayudan a detectar si la regla está en el lugar adecuado:
+~~~ts
+const discontinued = product.discontinue(now);
+await products.save(discontinued);
+~~~
 
-- **Carga cognitiva:** ¿se puede seguir la operación sin retener demasiados pasos y efectos ocultos? La meta es que una persona pueda reconstruir la transición leyendo pocas piezas relacionadas.
-- **Naming:** ¿`markForRemoval` describe la transición del producto mejor que `setDeletedAt`? Un nombre de dominio permite leer la intención sin descifrar campos.
-- **Ley de Demeter:** ¿el caso de uso habla con `User` o atraviesa sus propiedades para decidir por él? Una cadena de accesos puede indicar que conoce detalles que pertenecen al modelo.
-- **Tell, don't ask:** ¿se le pide al usuario que haga la transición o se extraen sus datos para implementarla fuera? [Mover el comportamiento junto a los datos que gobierna](https://martinfowler.com/bliki/TellDontAsk.html) evita que el modelo sea anémico.
+El cron job sigue decidiendo cuándo solicitar la descatalogación según las importaciones recibidas; el panel lo hace a petición del administrador. Los motivos para solicitarla son distintos, pero ambos deben respetar la misma condición de stock. Esa condición pertenece a `Product`.
 
-Estas señales no obligan a meter toda la lógica en entidades. El acceso a datos, la coordinación entre componentes y una transformación sin reglas de dominio pueden vivir fuera. La pregunta decisiva es qué pieza debe cambiar cuando cambie la regla de baja. Si hay que modificar varios servicios para preservar la misma invariante, la cohesión sigue siendo débil.
+Dos señales ayudan a ver la frontera. Un nombre de dominio, `discontinue`, cuenta la intención mejor que `setDiscontinuedAt`. Y un caso de uso que atraviesa las propiedades del producto para decidir por él suele indicar que la regla está fuera de sitio: [mejor pedirle que haga la transición](https://martinfowler.com/bliki/TellDontAsk.html) que extraer sus datos para implementarla fuera.
+
+**Lo que cuesta:** los servicios deben usar y guardar la versión que devuelve esta operación, y hay que acudir a `Product` para consultar su regla. El acceso a datos y la coordinación entre componentes siguen fuera; reunir la regla y los datos que protege no implica meter todo el proceso en la entidad.
+
+**Aquí, mejorar la cohesión consiste en reunir la condición de stock y el cambio de estado que debe respetarla.**
+
+*Ahora negocio quiere alertas cuando el stock de un producto baje de un umbral.*
