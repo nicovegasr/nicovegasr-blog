@@ -4,7 +4,7 @@ title: 'Single Responsibility Principle (SRP)'
 subtitle: 'Split by reasons to change, not by steps'
 icon: 'responsibility'
 order: 2
-systemMapStage: 'srp'
+momentStage: 'srp'
 publicationDate: 2026-10-12
 ---
 

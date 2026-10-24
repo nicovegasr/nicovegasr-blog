@@ -51,7 +51,7 @@ const toPill = (entry: PillItemEntry): Pill | null => {
     subtitle: entry.data.subtitle,
     icon: entry.data.icon,
     order: entry.data.order,
-    systemMapStage: entry.data.systemMapStage,
+    momentStage: entry.data.momentStage,
     publicationDate: entry.data.publicationDate,
     lastUpdateDate: entry.data.lastUpdateDate,
   };

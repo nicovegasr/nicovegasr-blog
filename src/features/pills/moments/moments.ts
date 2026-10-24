@@ -1,5 +1,5 @@
 import type { Locale } from '@/i18n/locale';
-import type { SystemMapStage } from '../system-map/system-map';
+import type { MomentStage } from './moment-stage';
 
 type Action = { readonly label: string; readonly next: number };
 export type MomentFrame = {
@@ -16,7 +16,7 @@ export type Moment = {
 };
 
 // Small, local scenarios. Nothing is uploaded or saved outside this card.
-export function momentFor(stage: SystemMapStage, locale: Locale): Moment | undefined {
+export function momentFor(stage: MomentStage, locale: Locale): Moment | undefined {
   const t = (es: string, en: string) => locale === 'es' ? es : en;
   switch (stage) {
     case 'kiss':

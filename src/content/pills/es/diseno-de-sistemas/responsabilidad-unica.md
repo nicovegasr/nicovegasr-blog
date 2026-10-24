@@ -4,7 +4,7 @@ title: 'Principio de responsabilidad única (SRP)'
 subtitle: 'Separar por motivos de cambio, no por pasos'
 icon: 'responsibility'
 order: 2
-systemMapStage: 'srp'
+momentStage: 'srp'
 publicationDate: 2026-10-12
 ---
 

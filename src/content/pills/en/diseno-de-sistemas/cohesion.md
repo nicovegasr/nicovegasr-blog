@@ -4,7 +4,7 @@ title: 'Cohesion'
 subtitle: 'Keep related decisions where they belong'
 icon: 'cohesion'
 order: 5
-systemMapStage: 'cohesion'
+momentStage: 'cohesion'
 publicationDate: 2026-10-12
 ---
 

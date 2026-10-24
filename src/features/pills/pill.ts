@@ -1,5 +1,5 @@
 import type { Locale } from '@/i18n/locale';
-import type { SystemMapStage } from '@/features/pills/system-map/system-map';
+import type { MomentStage } from '@/features/pills/moments/moment-stage';
 
 export type Pill = {
   readonly series: string;
@@ -9,7 +9,7 @@ export type Pill = {
   readonly subtitle: string;
   readonly icon: string;
   readonly order: number;
-  readonly systemMapStage: SystemMapStage | undefined;
+  readonly momentStage: MomentStage | undefined;
   readonly publicationDate: Date;
   readonly lastUpdateDate: Date | undefined;
 };

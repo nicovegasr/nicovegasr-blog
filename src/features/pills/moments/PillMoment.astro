@@ -1,10 +1,10 @@
 ---
 import type { Locale } from '@/i18n/locale';
-import type { SystemMapStage } from '../system-map/system-map';
+import type { MomentStage } from './moment-stage';
 import { momentFor } from './moments';
 import MomentScene from './MomentScene.astro';
 
-interface Props { locale: Locale; stage: SystemMapStage }
+interface Props { locale: Locale; stage: MomentStage }
 const { locale, stage } = Astro.props;
 const moment = momentFor(stage, locale);
 const initial = moment?.frames[0];
@@ -34,12 +34,12 @@ const reset = locale === 'es' ? 'Volver a empezar' : 'Start again';
 
 <script>
   import { momentFor } from './moments';
-  import { isSystemMapStage } from '../system-map/system-map';
+  import { isMomentStage } from './moment-stage';
 
   class PillMoment extends HTMLElement {
     connectedCallback() {
       const stage = this.dataset.stage;
-      if (!stage || !isSystemMapStage(stage)) return;
+      if (!stage || !isMomentStage(stage)) return;
       const moment = momentFor(stage, this.dataset.locale === 'en' ? 'en' : 'es');
       if (!moment) return;
       this.hidden = false;

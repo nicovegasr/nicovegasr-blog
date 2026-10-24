@@ -109,7 +109,7 @@ const Content = rendered?.Content;
           <p class="chapter-subtitle">{selected.subtitle}</p>
         </header>
         <div class="chapter-body prose"><Content /></div>
-        {selected.systemMapStage && <PillMoment locale={locale} stage={selected.systemMapStage} />}
+        {selected.momentStage && <PillMoment locale={locale} stage={selected.momentStage} />}
         <footer class="page-footer">
           <span class="folio">{selected.number} <span>/ {String(pills.length).padStart(2, '0')}</span></span>
           <nav class="chapter-pagination" aria-label={translate('pills.reader.paginationLabel')}>
