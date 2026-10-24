@@ -1,30 +1,61 @@
 ---
 kind: 'pill'
 title: 'Acoplamiento'
-subtitle: 'Elegir de qué detalles depende cada pieza'
+subtitle: 'Separar el uso de una dependencia de sus detalles'
 icon: 'coupling'
-order: 5
+order: 7
+momentStage: 'coupling'
 publicationDate: 2026-10-12
 ---
 
-El acoplamiento describe cuánto necesita saber una pieza de otra para funcionar o cambiar. Una aplicación siempre tendrá dependencias: la decisión de diseño es **a qué se acopla** y qué coste tendrá mover esa frontera.
+Cuando una pieza conoce detalles de otra, cambiar esos detalles puede obligar a modificar ambas. En el generador de informes, el acoplamiento se ve en cuánto necesita saber sobre el almacenamiento para guardar un fichero.
 
-## Cuando el caso de uso conoce al proveedor
+## Mes 16: guardar el informe también depende del caso de uso
 
-Un proceso genera informes de inventario y los archiva. `GenerateInventoryReport` calcula el contenido, construye la ruta del proveedor y llama directamente a `storageSdk.putObject(...)`. Al añadir un segundo destino para ciertos informes, el caso de uso acaba eligiendo credenciales, rutas y clientes. Cambiar cómo se archiva un informe obliga a tocar el código que decide qué contiene.
+El caso de uso genera un informe de inventario y lo sube con el SDK del almacenamiento:
 
-## Poner nombre a la capacidad
-
-El caso de uso mantiene la decisión «este informe debe archivarse». Un puerto expresa esa intención con `ReportArchive.save(report)`: una implementación usa el almacenamiento de objetos y otra, el nuevo destino. Cada adaptador traduce el contrato al proveedor que le corresponde. Si el destino varía por tipo de informe, una política de enrutamiento recibe ese dato y elige entre adaptadores configurados; las credenciales y los nombres de proveedor no pasan al caso de uso.
-
-~~~text
-GenerateInventoryReport → ReportArchive.save(report)
-                           ├→ ObjectStorageArchive → SDK
-                           └→ OtherArchive         → otro destino
+~~~ts
+const report = generateInventoryReport(records);
+await storageSdk.putObject({
+  key: `reports/${crypto.randomUUID()}.csv`,
+  body: report.content,
+});
 ~~~
 
-La [arquitectura de puertos y adaptadores](https://alistair.cockburn.us/hexagonal-architecture) da nombre a esta frontera. El informe y la necesidad de archivarlo son parte del problema; la ruta, las credenciales y los tipos del SDK son detalles de integración. El puerto evita que esos detalles dicten cómo se expresa el caso de uso. Si falla el guardado, el adaptador también debe traducir el error del SDK a uno que permita decidir si el trabajo se reintenta o se marca como fallido.
+Ahora una instalación necesita guardar los informes en disco. Para hacerlo, hay que entrar en ese mismo caso de uso y añadir rutas locales y llamadas al sistema de ficheros. La generación del informe no ha cambiado, pero su código también conoce cómo se guarda en cada destino.
 
-## El coste de esa frontera
+## La decisión: pedir que se guarde el informe
 
-La abstracción cuesta: hay un contrato, adaptadores y una decisión de composición que mantener. Si solo hay una llamada estable al SDK y no existe una frontera útil que proteger, envolver cada método en una interfaz idéntica añade pasos sin desacoplar decisiones. Conviene extraer el puerto cuando puede nombrarse una capacidad de la aplicación y mantener fuera detalles que cambian por otro motivo.
+El caso de uso recibe un `ReportArchive`. Su contrato expresa lo que necesita: guardar el informe completo.
+
+~~~ts
+interface ReportArchive {
+  save(report: InventoryReport): Promise<void>;
+}
+
+const report = generateInventoryReport(records);
+await archive.save(report);
+~~~
+
+La llamada al SDK y la construcción de su clave pasan a `ObjectStorageArchive`:
+
+~~~ts
+class ObjectStorageArchive implements ReportArchive {
+  async save(report: InventoryReport): Promise<void> {
+    await storageSdk.putObject({
+      key: `reports/${crypto.randomUUID()}.csv`,
+      body: report.content,
+    });
+  }
+}
+~~~
+
+Otra implementación puede guardar en disco. La configuración de la aplicación elige cuál recibe el caso de uso. Cambiar de destino sigue exigiendo trabajo, pero ese cambio ya no obliga a modificar la generación del informe.
+
+El caso de uso sigue acoplado a `ReportArchive`: necesita que `save` guarde el informe o comunique el fallo. Lo que deja de conocer son los métodos del SDK, sus parámetros y las rutas de cada destino.
+
+**Lo que cuesta:** mantener el contrato, sus implementaciones y la configuración que las conecta. Si solo hay una llamada estable al SDK y no hay una necesidad de separar esos cambios, añadir una interfaz puede no compensar.
+
+**El cambio de almacenamiento queda separado del cambio en el contenido del informe.**
+
+*El informe se ha guardado, pero la respuesta no llega.*

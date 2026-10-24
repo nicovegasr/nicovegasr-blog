@@ -1,30 +1,61 @@
 ---
 kind: 'pill'
 title: 'Coupling'
-subtitle: 'Choose which details each piece depends on'
+subtitle: 'Separate using a dependency from knowing its details'
 icon: 'coupling'
-order: 5
+order: 7
+momentStage: 'coupling'
 publicationDate: 2026-10-12
 ---
 
-Coupling describes how much one piece needs to know about another to work or change. An application will always have dependencies: the design decision is **what it depends on** and what moving that boundary will cost.
+When one piece knows the details of another, changing those details can mean modifying both. In the report generator, coupling shows up in how much it needs to know about storage to save a file.
 
-## When the use case knows the provider
+## Month 16: the use case also knows how to save the report
 
-A process generates inventory reports and archives them. `GenerateInventoryReport` calculates the content, builds a provider-specific path, and calls `storageSdk.putObject(...)` directly. When a second destination is added for some reports, the use case starts choosing credentials, paths, and clients. Changing how a report is archived now means touching the code that decides what it contains.
+The use case generates an inventory report and uploads it through the storage SDK:
 
-## Name the capability
-
-The use case keeps the decision “this report must be archived.” A port expresses that intent as `ReportArchive.save(report)`: one implementation uses object storage, and another uses the new destination. Each adapter translates the contract to its provider. If the destination varies by report type, a routing policy uses that information to choose among configured adapters; credentials and provider names do not enter the use case.
-
-~~~text
-GenerateInventoryReport → ReportArchive.save(report)
-                           ├→ ObjectStorageArchive → SDK
-                           └→ OtherArchive         → other destination
+~~~ts
+const report = generateInventoryReport(records);
+await storageSdk.putObject({
+  key: `reports/${crypto.randomUUID()}.csv`,
+  body: report.content,
+});
 ~~~
 
-[Ports and adapters architecture](https://alistair.cockburn.us/hexagonal-architecture) gives this boundary a name. The report and the need to archive it belong to the problem; paths, credentials, and SDK types are integration details. The port keeps those details from dictating how the use case is expressed. If saving fails, the adapter should also translate the SDK error into one that lets the application decide whether to retry the job or mark it as failed.
+Now one installation needs to save reports to disk. Doing that means opening the same use case and adding local paths and filesystem calls. Report generation has not changed, but its code also knows how each destination stores the file.
 
-## The cost of that boundary
+## The decision: ask for the report to be saved
 
-The abstraction has a cost: a contract, adapters, and a composition decision to maintain. If there is only one stable SDK call and no useful boundary to protect, wrapping every method in an identical interface adds steps without decoupling decisions. Extract a port when it can name an application capability and keep out details that change for another reason.
+The use case receives a `ReportArchive`. Its contract expresses what it needs: save the complete report.
+
+~~~ts
+interface ReportArchive {
+  save(report: InventoryReport): Promise<void>;
+}
+
+const report = generateInventoryReport(records);
+await archive.save(report);
+~~~
+
+The SDK call and the construction of its key move into `ObjectStorageArchive`:
+
+~~~ts
+class ObjectStorageArchive implements ReportArchive {
+  async save(report: InventoryReport): Promise<void> {
+    await storageSdk.putObject({
+      key: `reports/${crypto.randomUUID()}.csv`,
+      body: report.content,
+    });
+  }
+}
+~~~
+
+Another implementation can save to disk. Application configuration chooses which one the use case receives. Changing the destination still takes work, but that change no longer requires modifying report generation.
+
+The use case remains coupled to `ReportArchive`: it needs `save` to store the report or communicate the failure. What it no longer knows are the SDK methods, their parameters and the paths for each destination.
+
+**What it costs:** maintaining the contract, its implementations and the configuration connecting them. With a single stable SDK call and no need to separate those changes, adding an interface may not pay off.
+
+**Storage changes are separated from changes to the report content.**
+
+*The report has been saved, but the response never arrives.*
