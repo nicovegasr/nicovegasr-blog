@@ -27,7 +27,7 @@ Las dos comparten lectores y reglas; solo la segunda escribe. Si los datos o las
 
 El contrato se comprueba desde fuera: previsualizar no cambia el inventario y confirmar devuelve el resultado de la escritura. Un error de formato puede aparecer en ambos caminos; un fallo al guardar, solo en el segundo.
 
-**Lo que cuesta:** dos entradas públicas en lugar de una, y la validación se ejecuta dos veces. Si algún día la previsualización tiene que reservar stock, ese efecto debe aparecer en su contrato y en su nombre, no esconderse detrás de `preview`.
+**Lo que cuesta:** dos entradas públicas en lugar de una y, si se previsualiza y después se confirma, la validación se ejecuta dos veces. Si algún día la previsualización tiene que reservar stock, ese efecto debe aparecer en su contrato y en su nombre, no esconderse detrás de `preview`.
 
 **Un buen nombre ayuda, pero la promesa se cumple en la conducta observable: lo que devuelve y lo que cambia.**
 

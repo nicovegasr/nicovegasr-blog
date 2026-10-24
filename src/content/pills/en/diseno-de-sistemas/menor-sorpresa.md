@@ -27,7 +27,7 @@ Both share the readers and the rules; only the second one writes. If the data or
 
 The contract can be checked from the outside: previewing doesn't change the inventory, and confirming returns the result of the write. A format error can show up on both paths; a failure while saving, only on the second.
 
-**What it costs:** two public entry points instead of one, and validation runs twice. If the preview ever has to reserve stock, that effect must show up in its contract and its name, not hide behind `preview`.
+**What it costs:** two public entry points instead of one, and validation runs twice if the import is previewed and then confirmed. If the preview ever has to reserve stock, that effect must show up in its contract and its name, not hide behind `preview`.
 
 **A good name helps, but the promise is kept in observable behavior: what it returns and what it changes.**
 
