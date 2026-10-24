@@ -18,6 +18,7 @@ const buildPill = (overrides: Partial<Pill> = {}): Pill => ({
   subtitle: 'qué es',
   icon: 'container',
   order: 1,
+  systemMapStage: undefined,
   publicationDate: new Date('2026-01-01'),
   lastUpdateDate: undefined,
   ...overrides,

@@ -1,6 +1,7 @@
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
+import { SYSTEM_MAP_STAGES } from './features/pills/system-map/system-map';
 
 // Markdown lives under src/content/<collection>/<locale>/<slug>.md.
 // generateId keeps the "<locale>/<slug>" shape (extension stripped) so the
@@ -56,6 +57,7 @@ const pills = defineCollection({
       subtitle: z.string().min(1).max(80),
       icon: z.string().min(1),
       order: z.number().int(),
+      systemMapStage: z.enum(SYSTEM_MAP_STAGES).optional(),
       publicationDate: z.coerce.date(),
       lastUpdateDate: z.coerce.date().optional(),
     }),
