@@ -1,30 +1,61 @@
 ---
 kind: 'pill'
-title: 'Immutability and state management'
-subtitle: 'Decide when a value may change and who sees it'
+title: 'Immutability'
+subtitle: 'Recreate state instead of mutating it'
 icon: 'snapshot'
-order: 6
+order: 4
+momentStage: 'immutability'
 publicationDate: 2026-10-12
 ---
 
-An immutable value keeps the same meaning throughout its lifetime: changing it creates another value. Its purpose is not to forbid state, but to make **when it changes and who sees each version** explicit.
+Immutability means not modifying an object after it's created: when something changes, you create a new object with the complete state. That brings consistency, because each state holds only what belongs to it, and clarity to see every step it went through.
 
-## One file, two policies
+## Month 10: an error that survives the retry
 
-A nightly process imports a product CSV. It uses a configuration with currency, markup percentage, and rounding rules. That configuration lives in a shared object an administrator can edit while the file is being processed. The first rows use one set of rules and the last rows use another; the final report does not say which version it used.
+Large imports take minutes, so they move to the background. Each file goes from `pending` to `processing` and ends in `completed`, or in `failed` if something goes wrong. In that case, the retry policy processes it again.
 
-## Fix the version when the run starts
+The file is an object that gets modified at each step:
 
-At the start of the import, the complete configuration is read into an immutable `ImportPolicy`. Every row in the same file is processed with that snapshot. A later edit creates a new policy for the next run without changing the one already in progress.
+~~~ts
+file.status = 'failed';
+file.error = 'Timeout while reading the file';
 
-~~~text
-Configuration v12 → ImportPolicy #12 → every row in file A
-       ↓ edit
-Configuration v13 → ImportPolicy #13 → every row in file B
+// the retry processes it again, and this time it works
+file.status = 'completed';
 ~~~
 
-The snapshot must also include nested rules that can change. If `ImportPolicy` keeps a reference to a mutable list of rounding rules, the problem remains even if its outer properties are read-only. Recording the version with the result makes it possible to explain later how prices were calculated. If the import resumes in another process, it must recover that same version or a persisted copy; reading the current configuration on resume would break the guarantee.
+The file shows up as `completed`, but it still carries an error detail. Whoever checks it can't tell whether the import went well, failed halfway, or whether that error belongs to another attempt.
 
-## Which state needs to stay stable
+## The decision: each transition creates a new object
 
-The system will still modify inventory and configuration: those are product actions. Immutability applies to **the value one execution needs to treat as stable**. There is no need to copy the entire file into memory: the useful boundary is the calculation policy and its version. That choice has a storage and lifecycle cost if old policies must remain available to resume or audit runs.
+~~~ts
+class ImportFile {
+  private constructor(
+    readonly name: string,
+    readonly status: ImportStatus,
+    readonly error?: string,
+  ) {}
+
+  fail(error: string): ImportFile {
+    return new ImportFile(this.name, 'failed', error);
+  }
+
+  complete(): ImportFile {
+    return new ImportFile(this.name, 'completed');
+  }
+}
+~~~
+
+Each transition builds the whole state from scratch, so a `completed` file can't carry the error from an earlier attempt: nobody copies it. And every step remains a value of its own that can be recorded:
+
+~~~text
+pending → processing → failed (timeout) → processing → completed
+~~~
+
+The error belongs to the `failed` version, not to the file forever.
+
+**What it costs:** creating an object on every transition and deciding which data survives each one, such as the file name. If an object has a single changing field and nothing tied to each state, modifying it is just as clear.
+
+**If each transition recreates the object, no state carries data from another.**
+
+*Imports now end in a clear state. Next, a supplier stops sending a product and someone has to decide whether to discontinue it.*

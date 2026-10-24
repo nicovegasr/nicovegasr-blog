@@ -31,4 +31,4 @@ El contrato se comprueba desde fuera: previsualizar no cambia el inventario y co
 
 **Un buen nombre ayuda, pero la promesa se cumple en la conducta observable: lo que devuelve y lo que cambia.**
 
-*La importación ya no sorprende. Pero en la ejecución nocturna, los últimos registros de un fichero salen con precios calculados con otras reglas que los primeros.*
+*La importación ya no sorprende. Pero confirmar un fichero grande tarda minutos y alguien tiene que poder seguir su progreso.*

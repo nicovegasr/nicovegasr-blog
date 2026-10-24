@@ -1,30 +1,61 @@
 ---
 kind: 'pill'
-title: 'Inmutabilidad y gestión del estado'
-subtitle: 'Decidir cuándo puede cambiar un valor y quién lo ve'
+title: 'Inmutabilidad'
+subtitle: 'Recrear el estado en vez de mutarlo'
 icon: 'snapshot'
-order: 6
+order: 4
+momentStage: 'immutability'
 publicationDate: 2026-10-12
 ---
 
-Un valor inmutable conserva el mismo significado durante toda su vida: para cambiarlo se crea otro. La utilidad no está en prohibir el estado, sino en hacer explícito **cuándo cambia y quién observa cada versión**.
+La inmutabilidad consiste en no modificar un objeto después de crearlo: cuando algo cambia, se crea un objeto nuevo con el estado completo. Eso da consistencia, porque cada estado contiene solo lo que le corresponde, y claridad para ver cada paso por el que ha pasado.
 
-## Un mismo fichero, dos políticas
+## Mes 10: un error que sobrevive al reintento
 
-Un proceso nocturno importa un CSV de productos. Usa una configuración con moneda, porcentaje de recargo y reglas de redondeo. Esa configuración vive en un objeto compartido que un administrador puede editar mientras el fichero se procesa. Las primeras filas se calculan con unas reglas y las últimas con otras; el informe final no dice qué versión usó.
+Las importaciones grandes tardan minutos, así que pasan a ejecutarse en segundo plano. Cada fichero va de `pending` a `processing` y termina en `completed`, o en `failed` si algo sale mal. En ese caso, la política de reintentos lo vuelve a procesar.
 
-## Fijar la versión al iniciar la ejecución
+El fichero es un objeto que se modifica en cada paso:
 
-Al iniciar la importación se obtiene la configuración completa y se crea un `ImportPolicy` inmutable. Todas las filas del mismo fichero se procesan con esa instantánea. Una edición posterior genera una nueva política para la siguiente ejecución, sin alterar la que ya está en curso.
+~~~ts
+file.status = 'failed';
+file.error = 'Timeout al leer el fichero';
 
-~~~text
-Configuración v12 → ImportPolicy #12 → todas las filas del fichero A
-        ↓ edición
-Configuración v13 → ImportPolicy #13 → todas las filas del fichero B
+// el reintento lo procesa de nuevo y esta vez va bien
+file.status = 'completed';
 ~~~
 
-La instantánea debe incluir también las reglas anidadas que pueden cambiar. Si `ImportPolicy` conserva una referencia a una lista mutable de redondeos, el problema sigue ahí aunque sus propiedades externas sean de solo lectura. Registrar la versión junto al resultado permite explicar después cómo se calcularon los precios. Si la importación se reanuda en otro proceso, debe recuperar esa misma versión o una copia persistida; leer la configuración vigente al reanudar rompería la garantía.
+El fichero aparece como `completed`, pero sigue teniendo un detalle de error. Quien lo consulta no sabe si la importación fue bien, si falló a medias o si ese error es de otro intento.
 
-## Qué estado necesita estabilidad
+## La decisión: cada transición crea un objeto nuevo
 
-El sistema seguirá modificando inventario y configuraciones: esas son acciones del producto. La inmutabilidad se aplica al **valor que una ejecución necesita considerar estable**. No hace falta copiar el fichero entero en memoria: la frontera útil está en la política de cálculo y su versión. Esa elección tiene un coste de almacenamiento y ciclo de vida si se deben conservar políticas antiguas para reanudar o auditar ejecuciones.
+~~~ts
+class ImportFile {
+  private constructor(
+    readonly name: string,
+    readonly status: ImportStatus,
+    readonly error?: string,
+  ) {}
+
+  fail(error: string): ImportFile {
+    return new ImportFile(this.name, 'failed', error);
+  }
+
+  complete(): ImportFile {
+    return new ImportFile(this.name, 'completed');
+  }
+}
+~~~
+
+Cada transición construye el estado entero desde cero, así que un fichero `completed` no puede arrastrar el error de un intento anterior: nadie lo copia. Y cada paso queda como un valor propio que se puede registrar:
+
+~~~text
+pending → processing → failed (timeout) → processing → completed
+~~~
+
+El error pertenece a la versión `failed`, no al fichero para siempre.
+
+**Lo que cuesta:** crear un objeto en cada transición y decidir qué datos sobreviven a cada una, como el nombre del fichero. Si un objeto solo tiene un campo que cambia y nada asociado a cada estado, modificarlo es igual de claro.
+
+**Si cada transición recrea el objeto, ningún estado arrastra datos de otro.**
+
+*Las importaciones ya terminan en un estado claro. Ahora un proveedor deja de enviar un producto y hay que decidir si se descataloga.*

@@ -31,4 +31,4 @@ The contract can be checked from the outside: previewing doesn't change the inve
 
 **A good name helps, but the promise is kept in observable behavior: what it returns and what it changes.**
 
-*The import no longer surprises anyone. But in the nightly run, the last records in a file come out priced with different rules than the first ones.*
+*The import no longer surprises anyone. But confirming a large file takes minutes, and someone needs to follow its progress.*
