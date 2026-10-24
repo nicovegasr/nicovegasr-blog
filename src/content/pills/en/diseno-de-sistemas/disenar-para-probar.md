@@ -1,32 +1,59 @@
 ---
 kind: 'pill'
 title: 'Designing for testability'
-subtitle: 'Make a decision’s inputs and boundaries visible'
+subtitle: 'Test the rule without starting the whole application'
 icon: 'testable'
-order: 10
+order: 9
+momentStage: 'design-for-testing'
 publicationDate: 2026-10-12
 ---
 
-A testable design makes it clear which inputs a decision needs, what result it produces, and which external dependencies surround it. That clarity also helps outside tests: a rule can change without starting the entire application just to understand it.
+If checking a discount requires connecting a database and waiting for a date to arrive, the test depends on more than the rule. Separating the calculation from how it obtains its data lets you check it with known inputs.
 
-## When a rule needs the whole application to run
+## Month 20: a campaign that depends on the clock
 
-A campaign discounts products during a date range. The function that calculates the price reads the global clock, loads the product from the database, and saves the new price. Checking the case “the campaign has ended” requires preparing data, connecting the database, and controlling a clock the code does not allow callers to set.
+Marketing wants to apply a discount between two dates. The function that calculates the price loads the product and campaign, reads the system time and saves the result. Testing what happens when the campaign ends means preparing the database and controlling a clock the function reads on its own.
 
-The test is difficult because the date rule is mixed with reading, time, and persistence.
+The calculation only needs the price, the campaign conditions and a date. Loading them and saving the result belong to the use case.
 
-## Separate the calculation from its data sources
+## The decision: pass the data and date into the calculation
 
-The use case coordinates loading the product and campaign, reads the time once, calls the rule, and saves the result. The rule receives the values it needs: `calculateCampaignPrice(product, campaign, now)`. Then campaign start, end, and discount calculation can be tested with fixed dates and no infrastructure. Every decision in that operation also uses the same instant.
+~~~ts
+function calculateCampaignPrice(
+  product: Product,
+  campaign: Campaign,
+  now: Date,
+): number {
+  if (now < campaign.startsAt || now >= campaign.endsAt) {
+    return product.priceInCents;
+  }
 
-~~~text
-ApplyCampaign → load product and campaign ──→ calculateCampaignPrice(..., now)
-              read time                 ← calculated price
-              save result
+  return Math.round(
+    product.priceInCents * (1 - campaign.discountPercent / 100),
+  );
+}
 ~~~
 
-## Test each boundary by its promise
+The campaign includes its start instant and excludes its end. The function returns the price in cents without modifying the product. For a price of 10,000 cents and a 20% campaign active from October 10 to October 20, both cases can be checked with fixed dates:
 
-One rule test can fix a date inside the campaign and expect the discounted price; another can fix a date outside and expect the original. Neither needs a database. The clock and repository can enter the use case as explicit dependencies to check that it calls the rule and saves the calculated price. A separate integration test checks that the adapter loads and persists real data. None of these tests needs to mirror every private function.
+~~~ts
+const product = { priceInCents: 10000 };
+const campaign = {
+  startsAt: new Date('2026-10-10T00:00:00Z'),
+  endsAt: new Date('2026-10-20T00:00:00Z'),
+  discountPercent: 20,
+};
+const during = new Date('2026-10-15T12:00:00Z');
+const atEnd = new Date('2026-10-20T00:00:00Z');
 
-The aim is not to create an interface for every class. If a function only transforms its arguments, it is already testable. The boundary appears where a decision stops depending on its inputs and starts depending on the clock, network, disk, or database. Making it explicit improves both tests and the readability of the flow.
+expect(calculateCampaignPrice(product, campaign, during)).toBe(8000);
+expect(calculateCampaignPrice(product, campaign, atEnd)).toBe(10000);
+~~~
+
+These tests do not query the database or wait for October 20. The use case still loads the product and campaign, reads the time once and passes it to the calculation before saving the price. A working calculation does not prove that the repository saves correctly; that integration is tested separately.
+
+**What it costs:** making the inputs explicit and allowing the use case clock to be controlled. An interface is not needed for every piece: the calculation can already be tested as a function.
+
+**Check the rule with data and a date; test access to that data separately.**
+
+*The importer for a single supplier now has alerts, reports and campaigns. Each change has helped shape the design.*

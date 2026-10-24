@@ -48,4 +48,4 @@ Cada estructura tiene su lector y los tres cron jobs lo reutilizan. Cuando un pr
 
 **Un `if` puede ser suficiente. Aquí, separar los lectores simplifica el cambio: cada formato se interpreta en un solo sitio.**
 
-*El importador ya lee bien cada formato. El problema ahora es que hace demasiadas cosas.*
+*Los formatos ya se leen en un solo sitio. Ahora cada lector también aplica las reglas del inventario.*

@@ -8,7 +8,7 @@ momentStage: 'cohesion'
 publicationDate: 2026-10-12
 ---
 
-Cohesion tells you whether the decisions inside a piece belong to the same purpose. When a rule sits far from the data it governs, understanding a change means walking through the system; when everything piles up in a single class, so does that.
+Cohesion tells you whether the decisions inside a piece belong to the same purpose. When a rule sits far from the data it governs, understanding a change means walking through the system. Piling everything into one class makes it just as hard to follow.
 
 ## Month 12: two places that discontinue
 

@@ -56,4 +56,4 @@ If a layer catches a failure to add context, it then propagates it while preserv
 
 **Handle each error separately, with its metadata, without silencing it along the way.**
 
-*Next, management asks for inventory reports, and some of them must be archived in two places.*
+*Next, inventory reports need to be generated, with a choice of where to save them.*

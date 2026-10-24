@@ -8,7 +8,7 @@ momentStage: 'immutability'
 publicationDate: 2026-10-12
 ---
 
-Immutability means not modifying an object after it's created: when something changes, you create a new object with the complete state. That brings consistency, because each state holds only what belongs to it, and clarity to see every step it went through.
+Immutability means not modifying an object after it's created: when something changes, you create a new object with the complete state. This allows a state to be kept without the next transition modifying it.
 
 ## Month 10: an error that survives the retry
 
@@ -56,6 +56,6 @@ The error belongs to the `failed` version, not to the file forever.
 
 **What it costs:** creating an object on every transition and deciding which data survives each one, such as the file name. If an object has a single changing field and nothing tied to each state, modifying it is just as clear.
 
-**If each transition recreates the object, no state carries data from another.**
+**Completing the file leaves the previous attempt's error out of the new state.**
 
 *Imports now end in a clear state. Next, a supplier stops sending a product and someone has to decide whether to discontinue it.*

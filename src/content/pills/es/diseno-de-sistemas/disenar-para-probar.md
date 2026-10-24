@@ -1,32 +1,59 @@
 ---
 kind: 'pill'
 title: 'Diseñar para poder probar'
-subtitle: 'Hacer visibles las entradas y los límites de una decisión'
+subtitle: 'Probar la regla sin levantar toda la aplicación'
 icon: 'testable'
-order: 10
+order: 9
+momentStage: 'design-for-testing'
 publicationDate: 2026-10-12
 ---
 
-Un diseño fácil de probar deja ver qué datos necesita una decisión, qué resultado produce y qué dependencias externas la rodean. Esa claridad sirve también fuera de los tests: permite cambiar una regla sin tener que levantar toda la aplicación para entenderla.
+Si para comprobar un descuento hay que conectar una base de datos y esperar a que llegue una fecha, la prueba depende de más cosas que la regla. Separar el cálculo de cómo obtiene sus datos permite comprobarlo con entradas conocidas.
 
-## Cuando una regla necesita levantar toda la aplicación
+## Mes 20: una campaña que depende del reloj
 
-Una campaña aplica un descuento a productos durante unas fechas. La función que calcula el precio consulta la hora global, carga el producto desde la base de datos y guarda el precio nuevo. Para comprobar el caso «la campaña ya terminó» hay que preparar datos, conectar la base de datos y controlar un reloj que el código no deja fijar.
+Marketing quiere aplicar un descuento entre dos fechas. La función que calcula el precio carga el producto y la campaña, consulta la hora del sistema y guarda el resultado. Para probar qué ocurre al terminar la campaña, hay que preparar la base de datos y controlar un reloj que la función consulta por su cuenta.
 
-El test resulta difícil porque la regla de fechas está mezclada con lectura, tiempo y persistencia.
+El cálculo solo necesita el precio, las condiciones de la campaña y una fecha. Leerlos y guardar el resultado son tareas del caso de uso.
 
-## Separar el cálculo de sus fuentes de datos
+## La decisión: pasar los datos y la fecha al cálculo
 
-El caso de uso coordina la carga del producto y la campaña, obtiene la hora una vez, llama a la regla y guarda el resultado. La regla recibe los valores que necesita: `calculateCampaignPrice(product, campaign, now)`. Así, inicio, fin y cálculo del descuento se prueban con fechas fijas y sin infraestructura. También queda claro que todas las decisiones de esa operación usan el mismo instante.
+~~~ts
+function calculateCampaignPrice(
+  product: Product,
+  campaign: Campaign,
+  now: Date,
+): number {
+  if (now < campaign.startsAt || now >= campaign.endsAt) {
+    return product.priceInCents;
+  }
 
-~~~text
-ApplyCampaign → cargar producto y campaña ──→ calculateCampaignPrice(..., now)
-              obtener hora             ← precio calculado
-              guardar resultado
+  return Math.round(
+    product.priceInCents * (1 - campaign.discountPercent / 100),
+  );
+}
 ~~~
 
-## Probar cada frontera por lo que promete
+La campaña incluye el instante de inicio y excluye el de fin. La función devuelve el precio en céntimos sin modificar el producto. Para un precio de 10 000 céntimos y una campaña del 20 % activa del 10 al 20 de octubre, se pueden comprobar ambos casos con fechas fijas:
 
-Una prueba de la regla puede fijar una fecha dentro del periodo y esperar el precio rebajado; otra, fijar una fecha fuera y esperar el original. No necesita base de datos. El reloj y el repositorio pueden entrar al caso de uso como dependencias explícitas para comprobar que este llama a la regla y guarda el precio calculado. Una prueba de integración comprueba aparte que el adaptador carga y persiste datos reales. Ninguna de ellas necesita replicar cada función privada.
+~~~ts
+const product = { priceInCents: 10000 };
+const campaign = {
+  startsAt: new Date('2026-10-10T00:00:00Z'),
+  endsAt: new Date('2026-10-20T00:00:00Z'),
+  discountPercent: 20,
+};
+const during = new Date('2026-10-15T12:00:00Z');
+const atEnd = new Date('2026-10-20T00:00:00Z');
 
-La finalidad no es crear una interfaz para cada clase. Si una función solo transforma sus argumentos, ya se puede probar. La frontera aparece donde una decisión deja de depender de sus entradas y empieza a depender del reloj, la red, el disco o la base de datos. Hacerla explícita mejora tanto los tests como la lectura del flujo.
+expect(calculateCampaignPrice(product, campaign, during)).toBe(8000);
+expect(calculateCampaignPrice(product, campaign, atEnd)).toBe(10000);
+~~~
+
+Estas pruebas no consultan la base de datos ni esperan al día 20. El caso de uso sigue cargando el producto y la campaña, obtiene la hora una vez y la pasa al cálculo antes de guardar el precio. Que el cálculo funcione no demuestra que el repositorio guarde bien; esa integración se prueba por separado.
+
+**Lo que cuesta:** hacer explícitas las entradas y permitir controlar el reloj del caso de uso. No hace falta una interfaz para cada pieza: el cálculo ya se puede probar como una función.
+
+**La regla se comprueba con datos y una fecha; el acceso a esos datos se prueba por separado.**
+
+*El importador de un proveedor ya tiene alertas, informes y campañas. Cada cambio ha ido dando forma al diseño.*

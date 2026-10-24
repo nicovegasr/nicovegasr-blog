@@ -9,7 +9,6 @@ export const MOMENT_STAGES = [
   'coupling',
   'async-retries',
   'design-for-testing',
-  'tdd',
 ] as const;
 
 export type MomentStage = (typeof MOMENT_STAGES)[number];

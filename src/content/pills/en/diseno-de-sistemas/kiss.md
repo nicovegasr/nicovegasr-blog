@@ -48,4 +48,4 @@ Each structure has its own reader, and all three cron jobs reuse it. When a supp
 
 **An `if` can be enough. Here, separate readers make changes simpler: each format is interpreted in one place.**
 
-*The importer now reads every format well. The problem now is that it does too much.*
+*Each format is now read in one place. Each reader also applies the inventory rules.*

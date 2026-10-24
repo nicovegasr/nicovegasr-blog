@@ -56,4 +56,4 @@ Si una capa captura el fallo para añadir contexto, después lo propaga conserva
 
 **Cada error por separado, con sus metadatos y sin silenciarlo por el camino.**
 
-*Ahora dirección pide informes de inventario, y algunos tienen que archivarse en dos sitios.*
+*Ahora hay que generar informes de inventario y elegir dónde guardarlos.*

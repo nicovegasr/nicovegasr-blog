@@ -8,7 +8,7 @@ momentStage: 'immutability'
 publicationDate: 2026-10-12
 ---
 
-La inmutabilidad consiste en no modificar un objeto después de crearlo: cuando algo cambia, se crea un objeto nuevo con el estado completo. Eso da consistencia, porque cada estado contiene solo lo que le corresponde, y claridad para ver cada paso por el que ha pasado.
+La inmutabilidad consiste en no modificar un objeto después de crearlo: cuando algo cambia, se crea un objeto nuevo con el estado completo. Así se puede conservar un estado sin que la siguiente transición lo modifique.
 
 ## Mes 10: un error que sobrevive al reintento
 
@@ -56,6 +56,6 @@ El error pertenece a la versión `failed`, no al fichero para siempre.
 
 **Lo que cuesta:** crear un objeto en cada transición y decidir qué datos sobreviven a cada una, como el nombre del fichero. Si un objeto solo tiene un campo que cambia y nada asociado a cada estado, modificarlo es igual de claro.
 
-**Si cada transición recrea el objeto, ningún estado arrastra datos de otro.**
+**Al completar el fichero, el error del intento anterior queda fuera del nuevo estado.**
 
 *Las importaciones ya terminan en un estado claro. Ahora un proveedor deja de enviar un producto y hay que decidir si se descataloga.*
