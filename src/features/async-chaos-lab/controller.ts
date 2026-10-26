@@ -581,13 +581,15 @@ class QueueStories extends HTMLElement {
     this.syncStorageName();
     this.buildSteps();
     this.reset();
-    this.q('.qs-stage').scrollIntoView({
-      block: 'nearest',
-      behavior: 'instant',
-    });
     this.q<HTMLButtonElement>('.qs-dock [data-action=play]').focus({
       preventScroll: true,
     });
+  }
+  /** On short screens the diagram and its explanation do not fit together; the explanation wins. */
+  private revealGuide(focus = true) {
+    const guide = this.q('[data-guide]');
+    guide.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+    if (focus) guide.focus({ preventScroll: true });
   }
   private leaveGuide() {
     this.closeOutcome();
@@ -637,13 +639,7 @@ class QueueStories extends HTMLElement {
     }
     if (action === 'guide') {
       if (this.guide === 'off') this.showTutorial();
-      else {
-        this.q('[data-guide]').scrollIntoView({
-          block: 'nearest',
-          behavior: 'instant',
-        });
-        this.q('[data-guide]').focus({ preventScroll: true });
-      }
+      else this.revealGuide();
     }
     if (action === 'guide-focus' && this.guideTarget) {
       const target = this.querySelector<HTMLElement>(this.guideTarget);
@@ -678,13 +674,7 @@ class QueueStories extends HTMLElement {
       else this.guide = 'charge';
     }
     this.update();
-    if (action === 'lesson') {
-      this.q('[data-guide]').scrollIntoView({
-        block: 'nearest',
-        behavior: 'instant',
-      });
-      this.q('[data-guide]').focus({ preventScroll: true });
-    }
+    if (action === 'lesson') this.revealGuide();
   };
   private onInput = (e: Event) => {
     const input = e.target as HTMLInputElement,
@@ -794,7 +784,9 @@ class QueueStories extends HTMLElement {
   };
   private replace(selector: string, html: string) {
     const node = this.q(selector);
-    if (node.innerHTML !== html) node.innerHTML = html;
+    if (node.innerHTML === html) return false;
+    node.innerHTML = html;
+    return true;
   }
   private customSteps() {
     return this.config.steps.some(
@@ -1090,7 +1082,7 @@ class QueueStories extends HTMLElement {
             this.t('Comparar el trabajo repetido', 'Compare repeated work'),
           )
         : '';
-    this.replace(
+    const changed = this.replace(
       '[data-guide]',
       /* HTML */ `<header class="qs-guide-header">
           <span
@@ -1118,6 +1110,7 @@ class QueueStories extends HTMLElement {
           </div>
         </div>`,
     );
+    if (changed) this.revealGuide(false);
   }
   private showTutorial(introduction = false) {
     this.stop();
@@ -1840,8 +1833,9 @@ class QueueStories extends HTMLElement {
     );
     this.renderMetrics();
     this.checkAchievements();
-    this.renderGuide();
+    // Closing a dialog restores focus to its opener, which scrolls; reveal the guide afterwards.
     this.renderOutcome();
+    this.renderGuide();
   }
   private renderActor() {
     const frame = workerFrame(this.state, this.retryStage);
