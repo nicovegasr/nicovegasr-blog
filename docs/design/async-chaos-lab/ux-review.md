@@ -35,11 +35,11 @@ walkthroughs. The simulation engine and the site's shared layout are unchanged.
 
 ## Review evidence
 
-`src/features/async-chaos-lab/verify-browser.mjs` checks the real browser flow,
+The Playwright tests in `src/features/async-chaos-lab/*.e2e.ts` check the real browser flow,
 including full-width diagram stability, readable explanation type, no transport
 occlusion, direct walkthrough entry, contextual field focus, naming placement,
 trial preservation, customer-facing calls, mobile navigation and reduced motion.
-Screenshots are generated in ignored `.astro/async-chaos-lab-review/`.
+Screenshots are attached to the Playwright HTML report.
 
 These checks establish layout and interaction behavior. Enjoyment and learning
 transfer still require the reader's feedback.

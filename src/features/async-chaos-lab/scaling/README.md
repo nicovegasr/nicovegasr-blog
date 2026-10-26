@@ -14,7 +14,7 @@ Functions or new dependencies.
 - `controller.ts`: playback, diagram, introductions and session comparison.
 - `content.ts`: bilingual names and introductory call.
 - `scaling.css`: feature-scoped layout and signals.
-- `verify-browser.mjs`: browser interactions and screenshots.
+- `scaling.e2e.ts`: Playwright browser tests and review screenshots.
 - `../outcome-shell.ts`: the same outcome scene used by all three levels.
 
 ## Simulation rules
@@ -151,12 +151,11 @@ alongside free concurrent capacity. Its content remains scrollable on small scre
 npm run test:run
 npm run typecheck
 npm run build
-GAME_TEST_URL=http://127.0.0.1:4321 node src/features/async-chaos-lab/scaling/verify-browser.mjs
+npm run test:e2e -- src/features/async-chaos-lab/scaling
 ```
 
-The browser check uses Brave and an isolated disposable profile under `.astro/`.
-Override `GAME_BROWSER` for another Chromium binary. Screenshots go under
-`.astro/scaling-review/`. Test timer acceleration affects only its own browser.
+Test timer acceleration affects only the test browser. Screenshots are attached
+to the Playwright HTML report.
 
 This is a finite burst with fixed latencies, concurrent capacities and explicit
 fixed-window HTTP quotas, not a sustained arrival-rate or realistic CPU scheduler.

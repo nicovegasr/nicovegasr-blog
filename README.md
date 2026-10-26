@@ -17,7 +17,10 @@ npm run dev
 npm run typecheck
 npm run test:run
 npm run build
+npm run test:e2e   # Playwright; la primera vez: npx playwright install chromium
 ```
+
+CI (GitHub Actions) ejecuta todo lo anterior en cada push a `main` y en cada pull request.
 
 ## Documentación
 

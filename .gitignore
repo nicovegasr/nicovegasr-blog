@@ -11,3 +11,5 @@ dist
 .superpowers/
 studio/
 poc/
+test-results/
+playwright-report/

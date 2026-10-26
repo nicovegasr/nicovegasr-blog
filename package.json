@@ -10,7 +10,8 @@
     "astro": "astro",
     "typecheck": "astro check && tsc --noEmit",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@astrojs/rss": "4.0.19",
@@ -22,6 +23,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "0.9.10",
+    "@playwright/test": "1.64.1",
     "typescript": "5.9.3",
     "vitest": "4.1.12"
   }

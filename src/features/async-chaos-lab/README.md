@@ -49,6 +49,8 @@ space and cannot intercept clicks on the diagram.
 Tutorial opens a short teammate call. The optional guided walkthrough follows
 actual failures and lets the player change the diagram. Finishing keeps the
 successful configuration; leaving early restores the previous trial.
+Whenever its explanation changes, the page scrolls just enough to show it above
+the transport: on laptop screens the diagram and the explanation do not fit together.
 Names, above the API or beside the payment strip, enables cosmetic editing.
 Changing a rule starts a fresh batch; changing a name does not.
 
@@ -200,27 +202,27 @@ prototype. Lab 3 offers a compact comparison of finished trials in a dialog.
 npm run test:run
 npm run typecheck
 npm run build
-npm run preview -- --host 127.0.0.1 --port 4330
+npm run test:e2e
 ```
 
-In another terminal, verify the actual static build:
+`npm run test:e2e` runs the Playwright browser tests (`*.e2e.ts`) against the real
+static build: it builds the site and serves it on port 4330, or reuses a preview
+already running there. The first time, install the browser with
+`npx playwright install chromium`. CI runs the same suite on every push and pull
+request.
 
-```sh
-GAME_TEST_URL=http://127.0.0.1:4330 node src/features/async-chaos-lab/verify-browser.mjs
-```
-
-The browser check requires Node.js 22+ and a Chromium-family executable. It defaults
-to Brave on macOS; set `GAME_BROWSER` to another executable path. It uses an isolated,
-temporary profile under ignored `.astro/`, an automatically allocated debug port,
-and local screenshots in `.astro/async-chaos-lab-review/`. It never controls the
-player's browser. It checks real controls, both walkthroughs, customization/XSS,
-keyboard focus, storage restrictions, mobile, EN, dark mode, reduced motion and
-absence of runtime API/service requests.
+`lab-test.ts` is the shared fixture. It shortens only the simulation intervals
+(at most 650 ms), so playback is faster while results stay identical, and every
+test fails on an uncaught browser error or on any request that is not a local GET.
+`stories-lab.ts` drives levels 1 and 2 through their real controls. The tests cover
+both walkthroughs, customization/XSS, keyboard focus, blocked storage, mobile, EN,
+dark mode and reduced motion. Review screenshots are attached to the HTML report:
+`npx playwright show-report`.
 
 Deploy **`dist/`**, built with the existing **`npm run build`**. Astro remains
 `output: 'static'`; no server adapter, Pages Function, Worker, D1, KV, Durable Object
 or backend binding is introduced. The simulated queue, worker and database execute
-in the visitor's browser. The Node browser-review helper is not in the client bundle.
+in the visitor's browser. Browser tests are not part of the client bundle.
 
 The catalogue is linked from the shared section navigation. Links from individual
 Pills are not added in this change. No unpublished
