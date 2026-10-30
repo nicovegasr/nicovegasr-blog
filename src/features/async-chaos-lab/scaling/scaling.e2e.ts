@@ -46,11 +46,11 @@ class ScalingLab {
     return this.page.locator(`[data-location="${location}"] > button`);
   }
 
-  /** The four workers that win the level: every service at its contract, one extra Stripe slot and request/s. */
-  async prepareFourWorkerWin() {
-    await this.action('more', 3);
+  /** The cheapest win: a second worker for CPU, four payments each and one extra Stripe slot. */
+  async prepareTwoWorkerWin() {
+    await this.action('more');
+    await this.action('concurrency-more', 3);
     await this.action('grow:1');
-    await this.action('rate-more:1');
   }
 }
 
@@ -70,6 +70,8 @@ test.describe('Level 3 · scaling', () => {
     await expect(page.locator('[data-limit], [data-admission], [data-protect], [data-inspector], [data-action^=crash]'), 'no separate admission fields or manual failures').toHaveCount(0);
     await expect(page.locator('.sc-step [data-resource-size]'), 'one concurrency control per step').toHaveCount(4);
     await expect(page.locator('.sc-step [data-rate-limit]'), 'an HTTP quota only on the two HTTP steps').toHaveCount(2);
+    await expect(page.locator('[data-concurrency]'), 'a worker starts with one payment at a time').toHaveText('1');
+    await expect(page.locator('[data-action=concurrency-less]')).toBeDisabled();
     expect(await page.locator('.sc-step').first().evaluate((step) => getComputedStyle(step, '::after').content), 'no arrows between steps').toBe('none');
     expect(await page.locator('.sc-queue').evaluate((queue) => getComputedStyle(queue, '::after').content), 'no queue arrow').toBe('none');
   });
@@ -89,7 +91,7 @@ test.describe('Level 3 · scaling', () => {
     await expect(page.locator('[data-time]')).toHaveText(pausedTime!);
   });
 
-  test('from a slow single worker to a four-worker win', async ({ page }) => {
+  test('from one blocked worker to a win by lifting each real limit', async ({ page }) => {
     const lab = new ScalingLab(page);
     await lab.open();
     await lab.close();
@@ -103,62 +105,104 @@ test.describe('Level 3 · scaling', () => {
       await lab.close();
     });
 
-    await test.step('full Stripe slots make the fourth worker wait locally, before sending', async () => {
-      await lab.action('more', 3);
+    await test.step('a second worker stays within the included quota', async () => {
+      await lab.action('more');
       for (const attempt of [1, 2]) {
         await lab.action('reset');
-        await setSimulationInterval(page, 80);
-        await lab.action('play');
-        await expect(lab.paymentsAt('waiting-1')).toHaveCount(1);
-        await lab.action('play');
-        await lab.expectPhase('paused');
-        await expect(lab.paymentsAt('active-1')).toHaveCount(3);
-        await expect(lab.paymentsAt('waiting-1')).toHaveCount(1);
-        await captureForReview(page, 'scaling-local-admission-queue');
-        await setSimulationInterval(page, 8);
         await lab.playToOutcome();
         await lab.expectPhase('complete');
-        await expect(lab.dialog).toContainText('39 s');
-        await expect(lab.dialog).toContainText('156 u');
+        await expect(lab.dialog).toContainText('72 s');
+        await expect(lab.dialog).toContainText('144 u');
         await expect(lab.earnedAwards, 'an achievement is only awarded once').toHaveCount(attempt === 1 ? 1 : 0);
         await lab.close();
       }
     });
 
-    await test.step('an extra slot still hits the independent HTTP quota', async () => {
+    await test.step('a third worker exceeds the quota with a slot still free', async () => {
+      await lab.action('more');
+      await lab.playToOutcome();
+      await lab.expectPhase('rate-limited');
+      await expect(lab.dialog).toContainText('HTTP 429');
+      await expect(lab.paymentsAt('active-1')).toHaveCount(2);
+      await expect(page.locator('[data-capacity="1"]')).toContainText('2/3');
+      await lab.close();
+    });
+
+    await test.step('one worker holding six payments stops wasting its waits, until CPU limits it', async () => {
+      await lab.action('less', 2);
+      await lab.action('concurrency-more', 5);
+      await setSimulationInterval(page, 80);
+      await lab.action('play');
+      await expect(page.locator('[data-wait-label="0"]')).toContainText('esperando CPU');
+      await expect(page.locator('[data-status="0"]')).toContainText('valida de uno en uno');
+      await expect(page.locator('[data-capacity="0"]')).toContainText('1/4');
+      await expect(page.locator('[data-radio]')).toContainText('pagos esperando CPU');
+      await lab.action('play');
+      await lab.expectPhase('paused');
+      await captureForReview(page, 'scaling-one-worker-cpu-limit');
+      await setSimulationInterval(page, 8);
+      await lab.playToOutcome();
+      await lab.expectPhase('complete');
+      await expect(lab.dialog).toContainText('29 s');
+      await expect(lab.dialog).toContainText('29 u');
+      await expect(lab.dialog).toContainText('Donde más se esperó: Validar pago');
+      await expect(lab.dialog).not.toContainText('MISIÓN SUPERADA');
+      await lab.close();
+    });
+
+    await test.step('a second worker only moves the wait to a full Stripe, and doubles the cost', async () => {
+      await lab.action('more');
+      await setSimulationInterval(page, 80);
+      await lab.action('play');
+      await expect(page.locator('[data-capacity="1"]')).toContainText('3/3');
+      await expect(lab.paymentsAt('waiting-1').first()).toBeVisible();
+      await lab.action('play');
+      await lab.expectPhase('paused');
+      await captureForReview(page, 'scaling-local-admission-queue');
+      await setSimulationInterval(page, 8);
+      await lab.playToOutcome();
+      await lab.expectPhase('complete');
+      await expect(lab.dialog).toContainText('28 s');
+      await expect(lab.dialog).toContainText('56 u');
+      await expect(lab.dialog).toContainText('Donde más se esperó: Cobrar en Stripe');
+      await lab.close();
+    });
+
+    await test.step('one more Stripe slot wins the mission', async () => {
       await lab.action('grow:1');
+      await lab.playToOutcome();
+      await lab.expectPhase('complete');
+      await expect(lab.dialog).toContainText('MISIÓN SUPERADA');
+      await expect(lab.dialog).toContainText('22 s');
+      await expect(lab.dialog).toContainText('66 u');
+      expect(await lab.earnedAwards.evaluateAll((awards) => awards.map((award) => (award as HTMLElement).dataset.earned))).toEqual(['on-time', 'minimum-team']);
+      await captureForReview(page, 'scaling-win');
+      await lab.close();
+    });
+
+    await test.step('a third worker with more slots still hits the independent HTTP quota', async () => {
+      await lab.action('more');
+      await lab.action('grow:1', 2);
       await lab.playToOutcome();
       await lab.expectPhase('rate-limited');
       await expect(lab.dialog).toContainText('HTTP 429');
       await expect(lab.dialog).toContainText('servicio sigue activo');
-      await expect(lab.paymentsAt('active-1')).toHaveCount(3);
-      await expect(page.locator('[data-capacity="1"]')).toContainText('3/4');
+      await expect(page.locator('[data-capacity="1"]')).toContainText('2/6');
       await expect(page.locator('[data-job][data-status=rejected]')).toHaveCount(1);
       await expect(lab.dialog).not.toHaveCSS('clip-path', 'none');
       await captureForReview(page, 'scaling-http-429-with-free-slot');
       await lab.close();
     });
 
-    await test.step('buying quota wins the mission', async () => {
+    await test.step('buying quota makes it faster, but dearer than the previous win', async () => {
       await lab.action('rate-more:1');
-      await expect(page.locator('[data-rate-limit="1"]')).toHaveText('4');
       await lab.playToOutcome();
       await lab.expectPhase('complete');
       await expect(lab.dialog).toContainText('MISIÓN SUPERADA');
-      await expect(lab.dialog).toContainText('37 s');
-      await expect(lab.dialog).toContainText('222 u');
-      expect(await lab.earnedAwards.evaluateAll((awards) => awards.map((award) => (award as HTMLElement).dataset.earned))).toEqual(['on-time', 'minimum-team']);
-      await captureForReview(page, 'scaling-win');
-      await lab.close();
-    });
-
-    await test.step('more database slots are faster, and compared with the previous trial', async () => {
-      await lab.action('grow:2', 2);
-      await lab.playToOutcome();
-      await expect(lab.dialog).toContainText('36 s');
-      await expect(lab.dialog).toContainText('288 u');
+      await expect(lab.dialog).toContainText('17 s');
+      await expect(lab.dialog).toContainText('119 u');
       await expect(lab.dialog).toContainText('TU INTENTO ANTERIOR');
-      await expect(lab.dialog).toContainText('37 s');
+      await expect(lab.dialog).toContainText('22 s');
       await expect(lab.earnedAwards).toHaveCount(0);
       await captureForReview(page, 'scaling-compared-win');
       await lab.close();
@@ -176,19 +220,24 @@ test.describe('Level 3 · scaling', () => {
     const lab = new ScalingLab(page);
     await lab.open();
     await lab.close();
-    await lab.prepareFourWorkerWin();
-    await lab.action('grow:2', 2);
+    // Three workers, six payments each, and enough Stripe for them: the wider database then floods email.
+    await lab.action('more', 2);
+    await lab.action('concurrency-more', 5);
+    await lab.action('grow:1', 3);
+    await lab.action('rate-more:1');
+    await lab.action('grow:2');
 
-    await lab.action('shrink:3', 2);
+    await lab.action('shrink:3', 3);
     await lab.playToOutcome();
     await lab.expectPhase('complete');
-    await expect(lab.dialog).toContainText('37 s');
+    await expect(lab.dialog).toContainText('17 s');
     await lab.close();
 
-    await lab.action('rate-less:3', 3);
+    await lab.action('grow:3');
     await lab.playToOutcome();
     await lab.expectPhase('rate-limited');
     await expect(lab.dialog).toContainText('HTTP 429');
+    await expect(lab.dialog).toContainText('Enviar confirmación');
     await captureForReview(page, 'scaling-email-quota-rejection');
   });
 
@@ -202,8 +251,8 @@ test.describe('Level 3 · scaling', () => {
     await lab.action('grow:1', 3);
     await lab.action('grow:2', 4);
     await lab.action('grow:3', 1);
-    await lab.action('rate-more:1', 3);
-    await lab.action('rate-more:3', 1);
+    await lab.action('rate-more:1', 4);
+    await lab.action('rate-more:3', 4);
 
     await setSimulationInterval(page, 80);
     await lab.action('play');
@@ -214,7 +263,7 @@ test.describe('Level 3 · scaling', () => {
     await setSimulationInterval(page, 8);
     await lab.playToOutcome();
     await lab.expectPhase('complete');
-    await expect(lab.dialog).toContainText('480 u');
+    await expect(lab.dialog).toContainText('576 u');
     await expect(lab.dialog).not.toContainText('MISIÓN SUPERADA');
   });
 
@@ -224,7 +273,7 @@ test.describe('Level 3 · scaling', () => {
     await lab.close();
     await lab.playToOutcome();
     await lab.close();
-    await lab.prepareFourWorkerWin();
+    await lab.prepareTwoWorkerWin();
     await lab.playToOutcome();
     await lab.close();
 
@@ -267,7 +316,7 @@ test.describe('Level 3 · scaling', () => {
     const lab = new ScalingLab(page);
     await lab.open();
     await lab.close();
-    await lab.prepareFourWorkerWin();
+    await lab.prepareTwoWorkerWin();
     await lab.playToOutcome();
     await expect(lab.earnedAwards).toHaveCount(2);
 

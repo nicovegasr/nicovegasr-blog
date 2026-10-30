@@ -16,6 +16,7 @@ import {
   AVAILABLE_WORKERS,
   TARGET_COST,
   TARGET_SECONDS,
+  MAX_CONCURRENCY_PER_WORKER,
 } from './engine';
 import type { ScalingConfig } from './engine';
 import { callCopy, scalingNames } from './content';
@@ -40,6 +41,12 @@ const button = (action: string, text: string, extra = '') =>
   `<button type="button" data-action="${action}" ${extra}>${text}</button>`;
 const number = (value: number, digits = 0) =>
   value.toFixed(digits).replace(/\.0+$/, '');
+const stepWithMostWaiting = (waitTicks: number[]) => {
+  const longest = Math.max(...waitTicks);
+  return longest > 0 ? waitTicks.indexOf(longest) : null;
+};
+const teamLabel = ({ workers, concurrencyPerWorker }: ScalingConfig) =>
+  `${workers} W × ${concurrencyPerWorker}`;
 
 /** The controller owns playback and presentation. All processing rules live in engine.ts. */
 class QueueScaling extends HTMLElement {
@@ -65,7 +72,7 @@ class QueueScaling extends HTMLElement {
     return this.querySelector<T>(selector)!;
   }
   private get storageKey() {
-    return `async-scaling-v5-${this.es ? 'es' : 'en'}`;
+    return `async-scaling-v7-${this.es ? 'es' : 'en'}`;
   }
 
   connectedCallback() {
@@ -82,7 +89,7 @@ class QueueScaling extends HTMLElement {
         </div>
         <div class="sc-machine">
           <div class="sc-team">
-            <div class="sc-team-heading">${labFigure('worker')}<div><small data-team-summary>${this.t('EQUIPO · HASTA 8 WORKERS', 'TEAM · UP TO 8 WORKERS')}</small><strong data-name="worker"></strong></div><div class="sc-hire">${button('less', '−', `aria-label="${this.t('Quitar un worker', 'Remove one worker')}" data-config`)}<output data-workers>1</output>${button('more', '+', `aria-label="${this.t('Añadir un worker', 'Add one worker')}" data-config`)}</div></div>
+            <div class="sc-team-heading">${labFigure('worker')}<div><small data-team-summary>${this.t('EQUIPO · HASTA 8 WORKERS', 'TEAM · UP TO 8 WORKERS')}</small><strong data-name="worker"></strong></div><div class="sc-hire"><span>Workers</span>${button('less', '−', `aria-label="${this.t('Quitar un worker', 'Remove one worker')}" data-config`)}<output data-workers>1</output>${button('more', '+', `aria-label="${this.t('Añadir un worker', 'Add one worker')}" data-config`)}</div><div class="sc-hire"><span>${this.t('Pagos a la vez por worker', 'Payments at once per worker')}</span>${button('concurrency-less', '−', `aria-label="${this.t('Reducir los pagos a la vez por worker', 'Reduce payments at once per worker')}" data-config`)}<output data-concurrency>1</output>${button('concurrency-more', '+', `aria-label="${this.t('Aumentar los pagos a la vez por worker', 'Increase payments at once per worker')}" data-config`)}</div></div>
             <div class="sc-worker-rack" data-worker-rack>${Array.from({ length: AVAILABLE_WORKERS }, (_, i) => button(`worker:${i + 1}`, `<span class="sc-worker-name">W${String(i + 1).padStart(2, '0')}</span><span class="sc-worker-character" aria-hidden="true"><span class="sc-worker-sprite"></span><span class="sc-worker-signal" data-worker-signal></span></span><b>—</b><small data-worker-status></small>`, `data-worker="${i + 1}" class="sc-worker" hidden`)).join('')}</div>
           </div>
           <div class="sc-flow">${[0, 1, 2, 3].map((step) => this.stepCard(step)).join('')}</div>
@@ -150,8 +157,8 @@ class QueueScaling extends HTMLElement {
   private loadSession() {
     try {
       const current = sessionStorage.getItem(this.storageKey);
-      // Keep customized names; runs under the old collapse rule are not comparable.
-      const saved = JSON.parse(current ?? sessionStorage.getItem(`async-scaling-v4-${this.es ? 'es' : 'en'}`) ?? '{}');
+      // Keep customized names; runs where a worker held a single payment are not comparable.
+      const saved = JSON.parse(current ?? sessionStorage.getItem(`async-scaling-v6-${this.es ? 'es' : 'en'}`) ?? '{}');
       if (saved.names && typeof saved.names === 'object') {
         for (const key of ['api', 'queue', 'worker'] as const)
           this.names[key] = cleanLabel(saved.names[key], this.names[key]);
@@ -345,6 +352,13 @@ class QueueScaling extends HTMLElement {
           Math.max(1, config.workers + (action === 'more' ? 1 : -1)),
         );
       });
+    if (action === 'concurrency-more' || action === 'concurrency-less')
+      this.configure((config) => {
+        config.concurrencyPerWorker = Math.min(
+          MAX_CONCURRENCY_PER_WORKER,
+          Math.max(1, config.concurrencyPerWorker + (action === 'concurrency-more' ? 1 : -1)),
+        );
+      });
     if (action === 'speed') {
       this.speed = Number(value);
       if (this.state.phase === 'running') this.start();
@@ -416,6 +430,7 @@ class QueueScaling extends HTMLElement {
     });
     this.q('[data-pending]').textContent = String(metrics.pending);
     this.q('[data-workers]').textContent = String(this.config.workers);
+    this.q('[data-concurrency]').textContent = String(this.config.concurrencyPerWorker);
     this.q('[data-done]').textContent = `${metrics.completed}/${PAYMENT_COUNT}`;
     this.q('[data-time]').textContent = `${number(metrics.seconds, 1)} s`;
     this.q('[data-throughput]').textContent =
@@ -442,6 +457,10 @@ class QueueScaling extends HTMLElement {
       playing || this.config.workers === 1;
     this.q<HTMLButtonElement>('[data-action=more]').disabled =
       playing || this.config.workers === AVAILABLE_WORKERS;
+    this.q<HTMLButtonElement>('[data-action=concurrency-less]').disabled =
+      playing || this.config.concurrencyPerWorker === 1;
+    this.q<HTMLButtonElement>('[data-action=concurrency-more]').disabled =
+      playing || this.config.concurrencyPerWorker === MAX_CONCURRENCY_PER_WORKER;
     for (const speed of [1, 2, 4])
       this.q(`[data-action="speed:${speed}"]`).setAttribute(
         'aria-pressed',
@@ -450,8 +469,8 @@ class QueueScaling extends HTMLElement {
     this.renderJobs();
     this.querySelectorAll<HTMLElement>('[data-worker]').forEach((worker) => {
       const id = Number(worker.dataset.worker),
-        job = state.jobs.find((job) => job.worker === id),
-        frame = teamWorkerFrame(state, id);
+        frame = teamWorkerFrame(state, id),
+        job = frame.job === null ? undefined : state.jobs[frame.job - 1];
       worker.hidden = id > this.config.workers;
       worker.classList.toggle('is-busy', !!job);
       worker.classList.toggle('is-waiting', frame.pose.startsWith('waiting'));
@@ -468,7 +487,7 @@ class QueueScaling extends HTMLElement {
       };
       worker.title = `${this.names.worker} ${id} · ${labels[frame.pose]}${job ? ` · ${this.names.jobs[job.id - 1]} · ${this.names.steps[job.step]}` : ''}`;
       worker.setAttribute('aria-label', worker.title);
-      worker.querySelector('b')!.textContent = job ? `#${job.id} · P${job.step + 1}` : '—';
+      worker.querySelector('b')!.textContent = job ? `#${job.id} · P${job.step + 1}${frame.load > 1 ? ` +${frame.load - 1}` : ''}` : '—';
       worker.querySelector('[data-worker-status]')!.textContent = labels[frame.pose];
       worker.querySelector('[data-worker-signal]')!.textContent = {
         idle: '', working: '⚙', 'waiting-cpu': '◷', 'waiting-slot': '◷', 'waiting-service': '◷',
@@ -481,8 +500,8 @@ class QueueScaling extends HTMLElement {
       sprite.style.backgroundPosition = `${(pose % 3) * 50}% ${Math.floor(pose / 3) * 100}%`;
     });
     this.q('[data-team-summary]').textContent = this.t(
-      `EQUIPO · ${metrics.occupied}/${this.config.workers} WORKERS OCUPADOS`,
-      `TEAM · ${metrics.occupied}/${this.config.workers} WORKERS BUSY`,
+      `EQUIPO · ${metrics.occupied}/${this.config.workers} WORKERS · ${metrics.inFlight}/${this.config.workers * this.config.concurrencyPerWorker} PAGOS EN CURSO`,
+      `TEAM · ${metrics.occupied}/${this.config.workers} WORKERS · ${metrics.inFlight}/${this.config.workers * this.config.concurrencyPerWorker} PAYMENTS IN FLIGHT`,
     );
     metrics.steps.forEach((step, index) => {
       const node = this.q(`[data-step="${index}"]`);
@@ -500,11 +519,13 @@ class QueueScaling extends HTMLElement {
         : state.phase === 'rate-limited'
         ? this.t('Ensayo detenido', 'Trial stopped')
         : step.waiting.length
-        ? this.t('Sin plazas · espera local', 'Full · waiting locally')
+        ? index === 0 && step.active.length < step.capacity
+          ? this.t('Cada worker valida de uno en uno', 'Each worker validates one at a time')
+          : this.t('Sin plazas · espera local', 'Full · waiting locally')
         : step.active.length
         ? this.t('En marcha', 'Working')
         : this.t('Disponible', 'Available');
-      this.q(`[data-wait-label="${index}"]`).textContent = `${step.waiting.length} ${this.t('esperando plaza', 'waiting for a slot')}${step.rejected.length ? this.t(' · 1 rechazada (429)', ' · 1 rejected (429)') : ''}`;
+      this.q(`[data-wait-label="${index}"]`).textContent = `${step.waiting.length} ${index === 0 ? this.t('esperando CPU', 'waiting for CPU') : this.t('esperando plaza', 'waiting for a slot')}${step.rejected.length ? this.t(' · 1 rechazada (429)', ' · 1 rejected (429)') : ''}`;
       this.q(`[data-resource-size="${index}"]`).textContent = String(step.capacity);
       this.q<HTMLButtonElement>(`[data-action="grow:${index}"]`).disabled = playing || step.capacity === 8;
       this.q<HTMLButtonElement>(`[data-action="shrink:${index}"]`).disabled = playing || step.capacity === 1;
@@ -578,17 +599,17 @@ class QueueScaling extends HTMLElement {
       text = this.t(`HTTP 429 en ${this.names.steps[state.rateLimit.step]}: se agotó la cuota de ${state.rateLimit.limit} peticiones/s. El servicio sigue activo. El ensayo se detuvo y los pagos se conservan.`, `HTTP 429 at ${this.names.steps[state.rateLimit.step]}: the quota of ${state.rateLimit.limit} requests/s was exhausted. The service is still up. The trial stopped and payments are retained.`);
     else if (this.selectedJob) {
       const job = state.jobs[this.selectedJob - 1]!;
-      text = `${this.names.jobs[job.id - 1]} · ${job.status === 'done' ? this.t('completado', 'complete') : job.status === 'pending' ? this.t('guardado, esperando un worker', 'stored, waiting for a worker') : `${this.names.steps[job.step]} · ${job.status === 'waiting' ? this.t('esperando una plaza antes de enviar; su worker sigue ocupado', 'waiting for a slot before sending; its worker remains busy') : this.t('ejecutándose ahora', 'running now')}`}`;
+      text = `${this.names.jobs[job.id - 1]} · ${job.status === 'done' ? this.t('completado', 'complete') : job.status === 'pending' ? this.t('guardado, esperando un worker', 'stored, waiting for a worker') : `${this.names.steps[job.step]} · ${job.status === 'waiting' ? job.step === 0 ? this.t('esperando CPU; su worker valida de uno en uno', 'waiting for CPU; its worker validates one at a time') : this.t('esperando una plaza antes de enviar; su worker lo conserva', 'waiting for a slot before sending; its worker holds it') : this.t('ejecutándose ahora', 'running now')}`}`;
     } else if (state.phase === 'ready')
       text =
-        this.config.workers === 1
+        this.config.workers === 1 && this.config.concurrencyPerWorker === 1
           ? this.t(
-              '24 clientes esperando. Un worker se encarga de cada pago de principio a fin.',
-              '24 customers waiting. One worker takes each payment from start to finish.',
+              '24 clientes esperando. Este worker lleva un pago a la vez: mientras espera a Stripe no hace nada más.',
+              '24 customers waiting. This worker holds one payment at a time: while it awaits Stripe, it does nothing else.',
             )
           : this.t(
-              `Equipo preparado: ${this.config.workers} workers. Ponlo en marcha y sigue los pagos verdes.`,
-              `Team ready: ${this.config.workers} workers. Start it and follow the green payments.`,
+              `Equipo preparado: ${this.config.workers} × ${this.config.concurrencyPerWorker} pagos a la vez. Ponlo en marcha y sigue los pagos verdes.`,
+              `Team ready: ${this.config.workers} × ${this.config.concurrencyPerWorker} payments at once. Start it and follow the green payments.`,
             );
     else if (state.phase === 'paused')
       text = this.t(
@@ -603,10 +624,15 @@ class QueueScaling extends HTMLElement {
             : best,
         0,
       );
-      text = this.t(
-        `${this.names.steps[busiest]} tiene ${metrics.steps[busiest]!.waiting.length} pagos esperando plaza. Sus workers conservan el pago: todavía no enviaron esas peticiones.`,
-        `${this.names.steps[busiest]} has ${metrics.steps[busiest]!.waiting.length} payments waiting for slots. Their workers hold the payments: those requests have not been sent yet.`,
-      );
+      text = busiest === 0
+        ? this.t(
+            `${this.names.steps[0]} tiene ${metrics.steps[0]!.waiting.length} pagos esperando CPU. Cada worker valida de uno en uno: llevar más pagos no acelera esta parte.`,
+            `${this.names.steps[0]} has ${metrics.steps[0]!.waiting.length} payments waiting for CPU. Each worker validates one at a time: holding more payments does not speed this part up.`,
+          )
+        : this.t(
+            `${this.names.steps[busiest]} tiene ${metrics.steps[busiest]!.waiting.length} pagos esperando plaza. Sus workers conservan el pago: todavía no enviaron esas peticiones.`,
+            `${this.names.steps[busiest]} has ${metrics.steps[busiest]!.waiting.length} payments waiting for slots. Their workers hold the payments: those requests have not been sent yet.`,
+          );
     } else if (state.phase === 'complete')
       text = scalingVerdict(state).won
         ? this.t(
@@ -617,7 +643,7 @@ class QueueScaling extends HTMLElement {
             'Todos llegaron. Compara el tiempo y el coste antes de decidir qué cambiar.',
             'All arrived. Compare time and cost before choosing what to change.',
           );
-    else if (this.config.workers > 1 && metrics.completed >= 2)
+    else if (this.config.workers * this.config.concurrencyPerWorker > 1 && metrics.completed >= 2)
       text = this.t(
         '¡Ahora sí! La cola baja más rápido. Fíjate en las plazas de cada servicio antes de seguir contratando.',
         'That’s better! The queue is shrinking faster. Watch each service’s slots before adding more workers.',
@@ -646,7 +672,7 @@ class QueueScaling extends HTMLElement {
           .slice(-4)
           .map(
             (trial) =>
-              `<span class="sc-trial ${trial.won ? 'is-won' : ''}">${trial.config.workers} W <span>→</span> ${number(trial.seconds, 1)} s <small>· ${number(trial.cost)} u</small></span>`,
+              `<span class="sc-trial ${trial.won ? 'is-won' : ''}">${teamLabel(trial.config)} <span>→</span> ${number(trial.seconds, 1)} s <small>· ${number(trial.cost)} u</small></span>`,
           )
           .join('')
       : `<small>${this.t('Tus resultados aparecerán aquí. Compara tus propios intentos.', 'Your results will appear here. Compare your own trials.')}</small>`;
@@ -711,10 +737,15 @@ class QueueScaling extends HTMLElement {
         ? this.t('Llegaron. Los últimos esperaron demasiado.', 'They arrived. The last ones waited too long.')
         : this.t('Llegaron. A un coste demasiado alto.', 'They arrived. At too high a cost.');
     const previous = this.history.slice(0, -1).findLast((trial) => trial.completed === PAYMENT_COUNT);
-    const currentResult = `<div><small>${this.t('ESTE INTENTO', 'THIS TRIAL')} · ${this.config.workers} WORKERS</small><strong>${number(metrics.seconds, 1)} s</strong><span>${number(metrics.throughput, 2)} ${this.t('pagos/s', 'payments/s')} · ${number(metrics.cost)} u</span></div>`;
+    const currentResult = `<div><small>${this.t('ESTE INTENTO', 'THIS TRIAL')} · ${teamLabel(this.config)}</small><strong>${number(metrics.seconds, 1)} s</strong><span>${number(metrics.throughput, 2)} ${this.t('pagos/s', 'payments/s')} · ${number(metrics.cost)} u</span></div>`;
     const comparison = previous
-      ? `<div class="sc-before-after"><div><small>${this.t('TU INTENTO ANTERIOR', 'YOUR PREVIOUS TRIAL')} · ${previous.config.workers} WORKERS</small><strong>${number(previous.seconds, 1)} s</strong><span>${number(previous.completed / previous.seconds, 2)} ${this.t('pagos/s', 'payments/s')} · ${number(previous.cost)} u</span></div><span aria-hidden="true">→</span>${currentResult}</div>`
+      ? `<div class="sc-before-after"><div><small>${this.t('TU INTENTO ANTERIOR', 'YOUR PREVIOUS TRIAL')} · ${teamLabel(previous.config)}</small><strong>${number(previous.seconds, 1)} s</strong><span>${number(previous.completed / previous.seconds, 2)} ${this.t('pagos/s', 'payments/s')} · ${number(previous.cost)} u</span></div><span aria-hidden="true">→</span>${currentResult}</div>`
       : `<div class="sc-before-after sc-first-result">${currentResult}</div><p class="sc-first-trial">${this.t('Es tu primer intento completado. El siguiente se comparará con este resultado.', 'This is your first completed trial. The next one will be compared with this result.')}</p>`;
+    const busiestWait = stepWithMostWaiting(this.state.waitTicks);
+    const waitingWhere = busiestWait === null ? '' : this.t(
+      ` Donde más se esperó: ${this.names.steps[busiestWait]}.`,
+      ` Most waiting happened at: ${this.names.steps[busiestWait]}.`,
+    );
     const flags = [
       [verdict.fast, `≤ ${TARGET_SECONDS} s`],
       [verdict.economical, `≤ ${TARGET_COST} u`],
@@ -722,7 +753,7 @@ class QueueScaling extends HTMLElement {
     ] as const;
     this.modal(
       title,
-      `<p class="sc-result-label">${verdict.won ? this.t('MISIÓN SUPERADA', 'MISSION COMPLETE') : this.t('ENSAYO TERMINADO · AJUSTA TU SISTEMA', 'TRIAL COMPLETE · ADJUST YOUR SYSTEM')}</p>${comparison}<div class="sc-checks">${flags.map(([ok, label]) => `<span data-ok="${ok}">${ok ? '✓' : '×'} ${label}</span>`).join('')}</div><p>${this.t(`${metrics.completed}/24 pagos · ningún efecto duplicado · ${number(metrics.waitingSeconds, 1)} s de espera acumulada.`, `${metrics.completed}/24 payments · no duplicate effects · ${number(metrics.waitingSeconds, 1)} s of cumulative waiting.`)}</p><p class="sc-call-hint">${verdict.won ? this.t('Los workers y las plazas de los servicios están equilibrados. Compara tus intentos: ampliar todo también tiene un coste.', 'Workers and service slots are balanced. Compare your trials: expanding everything has a cost too.') : this.t('Cada worker conserva su pago mientras espera plaza. Busca dónde se acumula la espera: añadir workers no acelera un servicio que ya está lleno.', 'Each worker holds its payment while waiting for a slot. Find where waiting builds up: adding workers cannot speed up a service that is already full.')}</p>${this.renderNewAwards()}`,
+      `<p class="sc-result-label">${verdict.won ? this.t('MISIÓN SUPERADA', 'MISSION COMPLETE') : this.t('ENSAYO TERMINADO · AJUSTA TU SISTEMA', 'TRIAL COMPLETE · ADJUST YOUR SYSTEM')}</p>${comparison}<div class="sc-checks">${flags.map(([ok, label]) => `<span data-ok="${ok}">${ok ? '✓' : '×'} ${label}</span>`).join('')}</div><p>${this.t(`${metrics.completed}/24 pagos · ningún efecto duplicado · ${number(metrics.waitingSeconds, 1)} s de espera acumulada.${waitingWhere}`, `${metrics.completed}/24 payments · no duplicate effects · ${number(metrics.waitingSeconds, 1)} s of cumulative waiting.${waitingWhere}`)}</p><p class="sc-call-hint">${verdict.won ? this.t('Los workers y las plazas de los servicios están equilibrados. Compara tus intentos: ampliar todo también tiene un coste.', 'Workers and service slots are balanced. Compare your trials: expanding everything has a cost too.') : this.t('Busca dónde se acumula la espera. Sin esperas, cada worker puede llevar más pagos a la vez. Si esperan CPU, hace falta otro worker. Si esperan a un servicio, más workers no lo aceleran: le faltan plazas.', 'Find where waiting builds up. With no waiting, each worker can hold more payments. If they wait for CPU, you need another worker. If they wait for a service, more workers will not speed it up: it needs more slots.')}</p>${this.renderNewAwards()}`,
       this.t('Volver a mi sistema', 'Back to my system'),
       () => { this.q('[data-action=play]').focus({ preventScroll: true }); },
       verdict.won ? 'win' : 'review',
@@ -742,7 +773,7 @@ class QueueScaling extends HTMLElement {
     const metrics = scalingMetrics(this.state);
     this.modal(
       this.t('Pagar por tenerlo reservado.', 'Paying for reserved capacity.'),
-      `<p>${this.t('Son unidades educativas, no euros ni tarifas reales. Cada worker reservado cuesta 1 u por segundo simulado, tanto si trabaja como si espera.', 'These are teaching units, not real prices. Each reserved worker costs 1 unit per simulated second, whether working or waiting.')}</p><p><strong>${this.config.workers} × ${number(metrics.seconds, 1)} s = ${number(metrics.workerCost)} u</strong></p><p>${this.t('El contrato original está incluido. Cada plaza extra añade 1 u/s.', 'The original service contract is included. Each extra concurrent slot adds 1 unit/s.')} ${this.config.capacities.reduce((total, capacity, step) => total + Math.max(0, capacity - BASE_CAPACITIES[step]!), 0)} × ${number(metrics.seconds, 1)} s = ${number(metrics.extraServiceCost)} u.</p><p>${this.t(`Cada petición/s extra de cuota HTTP añade 1 u/s. Cuota extra: ${number(metrics.extraRateCost)} u.`, `Each extra request/s of HTTP quota adds 1 unit/s. Extra quota cost: ${number(metrics.extraRateCost)} units.`)}</p><p>${this.t('Eficiencia = pagos completados / unidades reservadas. El objetivo combina rapidez, plazas, cuota y un coste máximo; no premia únicamente gastar menos.', 'Efficiency = completed payments / reserved units. The mission combines speed, slots, quota and a cost ceiling; spending less alone is not enough.')}</p>`,
+      `<p>${this.t('Son unidades educativas, no euros ni tarifas reales. Cada worker reservado cuesta 1 u por segundo simulado, tanto si trabaja como si espera. Llevar más pagos a la vez no reserva nada extra.', 'These are teaching units, not real prices. Each reserved worker costs 1 unit per simulated second, whether working or waiting. Holding more payments at once reserves nothing extra.')}</p><p><strong>${this.config.workers} × ${number(metrics.seconds, 1)} s = ${number(metrics.workerCost)} u</strong></p><p>${this.t('El contrato original está incluido. Cada plaza extra añade 1 u/s.', 'The original service contract is included. Each extra concurrent slot adds 1 unit/s.')} ${this.config.capacities.reduce((total, capacity, step) => total + Math.max(0, capacity - BASE_CAPACITIES[step]!), 0)} × ${number(metrics.seconds, 1)} s = ${number(metrics.extraServiceCost)} u.</p><p>${this.t(`Cada petición/s extra de cuota HTTP añade 1 u/s. Cuota extra: ${number(metrics.extraRateCost)} u.`, `Each extra request/s of HTTP quota adds 1 unit/s. Extra quota cost: ${number(metrics.extraRateCost)} units.`)}</p><p>${this.t('Eficiencia = pagos completados / unidades reservadas. El objetivo combina rapidez, plazas, cuota y un coste máximo; no premia únicamente gastar menos.', 'Efficiency = completed payments / reserved units. The mission combines speed, slots, quota and a cost ceiling; spending less alone is not enough.')}</p>`,
       this.t('Entendido', 'Got it'),
     );
   }
@@ -753,7 +784,7 @@ class QueueScaling extends HTMLElement {
         'Same work. Different teams.',
       ),
       this.history.length
-        ? `<div class="sc-comparison"><table><thead><tr>${[this.t('Workers / Stripe', 'Workers / Stripe'), this.t('Tiempo', 'Time'), this.t('Espera acumulada', 'Cumulative waiting'), this.t('Coste', 'Cost'), this.t('Pagos/u', 'Payments/u')].map((title) => `<th scope="col">${title}</th>`).join('')}</tr></thead><tbody>${this.history.map((trial, index) => `<tr><td>${button(`replay:${index}`, `${trial.config.workers} W / ${trial.config.capacities[1]} ${trial.won ? '✓' : ''}`, `aria-label="${this.t('Preparar esta configuración', 'Prepare this configuration')}"`)}<small class="sc-trial-config">${trial.config.capacities.map((limit) => limit).join(' / ')}<br />HTTP ${trial.config.rateLimits[1]} / ${trial.config.rateLimits[3]} ${this.t('peticiones/s', 'requests/s')}</small></td><td>${number(trial.seconds, 1)} s${trial.rateLimitedStep !== null ? `<small class="sc-rejected-result">429 · ${this.t('paso', 'step')} ${trial.rateLimitedStep + 1}</small>` : ''}</td><td>${number(trial.waitingSeconds, 1)} s</td><td>${number(trial.cost)} u</td><td>${number(trial.completed / (trial.cost || 1), 3)}</td></tr>`).join('')}</tbody></table></div><p class="sc-call-hint">${this.t('Se guardan los últimos 8 intentos terminados en esta sesión. La reproducción ×1, ×2 o ×4 no altera sus resultados. El coste incluye todas las plazas reservadas. Bajo cada equipo aparecen las cuatro capacidades. La espera suma el tiempo de todos los workers: dos esperando 1 s suman 2 s. Pulsa un equipo para volver a probarlo.', 'The last 8 finished trials are kept in this session. Playback at ×1, ×2 or ×4 never changes their results. Cost includes all reserved slots. Each team shows its four resource capacities. Waiting adds up across workers: two waiting for 1 s count as 2 s. Click a team to try it again.')}</p>`
+        ? `<div class="sc-comparison"><table><thead><tr>${[this.t('Workers / Stripe', 'Workers / Stripe'), this.t('Tiempo', 'Time'), this.t('Espera acumulada', 'Cumulative waiting'), this.t('Coste', 'Cost'), this.t('Pagos/u', 'Payments/u')].map((title) => `<th scope="col">${title}</th>`).join('')}</tr></thead><tbody>${this.history.map((trial, index) => `<tr><td>${button(`replay:${index}`, `${teamLabel(trial.config)} / ${trial.config.capacities[1]} ${trial.won ? '✓' : ''}`, `aria-label="${this.t('Preparar esta configuración', 'Prepare this configuration')}"`)}<small class="sc-trial-config">${trial.config.capacities.map((limit) => limit).join(' / ')}<br />HTTP ${trial.config.rateLimits[1]} / ${trial.config.rateLimits[3]} ${this.t('peticiones/s', 'requests/s')}</small></td><td>${number(trial.seconds, 1)} s${trial.rateLimitedStep !== null ? `<small class="sc-rejected-result">429 · ${this.t('paso', 'step')} ${trial.rateLimitedStep + 1}</small>` : ''}</td><td>${number(trial.waitingSeconds, 1)} s</td><td>${number(trial.cost)} u</td><td>${number(trial.completed / (trial.cost || 1), 3)}</td></tr>`).join('')}</tbody></table></div><p class="sc-call-hint">${this.t('Se guardan los últimos 8 intentos terminados en esta sesión. La reproducción ×1, ×2 o ×4 no altera sus resultados. El coste incluye todas las plazas reservadas. Bajo cada equipo aparecen las cuatro capacidades. La espera suma el tiempo de todos los pagos: dos esperando 1 s suman 2 s. Pulsa un equipo para volver a probarlo.', 'The last 8 finished trials are kept in this session. Playback at ×1, ×2 or ×4 never changes their results. Cost includes all reserved slots. Each team shows its four resource capacities. Waiting adds up across payments: two waiting for 1 s count as 2 s. Click a team to try it again.')}</p>`
         : `<p>${this.t('Completa un intento para empezar a comparar. No guardamos los que reinicias a medias.', 'Finish a trial to start comparing. Runs reset halfway are not saved.')}</p>`,
       this.t('Seguir probando', 'Keep experimenting'),
     );

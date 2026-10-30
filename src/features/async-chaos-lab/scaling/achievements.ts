@@ -5,10 +5,13 @@ import {
 import type { ScalingConfig, ScalingState } from './engine';
 
 export function minimumWorkers(config: Pick<ScalingConfig, 'durations'>): number {
-  // Every payment holds its worker through all four operations. No resource
-  // upgrade can reduce this total service time per worker.
-  const workSeconds = PAYMENT_COUNT * config.durations.reduce((sum, ticks) => sum + ticks, 0) * TICK_SECONDS;
-  return Math.ceil(workSeconds / TARGET_SECONDS);
+  // A worker validates one payment at a time, however many it holds, and the
+  // last validation must leave time for the remaining operations. No resource
+  // upgrade or extra concurrency can shorten this.
+  const [cpuTicks, ...remainingTicks] = config.durations;
+  const cpuSeconds = PAYMENT_COUNT * cpuTicks * TICK_SECONDS;
+  const remainingSeconds = remainingTicks.reduce((sum, ticks) => sum + ticks, 0) * TICK_SECONDS;
+  return Math.ceil(cpuSeconds / (TARGET_SECONDS - remainingSeconds));
 }
 export type ScalingAchievementId = 'pods-only' | 'on-time' | 'minimum-team';
 export const scalingAchievements: {
@@ -34,7 +37,7 @@ export function eligibleAchievements(state: ScalingState): ScalingAchievementId[
   const verdict = scalingVerdict(state);
   const completed = state.phase === 'complete';
   const conditions: Record<ScalingAchievementId, boolean> = {
-    'pods-only': state.config.workers > 1 && state.config.capacities.every((capacity, i) => capacity === BASE_CAPACITIES[i]) && ([1, 3] as const).every((step) => state.config.rateLimits[step] === BASE_RATE_LIMITS[step]),
+    'pods-only': state.config.workers > 1 && state.config.concurrencyPerWorker === 1 && state.config.capacities.every((capacity, i) => capacity === BASE_CAPACITIES[i]) && ([1, 3] as const).every((step) => state.config.rateLimits[step] === BASE_RATE_LIMITS[step]),
     'on-time': completed && verdict.fast && verdict.safe,
     'minimum-team': verdict.won && state.config.workers === minimumWorkers(state.config),
   };

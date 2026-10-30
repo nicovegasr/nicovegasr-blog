@@ -6,12 +6,14 @@ import {
 import type { ScalingConfig, ScalingState } from './engine';
 
 function config(workers: number, capacities: ScalingConfig['capacities'] = [4, 3, 2, 5]): ScalingConfig {
-  return { ...scalingDefaults(), workers, capacities, rateLimits: { 1: Math.max(3, capacities[1]), 3: Math.max(5, capacities[3]) } };
+  return { ...scalingDefaults(), workers, capacities, rateLimits: { 1: capacities[1], 3: capacities[3] } };
 }
 function invariants(state: ScalingState) {
   const owned = state.jobs.filter((job) => job.worker !== null);
-  expect(new Set(owned.map((job) => job.worker)).size).toBe(owned.length);
-  expect(owned.length).toBeLessThanOrEqual(state.config.workers);
+  for (let worker = 1; worker <= state.config.workers; worker++)
+    expect(owned.filter((job) => job.worker === worker).length).toBeLessThanOrEqual(state.config.concurrencyPerWorker);
+  const validating = owned.filter((job) => job.step === 0 && job.status === 'running').map((job) => job.worker);
+  expect(new Set(validating).size).toBe(validating.length);
   expect(state.jobs).toHaveLength(PAYMENT_COUNT);
   for (const job of state.jobs) {
     expect(job.effects.every((count) => count <= 1)).toBe(true);
@@ -93,11 +95,56 @@ describe('Scaling actual resource capacity', () => {
     expect(larger.waitingSeconds).toBeGreaterThan(smaller.waitingSeconds);
     expect(larger.workerCost).toBe(smaller.workerCost * 2);
   });
-  it('lets four workers win by preparing both receiving services', () => {
-    const result = runScaling(config(4, [4, 4, 4, 5]));
-    expect(result.phase).toBe('complete');
-    expect(scalingMetrics(result).seconds).toBe(36);
-    expect(scalingMetrics(result).cost).toBe(288);
+  it('lets a worker hold several payments while it awaits replies', () => {
+    let state = playScaling(createScaling({ ...scalingDefaults(), concurrencyPerWorker: 3 }));
+    state = tickScaling(tickScaling(state));
+    expect(scalingMetrics(state)).toMatchObject({ occupied: 1, inFlight: 3 });
+    expect(state.jobs[0]).toMatchObject({ worker: 1, step: 1, status: 'running' });
+    expect(state.jobs[1]).toMatchObject({ worker: 1, step: 0, status: 'running' });
+    expect(state.jobs[2]).toMatchObject({ worker: 1, step: 0, status: 'waiting' });
+    expect(state.jobs[3]).toMatchObject({ worker: null, status: 'pending' });
+    invariants(state);
+  });
+  it('validates one payment at a time per worker even with free CPU slots', () => {
+    const state = playScaling(createScaling({ ...scalingDefaults(), workers: 2, concurrencyPerWorker: 4 }));
+    const validating = scalingMetrics(state).steps[0]!.active;
+    expect(validating.map((job) => job.worker)).toEqual([1, 2]);
+    expect(scalingMetrics(state).steps[0]!.capacity).toBe(4);
+    expect(scalingMetrics(state).steps[0]!.waiting).toHaveLength(6);
+  });
+  it('shares payments evenly across the team', () => {
+    const state = playScaling(createScaling({ ...scalingDefaults(), workers: 2, concurrencyPerWorker: 2 }));
+    expect(state.jobs.slice(0, 4).map((job) => job.worker)).toEqual([1, 2, 1, 2]);
+    expect(state.jobs[4]).toMatchObject({ worker: null, status: 'pending' });
+  });
+  it('moves the bottleneck as each limit is lifted, and only both win', () => {
+    const attempt = (workers: number, concurrencyPerWorker: number, stripe: number) => {
+      const result = runScaling({ ...scalingDefaults(), workers, concurrencyPerWorker, capacities: [4, stripe, 2, 5] });
+      invariants(result);
+      return { seconds: scalingMetrics(result).seconds, won: scalingVerdict(result).won };
+    };
+    expect(attempt(1, 1, 3)).toEqual({ seconds: 144, won: false });
+    expect(attempt(1, 6, 3), 'concurrency alone hits the CPU of one worker').toEqual({ seconds: 29, won: false });
+    expect(attempt(1, 8, 4), 'more Stripe slots cannot help a saturated CPU').toEqual({ seconds: 29, won: false });
+    expect(attempt(2, 6, 3), 'a second worker only reaches a full Stripe').toEqual({ seconds: 28, won: false });
+    expect(attempt(2, 3, 4), 'the team must hold enough payments to use the slot').toEqual({ seconds: 27, won: false });
+    expect(attempt(2, 4, 4)).toEqual({ seconds: 22, won: true });
+  });
+  it('never wins by adding workers without concurrency: reserving them costs too much', () => {
+    for (let workers = 1; workers <= 8; workers++) {
+      const result = runScaling({ ...scalingDefaults(), workers, capacities: [8, 8, 8, 8], rateLimits: { 1: 8, 3: 8 } });
+      expect(scalingVerdict(result).won, `${workers} workers`).toBe(false);
+    }
+  });
+  it('still reaches the HTTP quota when the team validates faster than it allows', () => {
+    const result = runScaling({ ...scalingDefaults(), workers: 3, concurrencyPerWorker: 6 });
+    expect(result.phase).toBe('rate-limited');
+    expect(result.rateLimit).toMatchObject({ step: 1, limit: 2 });
+    invariants(result);
+  });
+  it('lets a larger team win if it pays for slots and quota within the budget', () => {
+    const result = runScaling({ ...scalingDefaults(), workers: 3, concurrencyPerWorker: 6, capacities: [4, 6, 2, 5], rateLimits: { 1: 3, 3: 2 } });
+    expect(scalingMetrics(result)).toMatchObject({ seconds: 17, cost: 119 });
     expect(scalingVerdict(result).won).toBe(true);
     invariants(result);
   });
@@ -161,7 +208,7 @@ describe('Scaling actual resource capacity', () => {
     const metrics = scalingMetrics(state);
     expect(metrics.workerCost).toBe(4 * 36);
     expect(metrics.extraServiceCost).toBe(3 * 36);
-    expect(metrics.extraRateCost).toBe(36);
+    expect(metrics.extraRateCost).toBe(5 * 36);
     expect(metrics.cost).toBe(metrics.workerCost + metrics.extraServiceCost + metrics.extraRateCost);
   });
   it('allows oversized engine experiments but never grants an oversized mission victory', () => {
@@ -169,19 +216,25 @@ describe('Scaling actual resource capacity', () => {
     expect(scalingVerdict(result).won).toBe(false);
   });
   it('returns 429 with free concurrency slots, preserving the rejected payment and earlier effects', () => {
-    const settings = { ...scalingDefaults(), workers: 4, capacities: [4, 4, 2, 5] as ScalingConfig['capacities'] };
-    const s = runScaling(settings);
+    const s = runScaling({ ...scalingDefaults(), workers: 3 });
     expect(s.phase).toBe('rate-limited');
-    expect(s.rateLimit).toEqual({ step: 1, job: 4, limit: 3, retryAfterSeconds: 1 });
-    expect(scalingMetrics(s).steps[1]!.active).toHaveLength(3);
-    expect(scalingMetrics(s).steps[1]!.capacity).toBe(4);
-    expect(s.jobs[3]).toMatchObject({ id: 4, worker: 4, step: 1, status: 'rejected', effects: [1, 0, 0, 0] });
+    expect(s.rateLimit).toEqual({ step: 1, job: 3, limit: 2, retryAfterSeconds: 1 });
+    expect(scalingMetrics(s).steps[1]!.active).toHaveLength(2);
+    expect(scalingMetrics(s).steps[1]!.capacity).toBe(3);
+    expect(s.jobs[2]).toMatchObject({ id: 3, worker: 3, step: 1, status: 'rejected', effects: [1, 0, 0, 0] });
     expect(s.jobs).toHaveLength(PAYMENT_COUNT);
     expect(s.events.filter((event) => event.kind === 'rate-limit')).toHaveLength(1);
     expect(scalingVerdict(s).won).toBe(false);
     expect(tickScaling(s)).toBe(s);
     expect(playScaling(s)).toBe(s);
     invariants(s);
+  });
+  it('moves the 429 to email when a wider database lets more payments reach it', () => {
+    const narrow = runScaling({ ...scalingDefaults(), workers: 5, rateLimits: { 1: 3, 3: 2 } });
+    expect(narrow.phase).toBe('complete');
+    const wide = runScaling({ ...scalingDefaults(), workers: 5, capacities: [4, 3, 3, 5], rateLimits: { 1: 3, 3: 2 } });
+    expect(wide.phase).toBe('rate-limited');
+    expect(wide.rateLimit?.step).toBe(3);
   });
   it('waits for occupied slots before attempting another request, so no unnecessary 429 is sent', () => {
     const settings = { ...config(4, [4, 1, 2, 5]), rateLimits: { 1: 1, 3: 5 } };
@@ -223,6 +276,8 @@ describe('Scaling actual resource capacity', () => {
   it('validates resource capacity and worker counts', () => {
     expect(() => createScaling(config(0))).toThrow();
     expect(() => createScaling(config(25))).toThrow();
+    expect(() => createScaling({ ...config(1), concurrencyPerWorker: 0 })).toThrow();
+    expect(() => createScaling({ ...config(1), concurrencyPerWorker: 9 })).toThrow();
     expect(() => createScaling({ ...config(4), rateLimits: { 1: 0, 3: 5 } })).toThrow();
     expect(() => createScaling({ ...config(4), rateLimits: { 1: 3, 3: 9 } })).toThrow();
     expect(() => createScaling(config(4, [4, 0, 2, 5]))).toThrow();

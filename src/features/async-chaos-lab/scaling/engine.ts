@@ -2,15 +2,17 @@
 export const TICK_SECONDS = 0.5;
 export const PAYMENT_COUNT = 24;
 export const AVAILABLE_WORKERS = 8;
-export const TARGET_SECONDS = 37;
-export const TARGET_COST = 400;
+export const MAX_CONCURRENCY_PER_WORKER = 8;
+export const TARGET_SECONDS = 25;
+export const TARGET_COST = 120;
 export type Four<T> = [T, T, T, T];
 export type HttpStep = 1 | 3;
 export const isHttpStep = (step: number): step is HttpStep => step === 1 || step === 3;
-export const BASE_RATE_LIMITS: Record<HttpStep, number> = { 1: 3, 3: 5 };
+export const BASE_RATE_LIMITS: Record<HttpStep, number> = { 1: 2, 3: 2 };
 export const RATE_WINDOW_TICKS = 1 / TICK_SECONDS;
 export type ScalingConfig = {
   workers: number;
+  concurrencyPerWorker: number; // payments a worker can hold at once
   capacities: Four<number>;
   durations: Four<number>; // ticks, including time spent using the resource
   rateLimits: Record<HttpStep, number>; // accepted HTTP requests per fixed 1 s window
@@ -45,6 +47,7 @@ export type ScalingState = {
 };
 export const scalingDefaults = (): ScalingConfig => ({
   workers: 1,
+  concurrencyPerWorker: 1,
   capacities: [4, 3, 2, 5],
   durations: [2, 6, 2, 2],
   rateLimits: { ...BASE_RATE_LIMITS },
@@ -57,6 +60,9 @@ export function createScaling(config = scalingDefaults()): ScalingState {
     !Number.isInteger(config.workers) ||
     config.workers < 1 ||
     config.workers > 24 ||
+    !Number.isInteger(config.concurrencyPerWorker) ||
+    config.concurrencyPerWorker < 1 ||
+    config.concurrencyPerWorker > MAX_CONCURRENCY_PER_WORKER ||
     config.capacities.length !== 4 ||
     config.durations.length !== 4 ||
     config.capacities.some((capacity) => !Number.isInteger(capacity) || capacity < 1 || capacity > 8) ||
@@ -98,15 +104,22 @@ function schedule(state: ScalingState) {
     state.rateWindow = window;
     state.requestsInWindow = [0, 0, 0, 0];
   }
-  const occupied = new Set(state.jobs.map((job) => job.worker));
-  for (let worker = 1; worker <= state.config.workers; worker++) {
-    if (occupied.has(worker)) continue;
-    const job = state.jobs.find((candidate) => candidate.status === 'pending');
-    if (!job) break;
+  const load = Array.from({ length: state.config.workers + 1 }, () => 0);
+  for (const job of state.jobs) if (job.worker !== null) load[job.worker]!++;
+  for (const job of state.jobs.filter((candidate) => candidate.status === 'pending')) {
+    // Payments go to the least loaded worker, so a team shares them evenly.
+    let worker = 1;
+    for (let candidate = 2; candidate <= state.config.workers; candidate++)
+      if (load[candidate]! < load[worker]!) worker = candidate;
+    if (load[worker]! >= state.config.concurrencyPerWorker) break;
+    load[worker]!++;
     job.worker = worker;
     job.status = 'waiting';
     job.waitingSince = state.tick;
   }
+  const workersOnCpu = new Set(
+    state.jobs.filter((job) => job.step === 0 && job.status === 'running').map((job) => job.worker),
+  );
   const capacities = resourceCapacities(state.config);
   for (let step = 0; step < 4; step++) {
     let active = state.jobs.filter(
@@ -120,6 +133,9 @@ function schedule(state: ScalingState) {
       // waits locally before sending a call. Async I/O alone does not do this.
       // FIFO keeps later arrivals from overtaking a worker already waiting.
       if (active >= capacities[step]!) break;
+      // Awaiting a reply frees the worker for another payment, but CPU work does
+      // not: a worker validates one payment at a time however many it holds.
+      if (step === 0 && workersOnCpu.has(job.worker)) continue;
       if (isHttpStep(step)) {
         const limit = state.config.rateLimits[step];
         // The provider quota is independent of the worker's concurrency gate.
@@ -136,6 +152,7 @@ function schedule(state: ScalingState) {
         }
         state.requestsInWindow[step]++;
       }
+      if (step === 0) workersOnCpu.add(job.worker);
       job.status = 'running';
       job.until = state.tick + state.config.durations[step]!;
       active++;
@@ -200,7 +217,8 @@ export function scalingMetrics(state: ScalingState) {
     seconds,
     completed,
     pending: state.jobs.filter((job) => job.status === 'pending').length,
-    occupied: state.jobs.filter((job) => job.worker !== null).length,
+    occupied: new Set(state.jobs.flatMap((job) => job.worker ?? [])).size,
+    inFlight: state.jobs.filter((job) => job.worker !== null).length,
     waiting: state.jobs.filter(
       (job) => job.status === 'waiting',
     ).length,

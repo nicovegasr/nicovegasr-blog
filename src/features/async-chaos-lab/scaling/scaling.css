@@ -172,6 +172,7 @@ queue-scaling-game .sc-team {
 }
 queue-scaling-game .sc-team-heading {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.6rem;
   align-items: center;
 }
@@ -201,6 +202,12 @@ queue-scaling-game .sc-hire {
   gap: 0.35rem;
   margin-left: auto;
   flex-shrink: 0;
+}
+queue-scaling-game .sc-hire > span {
+  max-width: 6.5rem;
+  color: var(--color-text-soft);
+  font: 0.55rem/1.25 var(--font-family-mono);
+  text-align: right;
 }
 queue-scaling-game .sc-hire button {
   width: 31px;

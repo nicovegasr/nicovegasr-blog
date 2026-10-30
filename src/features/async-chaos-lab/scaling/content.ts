@@ -25,8 +25,8 @@ export function callCopy(_scene: 'intro', names: Names, es: boolean) {
       `24 payments arrived at ${names.api}. They are stored safely, but with one ${names.worker}, customers face a long wait. Can you speed this up?`,
     ),
     hint: t(
-      'Hay dos límites. Si las plazas simultáneas están llenas, el worker conserva su pago y espera antes de enviar. Los servicios HTTP tienen además una cuota por segundo: superarla devuelve un 429 y detiene el ensayo, aunque haya plazas libres. El servicio no se cae.',
-      'There are two limits. If concurrent slots are full, the worker holds its payment and waits before sending. HTTP services also have a per-second quota: exceeding it returns a 429 and stops the trial, even with free slots. The service does not go down.',
+      'Hay dos límites. Si las plazas simultáneas están llenas, el worker conserva su pago y espera antes de enviar. Los servicios HTTP tienen además una cuota por segundo: superarla devuelve un 429 y detiene el ensayo, aunque haya plazas libres. El servicio no se cae. Un worker puede llevar varios pagos a la vez: mientras espera una respuesta atiende otro, pero solo valida uno cada vez.',
+      'There are two limits. If concurrent slots are full, the worker holds its payment and waits before sending. HTTP services also have a per-second quota: exceeding it returns a 429 and stops the trial, even with free slots. The service does not go down. A worker can hold several payments at once: while awaiting a reply it serves another, but it validates only one at a time.',
     ),
     action: t('Déjame ver el sistema', 'Show me the system'),
   };
