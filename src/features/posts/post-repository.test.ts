@@ -4,11 +4,27 @@ const { getCollection } = vi.hoisted(() => ({ getCollection: vi.fn() }));
 
 vi.mock('astro:content', () => ({ getCollection, render: vi.fn() }));
 
-import { findRelatedPosts } from '@/features/posts/post-repository';
+import {
+  findAllPosts,
+  findHostedPosts,
+  findRelatedPosts,
+  findRenderablePost,
+} from '@/features/posts/post-repository';
 
-type EntryInput = { id: string; tags?: string[]; publicationDate?: string };
+const EXTERNAL = {
+  url: 'https://example.com/a-post',
+  publisher: 'Example',
+  readingTimeInMinutes: 7,
+};
 
-const buildEntry = ({ id, tags = [], publicationDate = '2020-01-01' }: EntryInput) => ({
+type EntryInput = {
+  id: string;
+  tags?: string[];
+  publicationDate?: string;
+  external?: typeof EXTERNAL;
+};
+
+const buildEntry = ({ id, tags = [], publicationDate = '2020-01-01', external }: EntryInput) => ({
   id,
   body: 'body text',
   data: {
@@ -17,6 +33,7 @@ const buildEntry = ({ id, tags = [], publicationDate = '2020-01-01' }: EntryInpu
     publicationDate: new Date(publicationDate),
     lastUpdateDate: undefined,
     tags,
+    external,
   },
 });
 
@@ -24,6 +41,26 @@ const givenEntries = (...entries: EntryInput[]) =>
   getCollection.mockResolvedValue(entries.map(buildEntry));
 
 beforeEach(() => getCollection.mockReset());
+
+describe('external posts', () => {
+  it('are listed with the declared reading time', async () => {
+    givenEntries({ id: 'es/elsewhere', external: EXTERNAL });
+
+    const [post] = await findAllPosts('es');
+
+    expect(post?.readingTimeInMinutes).toBe(7);
+    expect(post?.external).toEqual({ url: EXTERNAL.url, publisher: EXTERNAL.publisher });
+  });
+
+  it('get no page of their own', async () => {
+    givenEntries({ id: 'es/hosted' }, { id: 'es/elsewhere', external: EXTERNAL });
+
+    const hosted = await findHostedPosts('es');
+
+    expect(hosted.map((post) => post.slug)).toEqual(['hosted']);
+    expect(await findRenderablePost('es', 'elsewhere')).toBeNull();
+  });
+});
 
 describe('findRelatedPosts', () => {
   it('ranks by shared tag count, breaking ties by most recent', async () => {

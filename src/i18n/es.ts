@@ -25,6 +25,7 @@ export const spanish = {
   'blog.starCount': 'Estrellas del repositorio en GitHub',
   'blog.readingTime': 'min de lectura',
   'blog.readMore': 'Leer →',
+  'blog.readOn': 'Leer en',
   'blog.empty': 'Aún no hay artículos publicados.',
   'blog.searchPlaceholder': 'Buscar artículos…',
   'blog.searchEmpty': 'Ningún artículo coincide con la búsqueda.',

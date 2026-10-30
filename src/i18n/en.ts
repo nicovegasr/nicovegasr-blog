@@ -27,6 +27,7 @@ export const english: Dictionary = {
   'blog.starCount': 'GitHub repository stars',
   'blog.readingTime': 'min read',
   'blog.readMore': 'Read →',
+  'blog.readOn': 'Read on',
   'blog.empty': 'No articles published yet.',
   'blog.searchPlaceholder': 'Search articles…',
   'blog.searchEmpty': 'No articles match your search.',

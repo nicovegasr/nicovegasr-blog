@@ -5,7 +5,7 @@ import RelatedPosts from '@/features/posts/components/RelatedPosts.astro';
 import { getTranslator } from '@/i18n/translator';
 import { buildPagePath, buildBlogPostPath } from '@/i18n/routes';
 import {
-  findAllPosts,
+  findHostedPosts,
   findRelatedPosts,
   findRenderablePost,
 } from '@/features/posts/post-repository';
@@ -13,7 +13,7 @@ import {
 const locale = 'es';
 
 export async function getStaticPaths() {
-  const posts = await findAllPosts('es');
+  const posts = await findHostedPosts('es');
   return posts.map((post) => ({ params: { slug: post.slug } }));
 }
 

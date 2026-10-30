@@ -1,6 +1,7 @@
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import type { Locale } from '@/i18n/locale';
 import {
+  isHosted,
   isPublished,
   sharedTagCountWith,
   type Post,
@@ -22,8 +23,14 @@ const toPost = (entry: CollectionEntry<'posts'>): Post | null => {
     publicationDate: entry.data.publicationDate,
     lastUpdateDate: entry.data.lastUpdateDate,
     tags: entry.data.tags,
-    readingTimeInMinutes: calculateReadingTimeInMinutes(entry.body ?? ''),
+    readingTimeInMinutes:
+      entry.data.external?.readingTimeInMinutes ??
+      calculateReadingTimeInMinutes(entry.body ?? ''),
     translationSlug: entry.data.translationSlug,
+    external: entry.data.external && {
+      url: entry.data.external.url,
+      publisher: entry.data.external.publisher,
+    },
   };
 };
 
@@ -39,6 +46,11 @@ export const findAllPosts = async (locale: Locale): Promise<readonly Post[]> => 
     .filter((post) => post.locale === locale)
     .filter((post) => isPublished(post))
     .sort(byNewestFirst);
+};
+
+export const findHostedPosts = async (locale: Locale): Promise<readonly Post[]> => {
+  const posts = await findAllPosts(locale);
+  return posts.filter(isHosted);
 };
 
 type RenderablePost = {
@@ -62,7 +74,7 @@ export const findRenderablePost = async (
   }
 
   const post = toPost(entry);
-  if (post === null || !isPublished(post)) {
+  if (post === null || !isPublished(post) || !isHosted(post)) {
     return null;
   }
 

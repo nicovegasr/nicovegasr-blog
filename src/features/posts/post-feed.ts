@@ -1,7 +1,7 @@
 import rss from '@astrojs/rss';
 import type { Locale } from '@/i18n/locale';
 import { getTranslator } from '@/i18n/translator';
-import { buildBlogPostPath } from '@/i18n/routes';
+import { buildPostLink } from '@/features/posts/post';
 import { findAllPosts } from '@/features/posts/post-repository';
 
 // Builds the localized blog RSS feed. The per-locale endpoints under pages/
@@ -25,7 +25,7 @@ export const buildPostsRssFeed = async (
       title: post.title,
       description: post.summary,
       pubDate: post.publicationDate,
-      link: buildBlogPostPath(post.locale, post.slug),
+      link: buildPostLink(post),
     })),
   });
 };
