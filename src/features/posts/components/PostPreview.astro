@@ -1,7 +1,6 @@
 ---
-import type { Post } from '@/features/posts/post';
+import { buildPostLink, type Post } from '@/features/posts/post';
 import { getTranslator } from '@/i18n/translator';
-import { buildBlogPostPath } from '@/i18n/routes';
 import PostMeta from '@/features/posts/components/PostMeta.astro';
 
 interface Props {
@@ -10,16 +9,21 @@ interface Props {
 
 const { post } = Astro.props;
 const translate = getTranslator(post.locale);
-const postPath = buildBlogPostPath(post.locale, post.slug);
+const postLink = buildPostLink(post);
+const linkTarget = post.external ? '_blank' : undefined;
+const linkRelationship = post.external ? 'noopener' : undefined;
+const readMoreLabel = post.external
+  ? `${translate('blog.readOn')} ${post.external.publisher} ↗`
+  : translate('blog.readMore');
 ---
 
 <article class="post-preview" data-slug={post.slug}>
   <header>
-    <h2><a href={postPath}>{post.title}</a></h2>
+    <h2><a href={postLink} target={linkTarget} rel={linkRelationship}>{post.title}</a></h2>
     <PostMeta post={post} />
   </header>
   <p class="summary">{post.summary}</p>
-  <a class="read-more" href={postPath}>{translate('blog.readMore')}</a>
+  <a class="read-more" href={postLink} target={linkTarget} rel={linkRelationship}>{readMoreLabel}</a>
 </article>
 
 <style>

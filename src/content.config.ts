@@ -24,6 +24,15 @@ const posts = defineCollection({
     // Slug of this post's counterpart in the other locale, so the language
     // switcher can link directly to it instead of falling back to the blog index.
     translationSlug: z.string().min(1).optional(),
+    // Set when the article lives on another site: the entry has no body, so the
+    // listing links out and the reading time can't be derived from the markdown.
+    external: z
+      .object({
+        url: z.string().url(),
+        publisher: z.string().min(1),
+        readingTimeInMinutes: z.number().int().positive(),
+      })
+      .optional(),
   }),
 });
 

@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  buildPostLink,
+  isHosted,
   isPublished,
   searchableText,
   sharedTagCountWith,
@@ -16,7 +18,23 @@ const buildPost = (overrides: Partial<Post> = {}): Post => ({
   tags: [],
   readingTimeInMinutes: 1,
   translationSlug: undefined,
+  external: undefined,
   ...overrides,
+});
+
+const external = { url: 'https://example.com/a-post', publisher: 'Example' };
+
+describe('buildPostLink', () => {
+  it('points to the blog path when the post is hosted here', () => {
+    expect(isHosted(buildPost())).toBe(true);
+    expect(buildPostLink(buildPost())).toBe('/es/blog/a-post/');
+  });
+
+  it('points to the publisher when the post lives elsewhere', () => {
+    const post = buildPost({ external });
+    expect(isHosted(post)).toBe(false);
+    expect(buildPostLink(post)).toBe(external.url);
+  });
 });
 
 describe('isPublished', () => {
