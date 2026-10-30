@@ -1,0 +1,74 @@
+---
+import type { Locale } from '@/i18n/locale';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Journey from '@/features/about-me/components/Journey.astro';
+import { findAllTimelineEntries } from '@/features/about-me/timeline-repository';
+import { getTranslator } from '@/i18n/translator';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const translate = getTranslator(locale);
+
+const timeline = await findAllTimelineEntries(locale);
+
+// Stack a pelo: nombres de tecnología sin traducir, categorías en inglés.
+const stack = [
+  { category: 'Languages', items: ['Java', 'Python', 'TypeScript', 'JavaScript', 'SQL', 'C', 'C++'] },
+  { category: 'Backend', items: ['Spring (Boot, Batch, Security)', 'Hibernate/JPA', 'Django', 'FastAPI', '.NET'] },
+  { category: 'Distributed & Event-Driven', items: ['RabbitMQ', 'CQRS', 'Event-driven', 'Microservices'] },
+  { category: 'Data', items: ['PostgreSQL', 'SQL Server', 'Oracle', 'MongoDB'] },
+  { category: 'Cloud & DevOps', items: ['AWS', 'Docker', 'OpenShift', 'Kubernetes', 'Jenkins', 'GitHub Actions', 'Nginx', 'Git'] },
+  { category: 'Frontend', items: ['React', 'React Native'] },
+  { category: 'Design & Delivery', items: ['DDD', 'Hexagonal', 'TDD', 'Clean Architecture'] },
+];
+---
+
+<BaseLayout
+  locale={locale}
+  title={`${translate('about.heroTitle')} — ${translate('site.title')}`}
+  description={translate('about.metaDescription')}
+>
+  <section class="intro about-hero reveal">
+    <img
+      class="portrait"
+      src="/nicolas-vegas.webp"
+      width="480"
+      height="480"
+      loading="eager"
+      alt={translate('about.portraitAlt')}
+    />
+    <div class="about-hero-text">
+      <h1>{translate('about.heroTitle')}</h1>
+      <p class="lead">{translate('about.lead')}</p>
+      <p class="lead">{translate('about.approach')}</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="journey-title">{translate('about.timelineTitle')}</h2>
+    <Journey entries={timeline} />
+  </section>
+
+  <section class="reveal">
+    <h2>{translate('about.stackTitle')}</h2>
+    <dl class="stack">
+      {
+        stack.map((group) => (
+          <div>
+            <dt>{group.category}</dt>
+            <dd>{group.items.join(' · ')}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </section>
+</BaseLayout>
+
+<style>
+  .journey-title {
+    font-size: var(--font-size-heading-1);
+  }
+</style>

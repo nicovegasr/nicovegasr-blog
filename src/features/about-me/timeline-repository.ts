@@ -5,8 +5,8 @@ import { parseLocalizedEntryIdentifier } from '@/i18n/entry-identifier';
 
 type TimelineCollectionEntry = CollectionEntry<'timeline'>;
 
-const byStartDateDescending = (a: TimelineEntry, b: TimelineEntry): number =>
-  b.startDate.getTime() - a.startDate.getTime();
+const byStartDateAscending = (a: TimelineEntry, b: TimelineEntry): number =>
+  a.startDate.getTime() - b.startDate.getTime();
 
 const toTimelineEntry = (
   entry: TimelineCollectionEntry,
@@ -19,7 +19,8 @@ const toTimelineEntry = (
   return {
     slug: identifier.slug,
     locale: identifier.locale,
-    company: entry.data.company,
+    kind: entry.data.kind,
+    title: entry.data.title,
     role: entry.data.role,
     sector: entry.data.sector,
     startDate: entry.data.startDate,
@@ -37,5 +38,5 @@ export const findAllTimelineEntries = async (
     .map(toTimelineEntry)
     .filter((entry): entry is TimelineEntry => entry !== null)
     .filter((entry) => entry.locale === locale)
-    .sort(byStartDateDescending);
+    .sort(byStartDateAscending);
 };

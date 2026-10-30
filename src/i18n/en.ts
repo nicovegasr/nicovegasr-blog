@@ -36,6 +36,7 @@ export const english: Dictionary = {
   'about.metaDescription':
     'Nicolás Vegas, software engineer: what I do, my stack and my journey.',
   'about.heroTitle': 'About',
+  'about.portraitAlt': 'Photo of Nicolás Vegas',
   'about.lead':
     'I enjoy investigating how things work under the hood to make the most of what technology offers us, building predictable, scalable and maintainable software.',
   'about.approach':

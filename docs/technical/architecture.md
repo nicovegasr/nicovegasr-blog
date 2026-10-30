@@ -13,7 +13,7 @@ src/
 ├── content.config.ts       # Astro collection loaders and Zod schemas
 ├── content/                # Localized Markdown and editorial assets
 ├── features/
-│   ├── about-me/           # Career history: model, repository, and timeline UI
+│   ├── about-me/           # Personal journey: About page, model, repository, and scroll-driven timeline
 │   ├── pills/              # Series, individual pills, and the notebook reader
 │   └── posts/              # Articles, listings, search, related posts, and feeds
 ├── shared/
@@ -39,7 +39,7 @@ Pages and components consume repositories instead of importing `astro:content` d
 
 ### Feature ownership and shared code
 
-`about-me` owns career history because its consumers are the localized About pages. The underlying content collection remains named `timeline`: content storage and feature ownership need not have identical directory names.
+`about-me` owns the personal journey, with work and personal stops, because its consumers are the localized About pages. The underlying content collection remains named `timeline`: content storage and feature ownership need not have identical directory names.
 
 `shared/` contains focused pieces used by more than one feature. Reading-time calculation and presentation belong together there because posts and pills both use them. Shared code must not depend on feature modules. Do not use this directory as a catch-all for code with unclear ownership.
 

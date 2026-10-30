@@ -277,12 +277,6 @@ p {
   color: var(--color-text-soft);
 }
 
-.timeline {
-  list-style: none;
-  padding: 0;
-  margin-top: var(--space-8);
-}
-
 /* Detalle de artículo y trabajo */
 .breadcrumb {
   font-family: var(--font-family-mono);

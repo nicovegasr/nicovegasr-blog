@@ -1,5 +1,5 @@
 ---
-company: "Bitbox"
+title: "Bitbox"
 role: "Ingeniero de Software"
 sector: "Retail internacional"
 startDate: 2023-12-01

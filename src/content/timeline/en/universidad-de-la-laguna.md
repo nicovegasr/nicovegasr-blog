@@ -1,5 +1,5 @@
 ---
-company: "Universidad de La Laguna"
+title: "Universidad de La Laguna"
 role: "B.Sc. Computer Science & Engineering"
 startDate: 2019-09-01
 endDate: 2023-06-01

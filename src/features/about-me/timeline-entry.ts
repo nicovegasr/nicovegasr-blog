@@ -1,10 +1,13 @@
 import type { Locale } from '@/i18n/locale';
 
+export type TimelineEntryKind = 'work' | 'personal';
+
 export type TimelineEntry = {
   readonly slug: string;
   readonly locale: Locale;
-  readonly company: string;
-  readonly role: string;
+  readonly kind: TimelineEntryKind;
+  readonly title: string;
+  readonly role: string | undefined;
   readonly sector: string | undefined;
   readonly startDate: Date;
   readonly endDate: Date | undefined;
@@ -12,4 +15,4 @@ export type TimelineEntry = {
 };
 
 export const isCurrentRole = (entry: TimelineEntry): boolean =>
-  entry.endDate === undefined;
+  entry.kind === 'work' && entry.endDate === undefined;

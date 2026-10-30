@@ -39,8 +39,9 @@ const posts = defineCollection({
 const timeline = defineCollection({
   loader: localizedMarkdown('timeline'),
   schema: z.object({
-    company: z.string().min(1),
-    role: z.string().min(1),
+    kind: z.enum(['work', 'personal']).default('work'),
+    title: z.string().min(1),
+    role: z.string().min(1).optional(),
     sector: z.string().optional(),
     startDate: z.coerce.date(),
     endDate: z.coerce.date().optional(),

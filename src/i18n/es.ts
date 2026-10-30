@@ -34,6 +34,7 @@ export const spanish = {
   'about.metaDescription':
     'Nicolás Vegas, ingeniero informático: a qué me dedico, mi stack y mi trayectoria.',
   'about.heroTitle': 'Sobre mí',
+  'about.portraitAlt': 'Foto de Nicolás Vegas',
   'about.lead':
     'Disfruto investigando cómo funcionan las cosas por dentro para aprovechar todo lo que las tecnologías nos ofrecen, construyendo software predecible, escalable y mantenible.',
   'about.approach':

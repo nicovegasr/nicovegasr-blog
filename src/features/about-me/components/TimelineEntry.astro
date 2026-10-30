@@ -9,70 +9,103 @@ interface Props {
 const { entry } = Astro.props;
 const translate = getTranslator(entry.locale);
 
-const formatMonthYear = (date: Date): string =>
-  new Intl.DateTimeFormat(entry.locale, { month: 'short', year: 'numeric' }).format(date);
+const dateFormat: Intl.DateTimeFormatOptions =
+  entry.kind === 'personal'
+    ? { year: 'numeric' }
+    : { month: 'short', year: 'numeric' };
 
-const startLabel = formatMonthYear(entry.startDate);
+const formatDate = (date: Date): string =>
+  new Intl.DateTimeFormat(entry.locale, dateFormat).format(date);
+
+const startLabel = formatDate(entry.startDate);
 const startMachine = entry.startDate.toISOString().slice(0, 10);
 const endLabel =
   entry.endDate === undefined
     ? translate('about.present')
-    : formatMonthYear(entry.endDate);
+    : formatDate(entry.endDate);
 const endMachine = entry.endDate?.toISOString().slice(0, 10);
+const isSinglePoint = entry.kind === 'personal' && entry.endDate === undefined;
 ---
 
-<article class="timeline-entry">
+<article class:list={['timeline-entry', `timeline-entry--${entry.kind}`]} data-journey-stop>
   <p class="period">
-    <time datetime={startMachine}>{startLabel}</time>
-    {' – '}
-    {
-      endMachine === undefined ? (
-        <span>{endLabel}</span>
-      ) : (
-        <time datetime={endMachine}>{endLabel}</time>
-      )
-    }
-    {entry.sector !== undefined && <span>{' · '}{entry.sector}</span>}
+    <span>
+      <time datetime={startMachine}>{startLabel}</time>
+      {
+        !isSinglePoint && (
+          <>
+            {' – '}
+            {endMachine === undefined ? (
+              <span>{endLabel}</span>
+            ) : (
+              <time datetime={endMachine}>{endLabel}</time>
+            )}
+          </>
+        )
+      }
+    </span>
+    {entry.sector !== undefined && <span class="sector">{entry.sector}</span>}
   </p>
-  <h3>{entry.company}</h3>
-  <p class="role">{entry.role}</p>
-  <p class="summary">{entry.summary}</p>
+  <div class="body">
+    <h3>{entry.title}</h3>
+    {entry.role !== undefined && <p class="role">{entry.role}</p>}
+    <p class="summary">{entry.summary}</p>
+  </div>
 </article>
 
 <style>
   .timeline-entry {
     position: relative;
-    padding-left: var(--space-6);
-    border-left: 2px solid var(--color-rule);
-    padding-bottom: var(--space-8);
+    display: grid;
+    grid-template-columns: 11rem minmax(0, var(--content-width-reading));
+    column-gap: var(--space-8);
+    padding-left: var(--space-12);
+    padding-bottom: var(--space-24);
   }
 
   .timeline-entry::before {
     content: '';
     position: absolute;
-    left: -7px;
-    top: 6px;
-    width: 12px;
-    height: 12px;
+    left: -6px;
+    top: 0.75rem;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
+    background: var(--color-paper);
+    border: 2px solid var(--color-ink);
+    transition: background var(--motion-duration-reading) var(--motion-easing);
+  }
+
+  .timeline-entry--personal::before {
+    left: -10px;
+    top: 0.5rem;
+    width: 22px;
+    height: 22px;
     background: var(--color-accent);
-    border: 2px solid var(--color-paper);
+  }
+
+  .timeline-entry.is-reached:not(.timeline-entry--personal)::before {
+    background: var(--color-ink);
   }
 
   .period {
+    display: flex;
+    flex-direction: column;
+    padding-top: 0.6rem;
     font-family: var(--font-family-mono);
     font-size: var(--font-size-meta);
+    line-height: 1.6;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: var(--color-text-muted);
+    color: var(--color-text-soft);
   }
 
-  .timeline-entry h3 {
-    margin-top: var(--space-2);
-    font-size: var(--font-size-heading-3);
+  .body h3 {
+    font-size: var(--font-size-heading-2);
   }
 
   .role {
+    margin-top: var(--space-2);
     color: var(--color-text-soft);
     font-size: var(--font-size-small);
   }
@@ -80,5 +113,50 @@ const endMachine = entry.endDate?.toISOString().slice(0, 10);
   .summary {
     margin-top: var(--space-3);
     color: var(--color-text-soft);
+  }
+
+  .timeline-entry--personal .summary {
+    color: var(--color-ink);
+    font-size: var(--font-size-lead);
+  }
+
+  /* Solo con JS: sin él, todas las paradas se leen desde el principio. */
+  :global(.js) .period,
+  :global(.js) .body {
+    opacity: 0.2;
+    filter: blur(3px);
+    transform: translateY(12px);
+    transition:
+      opacity var(--motion-duration-reading) var(--motion-easing),
+      filter var(--motion-duration-reading) var(--motion-easing),
+      transform var(--motion-duration-reading) var(--motion-easing);
+  }
+
+  :global(.js) .timeline-entry.is-reached .period,
+  :global(.js) .timeline-entry.is-reached .body {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+
+  @media (max-width: 48rem) {
+    .timeline-entry {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: var(--space-2);
+      padding-left: var(--space-8);
+      padding-bottom: var(--space-16);
+    }
+
+    .period {
+      padding-top: 0.15rem;
+    }
+
+    .timeline-entry::before {
+      top: 0.3rem;
+    }
+
+    .timeline-entry--personal::before {
+      top: 0.1rem;
+    }
   }
 </style>

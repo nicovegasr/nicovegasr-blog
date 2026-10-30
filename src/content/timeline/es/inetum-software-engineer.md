@@ -1,5 +1,5 @@
 ---
-company: "Inetum"
+title: "Inetum"
 role: "Ingeniero de Software"
 sector: "Banca central"
 startDate: 2024-08-01
