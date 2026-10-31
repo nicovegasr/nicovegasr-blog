@@ -94,9 +94,11 @@ test('the skills route walks from area to area as the reader scrolls', async ({ 
   await expect(walker).toHaveClass(/is-arrived/);
 });
 
-test('the arrow keys move the mascot the way they point', async ({ page }) => {
+test('the arrow keys walk the mascot only while they are held', async ({ page }) => {
   await page.goto('/es/');
   const routes = page.locator('[data-route]');
+  const walker = page.locator('[data-page-walker]');
+  const walkerLeft = () => walker.evaluate((element) => element.getBoundingClientRect().left);
   const scrollToRouteStart = (index: number) =>
     page.evaluate((routeIndex) => {
       const route = document.querySelectorAll<HTMLElement>('[data-route]')[routeIndex]!;
@@ -104,24 +106,36 @@ test('the arrow keys move the mascot the way they point', async ({ page }) => {
     }, index);
   const stationsOf = (index: number) => routes.nth(index).locator('[data-route-station]');
 
-  await test.step('the first line runs leftwards, so left moves forward', async () => {
-    await scrollToRouteStart(0);
-    await page.keyboard.press('ArrowRight');
-    await expect(stationsOf(0).first()).toHaveClass(/is-current/);
-    await page.keyboard.press('ArrowLeft');
-    await expect(stationsOf(0).nth(1)).toHaveClass(/is-current/);
-    await page.keyboard.press('ArrowRight');
-    await expect(stationsOf(0).first()).toHaveClass(/is-current/);
+  await test.step('a short press moves it a little and it stays there', async () => {
+    await scrollToRouteStart(1);
+    await expect.poll(walkerLeft).toBeLessThan(200);
+    const start = await walkerLeft();
+    await page.keyboard.down('ArrowRight');
+    await page.waitForTimeout(150);
+    await page.keyboard.up('ArrowRight');
+    await page.waitForTimeout(100);
+    const afterPress = await walkerLeft();
+    expect(afterPress).toBeGreaterThan(start);
+    expect(afterPress - start).toBeLessThan(150);
+    await expect(stationsOf(1).first()).toHaveClass(/is-current/);
+    await page.waitForTimeout(300);
+    expect(await walkerLeft()).toBe(afterPress);
   });
 
-  await test.step('the last line runs rightwards, so right moves forward', async () => {
-    await scrollToRouteStart(1);
-    await page.keyboard.press('ArrowRight');
+  await test.step('the last line runs rightwards, so holding right reaches the next area', async () => {
+    await page.keyboard.down('ArrowRight');
     await expect(stationsOf(1).nth(1)).toHaveClass(/is-current/);
-    await page.keyboard.press('ArrowRight');
-    await expect(stationsOf(1).nth(2)).toHaveClass(/is-current/);
-    await page.keyboard.press('ArrowLeft');
-    await expect(stationsOf(1).nth(1)).toHaveClass(/is-current/);
+    await page.keyboard.up('ArrowRight');
+  });
+
+  await test.step('the first line runs leftwards, so left moves forward and right moves back', async () => {
+    await scrollToRouteStart(0);
+    await page.keyboard.down('ArrowLeft');
+    await expect(stationsOf(0).nth(1)).toHaveClass(/is-current/);
+    await page.keyboard.up('ArrowLeft');
+    await page.keyboard.down('ArrowRight');
+    await expect(stationsOf(0).first()).toHaveClass(/is-current/);
+    await page.keyboard.up('ArrowRight');
   });
 
   await test.step('outside the lines the keys do not scroll the page', async () => {

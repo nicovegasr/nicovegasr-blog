@@ -12,11 +12,8 @@ const FEET_RATIO = 0.86;
 // Entre parada y parada solo anda en este tramo; el resto del scroll se queda quieto para leer.
 const WALK_STARTS_AT = 0.3;
 const WALK_LENGTH = 0.4;
-// Ritmo de paseo al moverlo con las flechas del teclado, sea cual sea el ancho de la línea.
+// Ritmo de paseo mientras se mantiene pulsada una flecha, sea cual sea el ancho de la línea.
 const WALKING_SPEED_IN_PIXELS_PER_SECOND = 280;
-const MINIMUM_WALK_IN_MILLISECONDS = 700;
-const MAXIMUM_WALK_IN_MILLISECONDS = 1600;
-const SCROLL_TAKEOVER_TOLERANCE_IN_PIXELS = 2;
 
 type WalkDirection = 'left' | 'right';
 
@@ -170,90 +167,59 @@ const trackMascotJourney = () => {
     requestPaint();
   };
 
-  let guidedWalk: { route: HTMLElement; targetIndex: number } | undefined;
-  let guidedWalkFrame = 0;
-
-  const stopGuidedWalk = () => {
-    cancelAnimationFrame(guidedWalkFrame);
-    guidedWalk = undefined;
-  };
-
-  let guidedTop = 0;
-  const scrollInstantly = (top: number) => {
-    guidedTop = top;
-    window.scrollTo({ top, behavior: 'instant' });
-  };
-  // Cualquier otro scroll (teclas, barra, enlaces) significa que la persona ha tomado el control.
-  const wasScrolledByPerson = (): boolean => Math.abs(window.scrollY - guidedTop) > SCROLL_TAKEOVER_TOLERANCE_IN_PIXELS;
-
-  // Solo se anima el tramo en que anda: el resto del scroll entre paradas no cambia nada en pantalla.
-  const walkOneStation = (route: HTMLElement, fromIndex: number, toIndex: number) => {
-    const stage = route === firstRoute ? firstStage : lastStage;
-    const lastIndex = route.querySelectorAll('[data-route-station]').length - 1;
-    const { top, height } = route.getBoundingClientRect();
-    const routeTop = window.scrollY + top;
-    const stationLength = (height - stage.offsetHeight) / lastIndex;
-    const segmentStart = routeTop + Math.min(fromIndex, toIndex) * stationLength;
-    const walkStart = segmentStart + stationLength * WALK_STARTS_AT;
-    const walkEnd = segmentStart + stationLength * (WALK_STARTS_AT + WALK_LENGTH);
-    const [startTop, endTop] = toIndex > fromIndex ? [walkStart, walkEnd] : [walkEnd, walkStart];
-    const distance = (walkway.offsetWidth - mascot.offsetWidth / 2) / lastIndex;
-    const duration = clamp(
-      (distance / WALKING_SPEED_IN_PIXELS_PER_SECOND) * 1000,
-      MINIMUM_WALK_IN_MILLISECONDS,
-      MAXIMUM_WALK_IN_MILLISECONDS,
-    );
-
-    scrollInstantly(startTop);
-    const startedAt = performance.now();
-    const advance = (now: number) => {
-      if (wasScrolledByPerson()) {
-        guidedWalk = undefined;
-        return;
-      }
-      const elapsed = clamp((now - startedAt) / duration, 0, 1);
-      if (elapsed < 1) {
-        scrollInstantly(startTop + (endTop - startTop) * elapsed);
-        guidedWalkFrame = requestAnimationFrame(advance);
-        return;
-      }
-      scrollInstantly(routeTop + toIndex * stationLength);
-      const target = guidedWalk?.targetIndex ?? toIndex;
-      if (target === toIndex) {
-        guidedWalk = undefined;
-        return;
-      }
-      walkOneStation(route, toIndex, toIndex + Math.sign(target - toIndex));
-    };
-    guidedWalkFrame = requestAnimationFrame(advance);
-  };
-
-  // Las flechas del teclado mueven al muñequito hacia donde apuntan, también en la línea que va hacia la izquierda.
-  const walkToNextStation = (route: HTMLElement, direction: WalkDirection) => {
-    const stage = route === firstRoute ? firstStage : lastStage;
-    const lastIndex = route.querySelectorAll('[data-route-station]').length - 1;
-    const step = direction === route.dataset.direction ? 1 : -1;
-    if (guidedWalk?.route === route) {
-      guidedWalk.targetIndex = clamp(guidedWalk.targetIndex + step, 0, lastIndex);
-      return;
-    }
-    stopGuidedWalk();
-    const currentIndex = readRoute(route, stage).currentIndex;
-    const targetIndex = clamp(currentIndex + step, 0, lastIndex);
-    if (targetIndex === currentIndex) {
-      return;
-    }
-    guidedWalk = { route, targetIndex };
-    walkOneStation(route, currentIndex, targetIndex);
-  };
-
   const pinnedRoute = (): HTMLElement | undefined =>
     [firstRoute, lastRoute].find((candidate) => {
       const { top, bottom } = candidate.getBoundingClientRect();
       return top <= 1 && bottom >= firstStage.offsetHeight - 1;
     });
 
-  const moveWithArrowKeys = (event: KeyboardEvent) => {
+  // Mientras la flecha esté pulsada anda hacia donde apunta; al soltarla se para donde esté.
+  let heldWalk:
+    | { route: HTMLElement; stage: HTMLElement; key: string; direction: WalkDirection; position: number; previousFrameAt: number }
+    | undefined;
+  let heldWalkFrame = 0;
+
+  const stopHeldWalk = () => {
+    cancelAnimationFrame(heldWalkFrame);
+    heldWalk = undefined;
+  };
+
+  const stationLengthOf = (route: HTMLElement, stage: HTMLElement): number =>
+    (route.offsetHeight - stage.offsetHeight) / (route.querySelectorAll('[data-route-station]').length - 1);
+
+  const currentLinePosition = (route: HTMLElement, stage: HTMLElement): number => {
+    const travelled = -route.getBoundingClientRect().top / stationLengthOf(route, stage);
+    const stationIndex = Math.floor(travelled);
+    return stationIndex + clamp((travelled - stationIndex - WALK_STARTS_AT) / WALK_LENGTH, 0, 1);
+  };
+
+  // El tramo del scroll en que está quieto para leer se salta: cada frame de flecha se nota en la línea.
+  const scrollToLinePosition = (route: HTMLElement, stage: HTMLElement, position: number) => {
+    const stationIndex = Math.floor(position);
+    const walked = position - stationIndex;
+    const stationOffset = walked === 0 ? 0 : WALK_STARTS_AT + WALK_LENGTH * walked;
+    const routeTop = window.scrollY + route.getBoundingClientRect().top;
+    window.scrollTo({ top: routeTop + (stationIndex + stationOffset) * stationLengthOf(route, stage), behavior: 'instant' });
+  };
+
+  const advanceHeldWalk = (now: number) => {
+    if (heldWalk === undefined) {
+      return;
+    }
+    const { route, stage, direction, position, previousFrameAt } = heldWalk;
+    const lastIndex = route.querySelectorAll('[data-route-station]').length - 1;
+    const stationPixels = (walkway.offsetWidth - mascot.offsetWidth / 2) / lastIndex;
+    const distance = (WALKING_SPEED_IN_PIXELS_PER_SECOND * (now - previousFrameAt)) / 1000 / stationPixels;
+    const nextPosition = clamp(position + (direction === route.dataset.direction ? distance : -distance), 0, lastIndex);
+    heldWalk.position = nextPosition;
+    heldWalk.previousFrameAt = now;
+    if (nextPosition !== position) {
+      scrollToLinePosition(route, stage, nextPosition);
+    }
+    heldWalkFrame = requestAnimationFrame(advanceHeldWalk);
+  };
+
+  const startWalkingWithArrowKey = (event: KeyboardEvent) => {
     const isArrow = event.key === 'ArrowLeft' || event.key === 'ArrowRight';
     if (!isArrow || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || isTypingTarget(event.target)) {
       return;
@@ -263,17 +229,36 @@ const trackMascotJourney = () => {
       return;
     }
     event.preventDefault();
-    walkToNextStation(route, event.key === 'ArrowRight' ? 'right' : 'left');
+    if (event.repeat) {
+      return;
+    }
+    stopHeldWalk();
+    const stage = route === firstRoute ? firstStage : lastStage;
+    heldWalk = {
+      route,
+      stage,
+      key: event.key,
+      direction: event.key === 'ArrowRight' ? 'right' : 'left',
+      position: currentLinePosition(route, stage),
+      previousFrameAt: performance.now(),
+    };
+    heldWalkFrame = requestAnimationFrame(advanceHeldWalk);
+  };
+
+  const stopWalkingWithArrowKey = (event: KeyboardEvent) => {
+    if (event.key === heldWalk?.key) {
+      stopHeldWalk();
+    }
   };
 
 
   stopTracking = new AbortController();
   const { signal } = stopTracking;
-  window.addEventListener('keydown', moveWithArrowKeys, { signal });
-  // Con la rueda o el dedo se detiene antes de llegar a pelear con el scroll.
-  window.addEventListener('wheel', stopGuidedWalk, { passive: true, signal });
-  window.addEventListener('touchmove', stopGuidedWalk, { passive: true, signal });
-  signal.addEventListener('abort', stopGuidedWalk);
+  window.addEventListener('keydown', startWalkingWithArrowKey, { signal });
+  window.addEventListener('keyup', stopWalkingWithArrowKey, { signal });
+  window.addEventListener('blur', stopHeldWalk, { signal });
+  window.addEventListener('wheel', stopHeldWalk, { passive: true, signal });
+  signal.addEventListener('abort', stopHeldWalk);
   window.addEventListener('scroll', requestPaint, { passive: true, signal });
   window.addEventListener('resize', requestMeasure, { passive: true, signal });
   const layoutObserver = new ResizeObserver(requestMeasure);
