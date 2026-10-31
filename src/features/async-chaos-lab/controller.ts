@@ -18,9 +18,9 @@ import type { GuideStage } from './guide';
 import { labFigure } from './figures';
 import type { AchievementId } from './achievements';
 import { actorMarkup, workerFrame, WorkerActor } from './worker-actor';
+import { button, inLanguage, isSpanishLab } from './lab-ui';
+import { restoreAchievements, restoreLabels, saveAchievements, saveLabel } from './session';
 
-const button = (action: string, label: string) =>
-  /* HTML */ `<button type="button" data-action="${action}">${label}</button>`;
 class QueueStories extends HTMLElement {
   private config!: SimulationConfig;
   private state!: SimulationState;
@@ -53,10 +53,10 @@ class QueueStories extends HTMLElement {
     return this.dataset.level === '2' ? 2 : 1;
   }
   private get es() {
-    return this.dataset.locale !== 'en';
+    return isSpanishLab(this);
   }
   private t(es: string, en: string) {
-    return this.es ? es : en;
+    return inLanguage(this.es, es, en);
   }
   private q<T extends HTMLElement = HTMLElement>(selector: string) {
     return this.querySelector<T>(selector)!;
@@ -78,8 +78,8 @@ class QueueStories extends HTMLElement {
     this.config = defaultConfig(this.level);
     this.state = initialState(this.config);
     this.defaults = defaultLabels(this.level, this.es);
-    this.labels = structuredClone(this.defaults);
-    this.loadSession();
+    this.labels = restoreLabels(this.defaults, this.level, this.es);
+    this.unlocked = restoreAchievements();
     this.syncStorageName();
     this.innerHTML = /* HTML */ ` <aside
         class="qs-feedback"
@@ -180,37 +180,6 @@ class QueueStories extends HTMLElement {
     this.removeEventListener('change', this.onChange);
     this.removeEventListener('input', this.onInput);
     document.removeEventListener('visibilitychange', this.onVisibility);
-  }
-  private loadSession() {
-    try {
-      const saved = JSON.parse(
-        sessionStorage.getItem(`queue-story-names-${this.es ? 'es' : 'en'}`) ??
-          '{}',
-      );
-      for (const key of ['api', 'storage', 'worker'] as const)
-        if (typeof saved[key] === 'string')
-          this.labels[key] = cleanLabel(saved[key], this.defaults[key]);
-      if (Array.isArray(saved.jobs))
-        this.labels.jobs = this.defaults.jobs.map((v, i) =>
-          cleanLabel(saved.jobs[i], v),
-        );
-      if (Array.isArray(saved[`steps${this.level}`]))
-        this.labels.steps = this.defaults.steps.map((v, i) =>
-          cleanLabel(saved[`steps${this.level}`][i], v),
-        );
-    } catch {
-      /* Naming works without browser storage. */
-    }
-    try {
-      const saved = JSON.parse(
-        sessionStorage.getItem('queue-story-achievements') ?? '[]',
-      );
-      if (Array.isArray(saved))
-        for (const a of achievements)
-          if (saved.includes(a.id)) this.unlocked.add(a.id);
-    } catch {
-      /* Session storage is optional. */
-    }
   }
   // Diagram templates. These methods render data and never advance the engine.
   private editor(key: string, value: string, label: string) {
@@ -687,18 +656,7 @@ class QueueStories extends HTMLElement {
       this.labels.jobs[Number(key.slice(4))] = value;
     else if (key.startsWith('step-'))
       this.labels.steps[Number(key.slice(5))] = value;
-    try {
-      const storageKey = `queue-story-names-${this.es ? 'es' : 'en'}`,
-        saved = JSON.parse(sessionStorage.getItem(storageKey) ?? '{}');
-      if (key === 'api' || key === 'storage' || key === 'worker')
-        saved[key] = value;
-      if (key.startsWith('job-')) saved.jobs = this.labels.jobs;
-      if (key.startsWith('step-'))
-        saved[`steps${this.level}`] = this.labels.steps;
-      sessionStorage.setItem(storageKey, JSON.stringify(saved));
-    } catch {
-      /* Naming works without storage. */
-    }
+    saveLabel(key, this.labels, this.level, this.es);
     this.update();
   };
   private syncStorageName() {
@@ -1509,14 +1467,7 @@ class QueueStories extends HTMLElement {
     if (this.unlocked.has(id)) return;
     this.unlocked.add(id);
     this.notices.push(id);
-    try {
-      sessionStorage.setItem(
-        'queue-story-achievements',
-        JSON.stringify([...this.unlocked]),
-      );
-    } catch {
-      /* Achievements still work in this page. */
-    }
+    saveAchievements(this.unlocked);
   }
   private checkAchievements() {
     const s = this.state;

@@ -31,3 +31,15 @@ export function callCopy(_scene: 'intro', names: Names, es: boolean) {
     action: t('Déjame ver el sistema', 'Show me the system'),
   };
 }
+export function stepControlsCopy(es: boolean) {
+  const t = (a: string, b: string) => es ? a : b;
+  return {
+    waiting: t('Esperando turno', 'Waiting for a slot'),
+    concurrentSlots: t('Plazas simultáneas', 'Concurrent slots'),
+    reduceCapacity: t('Reducir capacidad del paso', 'Reduce capacity of step'),
+    expandCapacity: t('Ampliar capacidad del paso', 'Expand capacity of step'),
+    httpQuota: t('Cuota HTTP / s', 'HTTP quota / s'),
+    reduceQuota: t('Reducir cuota HTTP del paso', 'Reduce HTTP quota of step'),
+    expandQuota: t('Ampliar cuota HTTP del paso', 'Expand HTTP quota of step'),
+  };
+}

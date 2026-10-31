@@ -19,7 +19,7 @@ import {
   MAX_CONCURRENCY_PER_WORKER,
 } from './engine';
 import type { ScalingConfig } from './engine';
-import { callCopy, scalingNames } from './content';
+import { callCopy, scalingNames, stepControlsCopy } from './content';
 import type { Names } from './content';
 import { cleanLabel, escapeHtml as esc } from '../labels';
 import { labFigure } from '../figures';
@@ -27,18 +27,10 @@ import walkingAtlas from '@/shared/mascot/worker-walk-atlas.webp?url';
 import reactionsAtlas from '@/shared/mascot/worker-reactions.webp?url';
 import { teamWorkerFrame } from './team-actors';
 import type { TeamPose } from './team-actors';
+import { button, inLanguage, isSpanishLab } from '../lab-ui';
+import { restoreAchievements, restoreSession, saveAchievements, saveSession } from './session';
+import type { Trial } from './session';
 
-type Trial = {
-  config: ScalingConfig;
-  seconds: number;
-  cost: number;
-  completed: number;
-  waitingSeconds: number;
-  rateLimitedStep: number | null;
-  won: boolean;
-};
-const button = (action: string, text: string, extra = '') =>
-  `<button type="button" data-action="${action}" ${extra}>${text}</button>`;
 const number = (value: number, digits = 0) =>
   value.toFixed(digits).replace(/\.0+$/, '');
 const stepWithMostWaiting = (waitTicks: number[]) => {
@@ -63,22 +55,18 @@ class QueueScaling extends HTMLElement {
   private modalAction: (() => void) | undefined;
   private packets: HTMLButtonElement[] = [];
   private get es() {
-    return this.dataset.locale !== 'en';
+    return isSpanishLab(this);
   }
   private t(es: string, en: string) {
-    return this.es ? es : en;
+    return inLanguage(this.es, es, en);
   }
   private q<T extends HTMLElement = HTMLElement>(selector: string) {
     return this.querySelector<T>(selector)!;
   }
-  private get storageKey() {
-    return `async-scaling-v7-${this.es ? 'es' : 'en'}`;
-  }
 
   connectedCallback() {
-    this.names = scalingNames(this.es);
-    this.loadSession();
-    this.loadAchievements();
+    ({ names: this.names, history: this.history } = restoreSession(scalingNames(this.es), this.es));
+    this.unlocked = restoreAchievements();
     this.innerHTML = `
       <div class="sc-mission"><span class="sc-mission-mark" aria-hidden="true">↗</span><p><strong>${this.t('24 pagos. Menos espera.', '24 payments. Less waiting.')}</strong><span>${this.t(`Tu misión: terminar en ${TARGET_SECONDS} s o menos y con un coste ≤ ${TARGET_COST} u. Sin plazas esperamos; superar la cuota HTTP da un 429.`, `Your mission: finish within ${TARGET_SECONDS} s and a cost ≤ ${TARGET_COST} u. Full slots mean waiting; exceeding the HTTP quota means a 429.`)}</span></p></div>
       <section class="sc-board" aria-label="${this.t('Recorrido de los pagos', 'Payment flow')}">
@@ -138,6 +126,7 @@ class QueueScaling extends HTMLElement {
     document.removeEventListener('visibilitychange', this.onVisibility);
   }
   private stepCard(step: number) {
+    const copy = stepControlsCopy(this.es);
     const resources = [
       'CPU · 1 s',
       'HTTP · 3 s',
@@ -148,75 +137,17 @@ class QueueScaling extends HTMLElement {
       <div class="sc-step-heading"><small>0${step + 1} <span>${resources[step]}</span></small><strong data-name="step-${step}"></strong></div>
       <div class="sc-resource"><span data-status="${step}"></span><b data-capacity="${step}"></b></div>
       <div class="sc-slots" data-location="active-${step}"></div>
-      <div class="sc-wait"><small data-wait-label="${step}">${this.t('Esperando turno', 'Waiting for a slot')}</small><div data-location="waiting-${step}"></div></div>
-      <div class="sc-step-controls"><span>${this.t('Plazas simultáneas', 'Concurrent slots')}</span><div class="sc-capacity-control">${button(`shrink:${step}`, '−', `data-config aria-label="${this.t('Reducir capacidad del paso', 'Reduce capacity of step')} ${step + 1}"`)}<output data-resource-size="${step}"></output>${button(`grow:${step}`, '+', `data-config aria-label="${this.t('Ampliar capacidad del paso', 'Expand capacity of step')} ${step + 1}"`)}</div></div>
+      <div class="sc-wait"><small data-wait-label="${step}">${copy.waiting}</small><div data-location="waiting-${step}"></div></div>
+      <div class="sc-step-controls"><span>${copy.concurrentSlots}</span><div class="sc-capacity-control">${button(`shrink:${step}`, '−', `data-config aria-label="${copy.reduceCapacity} ${step + 1}"`)}<output data-resource-size="${step}"></output>${button(`grow:${step}`, '+', `data-config aria-label="${copy.expandCapacity} ${step + 1}"`)}</div></div>
       <small class="sc-capacity-cost" data-resource-cost="${step}"></small>
-      ${isHttpStep(step) ? `<div class="sc-step-controls sc-rate-controls"><span>${this.t('Cuota HTTP / s', 'HTTP quota / s')}</span><div class="sc-capacity-control">${button(`rate-less:${step}`, '−', `data-config aria-label="${this.t('Reducir cuota HTTP del paso', 'Reduce HTTP quota of step')} ${step + 1}"`)}<output data-rate-limit="${step}"></output>${button(`rate-more:${step}`, '+', `data-config aria-label="${this.t('Ampliar cuota HTTP del paso', 'Expand HTTP quota of step')} ${step + 1}"`)}</div></div><small class="sc-rate-usage" data-rate-usage="${step}"></small><small class="sc-capacity-cost" data-rate-cost="${step}"></small>` : ''}
+      ${isHttpStep(step) ? `<div class="sc-step-controls sc-rate-controls"><span>${copy.httpQuota}</span><div class="sc-capacity-control">${button(`rate-less:${step}`, '−', `data-config aria-label="${copy.reduceQuota} ${step + 1}"`)}<output data-rate-limit="${step}"></output>${button(`rate-more:${step}`, '+', `data-config aria-label="${copy.expandQuota} ${step + 1}"`)}</div></div><small class="sc-rate-usage" data-rate-usage="${step}"></small><small class="sc-capacity-cost" data-rate-cost="${step}"></small>` : ''}
     </article>`;
-  }
-  private loadSession() {
-    try {
-      const current = sessionStorage.getItem(this.storageKey);
-      // Keep customized names; runs where a worker held a single payment are not comparable.
-      const saved = JSON.parse(current ?? sessionStorage.getItem(`async-scaling-v6-${this.es ? 'es' : 'en'}`) ?? '{}');
-      if (saved.names && typeof saved.names === 'object') {
-        for (const key of ['api', 'queue', 'worker'] as const)
-          this.names[key] = cleanLabel(saved.names[key], this.names[key]);
-        for (const key of ['steps', 'jobs'] as const)
-          this.names[key] = this.names[key].map((fallback, i) =>
-            cleanLabel(saved.names[key]?.[i], fallback),
-          );
-      }
-      if (current && Array.isArray(saved.history))
-        this.history = saved.history.slice(-8).filter((trial: Trial) => {
-          try {
-            createScaling(trial.config);
-          } catch {
-            return false;
-          }
-          trial.won =
-            trial.completed === PAYMENT_COUNT &&
-            trial.config.workers <= AVAILABLE_WORKERS &&
-            trial.seconds <= TARGET_SECONDS &&
-            trial.cost <= TARGET_COST && trial.rateLimitedStep === null;
-          return (
-            trial.config.workers <= AVAILABLE_WORKERS &&
-            (trial.rateLimitedStep === null || isHttpStep(trial.rateLimitedStep)) &&
-            [
-              trial.seconds,
-              trial.cost,
-              trial.completed,
-              trial.waitingSeconds,
-            ].every(
-              (value) =>
-                typeof value === 'number' &&
-                Number.isFinite(value) &&
-                value >= 0 &&
-                value <= 100_000,
-            ) &&
-            typeof trial.won === 'boolean'
-          );
-        });
-    } catch {
-      /* The lab also works without browser storage. */
-    }
-  }
-  private loadAchievements() {
-    try {
-      const saved = JSON.parse(sessionStorage.getItem('async-scaling-achievements-v1') ?? '{}');
-      if (Array.isArray(saved.ids))
-        this.unlocked = new Set(scalingAchievements.filter(({ id }) => saved.ids.includes(id)).map(({ id }) => id));
-    } catch { /* Achievements also work with browser storage blocked. */ }
   }
   private checkAchievements() {
     this.newAwards = eligibleAchievements(this.state)
       .filter((id) => !this.unlocked.has(id));
     this.newAwards.forEach((id) => this.unlocked.add(id));
-    try {
-      sessionStorage.setItem('async-scaling-achievements-v1', JSON.stringify({
-        ids: [...this.unlocked],
-      }));
-    } catch { /* Optional session persistence. */ }
+    saveAchievements(this.unlocked);
   }
   private renderNewAwards() {
     return `<div class="sc-result-awards">${scalingAchievements.filter(({ id }) => this.newAwards.includes(id)).map((award) => {
@@ -231,19 +162,6 @@ class QueueScaling extends HTMLElement {
       const [title, description] = this.es ? award.es : award.en;
       return `<article class="${unlocked ? 'is-unlocked' : ''}" data-achievement="${award.id}"><span aria-hidden="true">${unlocked ? '✦' : '◇'}</span><div><h3>${esc(title)}${unlocked ? ` <small>· ${this.t('conseguido', 'unlocked')}</small>` : ''}</h3><p>${esc(description)}</p></div></article>`;
     }).join('');
-  }
-  private saveSession() {
-    try {
-      sessionStorage.setItem(
-        this.storageKey,
-        JSON.stringify({
-          names: this.names,
-          history: this.history,
-        }),
-      );
-    } catch {
-      /* Optional session persistence. */
-    }
   }
   private name(key: string) {
     if (key.startsWith('step-')) return this.names.steps[Number(key.slice(5))]!;
@@ -307,7 +225,7 @@ class QueueScaling extends HTMLElement {
         won: verdict.won,
       });
       this.history = this.history.slice(-8);
-      this.saveSession();
+      saveSession(this.names, this.history, this.es);
       this.render();
       this.showResult();
       return;
@@ -415,7 +333,7 @@ class QueueScaling extends HTMLElement {
     else if (key.startsWith('job-'))
       this.names.jobs[Number(key.slice(4))] = value;
     else this.names[key as 'api' | 'queue' | 'worker'] = value;
-    this.saveSession();
+    saveSession(this.names, this.history, this.es);
     this.render();
   };
   private render() {
