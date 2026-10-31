@@ -1,6 +1,6 @@
 ---
 import type { Locale } from '@/i18n/locale';
-import { buildPagePath } from '@/i18n/routes';
+import { buildPagePath, isContentPath, isSamePath } from '@/i18n/routes';
 import { getTranslator } from '@/i18n/translator';
 import LanguageSwitcher from '@/layouts/LanguageSwitcher.astro';
 import ThemeToggle from '@/layouts/ThemeToggle.astro';
@@ -14,22 +14,22 @@ interface Props {
 const { locale, alternatePaths = {} } = Astro.props;
 const translate = getTranslator(locale);
 
-const aboutPath = buildPagePath('about', locale);
-const blogPath = buildPagePath('blog', locale);
+const homePath = buildPagePath('home', locale);
+const contentPath = buildPagePath('articles', locale);
+const currentPathname = Astro.url.pathname;
 
-const navigationItems: { href: string; label: string }[] = [
-  { href: blogPath, label: translate('navigation.home') },
-  { href: aboutPath, label: translate('navigation.about') },
+const navigationItems: { href: string; label: string; isCurrentSection: boolean }[] = [
+  {
+    href: homePath,
+    label: translate('navigation.home'),
+    isCurrentSection: isSamePath(homePath, currentPathname),
+  },
+  {
+    href: contentPath,
+    label: translate('navigation.content'),
+    isCurrentSection: isContentPath(currentPathname, locale),
+  },
 ];
-
-const homePath = blogPath;
-
-const blogSectionPaths = [
-  blogPath,
-  buildPagePath('pills', locale),
-  buildPagePath('articles', locale),
-];
-const activePath = blogSectionPaths.includes(Astro.url.pathname) ? blogPath : Astro.url.pathname;
 ---
 
 <header class="site-header">
@@ -42,20 +42,17 @@ const activePath = blogSectionPaths.includes(Astro.url.pathname) ? blogPath : As
     <nav class="primary" id="site-nav" aria-label="Primary">
       <ul>
         {
-          navigationItems.map(({ href, label }) => {
-            const isCurrentPage = href === activePath;
-            return (
+          navigationItems.map(({ href, label, isCurrentSection }) => (
               <li>
                 <a
                   href={href}
-                  class={isCurrentPage ? 'current' : undefined}
-                  aria-current={Astro.url.pathname === href ? 'page' : undefined}
+                  class={isCurrentSection ? 'current' : undefined}
+                  aria-current={isSamePath(href, currentPathname) ? 'page' : undefined}
                 >
                   {label}
                 </a>
               </li>
-            );
-          })
+          ))
         }
       </ul>
     </nav>

@@ -6,23 +6,22 @@ export const english: Dictionary = {
     "Nicolás Vegas's personal blog — software engineer with a DevOps mindset. I write about software development and build things.",
 
   'navigation.home': 'Home',
-  'navigation.about': 'About',
+  'navigation.content': 'Content',
   'navigation.menu': 'Menu',
   'navigation.sections': 'Sections',
 
-  'writing.articles': 'Articles',
-  'writing.pills': 'Pills',
-  'writing.labs': 'Labs',
+  'content.title': 'Content',
+  'content.description':
+    'Articles, pills and labs to understand how the tools we use every day work.',
+  'content.blog': 'Blog',
+  'content.pills': 'Pills',
+  'content.labs': 'Labs',
 
   'language.switchTo': 'Español',
   'language.current': 'English',
 
   'theme.toggle': 'Toggle theme',
 
-  'blog.introTitle': 'Software engineer',
-  'blog.introText':
-    'I enjoy exploring and understanding how the tools we use every day work.',
-  'blog.introLink': 'More about me →',
   'blog.starPrompt': 'Found it useful?',
   'blog.starCount': 'GitHub repository stars',
   'blog.readingTime': 'min read',

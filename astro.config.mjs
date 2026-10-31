@@ -21,6 +21,16 @@ export default defineConfig({
 
   redirects: {
     '/': '/es',
+    '/es/sobre-mi': '/es/',
+    '/en/about': '/en/',
+    '/es/contenido': '/es/contenido/blog/',
+    '/en/content': '/en/content/blog/',
+    '/es/pildoras': '/es/contenido/pildoras/',
+    '/en/pills': '/en/content/pills/',
+    '/es/articulos': '/es/contenido/blog/',
+    '/en/articles': '/en/content/blog/',
+    '/es/laboratorios': '/es/contenido/laboratorios/',
+    '/en/labs': '/en/content/labs/',
   },
 
   build: {

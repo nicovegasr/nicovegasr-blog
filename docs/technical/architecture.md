@@ -2,7 +2,7 @@
 
 ## Overview
 
-The blog is an Astro static site. The root redirects to `/es`; Spanish and English both use locale prefixes and equivalent routes where translations exist. Content is rendered at build time, so deployment requires static hosting rather than an application server.
+The blog is an Astro static site. The root redirects to `/es`; Spanish and English both use locale prefixes and equivalent routes where translations exist. The locale root is the About page. Content indexes live at `/es/contenido/blog/` (where `/es/contenido/` redirects), `/es/contenido/pildoras/` and `/es/contenido/laboratorios/`, with English equivalents under `/en/content/`. Published articles, pills and labs keep their original URLs, and the former index addresses redirect through `astro.config.mjs`. Content is rendered at build time, so deployment requires static hosting rather than an application server.
 
 Application code is grouped by functionality. A feature owns a coherent part of the site; it does not have to correspond to one page or one content collection. For example, posts support article pages, listings, search, and RSS.
 
@@ -13,7 +13,7 @@ src/
 ├── content.config.ts       # Astro collection loaders and Zod schemas
 ├── content/                # Localized Markdown and editorial assets
 ├── features/
-│   ├── about-me/           # Personal journey: About page, model, repository, and scroll-driven timeline
+│   ├── about-me/           # Personal journey: Home page, model, repository, contributions, skill areas, and the scroll-driven mascot walkway
 │   ├── pills/              # Series, individual pills, and the notebook reader
 │   └── posts/              # Articles, listings, search, related posts, and feeds
 ├── shared/
@@ -39,9 +39,9 @@ Pages and components consume repositories instead of importing `astro:content` d
 
 ### Feature ownership and shared code
 
-`about-me` owns the personal journey, with work and personal stops, because its consumers are the localized About pages. The underlying content collection remains named `timeline`: content storage and feature ownership need not have identical directory names.
+`about-me` owns the personal journey, told as life chapters where work is a secondary credit, because it is the localized home page. The underlying content collection remains named `timeline`: content storage and feature ownership need not have identical directory names.
 
-`shared/` contains focused pieces used by more than one feature. Reading-time calculation and presentation belong together there because posts and pills both use them. Shared code must not depend on feature modules. Do not use this directory as a catch-all for code with unclear ownership.
+`shared/` contains focused pieces used by more than one feature. Reading-time calculation and presentation belong together there because posts and pills both use them. The mascot sprite atlases live there too, because the labs and the home page both animate them. Shared code must not depend on feature modules. Do not use this directory as a catch-all for code with unclear ownership.
 
 Feature-specific page composition stays in the feature. `PillNotebook.astro`, for example, composes the pills experience using the site-wide `BaseLayout.astro`; it is not part of the global shell.
 

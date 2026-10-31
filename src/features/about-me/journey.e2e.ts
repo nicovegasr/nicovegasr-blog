@@ -4,7 +4,7 @@ const stops = '[data-journey-stop]';
 const reachedStops = `${stops}.is-reached`;
 
 test('the journey lights up its stops as the reader scrolls', async ({ page }) => {
-  await page.goto('/es/sobre-mi');
+  await page.goto('/es/');
   const total = await page.locator(stops).count();
   expect(total).toBeGreaterThan(1);
   const reachedOnArrival = await page.locator(reachedStops).count();
@@ -17,7 +17,7 @@ test('the journey lights up its stops as the reader scrolls', async ({ page }) =
 
 test('one mascot crosses the whole page and opens its arms when it arrives', async ({ page }) => {
   const walker = page.locator('[data-page-walker]');
-  await page.goto('/es/sobre-mi');
+  await page.goto('/es/');
   await expect(walker).toHaveCount(1);
   await expect(walker).not.toHaveClass(/is-arrived/);
 
@@ -27,7 +27,7 @@ test('one mascot crosses the whole page and opens its arms when it arrives', asy
 });
 
 test('the mascot leaves the contributions at the top of the thread', async ({ page }) => {
-  await page.goto('/es/sobre-mi');
+  await page.goto('/es/');
 
   const positions = await page.evaluate(async () => {
     const route = document.querySelector<HTMLElement>('[data-route]')!;
@@ -48,7 +48,7 @@ test('the mascot leaves the contributions at the top of the thread', async ({ pa
 });
 
 test('only the chapter being read is marked as active', async ({ page }) => {
-  await page.goto('/es/sobre-mi');
+  await page.goto('/es/');
 
   await page.evaluate(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' }));
 
@@ -57,7 +57,7 @@ test('only the chapter being read is marked as active', async ({ page }) => {
 });
 
 test('the journey is told in chronological order and the stack comes after it', async ({ page }) => {
-  await page.goto('/en/about');
+  await page.goto('/en/');
 
   const dates = await page.locator(`${stops} time:first-of-type`).evaluateAll((times) =>
     times.map((time) => time.getAttribute('datetime') ?? ''),
@@ -73,7 +73,7 @@ test('the skills route walks from area to area as the reader scrolls', async ({ 
   const skills = page.locator('[data-route]').last();
   const stations = skills.locator('[data-route-station]');
   const walker = page.locator('[data-page-walker]');
-  await page.goto('/es/sobre-mi');
+  await page.goto('/es/');
   await expect(stations.first()).toHaveClass(/is-current/);
 
   const scrollThroughRoute = (ratio: number) =>
@@ -95,7 +95,7 @@ test('the skills route walks from area to area as the reader scrolls', async ({ 
 });
 
 test('the arrow keys move the mascot the way they point', async ({ page }) => {
-  await page.goto('/es/sobre-mi');
+  await page.goto('/es/');
   const routes = page.locator('[data-route]');
   const scrollToRouteStart = (index: number) =>
     page.evaluate((routeIndex) => {
@@ -133,7 +133,7 @@ test('the arrow keys move the mascot the way they point', async ({ page }) => {
 });
 
 test('the on-screen arrows move the mascot and stop at the ends of the line', async ({ page }) => {
-  await page.goto('/es/sobre-mi');
+  await page.goto('/es/');
   const skills = page.locator('[data-route]').last();
   await skills.evaluate((route) => window.scrollTo({ top: route.getBoundingClientRect().top + window.scrollY, behavior: 'instant' }));
   const left = skills.locator('[data-route-arrow="left"]');
@@ -150,7 +150,7 @@ test.describe('on a phone', () => {
   test.use({ viewport: { width: 390, height: 780 }, hasTouch: true });
 
   test('a horizontal swipe moves the mascot and a vertical one does not', async ({ page }) => {
-    await page.goto('/es/sobre-mi');
+    await page.goto('/es/');
     const skills = page.locator('[data-route]').last();
     const stations = skills.locator('[data-route-station]');
     await skills.evaluate((route) => window.scrollTo({ top: route.getBoundingClientRect().top + window.scrollY, behavior: 'instant' }));
@@ -178,7 +178,7 @@ test.describe('with reduced motion', () => {
   test.use({ reducedMotion: 'reduce' });
 
   test('every skill area can be read one after another', async ({ page }) => {
-    await page.goto('/es/sobre-mi');
+    await page.goto('/es/');
     const stations = page.locator('[data-route]').last().locator('[data-route-station]');
     await expect(stations.last().locator('h3')).toHaveCSS('opacity', '1');
     await expect(page.locator('[data-page-walker]')).toBeHidden();
@@ -188,7 +188,7 @@ test.describe('with reduced motion', () => {
   });
 
   test('every stop is readable without scrolling', async ({ page }) => {
-    await page.goto('/es/sobre-mi');
+    await page.goto('/es/');
     await expect(page.locator(reachedStops)).toHaveCount(await page.locator(stops).count());
   });
 });
@@ -197,7 +197,7 @@ test.describe('without JavaScript', () => {
   test.use({ javaScriptEnabled: false });
 
   test('every stop is still readable', async ({ page }) => {
-    await page.goto('/es/sobre-mi');
+    await page.goto('/es/');
     await expect(page.locator(stops).first()).toBeVisible();
     await expect(page.locator(`${stops} .summary`).last()).toHaveCSS('opacity', '1');
   });

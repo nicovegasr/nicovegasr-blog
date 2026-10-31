@@ -1,0 +1,30 @@
+---
+import type { Locale } from '@/i18n/locale';
+import { getTranslator } from '@/i18n/translator';
+import ComingSoon from '@/layouts/ComingSoon.astro';
+import ContentLayout from '@/layouts/ContentLayout.astro';
+import PillSeriesList from '@/features/pills/components/PillSeriesList.astro';
+import { findPillSeriesCatalog } from '@/features/pills/pill-repository';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const translate = getTranslator(locale);
+const series = await findPillSeriesCatalog(locale);
+---
+
+<ContentLayout
+  locale={locale}
+  title={translate('pills.heading')}
+  description={translate('pills.metaDescription')}
+>
+  {
+    series.length > 0 ? (
+      <PillSeriesList locale={locale} series={series} />
+    ) : (
+      <ComingSoon heading={translate('pills.heading')} message={translate('pills.comingSoonText')} />
+    )
+  }
+</ContentLayout>

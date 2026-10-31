@@ -1,0 +1,116 @@
+---
+import type { Locale } from '@/i18n/locale';
+import { buildPagePath, isSamePath, type PageKey } from '@/i18n/routes';
+import { getTranslator } from '@/i18n/translator';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import RepoStar from '@/layouts/RepoStar.astro';
+
+interface Props {
+  locale: Locale;
+  title: string;
+  description: string;
+}
+
+const { locale, title, description } = Astro.props;
+const translate = getTranslator(locale);
+
+const sections: { page: PageKey; label: string }[] = [
+  { page: 'articles', label: translate('content.blog') },
+  { page: 'pills', label: translate('content.pills') },
+  { page: 'labs', label: translate('content.labs') },
+];
+---
+
+<BaseLayout
+  locale={locale}
+  title={`${title} — ${translate('site.title')}`}
+  description={description}
+>
+  <section class="intro reveal">
+    <h1>{translate('content.title')}</h1>
+    <p class="lead">{translate('content.description')}</p>
+    <RepoStar locale={locale} />
+  </section>
+  <section class="reveal content-section">
+    <nav class="sections" aria-label={translate('navigation.sections')} data-content-sections>
+      <ul>
+        {
+          sections.map(({ page, label }) => {
+            const href = buildPagePath(page, locale);
+            const isCurrent = isSamePath(href, Astro.url.pathname);
+            return (
+              <li>
+                <a
+                  href={href}
+                  class:list={{ current: isCurrent }}
+                  aria-current={isCurrent ? 'page' : undefined}
+                >
+                  {label}
+                </a>
+              </li>
+            );
+          })
+        }
+      </ul>
+    </nav>
+    <slot />
+  </section>
+</BaseLayout>
+
+<style>
+  .content-section {
+    margin-top: var(--space-8);
+  }
+
+  .sections {
+    margin-bottom: var(--space-8);
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .sections ul {
+    display: flex;
+    gap: var(--space-2);
+    padding: 0;
+    list-style: none;
+  }
+
+  .sections a {
+    display: block;
+    padding: var(--space-3) var(--space-4);
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-lead);
+    font-weight: 500;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+    color: var(--color-text-soft);
+    border-radius: var(--radius-medium) var(--radius-medium) 0 0;
+    transition: color var(--motion-duration-fast) var(--motion-easing);
+  }
+
+  @media (hover: hover) {
+    .sections a:hover {
+      color: var(--color-ink);
+    }
+  }
+
+  .sections a.current {
+    color: var(--color-accent-ink);
+    background: var(--color-accent);
+  }
+
+  @media (max-width: 48rem) {
+    .sections ul {
+      gap: 0;
+    }
+
+    .sections li {
+      flex: 1;
+    }
+
+    .sections a {
+      padding-inline: var(--space-1);
+      font-size: var(--font-size-small);
+    }
+  }
+</style>

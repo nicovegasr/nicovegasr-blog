@@ -15,7 +15,7 @@ npm run dev -- --host 127.0.0.1 --port 4328
 
 | Experience               | Spanish                       | English                      |
 | ------------------------ | ----------------------------- | ---------------------------- |
-| Catalogue                | `/es/laboratorios/`                 | `/en/labs/`                 |
+| Catalogue                | `/es/contenido/laboratorios/`       | `/en/content/labs/`         |
 | Protect pending payments | `/es/laboratorios/async-chaos-lab/` | `/en/labs/async-chaos-lab/` |
 | Inside the worker        | `/es/laboratorios/worker-steps/`    | `/en/labs/worker-steps/`    |
 | Scaling the system       | `/es/laboratorios/scaling/`         | `/en/labs/scaling/`         |

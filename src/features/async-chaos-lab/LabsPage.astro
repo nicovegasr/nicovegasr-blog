@@ -1,8 +1,7 @@
 ---
 import type { Locale } from '@/i18n/locale';
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import { buildPagePath } from '@/i18n/routes';
-import { labsPath, labPath } from './links';
+import ContentLayout from '@/layouts/ContentLayout.astro';
+import { labPath } from './links';
 import previewVideoEs from './assets/lab-preview-es.mp4?url';
 import previewVideoEn from './assets/lab-preview-en.mp4?url';
 import previewMobileVideoEs from './assets/lab-preview-mobile-es.mp4?url';
@@ -18,18 +17,9 @@ const description = es
   : 'Build, experiment and discover how your system behaves.';
 ---
 
-<BaseLayout
-  locale={locale}
-  title={`${title} · nicovegasr`}
-  description={description}
-  alternatePaths={{ es: labsPath('es'), en: labsPath('en') }}
->
-  <nav class="breadcrumb" aria-label={es ? 'Ruta de navegación' : 'Breadcrumb'}>
-    <a href={buildPagePath('blog', locale)}>{es ? 'Inicio' : 'Home'}</a>
-    <span aria-hidden="true"> / </span>{title}
-  </nav>
+<ContentLayout locale={locale} title={title} description={description}>
   <header class="labs-heading">
-    <h1>{title}</h1><p class="lead">
+    <p class="lead">
       {description}
     </p><p class="labs-note">
       {
@@ -66,7 +56,7 @@ const description = es
       /><source src={es ? previewVideoEs : previewVideoEn} type="video/mp4" /></video
     ><b>{es ? 'Abrir el simulador' : 'Open the simulator'}</b></a
   >
-</BaseLayout>
+</ContentLayout>
 <style>
   .featured-lab {
     display: block;
@@ -106,21 +96,11 @@ const description = es
   .labs-heading {
     margin-bottom: var(--space-8);
   }
-  .labs-heading h1 {
-    margin: var(--space-3) 0;
-    font-size: var(--font-size-display);
-    letter-spacing: -0.05em;
-  }
   .labs-heading .lead {
     max-width: 44ch;
   }
   .labs-note {
     font-size: var(--font-size-small);
     color: var(--color-text-soft);
-  }
-  @media (max-width: 540px) {
-    .labs-heading h1 {
-      font-size: 2.8rem;
-    }
   }
 </style>

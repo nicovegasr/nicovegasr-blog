@@ -4,23 +4,22 @@ export const spanish = {
     'Blog personal de Nicolás Vegas, ingeniero informático con mentalidad DevOps. Hablo sobre desarrollo de software y hago cosas.',
 
   'navigation.home': 'Inicio',
-  'navigation.about': 'Sobre mí',
+  'navigation.content': 'Contenido',
   'navigation.menu': 'Menú',
   'navigation.sections': 'Secciones',
 
-  'writing.articles': 'Artículos',
-  'writing.pills': 'Píldoras',
-  'writing.labs': 'Laboratorios',
+  'content.title': 'Contenido',
+  'content.description':
+    'Artículos, píldoras y laboratorios para entender cómo funcionan las herramientas que usamos a diario.',
+  'content.blog': 'Blog',
+  'content.pills': 'Píldoras',
+  'content.labs': 'Laboratorios',
 
   'language.switchTo': 'English',
   'language.current': 'Español',
 
   'theme.toggle': 'Cambiar tema',
 
-  'blog.introTitle': 'Ingeniero de software',
-  'blog.introText':
-    'Me gusta investigar y entender cómo funcionan las herramientas que usamos en el día a día.',
-  'blog.introLink': 'Más sobre mí →',
   'blog.starPrompt': '¿Te ha servido?',
   'blog.starCount': 'Estrellas del repositorio en GitHub',
   'blog.readingTime': 'min de lectura',

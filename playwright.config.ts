@@ -19,7 +19,7 @@ export default defineConfig({
   // The labs are static pages: test the real production build, not the dev server.
   webServer: {
     command: `npm run build && npm run preview -- --host 127.0.0.1 --port ${port}`,
-    url: `http://127.0.0.1:${port}/es/laboratorios/`,
+    url: `http://127.0.0.1:${port}/es/contenido/laboratorios/`,
     reuseExistingServer: !continuousIntegration,
     timeout: 180_000,
   },
