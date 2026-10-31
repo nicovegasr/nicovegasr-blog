@@ -1,4 +1,5 @@
 ---
+import { collapsedIndexStorageKey } from '@/features/pills/reader-index-storage';
 import type { Locale } from '@/i18n/locale';
 import { getTranslator } from '@/i18n/translator';
 import type { Pill, PillSeries } from '@/features/pills/pill';
@@ -45,11 +46,11 @@ const Content = rendered?.Content;
 ---
 
 <div class="notebook" id="pill-contents" tabindex="-1" data-pill-reader={`${locale}/${series.slug}`}>
-  <script is:inline>
+  <script is:inline define:vars={{ collapsedIndexStorageKey }}>
     // Set before paint: without JavaScript the phone index stays open and usable.
     document.currentScript.parentElement.setAttribute('data-index-disclosure', 'closed');
     try {
-      if (localStorage.getItem('pills.index.collapsed') === 'true')
+      if (localStorage.getItem(collapsedIndexStorageKey) === 'true')
         document.currentScript.parentElement.setAttribute('data-index-collapsed', '');
     } catch {}
   </script>

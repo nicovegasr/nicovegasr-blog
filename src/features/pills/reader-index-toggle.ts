@@ -1,4 +1,4 @@
-const collapsedKey = 'pills.index.collapsed';
+import { collapsedIndexStorageKey } from './reader-index-storage';
 
 const readerIn = () => document.querySelector<HTMLElement>('[data-pill-reader]');
 
@@ -30,7 +30,7 @@ document.addEventListener('click', (event) => {
   const collapsed = !reader.hasAttribute('data-index-collapsed');
   render(reader, collapsed);
   try {
-    localStorage.setItem(collapsedKey, String(collapsed));
+    localStorage.setItem(collapsedIndexStorageKey, String(collapsed));
   } catch {
     // Storage may be unavailable; the choice still lasts through client navigation.
   }
@@ -43,5 +43,3 @@ document.addEventListener('astro:page-load', () => {
   // Same-series visits keep the index DOM, so choosing a pill must close it here.
   renderDisclosure(reader, false);
 });
-
-export {};
