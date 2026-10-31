@@ -3,7 +3,7 @@ import type { Locale } from '@/i18n/locale';
 import {
   blockSessionStorage, captureForReview, expect, expectFullyInViewport, expectNoHorizontalOverflow,
   labUrl, setSimulationInterval, test, useDarkTheme,
-} from '../lab-test';
+} from '../shared/lab-test';
 
 class ScalingLab {
   readonly game: Locator;

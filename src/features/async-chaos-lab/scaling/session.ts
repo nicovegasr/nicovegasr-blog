@@ -1,6 +1,6 @@
 import { scalingAchievements } from './achievements';
 import type { ScalingAchievementId } from './achievements';
-import { cleanLabel } from '../labels';
+import { cleanLabel } from '../shared/text';
 import type { Names } from './content';
 import {
   AVAILABLE_WORKERS,

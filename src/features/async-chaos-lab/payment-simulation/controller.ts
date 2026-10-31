@@ -1,4 +1,4 @@
-import { outcomeShell } from './outcome-shell';
+import { outcomeShell } from '../shared/outcome-shell';
 import {
   JOB_COUNT,
   advance,
@@ -10,15 +10,16 @@ import {
   totals,
 } from './engine';
 import type { SimulationConfig, ActionKind, SimulationState } from './engine';
-import { cleanLabel, defaultLabels, escapeHtml as esc } from './labels';
+import { cleanLabel, escapeHtml as esc } from '../shared/text';
+import { defaultLabels } from './labels';
 import type { Labels } from './labels';
 import { achievements } from './achievements';
 import { guideBeat } from './guide';
 import type { GuideStage } from './guide';
-import { labFigure } from './figures';
+import { labFigure } from '../shared/figures';
 import type { AchievementId } from './achievements';
 import { actorMarkup, workerFrame, WorkerActor } from './worker-actor';
-import { button, inLanguage, isSpanishLab } from './lab-ui';
+import { button, inLanguage, isSpanishLab } from '../shared/lab-ui';
 import { restoreAchievements, restoreLabels, saveAchievements, saveLabel } from './session';
 
 class QueueStories extends HTMLElement {

@@ -1,8 +1,8 @@
 import {
   blockSessionStorage, captureForReview, expect, expectFullyInViewport, expectNoHorizontalOverflow,
   setSimulationInterval, test, useDarkTheme,
-} from './lab-test';
-import { StoriesLab } from './stories-lab';
+} from '../shared/lab-test';
+import { StoriesLab } from '../payment-simulation/stories-lab';
 
 test.describe('Level 1 · the queue', () => {
   test('starts in RAM with three plain steps and a compact diagram', async ({ page }) => {

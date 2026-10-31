@@ -1,6 +1,6 @@
 import { eligibleAchievements, scalingAchievements } from './achievements';
 import type { ScalingAchievementId } from './achievements';
-import { outcomeShell } from '../outcome-shell';
+import { outcomeShell } from '../shared/outcome-shell';
 import {
   createScaling,
   BASE_CAPACITIES,
@@ -21,13 +21,13 @@ import {
 import type { ScalingConfig } from './engine';
 import { callCopy, scalingNames, stepControlsCopy } from './content';
 import type { Names } from './content';
-import { cleanLabel, escapeHtml as esc } from '../labels';
-import { labFigure } from '../figures';
+import { cleanLabel, escapeHtml as esc } from '../shared/text';
+import { labFigure } from '../shared/figures';
 import walkingAtlas from '@/shared/mascot/worker-walk-atlas.webp?url';
 import reactionsAtlas from '@/shared/mascot/worker-reactions.webp?url';
 import { teamWorkerFrame } from './team-actors';
 import type { TeamPose } from './team-actors';
-import { button, inLanguage, isSpanishLab } from '../lab-ui';
+import { button, inLanguage, isSpanishLab } from '../shared/lab-ui';
 import { restoreAchievements, restoreSession, saveAchievements, saveSession } from './session';
 import type { Trial } from './session';
 

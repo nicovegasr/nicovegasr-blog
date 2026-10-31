@@ -1,10 +1,10 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import type { Locale } from '@/i18n/locale';
-import LabHeader from './LabHeader.astro';
-import { labPath } from './links';
-import './stories.css';
-import './scaling/scaling.css';
+import LabHeader from '../shared/LabHeader.astro';
+import { labPath } from '../shared/links';
+import '../shared/stories.css';
+import './scaling.css';
 interface Props { locale: Locale }
 const { locale } = Astro.props;
 const es = locale === 'es';
@@ -17,4 +17,4 @@ const title = es ? 'Tu sistema se queda pequeño.' : 'Your system is growing.';
   <queue-scaling-game data-locale={locale}></queue-scaling-game>
   <noscript>{es ? 'Activa JavaScript para probar el laboratorio.' : 'Enable JavaScript to try the lab.'}</noscript>
 </BaseLayout>
-<script>import './scaling/controller';</script>
+<script>import './controller';</script>

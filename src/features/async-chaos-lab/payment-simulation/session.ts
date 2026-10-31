@@ -1,6 +1,6 @@
 import { achievements } from './achievements';
 import type { AchievementId } from './achievements';
-import { cleanLabel } from './labels';
+import { cleanLabel } from '../shared/text';
 import type { Labels } from './labels';
 
 const achievementsKey = 'queue-story-achievements';

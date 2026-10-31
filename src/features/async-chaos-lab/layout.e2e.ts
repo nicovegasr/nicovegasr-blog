@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { labPath } from './links';
+import { labPath } from './shared/links';
 
 type Geometry = { height: number; footerTop: number };
 

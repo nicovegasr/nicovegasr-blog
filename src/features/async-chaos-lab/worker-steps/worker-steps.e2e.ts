@@ -1,5 +1,5 @@
-import { captureForReview, expect, expectFullyInViewport, test } from './lab-test';
-import { StoriesLab } from './stories-lab';
+import { captureForReview, expect, expectFullyInViewport, test } from '../shared/lab-test';
+import { StoriesLab } from '../payment-simulation/stories-lab';
 
 test.describe('Level 2 · the worker', () => {
   test('shows the step chain, its character stage and the receiver protection', async ({ page }) => {

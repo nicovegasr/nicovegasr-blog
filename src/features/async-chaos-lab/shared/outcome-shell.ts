@@ -1,5 +1,5 @@
 import { labFigure } from './figures';
-import { escapeHtml } from './labels';
+import { escapeHtml } from './text';
 
 type OutcomeScene = {
   es: boolean;

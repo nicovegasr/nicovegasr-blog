@@ -1,6 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 import type { Locale } from '@/i18n/locale';
-import { expect, expectFullyInViewport, labUrl } from './lab-test';
+import { expect, expectFullyInViewport, labUrl } from '../shared/lab-test';
 
 type StopPhase = 'incident' | 'won' | 'lost' | 'duplicate';
 
