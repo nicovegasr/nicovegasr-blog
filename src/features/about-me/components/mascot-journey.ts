@@ -88,6 +88,16 @@ const trackMascotJourney = () => {
   }
 
   const walker = createMascotWalker(mascot);
+  const atlases: Record<string, { walking: string; reactions: string }> = JSON.parse(mascot.dataset.mascotAtlases!);
+  const showAge = (age: string) => {
+    if (mascot.dataset.mascotAge === age) {
+      return;
+    }
+    const atlas = atlases[age] ?? atlases.original!;
+    mascot.style.setProperty('--walking-atlas', `url(${atlas.walking})`);
+    mascot.style.setProperty('--reactions-atlas', `url(${atlas.reactions})`);
+    mascot.dataset.mascotAge = age;
+  };
   let threadTop = 0;
   let threadHeight = 0;
   let previousX: number | undefined;
@@ -157,6 +167,7 @@ const trackMascotJourney = () => {
       }
     });
     stops.forEach((stop) => stop.classList.toggle('is-active', stop === activeStop));
+    showAge(isOnFirstRoute ? 'original' : isOnLastRoute ? '2026' : activeStop?.dataset.startYear ?? 'original');
     mascot.classList.toggle('is-arrived', last.ratio >= 1);
   };
   const requestPaint = () => {

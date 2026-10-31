@@ -3,6 +3,60 @@ import { expect, test } from '@playwright/test';
 const stops = '[data-journey-stop]';
 const reachedStops = `${stops}.is-reached`;
 
+for (const viewport of [{ width: 1280, height: 800 }, { width: 360, height: 640 }]) {
+  test.describe(`mascot ages at ${viewport.width}px`, () => {
+    test.use({ viewport });
+
+    for (const locale of ['es', 'en']) {
+      test(`the ${locale} timeline restores every age in both scroll directions`, async ({ page }, testInfo) => {
+        await page.goto(`/${locale}/`);
+        const walker = page.locator('[data-page-walker]');
+        await expect(walker).toHaveAttribute('data-mascot-age', 'original');
+        const atlasUrls = await walker.evaluate((element) =>
+          [...new Set(Object.values(JSON.parse(element.getAttribute('data-mascot-atlases')!) as Record<string, { walking: string; reactions: string }>)
+            .flatMap(({ walking, reactions }) => [walking, reactions]))],
+        );
+        const preloadedUrls = await page.locator('link[rel="preload"][as="image"]')
+          .evaluateAll((links) => links.map((link) => link.getAttribute('href')));
+        expect(preloadedUrls).toEqual(expect.arrayContaining(atlasUrls));
+
+        const scrollToStop = async (year: string) => {
+          await page.locator(`${stops}[data-start-year="${year}"]`).evaluate((element) => {
+            const stage = document.querySelector<HTMLElement>('[data-route-stage]')!;
+            window.scrollTo({
+              top: window.scrollY + element.getBoundingClientRect().top - stage.offsetHeight * 0.88 + 8,
+              behavior: 'instant',
+            });
+          });
+          await expect(page.locator(`${stops}.is-active`)).toHaveAttribute('data-start-year', year);
+          await expect(walker).toHaveAttribute('data-mascot-age', year);
+          await expect(walker).toHaveCSS('--walking-atlas', new RegExp(`age-${year}`));
+        };
+
+        for (const year of ['2019', '2023', '2024', '2026']) {
+          await scrollToStop(year);
+          if (locale === 'es') {
+            await page.screenshot({ path: testInfo.outputPath(`age-${year}.png`) });
+          }
+        }
+        await page.evaluate(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' }));
+        await expect(walker).toHaveClass(/is-arrived/);
+        await expect(walker).toHaveAttribute('data-mascot-age', '2026');
+        await expect(walker).toHaveCSS('--reactions-atlas', /age-2026-reactions/);
+        if (locale === 'es') {
+          await page.screenshot({ path: testInfo.outputPath('skills.png') });
+        }
+        for (const year of ['2026', '2024', '2023', '2019']) {
+          await scrollToStop(year);
+        }
+        await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+        await expect(walker).toHaveAttribute('data-mascot-age', 'original');
+        await expect(walker).toHaveCSS('--walking-atlas', /worker-walk-atlas/);
+      });
+    }
+  });
+}
+
 test('the journey lights up its stops as the reader scrolls', async ({ page }) => {
   await page.goto('/es/');
   const total = await page.locator(stops).count();

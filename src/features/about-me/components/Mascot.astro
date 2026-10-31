@@ -1,13 +1,29 @@
 ---
 import walkingAtlas from '@/shared/mascot/worker-walk-atlas.webp?url';
 import reactionsAtlas from '@/shared/mascot/worker-reactions.webp?url';
+import studentAtlas from '@/shared/mascot/age-2019.webp?url';
+import laptopAtlas from '@/shared/mascot/age-2023.webp?url';
+import tieAtlas from '@/shared/mascot/age-2024.webp?url';
+import matureAtlas from '@/shared/mascot/age-2026.webp?url';
+import matureReactionsAtlas from '@/shared/mascot/age-2026-reactions.webp?url';
 
 const { class: className, ...attributes } = Astro.props;
+const atlases = {
+  original: { walking: walkingAtlas, reactions: reactionsAtlas },
+  2019: { walking: studentAtlas, reactions: reactionsAtlas },
+  2023: { walking: laptopAtlas, reactions: reactionsAtlas },
+  2024: { walking: tieAtlas, reactions: reactionsAtlas },
+  2026: { walking: matureAtlas, reactions: matureReactionsAtlas },
+};
+const atlasUrls = [...new Set(Object.values(atlases).flatMap(({ walking, reactions }) => [walking, reactions]))];
 ---
 
+{atlasUrls.map((href) => <link rel="preload" as="image" href={href} />)}
 <span
   {...attributes}
   class:list={['mascot', className]}
+  data-mascot-atlases={JSON.stringify(atlases)}
+  data-mascot-age="original"
   style={`--walking-atlas: url(${walkingAtlas}); --reactions-atlas: url(${reactionsAtlas});`}
   aria-hidden="true"
 ></span>

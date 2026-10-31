@@ -19,7 +19,7 @@ const credit = [entry.organization, entry.role, entry.sector].filter(
 );
 ---
 
-<article class="timeline-entry" data-journey-stop>
+<article class="timeline-entry" data-journey-stop data-start-year={entry.startDate.getUTCFullYear()}>
   <div class="when">
     <time class="year" datetime={startMachine}>{entry.startDate.getUTCFullYear()}</time>
     <span class="place">{entry.place}</span>
