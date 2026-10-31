@@ -43,7 +43,11 @@ for (const viewport of [...phones, desktop]) {
           overflows: document.documentElement.scrollWidth > window.innerWidth,
           culprits: [...document.querySelectorAll('body *')]
             .filter((element) => sticksOut(element) && ![...element.children].some(sticksOut))
-            .map((element) => `${element.tagName.toLowerCase()}.${[...element.classList].join('.')} → ${Math.round(element.getBoundingClientRect().right)}px`),
+            .map((element) => {
+              const owner = element.parentElement?.closest('[class]');
+              const name = (node: Element | null | undefined) => (node ? `${node.tagName.toLowerCase()}.${[...node.classList].join('.')}` : '');
+              return `${name(element)} in ${name(owner)} → ${Math.round(element.getBoundingClientRect().right)}px`;
+            }),
         };
       });
       expect(overflow.overflows, overflow.culprits.join(', ')).toBe(false);
