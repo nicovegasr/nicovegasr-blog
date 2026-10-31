@@ -73,7 +73,7 @@ Use `getTranslator(locale)` in components. Do not embed parallel language dictio
 
 Design tokens live in `src/styles/tokens.css`. `base.css` contains the reset, typography, and genuinely global patterns. Components use scoped styles and theme-independent color tokens. See the visual guide for the palette, typography, depth, and motion rules.
 
-Series and individual pill routes render the same notebook component. Individual routes select their article during the build. Reader links point to generated HTML pages, so direct visits, reloads, and navigation without JavaScript remain available. The pill title is the page's `h1`, and the series appears in the breadcrumb. On screens up to 800px the index starts closed behind one line and closes again after choosing a pill; without JavaScript it stays open.
+Series and individual pill routes render the same notebook component. Individual routes select their article during the build. Reader links point to generated HTML pages, so direct visits, reloads, and navigation without JavaScript remain available. The pill title is the page's `h1`. On screens up to 800px the index starts closed behind one line and closes again after choosing a pill; without JavaScript it stays open.
 
 The notebook opts into Astro's `ClientRouter` through `BaseLayout`. It loads generated pages without a full document reload, updating the URL, history, metadata, and translated links. Within the same locale and series, a custom swap replaces only `.reading-desk` and the translated language link, preserving the shell and index DOM.
 

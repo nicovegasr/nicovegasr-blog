@@ -252,23 +252,6 @@ p {
 }
 
 /* Detalle de artículo y trabajo */
-.breadcrumb {
-  font-family: var(--font-family-mono);
-  font-size: var(--font-size-meta);
-  color: var(--color-text-muted);
-  margin-bottom: var(--space-6);
-}
-
-.breadcrumb a {
-  text-decoration: none;
-}
-
-@media (hover: hover) {
-  .breadcrumb a:hover {
-    color: var(--color-ink);
-  }
-}
-
 .article-header {
   margin-bottom: var(--space-12);
 }

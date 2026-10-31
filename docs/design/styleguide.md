@@ -6,7 +6,7 @@ Cómo debe verse el sitio. El detalle ejecutable vive en `src/styles/tokens.css`
 
 Editorial-dev: blanco, rotundo, con carácter de autor. Nada de gradientes difusos, glass ni blobs. La personalidad sale de tres palancas:
 
-1. **Tipografía**: Space Grotesk (titulares, UI), Inter (cuerpo de lectura), IBM Plex Mono (meta, etiquetas, breadcrumbs).
+1. **Tipografía**: Space Grotesk (titulares, UI), Inter (cuerpo de lectura), IBM Plex Mono (meta, etiquetas).
 2. **Profundidad táctil**: sombras sólidas desplazadas, nunca borrosas.
 3. **Acento único lima** (`#d8ff3e`): siempre como bloque —resaltado, pill, subrayado al hover, marca de cita—, nunca como texto fino (no tendría contraste sobre papel).
 

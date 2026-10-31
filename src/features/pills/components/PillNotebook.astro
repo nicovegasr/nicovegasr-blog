@@ -5,11 +5,7 @@ import PillImageZoom from '@/features/pills/components/PillImageZoom.astro';
 import ReaderKeyboardTip from '@/features/pills/components/ReaderKeyboardTip.astro';
 import type { Locale } from '@/i18n/locale';
 import { getTranslator } from '@/i18n/translator';
-import {
-  buildPagePath,
-  buildPillPath,
-  buildPillSeriesPath,
-} from '@/i18n/routes';
+import { buildPillPath, buildPillSeriesPath } from '@/i18n/routes';
 import { findRenderablePillSeries } from '@/features/pills/pill-repository';
 import { pillLeafSlugOf } from '@/features/pills/pill';
 
@@ -47,11 +43,6 @@ const alternatePaths = {
   alternatePaths={alternatePaths}
 >
   <article class="series-notebook">
-    <header class="notebook-header">
-      <nav class="breadcrumb" aria-label="breadcrumb">
-        <a href={buildPagePath('pills', locale)}>{translate('pills.heading')}</a> / {series.title}
-      </nav>
-    </header>
     <PillReader locale={locale} series={series} pills={pills} activePillSlug={activePillSlug} />
   </article>
   <ReaderKeyboardTip locale={locale} />
@@ -59,9 +50,6 @@ const alternatePaths = {
 </BaseLayout>
 
 <style>
-  .notebook-header {
-    margin-bottom: var(--space-6);
-  }
   @media (max-width: 800px) {
     .series-notebook {
       margin-top: calc(var(--space-6) - var(--space-16));

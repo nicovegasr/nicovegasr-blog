@@ -1,18 +1,12 @@
 ---
 import type { Locale } from '@/i18n/locale';
-import { labsPath, labPath } from './links';
+import { labPath } from './links';
 interface Props { locale: Locale; level: 1 | 2 | 3; title: string }
 const { locale, level, title } = Astro.props;
 const es = locale === 'es';
 ---
   <header class="qs-heading">
-    <div>
-      <p class="qs-breadcrumb">
-        <a href={labsPath(locale)}>← {es ? 'Laboratorios' : 'Labs'}</a><span
-          aria-hidden="true">/</span
-        >Async Chaos Lab
-      </p><h1>{title}</h1>
-    </div>
+    <h1>{title}</h1>
     <nav class="qs-levels" aria-label={es ? 'Laboratorios' : 'Labs'}>
       <span class="qs-levels-caption">{es ? 'Tres niveles para experimentar' : 'Three levels to explore'}</span>
       <a
@@ -35,24 +29,6 @@ const es = locale === 'es';
     justify-content: space-between;
     gap: 1rem;
     margin: 0 0 0.8rem;
-  }
-  .qs-breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    font: 0.6rem/1.4 var(--font-family-mono);
-    color: var(--color-text-soft);
-    margin: 0 0 0.55rem;
-  }
-  .qs-breadcrumb a {
-    color: inherit;
-    text-decoration: none;
-  }
-  .qs-breadcrumb a:hover {
-    color: var(--color-ink);
-  }
-  .qs-breadcrumb > span {
-    opacity: 0.4;
   }
   .qs-heading h1 {
     font: 500 clamp(1.65rem, 3vw, 2rem)/1.1 var(--font-family-display);
@@ -130,8 +106,5 @@ const es = locale === 'es';
       align-self: flex-start;
     }
     .qs-levels a { padding: 0.5rem 0.4rem; font-size: 0.72rem; gap: 0.3rem; }
-    .qs-breadcrumb {
-      font-size: 0.55rem;
-    }
   }
 </style>
