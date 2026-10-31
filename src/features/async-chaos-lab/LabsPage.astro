@@ -18,15 +18,6 @@ const description = es
 ---
 
 <ContentLayout locale={locale} title={title} description={description} lead={description}>
-  <header class="labs-heading">
-    <p class="labs-note">
-      {
-        es
-          ? 'Simulaciones interactivas. Sin registro ni instalaciones.'
-          : 'Interactive simulations. No signup or installation.'
-      }
-    </p>
-  </header>
   <a class="featured-lab" href={labPath(locale)}
     ><span class="label"
       >{
@@ -90,12 +81,5 @@ const description = es
     color: var(--color-accent-ink);
     padding: var(--space-2) var(--space-3);
     margin-top: var(--space-4);
-  }
-  .labs-heading {
-    margin-bottom: var(--space-8);
-  }
-  .labs-note {
-    font-size: var(--font-size-small);
-    color: var(--color-text-soft);
   }
 </style>
