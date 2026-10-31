@@ -9,6 +9,13 @@ const phones = [
   { width: 706, height: 851 },
 ];
 const desktop = { width: 1280, height: 800 };
+const badge = '<svg xmlns="http://www.w3.org/2000/svg" width="88" height="20"><rect width="88" height="20"/></svg>';
+
+test.beforeEach(async ({ page }) => {
+  await page.route('https://img.shields.io/**', (route) =>
+    route.fulfill({ contentType: 'image/svg+xml', body: badge }),
+  );
+});
 
 for (const [locale, label] of [['es', 'Ver proyectos'], ['en', 'View projects']] as const) {
   test(`the ${locale} hero links to the projects next to the repository stars`, async ({ page }) => {
@@ -22,6 +29,47 @@ for (const [locale, label] of [['es', 'Ver proyectos'], ['en', 'View projects']]
     await expect(hero.locator('.repo-star span')).toHaveCount(0);
   });
 }
+
+test('the star badge reacts to the pointer and the keyboard without its prompt', async ({ page }) => {
+  await page.goto('/es/');
+  const badge = page.locator('.hero .repo-star img');
+  await expect(badge).toHaveCSS('opacity', '1');
+
+  await page.locator('.hero .repo-star').hover();
+  await expect(badge).toHaveCSS('opacity', '0.7');
+
+  await page.mouse.move(0, 0);
+  await expect(badge).toHaveCSS('opacity', '1');
+
+  await page.locator('.hero .repo-star').focus();
+  await page.keyboard.press('Shift+Tab');
+  await page.keyboard.press('Tab');
+  await expect(badge).toHaveCSS('opacity', '0.7');
+});
+
+test('the projects link and the star prompt share the accent underline', async ({ page }) => {
+  const accentUnderlines = async (selector: string) => {
+    const link = page.locator(selector).first();
+    const accent = await page.evaluate(() => {
+      const probe = document.createElement('span');
+      probe.style.color = 'var(--color-accent)';
+      document.body.append(probe);
+      const color = getComputedStyle(probe).color;
+      probe.remove();
+      return color;
+    });
+    await expect(link).toHaveCSS('text-decoration-line', 'underline');
+    await expect(link).toHaveCSS('text-decoration-color', accent);
+    await expect(link).toHaveCSS('text-decoration-thickness', '2px');
+    await expect(link).toHaveCSS('text-underline-offset', '4px');
+  };
+
+  await page.goto('/es/');
+  await accentUnderlines('.projects-link');
+
+  await page.goto('/es/contenido/blog/');
+  await accentUnderlines('.repo-star span');
+});
 
 test('the content panel keeps asking whether the blog was useful', async ({ page }) => {
   await page.goto('/es/contenido/blog/');

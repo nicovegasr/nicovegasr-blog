@@ -166,10 +166,15 @@ p {
   margin-top: var(--space-8);
 }
 
-.prose a {
+.prose a,
+.accent-underline {
   text-decoration: underline;
   text-decoration-color: var(--color-accent);
   text-decoration-thickness: 2px;
+}
+
+.accent-underline {
+  text-underline-offset: 4px;
 }
 
 .prose ul,

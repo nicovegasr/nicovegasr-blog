@@ -44,7 +44,7 @@ const skillStations = findSkillAreas(locale).map((area) => ({
         <h1 class="statement">{translate('about.heroStatement')}</h1>
         <p class="hero-projects">
           <a
-            class="projects-link"
+            class="projects-link accent-underline"
             href="https://github.com/nicovegasr"
             target="_blank"
             rel="noopener noreferrer"
@@ -151,10 +151,6 @@ const skillStations = findSkillAreas(locale).map((area) => ({
     color: var(--color-text-soft);
     font-size: var(--font-size-small);
     line-height: 1.5;
-    text-decoration: underline;
-    text-decoration-color: var(--color-accent);
-    text-decoration-thickness: 2px;
-    text-underline-offset: 4px;
   }
 
   .projects-link:focus-visible {
@@ -218,10 +214,6 @@ const skillStations = findSkillAreas(locale).map((area) => ({
 
     .statement {
       font-size: clamp(2rem, 8.5vw, var(--font-size-heading-1));
-    }
-
-    .hero-role {
-      font-size: var(--font-size-lead);
     }
 
     .hero-role,

@@ -19,7 +19,7 @@ const translate = getTranslator(locale);
   target="_blank"
   rel="noopener noreferrer"
 >
-  {showPrompt && <span>{translate('blog.starPrompt')}</span>}
+  {showPrompt && <span class="accent-underline">{translate('blog.starPrompt')}</span>}
   <img
     src="https://img.shields.io/github/stars/nicovegasr/nicovegasr-blog?style=social"
     alt={translate('blog.starCount')}
@@ -45,13 +45,6 @@ const translate = getTranslator(locale);
     text-decoration: none;
   }
 
-  .repo-star span {
-    text-decoration: underline;
-    text-decoration-color: var(--color-accent);
-    text-decoration-thickness: 2px;
-    text-underline-offset: 4px;
-  }
-
   .repo-star img {
     flex-shrink: 0;
     width: auto;
@@ -59,10 +52,33 @@ const translate = getTranslator(locale);
     max-width: none;
   }
 
-  .repo-star:hover span,
-  .repo-star:focus-visible span {
+  .repo-star img {
+    transition: opacity var(--motion-duration-fast) var(--motion-easing);
+  }
+
+  .repo-star:focus-visible {
     color: var(--color-ink);
+  }
+
+  .repo-star:focus-visible span {
     text-decoration-thickness: 3px;
   }
 
+  .repo-star:focus-visible img {
+    opacity: 0.7;
+  }
+
+  @media (hover: hover) {
+    .repo-star:hover {
+      color: var(--color-ink);
+    }
+
+    .repo-star:hover span {
+      text-decoration-thickness: 3px;
+    }
+
+    .repo-star:hover img {
+      opacity: 0.7;
+    }
+  }
 </style>
