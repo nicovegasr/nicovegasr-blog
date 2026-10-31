@@ -8,6 +8,7 @@ import {
   seriesSlugOf,
   type Pill,
   type PillSeries,
+  type PillSeriesCard,
 } from '@/features/pills/pill';
 import { parseLocalizedEntryIdentifier } from '@/i18n/entry-identifier';
 import { calculateReadingTimeInMinutes } from '@/shared/reading-time/reading-time';
@@ -84,6 +85,18 @@ export const findPillSeriesCatalog = async (
     .filter((series) => series.locale === locale)
     .filter((series) => isPublished({ publicationDate: series.publicationDate }));
   return seriesOrder(series);
+};
+
+export const findPillSeriesCards = async (
+  locale: Locale,
+): Promise<readonly PillSeriesCard[]> => {
+  const catalog = await findPillSeriesCatalog(locale);
+  return Promise.all(
+    catalog.map(async (series) => ({
+      ...series,
+      pillCount: (await publishedPillsOf(locale, series.slug)).length,
+    })),
+  );
 };
 
 export const findAllPillSeries = async (

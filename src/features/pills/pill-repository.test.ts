@@ -9,6 +9,7 @@ vi.mock('astro:content', () => ({ getCollection, render }));
 import {
   findAllPillSeries,
   findNextPillSeries,
+  findPillSeriesCards,
   findPillSeriesCatalog,
   findAllPublishedPills,
   findRenderablePill,
@@ -48,6 +49,16 @@ describe('series publication', () => {
     expect(await findAllPillSeries('es')).toEqual([]);
     expect(await findAllPublishedPills('es')).toEqual([]);
     expect(render).not.toHaveBeenCalled();
+  });
+
+  it('counts only the published pills of each catalogue card', async () => {
+    const future = pillEntry('es');
+    future.id = 'es/inventory/future';
+    future.data.publicationDate = new Date('2999-01-01');
+    getCollection.mockResolvedValue([seriesEntry('es', false), pillEntry('es'), future, pillEntry('en')]);
+    expect(await findPillSeriesCards('es')).toEqual([
+      expect.objectContaining({ slug: 'inventory', pillCount: 1 }),
+    ]);
   });
 
   it('keeps future announcements and other locales out of the catalogue', async () => {

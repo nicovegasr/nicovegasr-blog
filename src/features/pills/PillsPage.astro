@@ -4,7 +4,7 @@ import { getTranslator } from '@/i18n/translator';
 import ComingSoon from '@/layouts/ComingSoon.astro';
 import ContentLayout from '@/layouts/ContentLayout.astro';
 import PillSeriesList from '@/features/pills/components/PillSeriesList.astro';
-import { findPillSeriesCatalog } from '@/features/pills/pill-repository';
+import { findPillSeriesCards } from '@/features/pills/pill-repository';
 
 interface Props {
   locale: Locale;
@@ -12,7 +12,7 @@ interface Props {
 
 const { locale } = Astro.props;
 const translate = getTranslator(locale);
-const series = await findPillSeriesCatalog(locale);
+const series = await findPillSeriesCards(locale);
 ---
 
 <ContentLayout

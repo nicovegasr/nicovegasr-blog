@@ -25,6 +25,10 @@ export type PillSeries = {
   readonly publicationDate: Date;
 };
 
+export type PillSeriesCard = PillSeries & {
+  readonly pillCount: number;
+};
+
 // Pill entry ids are "<locale>/<series>/<leaf>", so the series is the first
 // slug segment and the leaf is the rest (the URL-facing pill slug).
 export const seriesSlugOf = (pillSlug: string): string =>
