@@ -30,6 +30,8 @@ test.describe('Level 2 · the worker', () => {
   });
 
   test('the walkthrough protects every effect and finishing keeps the result', async ({ page }) => {
+    // Juega varias simulaciones reales con sus animaciones y supera el límite de 30 s por defecto.
+    test.setTimeout(60_000);
     const lab = new StoriesLab(page);
     await lab.open('es', 2);
     const fullSystemWidth = await lab.systemWidth();
