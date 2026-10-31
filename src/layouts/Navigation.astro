@@ -249,24 +249,21 @@ const navigationItems: { href: string; label: string; isCurrentSection: boolean 
 
     .primary ul {
       flex-direction: column;
-      gap: 0;
+      gap: var(--space-1);
       max-width: var(--content-width-wide);
       margin-inline: auto;
-      padding: var(--space-2) var(--space-4) var(--space-4);
+      padding: var(--space-2) var(--space-3) var(--space-3);
     }
 
-    .primary li + li {
-      border-top: 1px solid var(--color-rule);
-    }
-
-    .primary a {
-      display: block;
-      padding: var(--space-3) 0;
-      font-size: var(--font-size-base);
-    }
-
+    /* Todas las filas miden lo mismo: la actual solo cambia de color. */
+    .primary a,
     .primary a.current {
-      display: inline-block;
+      display: flex;
+      align-items: center;
+      min-height: 48px;
+      padding: 0 var(--space-3);
+      border-radius: var(--radius-medium);
+      font-size: 1.125rem;
     }
   }
 </style>
