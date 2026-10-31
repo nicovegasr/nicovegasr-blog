@@ -19,6 +19,7 @@ const series = await findPillSeriesCards(locale);
   locale={locale}
   title={translate('pills.heading')}
   description={translate('pills.metaDescription')}
+  lead={translate('content.pillsLead')}
 >
   {
     series.length > 0 ? (

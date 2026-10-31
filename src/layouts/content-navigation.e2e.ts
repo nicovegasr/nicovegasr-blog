@@ -35,7 +35,55 @@ test('the home is the about page and content is one click away', async ({ page }
   await expect(page.locator(`${sections}[aria-current="page"]`)).toHaveAttribute('href', '/es/contenido/blog/');
 });
 
+test('the menu goes straight to each section with its tab selected', async ({ page }) => {
+  await page.goto('/es/');
+  const menu = page.locator('.site-header .primary a');
+  await expect(menu).toHaveText(['Inicio', 'Blog', 'Píldoras', 'Laboratorios']);
+
+  await menu.filter({ hasText: 'Píldoras' }).click();
+
+  await expect(page).toHaveURL(/\/es\/contenido\/pildoras\/$/);
+  await expect(page.locator('h1')).toHaveText('Píldoras');
+  await expect(page.locator('.intro .lead')).toContainText('Conceptos reducidos al mínimo');
+  await expect(page.locator('.site-header .primary a.current')).toHaveText('Píldoras');
+});
+
+test('each section has its own title and sentence', async ({ page }) => {
+  await page.goto('/es/contenido/blog/');
+  await expect(page.locator('h1')).toHaveText('Blog');
+  await expect(page.locator('.intro .lead')).toContainText('Lo que estudio');
+
+  await page.goto('/es/contenido/laboratorios/');
+  await expect(page.locator('h1')).toHaveText('Laboratorios');
+  await expect(page.locator('.intro .lead')).toContainText('Construye, experimenta');
+  await expect(page.getByText('Construye, experimenta')).toHaveCount(1);
+});
+
+test('the tabs give way to the menu on desktop and stay under the hamburger', async ({ page }) => {
+  await page.goto('/es/contenido/pildoras/');
+  await expect(page.locator(sections).first()).toBeHidden();
+
+  await page.setViewportSize({ width: 900, height: 700 });
+  await expect(page.locator(sections).first()).toBeVisible();
+});
+
+test('the menu keeps the section marked inside a published pill', async ({ page }) => {
+  await page.goto('/es/pildoras/docker/intro/');
+
+  await expect(page.locator('.site-header .primary a.current')).toHaveText('Píldoras');
+});
+
+test('the menu fits beside the logo just above the hamburger layout', async ({ page }) => {
+  await page.setViewportSize({ width: 901, height: 700 });
+  await page.goto('/es/');
+
+  const overflows = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+
+  expect(overflows).toBe(false);
+});
+
 test('the content panel moves between blog, pills and labs', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/en/content/pills/');
   await expect(page.locator(sections)).toHaveText(['Blog', 'Pills', 'Labs']);
 

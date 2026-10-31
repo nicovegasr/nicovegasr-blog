@@ -19,6 +19,7 @@ const posts = await findAllPosts(locale);
   locale={locale}
   title={translate('content.blog')}
   description={translate('site.description')}
+  lead={translate('content.blogLead')}
 >
   {
     posts.length > 0 ? (

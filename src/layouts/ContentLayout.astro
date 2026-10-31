@@ -9,16 +9,21 @@ interface Props {
   locale: Locale;
   title: string;
   description: string;
+  lead: string;
 }
 
-const { locale, title, description } = Astro.props;
+const { locale, title, description, lead } = Astro.props;
 const translate = getTranslator(locale);
 
-const sections: { page: PageKey; label: string }[] = [
+const sections = ([
   { page: 'articles', label: translate('content.blog') },
   { page: 'pills', label: translate('content.pills') },
   { page: 'labs', label: translate('content.labs') },
-];
+] satisfies { page: PageKey; label: string }[]).map((section) => {
+  const href = buildPagePath(section.page, locale);
+  return { ...section, href, isCurrent: isSamePath(href, Astro.url.pathname) };
+});
+const heading = sections.find((section) => section.isCurrent)?.label ?? title;
 ---
 
 <BaseLayout
@@ -27,29 +32,25 @@ const sections: { page: PageKey; label: string }[] = [
   description={description}
 >
   <section class="intro reveal">
-    <h1>{translate('content.title')}</h1>
-    <p class="lead">{translate('content.description')}</p>
+    <h1>{heading}</h1>
+    <p class="lead">{lead}</p>
     <RepoStar locale={locale} />
   </section>
   <section class="reveal content-section">
     <nav class="sections" aria-label={translate('navigation.sections')} data-content-sections>
       <ul>
         {
-          sections.map(({ page, label }) => {
-            const href = buildPagePath(page, locale);
-            const isCurrent = isSamePath(href, Astro.url.pathname);
-            return (
-              <li>
-                <a
-                  href={href}
-                  class:list={{ current: isCurrent }}
-                  aria-current={isCurrent ? 'page' : undefined}
-                >
-                  {label}
-                </a>
-              </li>
-            );
-          })
+          sections.map(({ href, label, isCurrent }) => (
+            <li>
+              <a
+                href={href}
+                class:list={{ current: isCurrent }}
+                aria-current={isCurrent ? 'page' : undefined}
+              >
+                {label}
+              </a>
+            </li>
+          ))
         }
       </ul>
     </nav>
@@ -60,6 +61,13 @@ const sections: { page: PageKey; label: string }[] = [
 <style>
   .content-section {
     margin-top: var(--space-8);
+  }
+
+  /* Above the hamburger breakpoint the header menu already holds these links. */
+  @media (min-width: 901px) {
+    .sections {
+      display: none;
+    }
   }
 
   .sections {

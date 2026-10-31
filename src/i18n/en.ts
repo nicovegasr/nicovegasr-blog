@@ -9,9 +9,8 @@ export const english: Dictionary = {
   'navigation.menu': 'Menu',
   'navigation.sections': 'Sections',
 
-  'content.title': 'Content',
-  'content.description':
-    'Articles, pills and labs to understand how the tools we use every day work.',
+  'content.blogLead': "What I study and don't want to forget.",
+  'content.pillsLead': 'Concepts reduced to the minimum to see how they work, without losing rigor.',
   'content.blog': 'Blog',
   'content.pills': 'Pills',
   'content.labs': 'Labs',

@@ -17,11 +17,9 @@ const description = es
   : 'Build, experiment and discover how your system behaves.';
 ---
 
-<ContentLayout locale={locale} title={title} description={description}>
+<ContentLayout locale={locale} title={title} description={description} lead={description}>
   <header class="labs-heading">
-    <p class="lead">
-      {description}
-    </p><p class="labs-note">
+    <p class="labs-note">
       {
         es
           ? 'Simulaciones interactivas. Sin registro ni instalaciones.'
@@ -95,9 +93,6 @@ const description = es
   }
   .labs-heading {
     margin-bottom: var(--space-8);
-  }
-  .labs-heading .lead {
-    max-width: 44ch;
   }
   .labs-note {
     font-size: var(--font-size-small);

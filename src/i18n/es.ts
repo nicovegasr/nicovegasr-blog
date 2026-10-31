@@ -7,9 +7,8 @@ export const spanish = {
   'navigation.menu': 'Menú',
   'navigation.sections': 'Secciones',
 
-  'content.title': 'Contenido',
-  'content.description':
-    'Artículos, píldoras y laboratorios para entender cómo funcionan las herramientas que usamos a diario.',
+  'content.blogLead': 'Lo que estudio y no quiero olvidar.',
+  'content.pillsLead': 'Conceptos reducidos al mínimo para ver cómo funcionan, sin perder rigor.',
   'content.blog': 'Blog',
   'content.pills': 'Píldoras',
   'content.labs': 'Laboratorios',
