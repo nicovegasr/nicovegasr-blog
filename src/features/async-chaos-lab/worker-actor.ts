@@ -1,5 +1,5 @@
-import atlas from './assets/worker-reactions.webp?url';
-import walkingAtlas from './assets/worker-walk-atlas.webp?url';
+import atlas from '@/shared/mascot/worker-reactions.webp?url';
+import walkingAtlas from '@/shared/mascot/worker-walk-atlas.webp?url';
 import type { SimulationState } from './engine';
 
 export type RetryStage = 'failure' | 'restart' | undefined;

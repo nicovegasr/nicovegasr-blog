@@ -23,8 +23,8 @@ import { callCopy, scalingNames } from './content';
 import type { Names } from './content';
 import { cleanLabel, escapeHtml as esc } from '../labels';
 import { labFigure } from '../figures';
-import walkingAtlas from '../assets/worker-walk-atlas.webp?url';
-import reactionsAtlas from '../assets/worker-reactions.webp?url';
+import walkingAtlas from '@/shared/mascot/worker-walk-atlas.webp?url';
+import reactionsAtlas from '@/shared/mascot/worker-reactions.webp?url';
 import { teamWorkerFrame } from './team-actors';
 import type { TeamPose } from './team-actors';
 
