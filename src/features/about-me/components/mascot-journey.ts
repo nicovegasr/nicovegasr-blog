@@ -4,22 +4,28 @@ import {
   isMascotPoseName,
   type MascotPoseName,
 } from '@/features/about-me/components/mascot-walker';
+import {
+  GROUND_RATIO,
+  lineInsetFor,
+  linePositionAt,
+  mascotPlacement,
+  nextLinePosition,
+  pixelsPerStation,
+  restingPose,
+  routePosition,
+  routeProgress,
+  scrollOffsetAt,
+  stationLength,
+  threadProgress,
+  threadSpan,
+  visibleAge,
+  walkDelta,
+  type WalkDirection,
+} from '@/features/about-me/components/mascot-journey-calculations';
 
 const CINEMATIC_QUERY = '(prefers-reduced-motion: no-preference) and (min-height: 34rem)';
-// Altura de la línea por la que anda, respecto a la pantalla. Debe coincidir con el `top` de `.ground`.
-const GROUND_RATIO = 0.88;
-// Los pies del atlas están al 86% de cada celda.
-const FEET_RATIO = 0.86;
-// Entre parada y parada solo anda en este tramo; el resto del scroll se queda quieto para leer.
-const WALK_STARTS_AT = 0.3;
-const WALK_LENGTH = 0.4;
 // Ritmo de paseo mientras se mantiene pulsada una flecha, sea cual sea el ancho de la línea.
 const WALKING_SPEED_IN_PIXELS_PER_SECOND = 280;
-
-type WalkDirection = 'left' | 'right';
-
-const clamp = (value: number, minimum: number, maximum: number): number =>
-  Math.min(Math.max(value, minimum), maximum);
 
 type RouteState = {
   progress: number;
@@ -29,19 +35,13 @@ type RouteState = {
 };
 
 const readRoute = (route: HTMLElement, stage: HTMLElement): RouteState => {
-  const stations = route.querySelectorAll<HTMLElement>('[data-route-station]');
-  const lastIndex = stations.length - 1;
+  const stationCount = route.querySelectorAll('[data-route-station]').length;
   const { top, height } = route.getBoundingClientRect();
   const stageHeight = stage.offsetHeight;
-  const progress = clamp(-top / (height - stageHeight), 0, 1);
-  const travelled = progress * lastIndex;
-  const stationIndex = Math.min(Math.floor(travelled), lastIndex);
-  const walked = clamp((travelled - stationIndex - WALK_STARTS_AT) / WALK_LENGTH, 0, 1);
-  const position = (stationIndex + walked) / lastIndex;
+  const progress = routeProgress(top, height, stageHeight);
   return {
     progress,
-    ratio: route.dataset.direction === 'left' ? 1 - position : position,
-    currentIndex: Math.round(travelled),
+    ...routePosition(progress, stationCount, route.dataset.direction),
     groundY: stage.getBoundingClientRect().top + stageHeight * GROUND_RATIO,
   };
 };
@@ -109,22 +109,19 @@ const trackMascotJourney = () => {
   let previousX: number | undefined;
   let previousThreadY: number | undefined;
 
-  // El hilo une el final de una línea con el principio de la siguiente justo cuando sueltan la pantalla.
   const measureThread = () => {
     const stageHeight = firstStage.offsetHeight;
     const walkwayTop = walkway.getBoundingClientRect().top;
     const firstRouteBottom = firstRoute.getBoundingClientRect().bottom - walkwayTop;
     const lastRouteTop = lastRoute.getBoundingClientRect().top - walkwayTop;
-    threadTop = firstRouteBottom - stageHeight + stageHeight * GROUND_RATIO;
-    threadHeight = lastRouteTop + stageHeight * GROUND_RATIO - threadTop;
+    ({ top: threadTop, height: threadHeight } = threadSpan(firstRouteBottom, lastRouteTop, stageHeight));
     thread.style.top = `${threadTop}px`;
     thread.style.height = `${threadHeight}px`;
   };
 
-  // Con los brazos abiertos el dibujo llega al borde de su celda: el hilo se aparta del borde de la pantalla
-  // lo justo para que la mascota quepa entera. Hilo, líneas, paradas y mascota se desplazan juntos.
+  // Thread, lines, stations and mascot all move together with the inset.
   const measureLineInset = () => {
-    lineInset = Math.max(0, mascot.offsetWidth / 2 - walkway.getBoundingClientRect().left);
+    lineInset = lineInsetFor(mascot.offsetWidth, walkway.getBoundingClientRect().left);
     walkway.style.setProperty('--walk-line-inset', `${lineInset}px`);
   };
 
@@ -137,38 +134,43 @@ const trackMascotJourney = () => {
     paintRoute(lastRoute, last);
 
     const walkLine = firstStage.offsetHeight * GROUND_RATIO;
-    const y = Math.min(Math.max(first.groundY, walkLine), last.groundY);
     const { left, width } = walkway.getBoundingClientRect();
-    const size = mascot.offsetWidth;
-    const lineLength = width - size / 2 - lineInset;
     const isOnFirstRoute = first.progress < 1;
     const isOnLastRoute = last.progress > 0;
-    const ratio = isOnFirstRoute ? first.ratio : isOnLastRoute ? last.ratio : 0;
-    const x = lineInset + ratio * lineLength;
+    const { x, y, translateX, translateY } = mascotPlacement({
+      isOnFirstRoute,
+      isOnLastRoute,
+      firstRatio: first.ratio,
+      lastRatio: last.ratio,
+      firstGroundY: first.groundY,
+      lastGroundY: last.groundY,
+      walkLine,
+      walkwayLeft: left,
+      walkwayWidth: width,
+      mascotWidth: mascot.offsetWidth,
+      lineInset,
+    });
 
-    mascot.style.transform = `translate(${left + x - size / 2}px, ${y - size * FEET_RATIO}px)`;
+    mascot.style.transform = `translate(${translateX}px, ${translateY}px)`;
 
     const threadY = y - walkway.getBoundingClientRect().top - threadTop;
-    thread.style.setProperty('--thread-progress', String(clamp(threadY / threadHeight, 0, 1)));
+    thread.style.setProperty('--thread-progress', String(threadProgress(threadY, threadHeight)));
 
-    const horizontalDelta = previousX === undefined ? 0 : x - previousX;
-    const threadDelta = previousThreadY === undefined || isOnFirstRoute || isOnLastRoute ? 0 : threadY - previousThreadY;
-    if (horizontalDelta !== 0) {
-      walker.walk(Math.abs(horizontalDelta), horizontalDelta > 0);
-    } else if (threadDelta !== 0) {
-      walker.walk(Math.abs(threadDelta), threadDelta > 0);
+    const step = walkDelta({ x, previousX, threadY, previousThreadY, isOnFirstRoute, isOnLastRoute });
+    if (step) {
+      walker.walk(step.distance, step.isForward);
     }
     previousX = x;
     previousThreadY = threadY;
 
     walker.rest(
-      isOnLastRoute && last.ratio >= 1
-        ? 'welcoming'
-        : isOnLastRoute
-          ? currentStationPose(lastRoute, last)
-          : isOnFirstRoute
-            ? currentStationPose(firstRoute, first)
-            : 'standing',
+      restingPose({
+        isOnFirstRoute,
+        isOnLastRoute,
+        hasArrived: last.ratio >= 1,
+        firstStationPose: currentStationPose(firstRoute, first),
+        lastStationPose: currentStationPose(lastRoute, last),
+      }),
     );
 
     let activeStop: HTMLElement | undefined;
@@ -180,7 +182,7 @@ const trackMascotJourney = () => {
       }
     });
     stops.forEach((stop) => stop.classList.toggle('is-active', stop === activeStop));
-    atlases.show(isOnFirstRoute ? 'original' : isOnLastRoute ? '2026' : activeStop?.dataset.startYear ?? 'original');
+    atlases.show(visibleAge({ isOnFirstRoute, isOnLastRoute, activeStopYear: activeStop?.dataset.startYear }));
     mascot.classList.toggle('is-arrived', last.ratio >= 1);
   };
   const requestPaint = () => {
@@ -210,21 +212,14 @@ const trackMascotJourney = () => {
   };
 
   const stationLengthOf = (route: HTMLElement, stage: HTMLElement): number =>
-    (route.offsetHeight - stage.offsetHeight) / (route.querySelectorAll('[data-route-station]').length - 1);
+    stationLength(route.offsetHeight, stage.offsetHeight, route.querySelectorAll('[data-route-station]').length);
 
-  const currentLinePosition = (route: HTMLElement, stage: HTMLElement): number => {
-    const travelled = -route.getBoundingClientRect().top / stationLengthOf(route, stage);
-    const stationIndex = Math.floor(travelled);
-    return stationIndex + clamp((travelled - stationIndex - WALK_STARTS_AT) / WALK_LENGTH, 0, 1);
-  };
+  const currentLinePosition = (route: HTMLElement, stage: HTMLElement): number =>
+    linePositionAt(route.getBoundingClientRect().top, stationLengthOf(route, stage));
 
-  // El tramo del scroll en que está quieto para leer se salta: cada frame de flecha se nota en la línea.
   const scrollToLinePosition = (route: HTMLElement, stage: HTMLElement, position: number) => {
-    const stationIndex = Math.floor(position);
-    const walked = position - stationIndex;
-    const stationOffset = walked === 0 ? 0 : WALK_STARTS_AT + WALK_LENGTH * walked;
     const routeTop = window.scrollY + route.getBoundingClientRect().top;
-    window.scrollTo({ top: routeTop + (stationIndex + stationOffset) * stationLengthOf(route, stage), behavior: 'instant' });
+    window.scrollTo({ top: routeTop + scrollOffsetAt(position, stationLengthOf(route, stage)), behavior: 'instant' });
   };
 
   const advanceHeldWalk = (now: number) => {
@@ -233,9 +228,14 @@ const trackMascotJourney = () => {
     }
     const { route, stage, direction, position, previousFrameAt } = heldWalk;
     const lastIndex = route.querySelectorAll('[data-route-station]').length - 1;
-    const stationPixels = (walkway.offsetWidth - mascot.offsetWidth / 2 - lineInset) / lastIndex;
-    const distance = (WALKING_SPEED_IN_PIXELS_PER_SECOND * (now - previousFrameAt)) / 1000 / stationPixels;
-    const nextPosition = clamp(position + (direction === route.dataset.direction ? distance : -distance), 0, lastIndex);
+    const stationPixels = pixelsPerStation(walkway.offsetWidth, mascot.offsetWidth, lineInset, lastIndex);
+    const nextPosition = nextLinePosition({
+      position,
+      lastIndex,
+      stationPixels,
+      pixelsWalked: (WALKING_SPEED_IN_PIXELS_PER_SECOND * (now - previousFrameAt)) / 1000,
+      walksForward: direction === route.dataset.direction,
+    });
     heldWalk.position = nextPosition;
     heldWalk.previousFrameAt = now;
     if (nextPosition !== position) {
