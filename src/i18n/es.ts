@@ -56,7 +56,7 @@ export const spanish = {
   'pills.reader.nextSeries': 'Siguiente serie',
   'pills.reader.allSeries': 'Ver todas las series',
   'pills.reader.heading': 'El recorrido',
-  'pills.reader.chapter': 'Capítulo',
+  'pills.reader.chapter': 'Píldora',
   'pills.reader.next': 'Siguiente',
   'pills.reader.previous': 'Anterior',
   'pills.reader.back': 'Volver al recorrido',

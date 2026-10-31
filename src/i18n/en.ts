@@ -58,7 +58,7 @@ export const english: Dictionary = {
   'pills.reader.nextSeries': 'Next series',
   'pills.reader.allSeries': 'View all series',
   'pills.reader.heading': 'The journey',
-  'pills.reader.chapter': 'Chapter',
+  'pills.reader.chapter': 'Pill',
   'pills.reader.next': 'Next',
   'pills.reader.previous': 'Previous',
   'pills.reader.back': 'Back to the journey',
