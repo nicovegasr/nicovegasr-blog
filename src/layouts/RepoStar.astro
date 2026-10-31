@@ -4,19 +4,22 @@ import { getTranslator } from '@/i18n/translator';
 
 interface Props {
   locale: Locale;
+  // Sin la pregunta queda solo el contador, para acompañar a otro enlace (p. ej. en el hero).
+  showPrompt?: boolean;
+  class?: string;
 }
 
-const { locale } = Astro.props;
+const { locale, showPrompt = true, class: className } = Astro.props;
 const translate = getTranslator(locale);
 ---
 
 <a
-  class="repo-star"
+  class:list={['repo-star', className]}
   href="https://github.com/nicovegasr/nicovegasr-blog"
   target="_blank"
   rel="noopener noreferrer"
 >
-  <span>{translate('blog.starPrompt')}</span>
+  {showPrompt && <span>{translate('blog.starPrompt')}</span>}
   <img
     src="https://img.shields.io/github/stars/nicovegasr/nicovegasr-blog?style=social"
     alt={translate('blog.starCount')}

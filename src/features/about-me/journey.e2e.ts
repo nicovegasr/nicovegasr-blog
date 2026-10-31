@@ -87,19 +87,117 @@ test('the mascot leaves the contributions at the top of the thread', async ({ pa
     const route = document.querySelector<HTMLElement>('[data-route]')!;
     const stage = route.querySelector<HTMLElement>('[data-route-stage]')!;
     const walker = document.querySelector<HTMLElement>('[data-page-walker]')!;
-    const walkway = document.querySelector<HTMLElement>('[data-walkway]')!;
+    const thread = document.querySelector<HTMLElement>('[data-walkway-thread]')!;
     const scrollable = route.offsetHeight - stage.offsetHeight;
     window.scrollTo({ top: route.getBoundingClientRect().top + window.scrollY + scrollable, behavior: 'instant' });
     await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
     const walkerBox = walker.getBoundingClientRect();
+    const threadBox = thread.getBoundingClientRect();
     return {
       walkerCenter: walkerBox.left + walkerBox.width / 2,
-      threadLeft: walkway.getBoundingClientRect().left,
+      threadCenter: threadBox.left + threadBox.width / 2,
     };
   });
 
-  expect(Math.abs(positions.walkerCenter - positions.threadLeft)).toBeLessThan(2);
+  expect(Math.abs(positions.walkerCenter - positions.threadCenter)).toBeLessThan(2);
 });
+
+for (const viewport of [
+  { width: 320, height: 568 },
+  { width: 360, height: 640 },
+  { width: 375, height: 667 },
+  { width: 390, height: 844 },
+  { width: 1024, height: 768 },
+  { width: 1280, height: 800 },
+]) {
+  test.describe(`the mascot at ${viewport.width}x${viewport.height}`, () => {
+    test.use({ viewport });
+
+    test('stays whole on screen and on its line, scrolling down and back up', async ({ page }) => {
+      await page.goto('/es/');
+
+      const samples = await page.evaluate(async () => {
+        const walker = document.querySelector<HTMLElement>('[data-page-walker]')!;
+        const thread = document.querySelector<HTMLElement>('[data-walkway-thread]')!;
+        const routes = document.querySelectorAll<HTMLElement>('[data-route]');
+        const firstRoute = routes[0]!;
+        const lastRoute = routes[routes.length - 1]!;
+        const stageHeight = firstRoute.querySelector<HTMLElement>('[data-route-stage]')!.offsetHeight;
+        const nextFrame = () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        const end = document.documentElement.scrollHeight - window.innerHeight;
+        const downwards: number[] = [];
+        for (let top = 0; top < end; top += window.innerHeight / 5) {
+          downwards.push(Math.round(top));
+        }
+        downwards.push(end);
+
+        const measured = [];
+        for (const top of [...downwards, ...[...downwards].reverse()]) {
+          window.scrollTo({ top, behavior: 'instant' });
+          await nextFrame();
+          // El sprite con los brazos abiertos llega al borde de su caja: si la caja cabe, la mascota también.
+          const walkerBox = walker.getBoundingClientRect();
+          const threadBox = thread.getBoundingClientRect();
+          measured.push({
+            top,
+            left: walkerBox.left,
+            right: walkerBox.right,
+            screenWidth: document.documentElement.clientWidth,
+            center: walkerBox.left + walkerBox.width / 2,
+            threadCenter: threadBox.left + threadBox.width / 2,
+            isOnThread:
+              firstRoute.getBoundingClientRect().bottom <= stageHeight && lastRoute.getBoundingClientRect().top >= 0,
+          });
+        }
+        return measured;
+      });
+
+      expect(samples.some((sample) => sample.isOnThread)).toBe(true);
+      for (const sample of samples) {
+        expect(sample.left, `left edge at scrollY ${sample.top}`).toBeGreaterThanOrEqual(0);
+        expect(sample.right, `right edge at scrollY ${sample.top}`).toBeLessThanOrEqual(sample.screenWidth);
+        if (sample.isOnThread) {
+          expect(Math.abs(sample.center - sample.threadCenter), `thread at scrollY ${sample.top}`).toBeLessThan(2);
+        }
+      }
+    });
+
+    test('the timeline stops sit on the thread and the text keeps clear of it', async ({ page }) => {
+      await page.goto('/es/');
+      await page.evaluate(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' }));
+
+      const layout = await page.evaluate(() => {
+        const threadBox = document.querySelector<HTMLElement>('[data-walkway-thread]')!.getBoundingClientRect();
+        const stops = [...document.querySelectorAll<HTMLElement>('[data-journey-stop]')].map((stop) => {
+          const dot = getComputedStyle(stop, '::before');
+          const dotLeft = stop.getBoundingClientRect().left + parseFloat(dot.left);
+          return {
+            dotCenter: dotLeft + parseFloat(dot.width) / 2,
+            dotRight: dotLeft + parseFloat(dot.width),
+            textLeft: stop.querySelector<HTMLElement>('.when')!.getBoundingClientRect().left,
+          };
+        });
+        const stationNames = [...document.querySelectorAll<HTMLElement>('[data-route-station] .station-name')].flatMap(
+          (name) => [...name.getClientRects()].map((line) => line.right),
+        );
+        return {
+          threadCenter: threadBox.left + threadBox.width / 2,
+          screenWidth: document.documentElement.clientWidth,
+          stops,
+          stationNames,
+        };
+      });
+
+      for (const stop of layout.stops) {
+        expect(Math.abs(stop.dotCenter - layout.threadCenter)).toBeLessThan(2);
+        expect(stop.textLeft - stop.dotRight).toBeGreaterThanOrEqual(15.5);
+      }
+      for (const right of layout.stationNames) {
+        expect(right).toBeLessThanOrEqual(layout.screenWidth);
+      }
+    });
+  });
+}
 
 test('only the chapter being read is marked as active', async ({ page }) => {
   await page.goto('/es/');
