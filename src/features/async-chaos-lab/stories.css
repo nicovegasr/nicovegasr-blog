@@ -1,4 +1,8 @@
 /* Feature-local lab styles, using the blog's existing palette and type. */
+.js :is(queue-stories-game, queue-scaling-game) {
+  min-height: 100svh;
+}
+
 body:has(queue-stories-game) main {
   padding-top: var(--space-6);
 }
