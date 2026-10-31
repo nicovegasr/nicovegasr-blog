@@ -17,13 +17,7 @@ const translate = getTranslator(locale);
 >
   <span class="keys" aria-hidden="true"><kbd>←</kbd><kbd>→</kbd></span>
   <p>{translate('pills.reader.keyboardTip')}</p>
-  <button
-    type="button"
-    data-dismiss-keyboard-tip
-    aria-label={translate('pills.reader.dismissKeyboardTip')}
-  >
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17" /></svg>
-  </button>
+  <span class="seconds" aria-hidden="true" data-keyboard-tip-seconds>3</span>
 </aside>
 
 <script>
@@ -41,7 +35,8 @@ const translate = getTranslator(locale);
     gap: var(--space-3);
     width: max-content;
     max-width: min(26rem, calc(100vw - var(--space-12)));
-    padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    pointer-events: none;
     border: 1px solid var(--color-ink);
     border-radius: var(--radius-small);
     background: var(--color-paper);
@@ -58,6 +53,19 @@ const translate = getTranslator(locale);
     gap: var(--space-1);
     flex-shrink: 0;
   }
+  /* Touch devices get their swipe hint beside the pill title instead. */
+  @media not all and (hover: hover) and (pointer: fine) {
+    .keyboard-tip {
+      display: none;
+    }
+  }
+  .seconds {
+    flex-shrink: 0;
+    color: var(--color-text-soft);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-small);
+    font-variant-numeric: tabular-nums;
+  }
   kbd {
     display: grid;
     place-items: center;
@@ -69,28 +77,5 @@ const translate = getTranslator(locale);
     color: var(--color-accent-ink);
     font-family: var(--font-family-mono);
     font-size: var(--font-size-small);
-  }
-  button {
-    display: grid;
-    place-items: center;
-    flex-shrink: 0;
-    width: var(--space-8);
-    height: var(--space-8);
-    border: 0;
-    border-radius: var(--radius-small);
-    background: transparent;
-    color: inherit;
-    cursor: pointer;
-  }
-  button svg {
-    width: 20px;
-    height: 20px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.6;
-    stroke-linecap: round;
-  }
-  @media (hover: hover) {
-    button:hover { background: var(--color-rule); }
   }
 </style>

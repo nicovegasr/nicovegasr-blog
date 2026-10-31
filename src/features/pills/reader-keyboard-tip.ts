@@ -1,5 +1,4 @@
 const dismissalKey = 'pills.keyboard-tip.dismissed';
-const desktopPointer = window.matchMedia('(hover: hover) and (pointer: fine)');
 let dismissed = false;
 try {
   dismissed = sessionStorage.getItem(dismissalKey) === 'true';
@@ -7,20 +6,10 @@ try {
   // Storage may be unavailable; dismissal still lasts through client navigation.
 }
 
-const updateTip = () => {
-  const tip = document.querySelector<HTMLElement>('[data-reader-keyboard-tip]');
-  if (tip) tip.hidden = dismissed || !desktopPointer.matches;
-};
+let secondsLeft = 3;
+let countdown: ReturnType<typeof setInterval> | undefined;
 
-document.addEventListener('click', (event) => {
-  if (!(event.target instanceof Element)) return;
-  if (!event.target.closest('[data-dismiss-keyboard-tip]')) return;
-  const tip = document.querySelector<HTMLElement>('[data-reader-keyboard-tip]');
-  if (tip?.contains(document.activeElement)) {
-    document
-      .querySelector<HTMLElement>('#chapter-title')
-      ?.focus({ preventScroll: true });
-  }
+const dismissTip = () => {
   dismissed = true;
   try {
     sessionStorage.setItem(dismissalKey, 'true');
@@ -28,9 +17,33 @@ document.addEventListener('click', (event) => {
     // The in-memory flag still prevents the tip from reappearing this visit.
   }
   updateTip();
-});
+};
 
-desktopPointer.addEventListener('change', updateTip);
+const tick = () => {
+  secondsLeft -= 1;
+  if (secondsLeft <= 0) dismissTip();
+  else updateTip();
+};
+
+const updateTip = () => {
+  const tip = document.querySelector<HTMLElement>('[data-reader-keyboard-tip]');
+  const visible = tip !== null && !dismissed;
+  document
+    .querySelector('[data-pill-reader]')
+    ?.toggleAttribute('data-navigation-hint-visible', visible);
+  if (tip) {
+    tip.hidden = !visible;
+    const seconds = tip.querySelector('[data-keyboard-tip-seconds]');
+    if (seconds) seconds.textContent = String(secondsLeft);
+  }
+  if (!visible) {
+    clearInterval(countdown);
+    countdown = undefined;
+  } else if (countdown === undefined) {
+    countdown = setInterval(tick, 1000);
+  }
+};
+
 document.addEventListener('astro:page-load', updateTip);
 updateTip();
 

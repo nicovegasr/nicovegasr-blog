@@ -114,7 +114,8 @@ const Content = rendered?.Content;
       <section class="chapter-page" data-pill-swipe id="pill-reading" aria-labelledby="chapter-title" aria-keyshortcuts="ArrowLeft ArrowRight">
         <div class="page-meta">
           <span>{translate('pills.reader.chapter')} {selected.number}</span>
-          <ReadingTime minutes={rendered.readingTimeInMinutes} locale={locale} />
+          <span class="reading-time-slot"><ReadingTime minutes={rendered.readingTimeInMinutes} locale={locale} /></span>
+          <span class="swipe-hint" data-swipe-hint>{translate('pills.reader.swipeTip')}</span>
         </div>
         <header class="chapter-heading">
           <h1 id="chapter-title" tabindex="-1">{selected.title}</h1>
@@ -375,6 +376,46 @@ const Content = rendered?.Content;
     font-size: 0.625rem;
     text-transform: uppercase;
     letter-spacing: 0.06em;
+  }
+  .swipe-hint {
+    display: none;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-small);
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+    font-size: var(--font-size-small);
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    white-space: nowrap;
+  }
+  @keyframes swipe-hint-nudge {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+  @media not all and (hover: hover) and (pointer: fine) {
+    /* The row keeps the hint's height so the title does not jump when it leaves. */
+    .page-meta {
+      align-items: center;
+      min-height: 2.25rem;
+    }
+    .notebook[data-navigation-hint-visible] .swipe-hint {
+      display: inline-block;
+      animation: swipe-hint-nudge 900ms ease-in-out 2;
+    }
+    /* Narrow phones have no room for both, and a second row would move the title. */
+    .notebook[data-navigation-hint-visible] .page-meta > span:first-child {
+      display: none;
+    }
+    .notebook[data-navigation-hint-visible] .reading-time-slot {
+      display: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .notebook[data-navigation-hint-visible] .swipe-hint {
+      animation: none;
+    }
   }
   .chapter-heading {
     position: relative;
