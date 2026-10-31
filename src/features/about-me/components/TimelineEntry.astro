@@ -164,6 +164,17 @@ const credit = [entry.organization, entry.role, entry.sector].filter(
     transform: none;
   }
 
+  /* Con la animación, el punto sigue al hilo de la página y el texto guarda su distancia. */
+  @media (prefers-reduced-motion: no-preference) and (min-height: 34rem) {
+    :global(.js) .timeline-entry {
+      padding-left: var(--walk-text-indent, var(--space-12));
+    }
+
+    :global(.js) .timeline-entry::before {
+      left: calc(var(--walk-line-inset, 0px) - 6px);
+    }
+  }
+
   @media (max-width: 48rem) {
     .timeline-entry {
       grid-template-columns: minmax(0, 1fr);

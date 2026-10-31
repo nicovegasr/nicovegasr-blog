@@ -100,6 +100,7 @@ const trackMascotJourney = () => {
   };
   let threadTop = 0;
   let threadHeight = 0;
+  let lineInset = 0;
   let previousX: number | undefined;
   let previousThreadY: number | undefined;
 
@@ -115,6 +116,13 @@ const trackMascotJourney = () => {
     thread.style.height = `${threadHeight}px`;
   };
 
+  // Con los brazos abiertos el dibujo llega al borde de su celda: el hilo se aparta del borde de la pantalla
+  // lo justo para que la mascota quepa entera. Hilo, líneas, paradas y mascota se desplazan juntos.
+  const measureLineInset = () => {
+    lineInset = Math.max(0, mascot.offsetWidth / 2 - walkway.getBoundingClientRect().left);
+    walkway.style.setProperty('--walk-line-inset', `${lineInset}px`);
+  };
+
   let frame = 0;
   const paint = () => {
     frame = 0;
@@ -127,11 +135,11 @@ const trackMascotJourney = () => {
     const y = Math.min(Math.max(first.groundY, walkLine), last.groundY);
     const { left, width } = walkway.getBoundingClientRect();
     const size = mascot.offsetWidth;
-    const lineLength = width - size / 2;
+    const lineLength = width - size / 2 - lineInset;
     const isOnFirstRoute = first.progress < 1;
     const isOnLastRoute = last.progress > 0;
     const ratio = isOnFirstRoute ? first.ratio : isOnLastRoute ? last.ratio : 0;
-    const x = ratio * lineLength;
+    const x = lineInset + ratio * lineLength;
 
     mascot.style.transform = `translate(${left + x - size / 2}px, ${y - size * FEET_RATIO}px)`;
 
@@ -174,6 +182,7 @@ const trackMascotJourney = () => {
     frame ||= requestAnimationFrame(paint);
   };
   const requestMeasure = () => {
+    measureLineInset();
     measureThread();
     requestPaint();
   };
@@ -219,7 +228,7 @@ const trackMascotJourney = () => {
     }
     const { route, stage, direction, position, previousFrameAt } = heldWalk;
     const lastIndex = route.querySelectorAll('[data-route-station]').length - 1;
-    const stationPixels = (walkway.offsetWidth - mascot.offsetWidth / 2) / lastIndex;
+    const stationPixels = (walkway.offsetWidth - mascot.offsetWidth / 2 - lineInset) / lastIndex;
     const distance = (WALKING_SPEED_IN_PIXELS_PER_SECOND * (now - previousFrameAt)) / 1000 / stationPixels;
     const nextPosition = clamp(position + (direction === route.dataset.direction ? distance : -distance), 0, lastIndex);
     heldWalk.position = nextPosition;

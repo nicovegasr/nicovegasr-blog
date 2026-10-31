@@ -2,6 +2,7 @@
 import type { Locale } from '@/i18n/locale';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import SocialLinks from '@/layouts/SocialLinks.astro';
+import RepoStar from '@/layouts/RepoStar.astro';
 import Journey from '@/features/about-me/components/Journey.astro';
 import Mascot from '@/features/about-me/components/Mascot.astro';
 import WalkRoute from '@/features/about-me/components/WalkRoute.astro';
@@ -43,7 +44,20 @@ const skillStations = findSkillAreas(locale).map((area) => ({
       <h1 class="statement">{translate('about.heroStatement')}</h1>
       <p class="hero-role">{translate('about.heroRole')}</p>
       <p class="lead hero-intro">{translate('about.heroIntro')}</p>
-      <SocialLinks />
+      <div class="hero-links">
+        <SocialLinks />
+        <p class="hero-projects">
+          <a
+            class="projects-link"
+            href="https://github.com/nicovegasr"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {translate('about.projectsLink')}<span aria-hidden="true">&nbsp;↗</span>
+          </a>
+          <RepoStar locale={locale} showPrompt={false} class="hero-stars" />
+        </p>
+      </div>
     </div>
     <img
       class="hero-portrait"
@@ -99,7 +113,7 @@ const skillStations = findSkillAreas(locale).map((area) => ({
   }
 
   .hero-role {
-    margin-top: var(--space-4);
+    margin-top: var(--space-3);
     font-family: var(--font-family-display);
     font-size: var(--font-size-lead);
     font-weight: 500;
@@ -108,12 +122,54 @@ const skillStations = findSkillAreas(locale).map((area) => ({
   }
 
   .hero-intro {
-    margin-top: var(--space-4);
+    margin-top: var(--space-3);
     max-width: 34rem;
   }
 
-  .hero :global(.social-links) {
+  .hero-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-6);
     margin-top: var(--space-6);
+  }
+
+  /* Un enlace de texto discreto, no un botón: mismo subrayado que el resto de enlaces secundarios. */
+  .hero-projects {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 var(--space-3);
+    margin: 0;
+  }
+
+  .projects-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--color-text-soft);
+    font-size: var(--font-size-small);
+    line-height: 1.5;
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+
+  .projects-link:focus-visible {
+    color: var(--color-ink);
+    text-decoration-thickness: 3px;
+  }
+
+  @media (hover: hover) {
+    .projects-link:hover {
+      color: var(--color-ink);
+      text-decoration-thickness: 3px;
+    }
+  }
+
+  .hero-projects :global(.hero-stars) {
+    margin-top: 0;
   }
 
   .hero-portrait {
@@ -142,9 +198,16 @@ const skillStations = findSkillAreas(locale).map((area) => ({
   }
 
   @media (max-width: 48rem) {
+    /* En móvil la foto encabeza el hero: basta con el aire de la cabecera, sin el margen completo de la página. */
     .hero {
       grid-template-columns: minmax(0, 1fr);
-      gap: var(--space-8);
+      gap: var(--space-6);
+      margin-top: calc(var(--space-8) - var(--space-16));
+    }
+
+    .hero-links {
+      gap: 0 var(--space-6);
+      margin-top: var(--space-4);
     }
 
     .hero-portrait {
@@ -161,12 +224,16 @@ const skillStations = findSkillAreas(locale).map((area) => ({
     }
 
     :global(.js) .walkway {
+      /* mascot-journey.ts mide cuánto hay que apartar el hilo del borde para que la mascota quepa entera.
+         El texto conserva al menos esta distancia al hilo. */
+      --walk-line-inset: 0px;
+      --walk-text-indent: max(var(--space-12), var(--walk-line-inset) + var(--space-6));
       margin-top: calc(var(--space-16) * -1 - max(0px, (100svh - 40rem) * 0.3));
     }
 
     :global(.js) .thread {
       position: absolute;
-      left: 0;
+      left: var(--walk-line-inset);
       display: block;
       width: 2px;
       background: var(--color-rule);
@@ -196,7 +263,7 @@ const skillStations = findSkillAreas(locale).map((area) => ({
 
     /* El hilo baja por la izquierda: el título se aparta como los capítulos. */
     :global(.js) .section-title {
-      padding-inline-start: var(--space-12);
+      padding-inline-start: var(--walk-text-indent);
     }
   }
 
@@ -205,8 +272,8 @@ const skillStations = findSkillAreas(locale).map((area) => ({
       --walker-size: clamp(3rem, 10vh, 4.5rem);
     }
 
-    :global(.js) .section-title {
-      padding-inline-start: var(--space-8);
+    :global(.js) .walkway {
+      --walk-text-indent: max(var(--space-8), var(--walk-line-inset) + var(--space-6));
     }
   }
 </style>
