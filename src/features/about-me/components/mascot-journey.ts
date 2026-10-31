@@ -12,13 +12,11 @@ const FEET_RATIO = 0.86;
 // Entre parada y parada solo anda en este tramo; el resto del scroll se queda quieto para leer.
 const WALK_STARTS_AT = 0.3;
 const WALK_LENGTH = 0.4;
-// Ritmo de paseo al moverlo con flechas o gestos, sea cual sea el ancho de la línea.
+// Ritmo de paseo al moverlo con las flechas del teclado, sea cual sea el ancho de la línea.
 const WALKING_SPEED_IN_PIXELS_PER_SECOND = 280;
 const MINIMUM_WALK_IN_MILLISECONDS = 700;
 const MAXIMUM_WALK_IN_MILLISECONDS = 1600;
 const SCROLL_TAKEOVER_TOLERANCE_IN_PIXELS = 2;
-const MINIMUM_SWIPE_IN_PIXELS = 40;
-const HORIZONTAL_SWIPE_DOMINANCE = 1.5;
 
 type WalkDirection = 'left' | 'right';
 
@@ -58,11 +56,6 @@ const paintRoute = (route: HTMLElement, state: RouteState) => {
   route
     .querySelectorAll<HTMLElement>('[data-route-tick]')
     .forEach((tick, index) => tick.classList.toggle('is-reached', index <= state.currentIndex));
-  const lastIndex = route.querySelectorAll('[data-route-station]').length - 1;
-  const forward = route.dataset.direction;
-  route.querySelectorAll<HTMLButtonElement>('[data-route-arrow]').forEach((arrow) => {
-    arrow.disabled = arrow.dataset.routeArrow === forward ? state.currentIndex >= lastIndex : state.currentIndex <= 0;
-  });
 };
 
 const isTypingTarget = (target: EventTarget | null): boolean =>
@@ -235,7 +228,7 @@ const trackMascotJourney = () => {
     guidedWalkFrame = requestAnimationFrame(advance);
   };
 
-  // Flechas y gestos mueven al muñequito hacia donde apuntan, también en la línea que va hacia la izquierda.
+  // Las flechas del teclado mueven al muñequito hacia donde apuntan, también en la línea que va hacia la izquierda.
   const walkToNextStation = (route: HTMLElement, direction: WalkDirection) => {
     const stage = route === firstRoute ? firstStage : lastStage;
     const lastIndex = route.querySelectorAll('[data-route-station]').length - 1;
@@ -273,23 +266,6 @@ const trackMascotJourney = () => {
     walkToNextStation(route, event.key === 'ArrowRight' ? 'right' : 'left');
   };
 
-  let swipeStart: { x: number; y: number } | undefined;
-  const rememberSwipeStart = (event: TouchEvent) => {
-    const touch = event.touches[0];
-    swipeStart = touch === undefined || event.touches.length > 1 ? undefined : { x: touch.clientX, y: touch.clientY };
-  };
-  const moveWithSwipe = (route: HTMLElement, event: TouchEvent) => {
-    const touch = event.changedTouches[0];
-    if (swipeStart === undefined || touch === undefined || pinnedRoute() !== route) {
-      return;
-    }
-    const horizontal = touch.clientX - swipeStart.x;
-    const vertical = touch.clientY - swipeStart.y;
-    swipeStart = undefined;
-    if (Math.abs(horizontal) >= MINIMUM_SWIPE_IN_PIXELS && Math.abs(horizontal) > Math.abs(vertical) * HORIZONTAL_SWIPE_DOMINANCE) {
-      walkToNextStation(route, horizontal > 0 ? 'right' : 'left');
-    }
-  };
 
   stopTracking = new AbortController();
   const { signal } = stopTracking;
@@ -298,14 +274,6 @@ const trackMascotJourney = () => {
   window.addEventListener('wheel', stopGuidedWalk, { passive: true, signal });
   window.addEventListener('touchmove', stopGuidedWalk, { passive: true, signal });
   signal.addEventListener('abort', stopGuidedWalk);
-  for (const route of [firstRoute, lastRoute]) {
-    const stage = route === firstRoute ? firstStage : lastStage;
-    stage.addEventListener('touchstart', rememberSwipeStart, { passive: true, signal });
-    stage.addEventListener('touchend', (event) => moveWithSwipe(route, event), { passive: true, signal });
-    route.querySelectorAll<HTMLButtonElement>('[data-route-arrow]').forEach((arrow) => {
-      arrow.addEventListener('click', () => walkToNextStation(route, arrow.dataset.routeArrow === 'left' ? 'left' : 'right'), { signal });
-    });
-  }
   window.addEventListener('scroll', requestPaint, { passive: true, signal });
   window.addEventListener('resize', requestMeasure, { passive: true, signal });
   const layoutObserver = new ResizeObserver(requestMeasure);

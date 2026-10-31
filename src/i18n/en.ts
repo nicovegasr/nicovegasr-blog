@@ -39,8 +39,6 @@ export const english: Dictionary = {
   'about.heroRole': 'Software engineer · High-volume systems · AI-assisted development',
   'about.heroIntro': 'I like understanding how things work under the hood and solving problems pragmatically.',
   'about.contributionsTitle': 'What I bring',
-  'about.walkLeft': 'Move left',
-  'about.walkRight': 'Move right',
   'about.skillsTitle': 'What I know',
   'about.timelineTitle': 'Journey',
   'about.present': 'Present',

@@ -132,48 +132,6 @@ test('the arrow keys move the mascot the way they point', async ({ page }) => {
   });
 });
 
-test('the on-screen arrows move the mascot and stop at the ends of the line', async ({ page }) => {
-  await page.goto('/es/');
-  const skills = page.locator('[data-route]').last();
-  await skills.evaluate((route) => window.scrollTo({ top: route.getBoundingClientRect().top + window.scrollY, behavior: 'instant' }));
-  const left = skills.locator('[data-route-arrow="left"]');
-  const right = skills.locator('[data-route-arrow="right"]');
-  await expect(left).toBeDisabled();
-
-  await right.click();
-
-  await expect(skills.locator('[data-route-station]').nth(1)).toHaveClass(/is-current/);
-  await expect(left).toBeEnabled();
-});
-
-test.describe('on a phone', () => {
-  test.use({ viewport: { width: 390, height: 780 }, hasTouch: true });
-
-  test('a horizontal swipe moves the mascot and a vertical one does not', async ({ page }) => {
-    await page.goto('/es/');
-    const skills = page.locator('[data-route]').last();
-    const stations = skills.locator('[data-route-station]');
-    await skills.evaluate((route) => window.scrollTo({ top: route.getBoundingClientRect().top + window.scrollY, behavior: 'instant' }));
-    await expect(stations.first()).toHaveClass(/is-current/);
-
-    const swipe = (fromX: number, fromY: number, toX: number, toY: number) =>
-      skills.locator('[data-route-stage]').evaluate((stage, points) => {
-        const touch = (x: number, y: number) => new Touch({ identifier: 1, target: stage, clientX: x, clientY: y });
-        stage.dispatchEvent(new TouchEvent('touchstart', { touches: [touch(points.fromX, points.fromY)], bubbles: true }));
-        stage.dispatchEvent(new TouchEvent('touchend', { changedTouches: [touch(points.toX, points.toY)], bubbles: true }));
-      }, { fromX, fromY, toX, toY });
-
-    await swipe(100, 400, 110, 300);
-    await page.waitForTimeout(200);
-    await expect(stations.first()).toHaveClass(/is-current/);
-
-    await swipe(100, 400, 260, 410);
-    await expect(stations.nth(1)).toHaveClass(/is-current/);
-
-    await expect(skills.locator('[data-route-arrow="right"]')).toBeVisible();
-  });
-});
-
 test.describe('with reduced motion', () => {
   test.use({ reducedMotion: 'reduce' });
 

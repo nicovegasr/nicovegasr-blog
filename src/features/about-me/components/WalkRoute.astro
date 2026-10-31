@@ -12,11 +12,9 @@ interface Props {
   stations: readonly WalkRouteStation[];
   direction: 'left' | 'right';
   titleSize: 'large' | 'medium';
-  walkLeftLabel: string;
-  walkRightLabel: string;
 }
 
-const { title, stations, direction, titleSize, walkLeftLabel, walkRightLabel } = Astro.props;
+const { title, stations, direction, titleSize } = Astro.props;
 const lastIndex = stations.length - 1;
 const tickRatio = (index: number): number =>
   direction === 'right' ? index / lastIndex : 1 - index / lastIndex;
@@ -59,18 +57,6 @@ const tickRatio = (index: number): number =>
         ))
       }
     </ol>
-    <div class="arrows">
-      <button type="button" data-route-arrow="left" aria-label={walkLeftLabel}>
-        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-          <path d="M19 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-        </svg>
-      </button>
-      <button type="button" data-route-arrow="right" aria-label={walkRightLabel}>
-        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-          <path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-        </svg>
-      </button>
-    </div>
     <div class="ground" aria-hidden="true" data-route-ground>
       <ol class="ticks">
         {
@@ -160,10 +146,6 @@ const tickRatio = (index: number): number =>
   }
 
   .ground {
-    display: none;
-  }
-
-  .arrows {
     display: none;
   }
 
@@ -264,48 +246,6 @@ const tickRatio = (index: number): number =>
       transition-delay: 200ms;
     }
 
-    :global(.js) .stage {
-      /* El gesto horizontal mueve al muñequito; el vertical sigue siendo scroll. */
-      touch-action: pan-y;
-    }
-
-    :global(.js) .arrows {
-      position: absolute;
-      top: calc(var(--space-16) + var(--space-6));
-      right: 0;
-      z-index: 6;
-      display: flex;
-      gap: var(--space-2);
-    }
-
-    :global(.js) .arrows button {
-      display: grid;
-      place-items: center;
-      width: 2.75rem;
-      height: 2.75rem;
-      padding: 0;
-      border: 1px solid var(--color-rule);
-      border-radius: 50%;
-      color: var(--color-ink);
-      background: var(--color-paper);
-      cursor: pointer;
-      transition:
-        background var(--motion-duration-fast) var(--motion-easing),
-        opacity var(--motion-duration-fast) var(--motion-easing);
-    }
-
-    @media (hover: hover) {
-      :global(.js) .arrows button:hover:not(:disabled) {
-        color: var(--color-accent-ink);
-        background: var(--color-accent);
-      }
-    }
-
-    :global(.js) .arrows button:disabled {
-      opacity: 0.35;
-      cursor: default;
-    }
-
     :global(.js) .ground {
       position: absolute;
       /* Debe coincidir con GROUND_RATIO de mascot-journey.ts. */
@@ -370,13 +310,6 @@ const tickRatio = (index: number): number =>
     @media (max-width: 48rem) {
       :global(.js) .tick-label {
         display: none;
-      }
-
-      /* En móvil, debajo de la línea y al alcance del pulgar. */
-      :global(.js) .arrows {
-        top: calc(88% + var(--space-3));
-        right: 50%;
-        transform: translateX(50%);
       }
 
       :global(.js) .items {

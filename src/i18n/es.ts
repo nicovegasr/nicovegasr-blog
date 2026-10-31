@@ -37,8 +37,6 @@ export const spanish = {
   'about.heroRole': 'Ingeniero de software · Sistemas de alto volumen · Desarrollo con IA',
   'about.heroIntro': 'Me gusta entender cómo funcionan las cosas por dentro y resolver los problemas con pragmatismo.',
   'about.contributionsTitle': 'Lo que aporto',
-  'about.walkLeft': 'Mover a la izquierda',
-  'about.walkRight': 'Mover a la derecha',
   'about.skillsTitle': 'Lo que conozco',
   'about.timelineTitle': 'Trayectoria',
   'about.present': 'Actualidad',
