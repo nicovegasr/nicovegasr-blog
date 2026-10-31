@@ -1,0 +1,66 @@
+/* The first lab exposes a fixed journey; detailed per-step controls live in lab 2. */
+queue-stories-game[data-level='1'] .qs-worker-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+queue-stories-game[data-level='1'] .qs-worker .qs-step {
+  position: relative;
+  border: 1px solid var(--color-rule);
+  border-top: 3px solid var(--color-rule);
+}
+queue-stories-game[data-level='1'] .qs-worker .qs-step.is-active {
+  border: 1px solid var(--color-ink);
+  border-top: 3px solid var(--color-accent);
+}
+queue-stories-game[data-level='1'] .qs-worker .qs-step.has-duplicate {
+  border: 1px dashed var(--color-ink);
+  border-top: 3px solid var(--color-ink);
+}
+queue-stories-game[data-level='1'] .qs-step-heading {
+  display: grid;
+  grid-template-columns: 1fr auto;
+}
+queue-stories-game[data-level='1'] .qs-step-heading > .qs-editable {
+  grid-column: 1/-1;
+  grid-row: 2;
+  min-height: 2.4em;
+}
+queue-stories-game[data-level='1'] .qs-step-heading > .qs-editable > strong {
+  line-height: 1.35;
+}
+queue-stories-game[data-level='1'] .qs-step-number {
+  border: 0;
+  padding: 0;
+  justify-self: start;
+  color: var(--color-text-soft);
+}
+queue-stories-game[data-level='1'] [data-step-icon] {
+  grid-column: 2;
+  grid-row: 1;
+}
+queue-stories-game[data-level='1'] .qs-step-contract {
+  font-size: 0.58rem;
+  line-height: 1.5;
+}
+queue-stories-game[data-level='1'] .qs-step:not(:last-child)::after {
+  content: '→';
+  position: absolute;
+  right: -0.5rem;
+  top: 2.5rem;
+  font-size: 0.6rem;
+  color: var(--color-text-soft);
+  z-index: 1;
+}
+@media (max-width: 1100px) and (min-width: 851px) {
+  queue-stories-game[data-level='1'] .qs-diagram {
+    grid-template-columns: 100px 16px minmax(0, 1fr);
+  }
+  queue-stories-game[data-level='1'] .qs-process {
+    grid-template-columns: minmax(0, 0.8fr) 16px minmax(0, 1.2fr);
+  }
+}
+queue-stories-game[data-level='1'] .qs-step.is-active .qs-step-state {
+  font-weight: 500;
+  color: var(--color-ink);
+}

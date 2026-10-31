@@ -1,0 +1,200 @@
+/* All outcomes stay over the actual diagram. Recoverable incidents use a lighter scrim. */
+:is(queue-stories-game, queue-scaling-game) .qs-outcome {
+  inset: 0;
+  margin: auto;
+  width: min(760px, calc(100vw - 2rem));
+  max-width: calc(100vw - 2rem);
+  height: fit-content;
+  max-height: calc(100dvh - 2rem);
+  border-radius: 14px;
+  box-shadow: 0 24px 100px rgb(0 0 0 / 0.22);
+}
+:is(queue-stories-game, queue-scaling-game) .qs-outcome::backdrop {
+  background: rgb(10 10 10 / 0.8);
+  backdrop-filter: blur(3px);
+}
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-shell {
+  min-height: 0;
+  width: 100%;
+  padding: 1.25rem 1.75rem 1.5rem;
+}
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-content {
+  margin: 0;
+  padding: 1.5rem 0 0;
+}
+:is(queue-stories-game, queue-scaling-game) .qs-outcome h2 {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+}
+:is(queue-stories-game, queue-scaling-game) .qs-outcome[data-tone='incident'],
+:is(queue-stories-game, queue-scaling-game) .qs-outcome[data-tone='story'] {
+  width: min(660px, calc(100vw - 2rem));
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+:is(queue-stories-game, queue-scaling-game) .qs-outcome[data-tone='incident']::backdrop,
+:is(queue-stories-game, queue-scaling-game) .qs-outcome[data-tone='story']::backdrop {
+  background: rgb(10 10 10 / 0.4);
+  backdrop-filter: blur(2px);
+  animation: none;
+}
+queue-stories-game .qs-call-shell {
+  padding: 1.25rem 1.5rem 1.5rem;
+}
+queue-stories-game .qs-call-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+queue-stories-game .qs-call-channel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font: 0.55rem/1.5 var(--font-family-mono);
+  letter-spacing: 0.04em;
+  color: var(--color-text-soft);
+}
+queue-stories-game .qs-call-channel i {
+  display: block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--qs-fault);
+}
+queue-stories-game .qs-call-top button {
+  border: 0;
+  padding: 0.25rem 0;
+  background: none;
+  font-size: 0.65rem;
+  color: var(--color-text-soft);
+}
+queue-stories-game .qs-call-top button:hover {
+  background: none;
+  color: var(--color-ink);
+  text-decoration: underline;
+}
+queue-stories-game .qs-call-heading {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+queue-stories-game .qs-call-heading > .qs-figure {
+  width: 50px;
+  height: 50px;
+  padding: 5px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--qs-fault) 10%, var(--color-paper));
+  color: var(--qs-fault);
+}
+queue-stories-game .qs-call-heading h2 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  letter-spacing: -0.04em;
+  max-width: none;
+  margin: 0 0 0.3rem;
+}
+queue-stories-game .qs-call-shell #qs-outcome-text {
+  font-size: 0.82rem;
+  line-height: 1.65;
+  margin: 0 0 1rem;
+}
+queue-stories-game .qs-call-evidence {
+  padding: 1rem;
+  border-radius: var(--radius-small);
+  background: var(--qs-wash);
+}
+queue-stories-game .qs-call-evidence .qs-action-evidence {
+  gap: 0.65rem;
+}
+queue-stories-game .qs-call-evidence .qs-action-evidence strong {
+  font-size: 0.75rem;
+}
+queue-stories-game .qs-call-evidence .qs-action-evidence small {
+  font-size: 0.55rem;
+}
+queue-stories-game .qs-call-evidence .qs-ack-evidence {
+  padding: 0;
+  border: 0;
+  gap: 0.75rem;
+}
+queue-stories-game .qs-call-evidence .qs-ack-evidence strong {
+  font-size: 0.75rem;
+}
+queue-stories-game .qs-call-evidence .qs-evidence-caption {
+  font-size: 0.55rem;
+  margin-bottom: 0;
+}
+queue-stories-game .qs-call-shell #qs-outcome-text p {
+  margin: 0 0 0.8rem;
+}
+@media (max-width: 700px) {
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome-shell,
+  queue-stories-game .qs-call-shell {
+    padding: 1rem 1.1rem 1.25rem;
+  }
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome-content {
+    margin: 0;
+    padding: 1.25rem 0 0;
+  }
+  queue-stories-game .qs-call-heading {
+    gap: 0.65rem;
+  }
+  queue-stories-game .qs-call-heading > .qs-figure {
+    width: 42px;
+    height: 42px;
+  }
+  queue-stories-game .qs-call-evidence {
+    padding: 0.75rem;
+  }
+}
+@media (max-width: 850px) {
+  queue-stories-game .qs-api > .qs-figure {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  queue-stories-game.is-playing .qs-arrow::after {
+    animation: qs-packet var(--qs-tick-duration, 650ms) ease-in-out infinite;
+  }
+  queue-stories-game.is-playing .qs-led {
+    animation: qs-led calc(var(--qs-tick-duration, 650ms) * 2) ease-in-out infinite;
+  }
+  queue-stories-game.is-playing .qs-led:last-child {
+    animation-delay: var(--qs-tick-duration, 650ms);
+  }
+
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome[open] .qs-call-shell {
+    animation: qs-call-in 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  @keyframes qs-packet {
+    0% {
+      transform: translateX(-11px);
+      opacity: 0;
+    }
+    25%,
+    75% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(11px);
+      opacity: 0;
+    }
+  }
+  @keyframes qs-led {
+    50% {
+      opacity: 0.2;
+    }
+  }
+  @keyframes qs-call-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+}
+

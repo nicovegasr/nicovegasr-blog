@@ -1,0 +1,130 @@
+/* One explanation and one next action, following the full-width diagram. */
+queue-stories-game .qs-tutorial:empty {
+  display: none;
+}
+queue-stories-game .qs-tutorial:not(:empty) {
+  display: block;
+  padding: 0.7rem 0.9rem;
+  margin: 0.7rem 0 0;
+  border: 0;
+  border-left: 3px solid var(--qs-api);
+  border-radius: 0 8px 8px 0;
+  background: color-mix(in srgb, var(--qs-api) 5%, var(--color-paper));
+  scroll-margin-block: 100px 80px;
+}
+queue-stories-game .qs-guide-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.3rem;
+  font: 0.6rem/1.4 var(--font-family-mono);
+  color: var(--color-text-soft);
+}
+queue-stories-game .qs-guide-chapter {
+  margin-left: 0.5rem;
+  color: var(--color-ink);
+}
+queue-stories-game .qs-guide-header [data-action='guide-close'] {
+  min-height: 28px;
+  padding: 0.2rem 0;
+  font: 0.7rem/1.3 var(--font-family-body);
+  text-decoration: none;
+}
+queue-stories-game .qs-guide-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(220px, 1fr);
+  align-items: start;
+  gap: 1.5rem;
+}
+queue-stories-game .qs-guide-story h2 {
+  font-size: 1rem;
+  line-height: 1.25;
+  margin: 0 0 0.25rem;
+}
+queue-stories-game .qs-guide-story p {
+  font: 0.82rem/1.5 var(--font-family-body);
+  margin: 0;
+  max-width: 80ch;
+}
+queue-stories-game .qs-guide-next {
+  padding-left: 1rem;
+  border-left: 1px solid var(--color-rule);
+}
+queue-stories-game .qs-guide-next .qs-eyebrow {
+  font-size: 0.55rem;
+  font-weight: 500;
+  color: var(--qs-api);
+}
+queue-stories-game .qs-guide-next p {
+  font: 0.8rem/1.45 var(--font-family-body);
+  margin: 0.2rem 0 0;
+}
+queue-stories-game .qs-guide-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.8rem;
+  margin-top: 0.35rem;
+}
+queue-stories-game .qs-guide-actions button {
+  border: 0;
+  padding: 0.25rem 0;
+  min-height: 28px;
+  font: 0.72rem/1.4 var(--font-family-display);
+  color: var(--color-ink);
+  background: none;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  scroll-margin-block: 110px 100px;
+}
+queue-stories-game .qs-guide-actions button:hover {
+  background: none;
+  color: var(--qs-api);
+}
+queue-stories-game .qs-node-setting:has([data-guide-focus]) {
+  border-color: var(--qs-api);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--qs-api) 15%, transparent);
+}
+queue-stories-game .qs-step-options > label:has([data-guide-focus]) {
+  background: color-mix(in srgb, var(--qs-api) 12%, var(--color-paper));
+  outline: 2px solid var(--qs-api);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+queue-stories-game .qs-node-setting,
+queue-stories-game .qs-step-options > label {
+  scroll-margin-block: 110px 90px;
+}
+queue-stories-game.is-guided .qs-result-metrics,
+queue-stories-game.is-guided .qs-achievements {
+  display: none;
+}
+queue-stories-game.is-guided .qs-dock {
+  margin-top: 0.6rem;
+}
+queue-stories-game.is-worker-down .qs-node-heading > .qs-figure-worker {
+  color: var(--qs-fault);
+}
+@media (max-width: 700px) {
+  queue-stories-game .qs-guide-body {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+  queue-stories-game .qs-guide-next {
+    padding: 0.65rem 0 0;
+    border: 0;
+    border-top: 1px solid var(--color-rule);
+  }
+  queue-stories-game .qs-tutorial:not(:empty) {
+    padding: 0.7rem 0.75rem;
+  }
+  queue-stories-game .qs-guide-header {
+    font-size: 0.55rem;
+  }
+  queue-stories-game .qs-guide-header [data-action='guide-close'] {
+    font-size: 0.65rem;
+  }
+}
+

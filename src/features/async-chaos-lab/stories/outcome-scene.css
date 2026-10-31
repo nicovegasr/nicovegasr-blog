@@ -1,0 +1,537 @@
+/* An outcome is a scene with evidence, rather than an alert card. */
+:is(queue-stories-game, queue-scaling-game) .qs-outcome {
+  --qs-scene-ink: var(--color-ink);
+  --qs-scene-soft: var(--color-text-soft);
+  --qs-scene-rule: var(--color-rule);
+  position: fixed;
+  padding: 0;
+  border: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  background: var(--color-paper);
+  color: var(--qs-scene-ink);
+}
+:is(queue-stories-game, queue-scaling-game) .qs-outcome[data-tone='loss'] {
+  --qs-scene-ink: #f2f2f2;
+  --qs-scene-soft: #b5b5b5;
+  --qs-scene-rule: #424244;
+  background: rgb(12 12 13 / 0.93);
+}
+:is(queue-stories-game, queue-scaling-game) .qs-outcome :focus-visible {
+  outline-color: var(--qs-scene-ink);
+}
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-shell {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+}
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--qs-scene-soft);
+  font: 0.6rem/1.5 var(--font-family-mono);
+}
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-top > span > span {
+  margin: 0 0.5rem;
+  opacity: 0.5;
+}
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-top button {
+  background: none;
+  border: 0;
+  padding: 0.5rem 0;
+  color: var(--qs-scene-soft);
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-top button:hover {
+  background: none;
+  color: var(--qs-scene-ink);
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+}
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-content {
+  width: 100%;
+  max-width: 860px;
+}
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font: 0.6rem/1.4 var(--font-family-mono);
+  letter-spacing: 0.08em;
+  color: var(--qs-scene-soft);
+  margin: 0 0 1rem;
+}
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-kicker > span {
+  font-size: 1.25rem;
+  color: var(--qs-scene-ink);
+}
+:is(queue-stories-game, queue-scaling-game) .qs-outcome h2 {
+  font: 500 clamp(2rem, 5vw, 3.8rem)/1.02 var(--font-family-display);
+  letter-spacing: -0.06em;
+  margin: 0 0 1.5rem;
+  max-width: 19ch;
+  text-wrap: balance;
+}
+:is(queue-stories-game, queue-scaling-game) .qs-outcome #qs-outcome-text {
+  font: 0.9rem/1.65 var(--font-family-body);
+  max-width: 78ch;
+  margin: 1.5rem 0 0.5rem;
+  overflow-wrap: anywhere;
+}
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+}
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-actions button {
+  font-size: 0.8rem;
+  min-height: 42px;
+}
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-actions [data-primary] {
+  padding: 0.7rem 1rem;
+  border: 0;
+  background: var(--qs-scene-ink);
+  color: var(--color-paper);
+}
+:is(queue-stories-game, queue-scaling-game)
+  .qs-outcome[data-tone='loss']
+  .qs-outcome-actions
+  [data-primary] {
+  color: #0c0c0d;
+}
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-actions [data-primary]::after {
+  content: ' →';
+  margin-left: 0.5rem;
+}
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-actions [data-primary]::before {
+  display: none;
+}
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-actions button:not([data-primary]) {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding: 0.5rem 0;
+  color: var(--qs-scene-soft);
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+}
+:is(queue-stories-game, queue-scaling-game) .qs-outcome-actions button:hover {
+  opacity: 0.8;
+}
+queue-stories-game .qs-ticket-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+queue-stories-game .qs-ticket {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 145px;
+  padding: 0.8rem 0.8rem 1.2rem;
+  background: color-mix(in srgb, var(--qs-scene-ink) 8%, transparent);
+  border-top: 2px solid var(--qs-scene-ink);
+  color: var(--qs-scene-ink);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 94%,
+    95% 100%,
+    90% 94%,
+    85% 100%,
+    80% 94%,
+    75% 100%,
+    70% 94%,
+    65% 100%,
+    60% 94%,
+    55% 100%,
+    50% 94%,
+    45% 100%,
+    40% 94%,
+    35% 100%,
+    30% 94%,
+    25% 100%,
+    20% 94%,
+    15% 100%,
+    10% 94%,
+    5% 100%,
+    0 94%
+  );
+}
+queue-stories-game .qs-ticket header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font: 0.6rem/1.4 var(--font-family-mono);
+}
+queue-stories-game .qs-ticket header > span:last-child {
+  font-size: 1rem;
+  line-height: 1;
+}
+queue-stories-game .qs-ticket > strong {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font: 500 0.95rem/1.35 var(--font-family-display);
+  margin: 0.7rem 0 0.5rem;
+  overflow-wrap: anywhere;
+}
+queue-stories-game .qs-ticket-lines {
+  width: 80%;
+  height: 18px;
+  border-top: 1px solid var(--qs-scene-rule);
+  margin-top: auto;
+}
+queue-stories-game .qs-ticket-lines::after {
+  content: '';
+  display: block;
+  width: 70%;
+  border-top: 1px solid var(--qs-scene-rule);
+  margin-top: 7px;
+}
+queue-stories-game .qs-ticket footer {
+  font: 0.55rem/1.5 var(--font-family-mono);
+  margin-top: 0.3rem;
+  color: var(--qs-scene-soft);
+}
+queue-stories-game .qs-ticket.is-lost {
+  background: none;
+  border-top-style: dashed;
+  color: var(--qs-scene-soft);
+}
+queue-stories-game .qs-ticket.is-lost > strong {
+  text-decoration: line-through;
+}
+queue-stories-game .qs-evidence-caption {
+  font: 0.6rem/1.6 var(--font-family-mono);
+  color: var(--qs-scene-soft);
+  margin-top: 0.75rem;
+}
+queue-stories-game .qs-repeat-evidence {
+  display: grid;
+  grid-template-columns: minmax(0, 180px) 30px minmax(0, 180px) minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem;
+}
+queue-stories-game .qs-repeat-evidence .qs-ticket.is-repeated {
+  border-top-style: dashed;
+  transform: rotate(3deg);
+}
+queue-stories-game .qs-repeat-symbol {
+  font: 300 2rem/1 var(--font-family-display);
+  text-align: center;
+  color: var(--qs-scene-soft);
+}
+queue-stories-game .qs-repeat-evidence > p {
+  font: 0.75rem/1.6 var(--font-family-body);
+  padding-left: 1rem;
+  overflow-wrap: anywhere;
+}
+queue-stories-game .qs-action-evidence {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+queue-stories-game .qs-action-evidence article {
+  padding: 0.75rem 0;
+  border-top: 2px solid var(--qs-scene-rule);
+  min-width: 0;
+}
+queue-stories-game .qs-action-evidence article.is-finished {
+  border-color: var(--qs-scene-ink);
+}
+queue-stories-game .qs-action-evidence article.was-interrupted {
+  border-top-style: dashed;
+  border-color: var(--qs-fault);
+  background: color-mix(in srgb, var(--qs-fault) 8%, transparent);
+  color: var(--qs-fault);
+}
+queue-stories-game .qs-action-evidence article.is-uncertain {
+  border-color: var(--qs-compute);
+  background: color-mix(in srgb, var(--qs-compute) 8%, transparent);
+  color: var(--qs-compute);
+}
+queue-stories-game .qs-action-evidence :is(.was-interrupted, .is-uncertain) .qs-evidence-step,
+queue-stories-game .qs-action-evidence :is(.was-interrupted, .is-uncertain) .qs-evidence-step b {
+  color: inherit;
+}
+queue-stories-game .qs-evidence-step {
+  display: flex;
+  justify-content: space-between;
+  font: 0.6rem/1.4 var(--font-family-mono);
+  color: var(--qs-scene-soft);
+}
+queue-stories-game .qs-evidence-step b {
+  font-size: 0.85rem;
+  color: var(--qs-scene-ink);
+}
+queue-stories-game .qs-action-evidence strong {
+  display: block;
+  margin: 0.7rem 0 0.4rem;
+  font: 500 0.9rem/1.3 var(--font-family-display);
+  overflow-wrap: anywhere;
+}
+queue-stories-game .qs-action-evidence small {
+  display: block;
+  font: 0.6rem/1.5 var(--font-family-mono);
+  color: var(--qs-scene-soft);
+}
+queue-stories-game .qs-ack-evidence {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+  border-block: 1px solid var(--qs-scene-rule);
+  padding-block: 1.25rem;
+}
+queue-stories-game .qs-ack-evidence span {
+  display: block;
+  font: 0.55rem/1.5 var(--font-family-mono);
+  color: var(--qs-scene-soft);
+  margin-bottom: 0.6rem;
+}
+queue-stories-game .qs-ack-evidence strong {
+  font: 500 0.9rem/1.4 var(--font-family-display);
+  overflow-wrap: anywhere;
+}
+:is(queue-stories-game, queue-scaling-game) .qs-earned {
+  display: flex;
+  gap: 0.75rem;
+  border-top: 1px solid var(--qs-scene-rule);
+  padding-top: 1rem;
+  margin-top: 1.5rem;
+  max-width: 78ch;
+}
+:is(queue-stories-game, queue-scaling-game) .qs-earned > span {
+  font-size: 1.3rem;
+}
+:is(queue-stories-game, queue-scaling-game) .qs-earned .qs-award-label {
+  display: block;
+  font: 0.5rem/1.5 var(--font-family-mono);
+  letter-spacing: 0.05em;
+  color: var(--qs-scene-soft);
+}
+:is(queue-stories-game, queue-scaling-game) .qs-earned strong {
+  display: block;
+  font: 500 0.85rem/1.4 var(--font-family-display);
+  margin: 0.25rem 0;
+}
+:is(queue-stories-game, queue-scaling-game) .qs-earned p {
+  font: 0.7rem/1.6 var(--font-family-body);
+  color: var(--qs-scene-soft);
+  margin: 0;
+}
+@media (min-width: 1400px) {
+  body:has(queue-stories-game) main {
+    max-width: 1160px;
+  }
+}
+@media (max-width: 850px) {
+  queue-stories-game .qs-diagram {
+    grid-template-columns: 1fr;
+  }
+  queue-stories-game .qs-api {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  queue-stories-game .qs-api > .qs-editable {
+    grid-column: 1;
+  }
+  queue-stories-game .qs-api > strong {
+    grid-row: 1/4;
+    grid-column: 2;
+  }
+  queue-stories-game .qs-diagram > .qs-arrow {
+    transform: rotate(90deg);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  queue-stories-game .qs-step.is-active {
+    animation: qs-work 1.3s ease-in-out infinite;
+  }
+  queue-stories-game .qs-job.is-working .qs-job-icon {
+    animation: qs-message 0.65s ease-out infinite;
+  }
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome[open] .qs-outcome-content {
+    animation: qs-scene-in 0.35s ease-out both;
+  }
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome[open]::backdrop {
+    animation: qs-darken 0.7s ease-out;
+  }
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome[open] .qs-ticket.is-lost {
+    animation: qs-forget 2.4s ease-out both;
+  }
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome[open] .qs-ticket.is-lost:nth-child(3) {
+    animation-delay: 0.16s;
+  }
+  @keyframes qs-work {
+    50% {
+      box-shadow: 3px 0 0 color-mix(in srgb, var(--qs-ok) 45%, transparent);
+    }
+  }
+  @keyframes qs-message {
+    from {
+      transform: translateX(-5px);
+      opacity: 0.35;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  @keyframes qs-scene-in {
+    from {
+      opacity: 0;
+      transform: translateY(5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes qs-darken {
+    from {
+      background: rgb(10 10 10 / 0.65);
+    }
+    to {
+      background: rgb(10 10 10 / 0.92);
+    }
+  }
+  @keyframes qs-forget {
+    0% {
+      background: color-mix(in srgb, var(--qs-scene-ink) 10%, transparent);
+      transform: translateY(0);
+    }
+    100% {
+      background: transparent;
+      transform: translateY(5px);
+    }
+  }
+}
+queue-stories-game .qs-step-nature {
+  font: 0.6rem/1.4 var(--font-family-mono);
+  color: var(--color-text-soft);
+  margin: 0.5rem 0;
+}
+queue-stories-game .qs-step-nature.has-external {
+  font-weight: 600;
+  color: var(--color-ink);
+  border-left: 3px solid var(--color-accent);
+  padding-left: 0.4rem;
+}
+queue-stories-game .qs-step-tradeoff {
+  display: block;
+  font: 0.6rem/1.4 var(--font-family-mono);
+  color: var(--color-text-soft);
+  margin: 0.5rem 0;
+}
+queue-stories-game .qs-toast small {
+  display: block;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
+
+queue-stories-game .qs-step-contract {
+  font: 0.65rem/1.5 var(--font-family-mono);
+  color: var(--color-text-soft);
+  margin: 0.5rem 0;
+}
+queue-stories-game .qs-job.is-failed {
+  border: 2px dashed var(--color-ink);
+}
+queue-stories-game[data-phase='duplicate'] .qs-step.is-active {
+  animation: none;
+}
+@media (max-width: 700px) {
+  queue-stories-game .qs-transport {
+    gap: 0.75rem;
+  }
+  queue-stories-game .qs-tools {
+    margin: 0;
+    gap: 1.25rem;
+  }
+  queue-stories-game .qs-score {
+    grid-row: 1;
+    grid-column: 2;
+    border: 0;
+    padding: 0;
+  }
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome-shell {
+    padding: 1rem 1.1rem 1.5rem;
+  }
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome-top {
+    align-items: flex-start;
+    font-size: 0.5rem;
+  }
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome-top > span {
+    max-width: 140px;
+  }
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome-top button {
+    font-size: 0.6rem;
+  }
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome-content {
+    padding: 2rem 0;
+    margin: auto;
+  }
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome h2 {
+    font-size: clamp(2rem, 8vw, 3rem);
+    margin-bottom: 1.25rem;
+  }
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome #qs-outcome-text {
+    font-size: 0.8rem;
+    line-height: 1.6;
+  }
+  queue-stories-game .qs-ticket-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+  }
+  queue-stories-game .qs-ticket {
+    min-height: 125px;
+    padding: 0.65rem 0.65rem 1rem;
+  }
+  queue-stories-game .qs-ticket > strong {
+    font-size: 0.85rem;
+  }
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome-actions {
+    align-items: stretch;
+    gap: 0.75rem;
+    flex-direction: column;
+  }
+  :is(queue-stories-game, queue-scaling-game) .qs-outcome-actions button {
+    font-size: 0.75rem;
+  }
+  queue-stories-game .qs-action-evidence {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+  queue-stories-game .qs-action-evidence strong {
+    font-size: 0.8rem;
+  }
+  queue-stories-game .qs-ack-evidence {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding-block: 1rem;
+  }
+  queue-stories-game .qs-ack-evidence span {
+    margin-bottom: 0.25rem;
+  }
+  queue-stories-game .qs-repeat-evidence {
+    grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr);
+    gap: 0.6rem;
+  }
+  queue-stories-game .qs-repeat-evidence > p {
+    grid-column: 1/-1;
+    padding: 0;
+    font-size: 0.7rem;
+  }
+}

@@ -1,0 +1,82 @@
+/* Components have distinct, consistent roles; color supplements the labels. */
+queue-stories-game {
+  --qs-api: #5278b0;
+  --qs-storage: #8b6caf;
+  --qs-compute: #b77d29;
+  --qs-fault: #c65a56;
+  --qs-ok: #537f66;
+}
+queue-stories-game .qs-api,
+queue-stories-game .qs-store,
+queue-stories-game .qs-worker {
+  position: relative;
+}
+queue-stories-game .qs-figure {
+  display: block;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+queue-stories-game .qs-figure-api {
+  color: var(--qs-api);
+}
+queue-stories-game .qs-figure-ram,
+queue-stories-game .qs-figure-db {
+  color: var(--qs-storage);
+}
+queue-stories-game .qs-figure-worker {
+  color: var(--qs-compute);
+}
+queue-stories-game .qs-api > .qs-figure {
+  width: 30px;
+  height: 30px;
+}
+queue-stories-game .qs-store > [data-store-figure],
+queue-stories-game .qs-worker > .qs-figure {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+queue-stories-game .qs-store > .qs-editable {
+  padding-right: 42px;
+}
+queue-stories-game .qs-worker > .qs-editable {
+  padding-right: 40px;
+}
+queue-stories-game .qs-store > [data-store-figure] {
+  transform: translateY(-5px);
+}
+queue-stories-game .qs-arrow {
+  position: relative;
+}
+queue-stories-game .qs-arrow::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  left: 50%;
+  top: 50%;
+  margin: -4px;
+  background: var(--qs-api);
+  border: 1px solid var(--color-paper);
+  opacity: 0;
+  pointer-events: none;
+}
+queue-stories-game .qs-job.is-done .qs-job-icon {
+  color: var(--qs-ok);
+}
+queue-stories-game .qs-job.is-lost .qs-job-icon,
+queue-stories-game .qs-job.is-failed .qs-job-icon {
+  color: var(--qs-fault);
+}
+queue-stories-game.is-worker-down .qs-worker > .qs-figure-worker,
+queue-stories-game.is-worker-down
+  .qs-worker-interior
+  > header
+  > .qs-figure-worker {
+  color: var(--qs-fault);
+}
+queue-stories-game .qs-led {
+  fill: currentColor;
+}
+

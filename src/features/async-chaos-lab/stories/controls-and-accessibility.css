@@ -1,0 +1,83 @@
+/* Keep native select interaction, with an inset chevron independent of the OS. */
+queue-stories-game .qs-node-setting { position: relative; }
+queue-stories-game .qs-node-setting select { appearance: none; padding-right: 2.25rem; }
+queue-stories-game .qs-node-setting::after {
+  content: '';
+  position: absolute;
+  right: 1rem;
+  bottom: 17px;
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid var(--color-ink);
+  border-bottom: 1.5px solid var(--color-ink);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+@media (forced-colors: active) {
+  queue-stories-game .qs-node-setting select { appearance: auto; }
+  queue-stories-game .qs-node-setting::after { display: none; }
+}
+
+queue-stories-game .qs-worker-interior .qs-step-options > .qs-provider-option {
+  flex-basis: 100%;
+  align-items: flex-start;
+}
+queue-stories-game .qs-provider-option > input {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+queue-stories-game .qs-provider-hint {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--color-text-soft);
+  font: 0.65rem/1.4 var(--font-family-body);
+}
+
+queue-stories-game .qs-step.is-failed {
+  border-color: var(--qs-fault);
+  border-left-color: var(--qs-fault);
+  background: color-mix(in srgb, var(--qs-fault) 8%, var(--color-paper));
+}
+queue-stories-game .qs-step.is-failed .qs-step-heading,
+queue-stories-game .qs-step.is-failed .qs-step-state {
+  color: var(--qs-fault);
+}
+queue-stories-game .qs-step.is-failed .qs-step-number {
+  border-color: var(--qs-fault);
+}
+
+queue-stories-game .qs-step.is-uncertain,
+queue-stories-game .qs-step.is-restarting {
+  border-color: var(--qs-compute);
+  background: color-mix(in srgb, var(--qs-compute) 9%, var(--color-paper));
+}
+queue-stories-game .qs-step.is-uncertain .qs-step-state,
+queue-stories-game .qs-step.is-uncertain [data-step-icon],
+queue-stories-game .qs-step.is-restarting .qs-step-state {
+  color: var(--qs-compute);
+  font-weight: 600;
+}
+queue-stories-game .qs-step.is-retry-origin {
+  --qs-retry-color: var(--qs-fault);
+  animation: qs-reveal-incident 1.3s ease-out both;
+}
+queue-stories-game .qs-step.is-uncertain.is-retry-origin {
+  --qs-retry-color: var(--qs-compute);
+}
+queue-stories-game .qs-step.is-restarting {
+  animation: qs-restart-step 0.85s ease-out both;
+}
+@keyframes qs-reveal-incident {
+  0%, 60% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--qs-retry-color) 35%, transparent); }
+  35%, 100% { box-shadow: 0 0 0 0 transparent; }
+}
+@keyframes qs-restart-step {
+  from { box-shadow: inset 0 0 0 3px var(--qs-compute); }
+  to { box-shadow: inset 0 0 0 0 transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  queue-stories-game .qs-step.is-retry-origin,
+  queue-stories-game .qs-step.is-restarting {
+    animation: none;
+  }
+}

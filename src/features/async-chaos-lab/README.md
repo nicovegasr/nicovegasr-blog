@@ -70,6 +70,9 @@ Changing a rule starts a fresh batch; changing a name does not.
    static page composition, localized paths and presentation.
 
 `labels.ts` owns default names, length limits and HTML escaping.
+`session.ts` restores and saves names and awards in `sessionStorage`; `scaling/session.ts`
+does the same for the second lab. `lab-ui.ts` holds the helpers both controllers share.
+`stories.css` only imports `stories/*.css`, in cascade order.
 `achievements.ts` contains the five session awards. Feature-local ES/EN copy leaves
 shared site dictionaries and navigation unchanged. The page files only select a
 locale and a level; there are no parallel implementations of the two labs.

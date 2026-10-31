@@ -1,0 +1,456 @@
+/* Feature-local lab styles, using the blog's existing palette and type. */
+.js :is(queue-stories-game, queue-scaling-game) {
+  min-height: 100svh;
+}
+
+body:has(queue-stories-game) main {
+  padding-top: var(--space-6);
+}
+queue-stories-game {
+  display: block;
+  font-size: var(--font-size-small);
+  --qs-wash: color-mix(in srgb, var(--color-rule) 28%, var(--color-paper));
+}
+queue-stories-game * {
+  box-sizing: border-box;
+}
+queue-stories-game h2 {
+  font: 600 1.2rem/1.2 var(--font-family-display);
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.025em;
+}
+queue-stories-game p {
+  line-height: 1.5;
+  margin: 0.4rem 0;
+}
+queue-stories-game button,
+queue-stories-game select {
+  font: 500 0.85rem/1.4 var(--font-family-display);
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--color-ink);
+  border-radius: var(--radius-small);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  cursor: pointer;
+  max-width: 100%;
+}
+queue-stories-game button:hover:not(:disabled) {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+queue-stories-game :focus-visible {
+  outline: 3px solid var(--color-ink);
+  outline-offset: 3px;
+}
+/* Keep focused/scrolled controls clear of the site header and sticky transport. */
+queue-stories-game :is(button, input, select, summary) {
+  scroll-margin-block: 110px 100px;
+}
+queue-stories-game input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-ink);
+  flex-shrink: 0;
+}
+queue-stories-game .qs-editable {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+queue-stories-game .qs-editable > strong {
+  display: block;
+  font: 600 0.95rem/1.3 var(--font-family-display);
+  letter-spacing: -0.025em;
+}
+queue-stories-game .qs-name {
+  display: none;
+  width: 100%;
+  min-width: 0;
+  font: 500 0.9rem/1.4 var(--font-family-display);
+  border: 1px solid var(--color-ink);
+  border-radius: var(--radius-small);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  padding: 0.35rem;
+}
+queue-stories-game.is-personalizing .qs-name {
+  display: block;
+}
+queue-stories-game.is-personalizing [data-display-label] {
+  display: none;
+}
+queue-stories-game .qs-eyebrow {
+  font: 0.65rem/1.4 var(--font-family-mono);
+  letter-spacing: 0.06em;
+  color: var(--color-text-soft);
+}
+queue-stories-game .qs-transport,
+queue-stories-game .qs-tools {
+  display: flex;
+  align-items: center;
+}
+queue-stories-game .qs-tools {
+  margin-left: auto;
+}
+queue-stories-game [data-action='play'] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  min-height: 42px;
+  padding: 0.6rem 1rem;
+  border: 0;
+  border-radius: var(--radius-small);
+  background: var(--color-ink);
+  color: var(--color-paper);
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+queue-stories-game [data-action='play']::before {
+  content: '▶';
+  font-size: 0.65em;
+  color: var(--color-accent);
+}
+queue-stories-game.is-playing [data-action='play']::before {
+  content: 'Ⅱ';
+}
+queue-stories-game[data-phase='incident'] [data-action='play']::before {
+  content: '↻';
+  font-size: 0.95em;
+}
+queue-stories-game [data-action='play']:hover {
+  background: color-mix(in srgb, var(--color-ink) 85%, var(--color-paper));
+  color: var(--color-paper);
+}
+queue-stories-game .qs-transport [data-action='reset'],
+queue-stories-game .qs-tools button,
+queue-stories-game [data-action='guide-close'] {
+  padding: 0.5rem 0;
+  min-height: 40px;
+  border: 0;
+  background: none;
+  color: var(--color-text-soft);
+  font-size: 0.75rem;
+  border-radius: 0;
+}
+queue-stories-game .qs-transport [data-action='reset']:hover,
+queue-stories-game .qs-tools button:hover,
+queue-stories-game [data-action='guide-close']:hover {
+  color: var(--color-ink);
+  background: none;
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+}
+queue-stories-game .qs-score {
+  color: var(--color-text-soft);
+  white-space: nowrap;
+  padding-left: 1rem;
+  border-left: 1px solid var(--color-rule);
+}
+
+queue-stories-game .qs-feedback {
+  padding: 0.65rem 0;
+  margin: 0.5rem 0;
+  color: var(--color-text-soft);
+  border-bottom: 1px solid var(--color-rule);
+}
+queue-stories-game .qs-feedback strong {
+  font: 500 0.85rem/1.4 var(--font-family-display);
+  color: var(--color-ink);
+}
+queue-stories-game .qs-feedback p {
+  font-size: 0.75rem;
+  max-width: 110ch;
+  margin-bottom: 0;
+}
+queue-stories-game[data-phase='lost'] .qs-feedback,
+queue-stories-game[data-phase='duplicate'] .qs-feedback {
+  border-left: 2px solid var(--color-ink);
+  padding-left: 0.75rem;
+}
+queue-stories-game .qs-diagram {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.5fr) 20px minmax(0, 2.8fr);
+  align-items: center;
+  gap: 0.65rem;
+}
+queue-stories-game .qs-api {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 1rem 0.75rem;
+  border: 2px solid var(--color-ink);
+  border-radius: var(--radius-large) var(--radius-large) 0 0;
+}
+queue-stories-game .qs-api > strong {
+  font: 600 2.75rem/1 var(--font-family-display);
+  letter-spacing: -0.06em;
+}
+queue-stories-game .qs-api p {
+  font-size: 0.75rem;
+  margin: 0;
+}
+queue-stories-game .qs-arrow {
+  text-align: center;
+  font: 600 1.5rem/1 var(--font-family-display);
+}
+queue-stories-game .qs-process {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 20px minmax(0, 1fr);
+  align-items: start;
+  gap: 0.75rem;
+  padding: 2rem 0.8rem 0.8rem;
+  border: 2px dashed var(--color-ink);
+  border-radius: var(--radius-medium);
+}
+queue-stories-game .qs-process > .qs-arrow {
+  align-self: center;
+}
+queue-stories-game .qs-process.is-durable {
+  border-color: var(--color-rule);
+  border-style: solid;
+}
+queue-stories-game .qs-boundary {
+  position: absolute;
+  left: 0.8rem;
+  right: 0.8rem;
+  font: 0.65rem/1.3 var(--font-family-mono);
+  color: var(--color-text-soft);
+}
+queue-stories-game .qs-node-setting {
+  display: flex;
+  flex-direction: column;
+  font: 0.7rem/1.4 var(--font-family-display);
+}
+queue-stories-game .qs-node-setting select {
+  width: 100%;
+  font-size: 0.78rem;
+  padding: 0.4rem 0.3rem;
+}
+queue-stories-game .qs-array {
+  background: var(--qs-wash);
+  display: flex;
+  flex-direction: column;
+}
+queue-stories-game .qs-job {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--color-rule);
+  padding: 0.4rem;
+  background: var(--color-paper);
+  min-width: 0;
+}
+queue-stories-game .qs-job > div {
+  flex: 1;
+  min-width: 0;
+}
+queue-stories-game .qs-job > button {
+  padding: 0.2rem;
+  font: 0.65rem/1.4 var(--font-family-mono);
+  border: 0;
+  background: var(--color-rule);
+}
+queue-stories-game .qs-job .qs-editable > strong {
+  font-size: 0.8rem;
+}
+queue-stories-game .qs-job small {
+  display: block;
+  font: 0.6rem/1.4 var(--font-family-mono);
+  color: var(--color-text-soft);
+}
+queue-stories-game .qs-job-icon {
+  font: 600 1rem/1 var(--font-family-display);
+}
+queue-stories-game .qs-job.is-working {
+  outline: 2px solid var(--color-ink);
+}
+queue-stories-game .qs-job.is-retrying {
+  border: 2px dashed var(--color-ink);
+}
+queue-stories-game .qs-job.is-done {
+  opacity: 0.65;
+}
+queue-stories-game .qs-job.is-lost {
+  border-style: dashed;
+  opacity: 0.55;
+}
+queue-stories-game .qs-job.is-lost .qs-editable {
+  text-decoration: line-through;
+}
+queue-stories-game .qs-job.is-inspected {
+  outline: 2px solid var(--color-ink);
+}
+queue-stories-game .qs-active-job {
+  border: 1px solid var(--color-ink);
+  font: 500 0.75rem/1.4 var(--font-family-display);
+  background: var(--qs-wash);
+  overflow-wrap: anywhere;
+}
+queue-stories-game .qs-worker-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+queue-stories-game .qs-step {
+  border: 1px solid var(--color-rule);
+  border-left: 4px solid var(--color-rule);
+  padding: 0.6rem;
+  min-width: 0;
+  background: var(--color-paper);
+}
+queue-stories-game .qs-step.is-active {
+  border-color: var(--color-ink);
+  border-left: 6px solid var(--color-accent);
+}
+queue-stories-game .qs-step.has-duplicate {
+  border: 2px dashed var(--color-ink);
+}
+queue-stories-game .qs-step-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+queue-stories-game .qs-step-heading > .qs-editable {
+  flex: 1;
+  min-width: 0;
+}
+queue-stories-game .qs-step-number {
+  font: 500 0.65rem/1 var(--font-family-mono);
+  border: 1px solid var(--color-ink);
+  padding: 0.35rem;
+}
+queue-stories-game .qs-step-state {
+  font: 0.65rem/1.5 var(--font-family-mono);
+  color: var(--color-text-soft);
+  margin: 0.3rem 0 0;
+}
+queue-stories-game .qs-ready-queue {
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem;
+  border: 1px solid var(--color-rule);
+  font-size: 0.75rem;
+}
+queue-stories-game .qs-extra-names {
+  display: none;
+}
+queue-stories-game.is-personalizing .qs-extra-names {
+  display: flex;
+  gap: 0.5rem;
+}
+queue-stories-game .qs-job-strip {
+  display: grid;
+  gap: 0.5rem;
+  margin-block: 0.6rem;
+}
+queue-stories-game .qs-worker-interior {
+  border: 2px solid var(--color-ink);
+  border-radius: var(--radius-large);
+  background: var(--qs-wash);
+}
+queue-stories-game .qs-worker-interior > header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+queue-stories-game .qs-worker-interior > header > div {
+  min-width: 0;
+}
+queue-stories-game .qs-worker-interior > header .qs-editable > strong {
+  font-size: 1.2rem;
+}
+queue-stories-game .qs-worker-interior .qs-worker-steps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+queue-stories-game .qs-step-options {
+  margin-top: 0.6rem;
+}
+queue-stories-game .qs-step-options label {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+queue-stories-game .qs-step-options .qs-kind-label {
+  align-items: flex-start;
+  flex-direction: column;
+  margin-block: 0.6rem;
+}
+:is(queue-stories-game, queue-scaling-game) summary {
+  cursor: pointer;
+  font-family: var(--font-family-display);
+}
+queue-stories-game .qs-result-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  padding-block: 0.75rem;
+  font: 0.65rem/1.5 var(--font-family-mono);
+}
+queue-stories-game .qs-result-metrics b {
+  font: 600 1.25rem/1 var(--font-family-display);
+  margin-right: 0.3rem;
+}
+:is(queue-stories-game, queue-scaling-game) .qs-achievements {
+  border: 1px solid var(--color-rule);
+  margin-block: 1rem;
+}
+:is(queue-stories-game, queue-scaling-game) .qs-achievements > p {
+  font-size: 0.7rem;
+  color: var(--color-text-soft);
+}
+:is(queue-stories-game, queue-scaling-game) [data-achievements] {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+:is(queue-stories-game, queue-scaling-game) [data-achievements] article {
+  display: flex;
+  gap: 0.75rem;
+  border: 1px dashed var(--color-rule);
+  padding: 0.75rem;
+  color: var(--color-text-soft);
+}
+:is(queue-stories-game, queue-scaling-game) [data-achievements] article.is-unlocked {
+  border: 2px solid var(--color-ink);
+  color: var(--color-ink);
+  background: var(--qs-wash);
+}
+:is(queue-stories-game, queue-scaling-game) [data-achievements] article > span {
+  font-size: 1.5rem;
+}
+:is(queue-stories-game, queue-scaling-game) [data-achievements] h3 {
+  font: 600 0.9rem/1.3 var(--font-family-display);
+  margin: 0;
+}
+:is(queue-stories-game, queue-scaling-game) [data-achievements] p {
+  font-size: 0.75rem;
+}
+:is(queue-stories-game, queue-scaling-game) [data-achievements] small {
+  font-size: 0.65rem;
+}
+queue-stories-game .qs-toast:not(:empty) {
+  position: fixed;
+  bottom: 1.2rem;
+  right: 1.2rem;
+  z-index: 40;
+  width: min(340px, calc(100vw - 2.4rem));
+  padding: 1rem;
+  border: 2px solid var(--color-ink);
+  box-shadow: 4px 4px 0 var(--color-ink);
+  background: var(--color-paper);
+}
+queue-stories-game .qs-toast strong {
+  display: block;
+  font: 600 1rem/1.3 var(--font-family-display);
+  margin: 0.5rem 0;
+}

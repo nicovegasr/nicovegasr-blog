@@ -1,0 +1,102 @@
+/* Shared geometry keeps the system stable when entering or leaving the walkthrough. */
+queue-stories-game .qs-stage,
+queue-stories-game .qs-system {
+  min-width: 0;
+}
+queue-stories-game .qs-diagram {
+  margin-block: 0.75rem 0.5rem;
+}
+queue-stories-game .qs-process {
+  padding-top: 1.75rem;
+  border-width: 1px;
+}
+queue-stories-game .qs-boundary {
+  font-size: 0.6rem;
+  top: 0.45rem;
+}
+queue-stories-game .qs-node-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 36px;
+}
+queue-stories-game .qs-node-heading > div {
+  min-width: 0;
+  flex: 1;
+}
+queue-stories-game .qs-node-heading .qs-figure {
+  width: 29px;
+  height: 29px;
+}
+queue-stories-game .qs-node-heading .qs-editable > strong {
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+queue-stories-game .qs-node-heading .qs-eyebrow {
+  display: block;
+  font-size: 0.55rem;
+  margin-bottom: 0.15rem;
+}
+queue-stories-game .qs-node-setting {
+  padding: 0;
+  gap: 0.3rem;
+  margin: 0.6rem 0 0.2rem;
+}
+queue-stories-game .qs-setting-title {
+  font-size: 0.72rem;
+}
+queue-stories-game .qs-choice-note {
+  min-height: 1.4em;
+  font: 0.65rem/1.4 var(--font-family-body);
+  margin: 0.2rem 0 0.5rem;
+  max-width: none;
+}
+queue-stories-game .qs-array {
+  border: 1px solid var(--color-rule);
+  border-top: 3px solid var(--qs-storage);
+  border-radius: 5px;
+  padding: 0.3rem;
+  gap: 0.25rem;
+}
+queue-stories-game .qs-array .qs-job {
+  padding: 0.35rem;
+  border-color: transparent;
+}
+queue-stories-game .qs-job > button {
+  min-width: 26px;
+  min-height: 26px;
+  border-radius: 4px;
+}
+queue-stories-game .qs-active-job {
+  padding: 0.35rem 0.45rem;
+  margin: 0.4rem 0;
+  font-size: 0.72rem;
+  border-color: var(--color-rule);
+  border-radius: 5px;
+  min-height: 30px;
+}
+queue-stories-game[data-level='1'] .qs-worker .qs-step {
+  padding: 0.4rem;
+  border-top-width: 2px;
+  border-radius: 5px;
+}
+queue-stories-game[data-level='1'] .qs-step-heading {
+  gap: 0.25rem;
+}
+queue-stories-game[data-level='1'] .qs-step-heading > .qs-editable > strong {
+  font-size: 0.78rem;
+}
+queue-stories-game[data-level='1'] .qs-step-contract {
+  font: 0.65rem/1.4 var(--font-family-body);
+  margin: 0.35rem 0;
+  min-height: 2.8em;
+}
+queue-stories-game[data-level='1'] .qs-step-state {
+  font-size: 0.63rem;
+}
+queue-stories-game .qs-worker-interior .qs-step {
+  border-radius: 5px;
+}
+queue-stories-game .qs-worker-interior > header .qs-active-job {
+  margin: 0;
+}
