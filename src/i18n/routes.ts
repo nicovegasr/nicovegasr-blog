@@ -4,6 +4,7 @@ import { LOCALES } from '@/i18n/locale';
 // Logical page identifiers, decoupled from their localized URL segments.
 // Never hardcode "/contenido" or "/content"; resolve URLs through buildPagePath.
 export type PageKey = 'home' | 'pills' | 'articles' | 'labs';
+export type ContentSection = Exclude<PageKey, 'home'>;
 
 const CONTENT_SEGMENT: Record<Locale, string> = { es: 'contenido', en: 'content' };
 const PILLS_DETAIL_SEGMENT: Record<Locale, string> = { es: 'pildoras', en: 'pills' };
@@ -56,14 +57,13 @@ const pathSegments = (pathname: string): readonly string[] => pathname.split('/'
 
 // Content indexes live under /contenido, but published articles, pills and labs
 // keep their original URLs so that shared links and search results stay valid.
-export const isContentPath = (pathname: string, locale: Locale): boolean => {
-  const firstSegment = pathSegments(pathname)[1];
-  return (
-    firstSegment === CONTENT_SEGMENT[locale] ||
-    firstSegment === PILLS_DETAIL_SEGMENT[locale] ||
-    firstSegment === LABS_DETAIL_SEGMENT[locale] ||
-    firstSegment === BLOG_DETAIL_SEGMENT
-  );
+export const contentSectionOf = (pathname: string, locale: Locale): ContentSection | null => {
+  const [, firstSegment, secondSegment] = pathSegments(pathname);
+  const sectionSegment = firstSegment === CONTENT_SEGMENT[locale] ? secondSegment : firstSegment;
+  if (sectionSegment === PILLS_DETAIL_SEGMENT[locale]) return 'pills';
+  if (sectionSegment === LABS_DETAIL_SEGMENT[locale]) return 'labs';
+  if (sectionSegment === BLOG_DETAIL_SEGMENT) return 'articles';
+  return null;
 };
 
 export const isSamePath = (firstPathname: string, secondPathname: string): boolean =>

@@ -6,7 +6,6 @@ export const english: Dictionary = {
     "Nicolás Vegas's personal blog — software engineer with a DevOps mindset. I write about software development and build things.",
 
   'navigation.home': 'Home',
-  'navigation.content': 'Content',
   'navigation.menu': 'Menu',
   'navigation.sections': 'Sections',
 

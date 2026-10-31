@@ -4,7 +4,6 @@ export const spanish = {
     'Blog personal de Nicolás Vegas, ingeniero informático con mentalidad DevOps. Hablo sobre desarrollo de software y hago cosas.',
 
   'navigation.home': 'Inicio',
-  'navigation.content': 'Contenido',
   'navigation.menu': 'Menú',
   'navigation.sections': 'Secciones',
 

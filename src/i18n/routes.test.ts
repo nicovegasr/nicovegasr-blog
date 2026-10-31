@@ -4,7 +4,7 @@ import {
   buildLabPath,
   buildPagePath,
   buildPillPath,
-  isContentPath,
+  contentSectionOf,
 } from '@/i18n/routes';
 
 describe('page paths', () => {
@@ -41,15 +41,22 @@ describe('alternate locale paths', () => {
   });
 });
 
-describe('content paths', () => {
-  it.each(['/es/contenido/', '/es/contenido/blog/', '/es/pildoras/fundamentos/', '/es/laboratorios/scaling/', '/es/blog/un-articulo/'])(
-    'treats %s as content',
-    (pathname) => {
-      expect(isContentPath(pathname, 'es')).toBe(true);
-    },
-  );
+describe('content sections', () => {
+  it.each([
+    ['/es/contenido/blog/', 'es', 'articles'],
+    ['/es/blog/un-articulo/', 'es', 'articles'],
+    ['/es/contenido/pildoras/', 'es', 'pills'],
+    ['/es/pildoras/fundamentos/api/', 'es', 'pills'],
+    ['/es/contenido/laboratorios/', 'es', 'labs'],
+    ['/es/laboratorios/scaling/', 'es', 'labs'],
+    ['/en/content/pills/', 'en', 'pills'],
+    ['/en/labs/scaling/', 'en', 'labs'],
+  ] as const)('places %s in its section', (pathname, locale, section) => {
+    expect(contentSectionOf(pathname, locale)).toBe(section);
+  });
 
-  it('does not treat the home as content', () => {
-    expect(isContentPath('/es/', 'es')).toBe(false);
+  it('leaves the home and the bare content address out of the sections', () => {
+    expect(contentSectionOf('/es/', 'es')).toBeNull();
+    expect(contentSectionOf('/es/contenido/', 'es')).toBeNull();
   });
 });
