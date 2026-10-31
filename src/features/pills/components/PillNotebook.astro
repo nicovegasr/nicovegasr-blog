@@ -50,8 +50,6 @@ const alternatePaths = {
       <nav class="breadcrumb" aria-label="breadcrumb">
         <a href={buildPagePath('pills', locale)}>{translate('pills.heading')}</a> / {series.title}
       </nav>
-      <h1>{series.title}</h1>
-      <p class="series-summary">{series.summary}</p>
     </header>
     <PillReader locale={locale} series={series} pills={pills} activePillSlug={activePillSlug} />
   </article>
@@ -60,24 +58,11 @@ const alternatePaths = {
 
 <style>
   .notebook-header {
-    margin-bottom: var(--space-12);
+    margin-bottom: var(--space-6);
   }
-  .notebook-header h1 {
-    font-size: clamp(2.8rem, 7vw, 5rem);
-    line-height: 1.05;
-    letter-spacing: -0.055em;
-    overflow-wrap: anywhere;
-  }
-  .series-summary {
-    color: var(--color-text-soft);
-    font-size: var(--font-size-lead);
-    line-height: 1.65;
-    max-width: 55ch;
-    margin-top: var(--space-4);
-  }
-  @media (max-width: 480px) {
-    .notebook-header {
-      margin-bottom: var(--space-8);
+  @media (max-width: 800px) {
+    .series-notebook {
+      margin-top: calc(var(--space-6) - var(--space-16));
     }
   }
 </style>

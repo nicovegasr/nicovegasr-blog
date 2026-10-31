@@ -105,7 +105,7 @@ const Content = rendered?.Content;
           <ReadingTime minutes={rendered.readingTimeInMinutes} locale={locale} />
         </div>
         <header class="chapter-heading">
-          <h2 id="chapter-title" tabindex="-1">{selected.title}</h2>
+          <h1 id="chapter-title" tabindex="-1">{selected.title}</h1>
           <p class="chapter-subtitle">{selected.subtitle}</p>
         </header>
         <div class="chapter-body prose"><Content /></div>
@@ -363,13 +363,13 @@ const Content = rendered?.Content;
   }
   .chapter-heading {
     position: relative;
-    padding: var(--space-6) 0 var(--space-8);
+    padding: var(--space-4) 0 var(--space-8);
     border-bottom: 1px solid var(--color-rule);
     margin-bottom: var(--space-8);
   }
-  .chapter-heading h2:focus { outline: none; }
-  .chapter-heading h2 {
-    font-size: clamp(2rem, 3.5vw, 3.5rem);
+  .chapter-heading h1:focus { outline: none; }
+  .chapter-heading h1 {
+    font-size: clamp(2.4rem, 5vw, 3.75rem);
     line-height: 1.05;
     letter-spacing: -0.055em;
     margin-top: 0;
@@ -528,7 +528,7 @@ const Content = rendered?.Content;
     .chapter-page {
       padding: var(--space-6) 0;
     }
-    .chapter-heading h2 {
+    .chapter-heading h1 {
       font-size: clamp(2.25rem, 8vw, 3.5rem);
     }
   }
