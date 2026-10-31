@@ -2,6 +2,29 @@ import { expect, test } from '@playwright/test';
 
 const sections = '[data-content-sections] a';
 
+test('the footer keeps its copyright and usable social links on one row', async ({ page }) => {
+  for (const width of [320, 360, 440, 706, 1280]) {
+    await page.setViewportSize({ width, height: 800 });
+    for (const path of ['/es/', '/es/contenido/blog/']) {
+      await page.goto(path);
+      await page.evaluate(() => document.fonts.ready);
+      const footer = page.locator('.site-footer');
+      const copyright = (await footer.locator('.copyright').boundingBox())!;
+      const links = await footer.locator('.social-links a').evaluateAll((items) =>
+        items.map((item) => item.getBoundingClientRect().toJSON()),
+      );
+      expect(links).toHaveLength(4);
+      expect(copyright.x + copyright.width).toBeLessThanOrEqual(links[0]!.x);
+      for (const link of links) {
+        expect(link.width).toBeGreaterThanOrEqual(36);
+        expect(link.height).toBeGreaterThanOrEqual(36);
+        expect(link.x + link.width).toBeLessThanOrEqual(width);
+        expect(Math.abs(link.y + link.height / 2 - copyright.y - copyright.height / 2)).toBeLessThan(1);
+      }
+    }
+  }
+});
+
 test('the home is the about page and content is one click away', async ({ page }) => {
   await page.goto('/es/');
   await expect(page.locator('[data-journey]')).toBeVisible();

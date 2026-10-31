@@ -2,7 +2,6 @@
 import type { Locale } from '@/i18n/locale';
 import { getTranslator } from '@/i18n/translator';
 import SocialLinks from '@/layouts/SocialLinks.astro';
-import Logo from '@/layouts/Logo.astro';
 
 interface Props {
   locale: Locale;
@@ -16,8 +15,10 @@ const currentYear = new Date().getFullYear();
 
 <footer class="site-footer">
   <div class="bar">
-    <Logo size={26} title={translate('site.title')} />
-    <p>© {currentYear} Nicolás Vegas — {translate('footer.rights')}</p>
+    <p class="copyright">
+      © {currentYear} Nicolás Vegas
+      <span> — {translate('footer.rights')}</span>
+    </p>
     {
       showSocialLinks && (
         <div class="social">
@@ -31,36 +32,81 @@ const currentYear = new Date().getFullYear();
 <style>
   .site-footer {
     border-top: 1px solid var(--color-rule);
-    margin-top: var(--space-24);
   }
 
   .bar {
     display: flex;
     align-items: center;
-    gap: var(--space-3);
+    justify-content: space-between;
+    gap: var(--space-4);
     max-width: var(--content-width-wide);
     margin-inline: auto;
-    padding: var(--space-8) var(--space-6);
+    padding: var(--space-4) var(--space-6);
+    text-align: start;
   }
 
-  .bar p {
-    font-family: var(--font-family-mono);
-    font-size: var(--font-size-meta);
-    color: var(--color-text-muted);
+  .copyright {
+    font-size: var(--font-size-small);
+    line-height: 1.5;
+    color: var(--color-text-soft);
+    white-space: nowrap;
   }
 
   .social {
-    margin-inline-start: auto;
+    flex: 0 0 auto;
   }
 
-  @media (max-width: 540px) {
+  .social :global(.social-links) {
+    flex-wrap: nowrap;
+    gap: var(--space-2);
+  }
+
+  .social :global(.social-links a) {
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 0;
+  }
+
+  .social :global(.social-links svg) {
+    width: 18px;
+    height: 18px;
+  }
+
+  @media (max-width: 48rem) {
     .bar {
-      flex-wrap: wrap;
+      gap: var(--space-2);
     }
 
-    .social {
-      margin-inline-start: 0;
-      width: 100%;
+    .copyright {
+      font-size: var(--font-size-meta);
+    }
+
+    .copyright span {
+      display: none;
+    }
+
+    .social :global(.social-links svg) {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  @media (max-width: 24rem) {
+    .bar {
+      padding-inline: var(--space-3);
+    }
+
+    .copyright {
+      font-size: 0.6875rem;
+    }
+
+    .social :global(.social-links) {
+      gap: var(--space-1);
+    }
+
+    .social :global(.social-links a) {
+      width: 2.25rem;
+      height: 2.25rem;
     }
   }
 </style>
