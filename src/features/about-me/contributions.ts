@@ -17,7 +17,7 @@ const contributionsByLocale: Record<Locale, readonly Contribution[]> = {
     },
     {
       pose: 'fallen',
-      claim: 'Sistemas preparados para fallar.',
+      claim: 'Sistemas resilientes.',
       detail: 'Los fallos van a ocurrir. Los preveo y diseño para que el sistema los aguante.',
     },
     {
@@ -39,7 +39,7 @@ const contributionsByLocale: Record<Locale, readonly Contribution[]> = {
     },
     {
       pose: 'fallen',
-      claim: 'Systems ready to fail.',
+      claim: 'Resilient systems.',
       detail: 'Failures will happen. I anticipate them and design so the system withstands them.',
     },
     {

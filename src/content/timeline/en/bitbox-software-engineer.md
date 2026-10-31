@@ -1,5 +1,5 @@
 ---
-title: "I worked on a KPI platform, frontend included."
+title: "I worked on a KPI platform and its visualizer."
 place: "Tenerife"
 organization: "Bitbox"
 role: "Software Engineer"
