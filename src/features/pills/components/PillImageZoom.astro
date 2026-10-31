@@ -1,0 +1,82 @@
+---
+import type { Locale } from '@/i18n/locale';
+import { getTranslator } from '@/i18n/translator';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const translate = getTranslator(locale);
+---
+
+<dialog
+  class="image-zoom"
+  data-pill-image-zoom
+  data-enlarge-label={translate('pills.reader.enlargeImage')}
+  aria-label={translate('pills.reader.enlargeImage')}
+>
+  <button
+    type="button"
+    class="close"
+    data-pill-image-zoom-close
+    aria-label={translate('pills.reader.closeImage')}
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17" /></svg>
+  </button>
+  <img alt="" />
+</dialog>
+
+<script>
+  import '../reader-image-zoom';
+</script>
+
+<style>
+  .image-zoom {
+    width: 100vw;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    padding: 0;
+    border: 0;
+    overflow: auto;
+    background: var(--color-paper);
+  }
+  .image-zoom img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    cursor: zoom-in;
+  }
+  .image-zoom img[data-enlarged] {
+    width: auto;
+    max-width: none;
+    height: auto;
+    cursor: zoom-out;
+  }
+  .close {
+    position: fixed;
+    top: var(--space-4);
+    right: var(--space-4);
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--color-ink);
+    border-radius: var(--radius-small);
+    background: var(--color-paper);
+    color: var(--color-ink);
+    cursor: pointer;
+  }
+  .close svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+  }
+  :global(html:has(dialog[open])) {
+    overflow: hidden;
+  }
+</style>

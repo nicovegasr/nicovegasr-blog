@@ -50,6 +50,8 @@ export const spanish = {
     'Conceptos concretos explicados en pequeño, para asentar las bases sin rodeos. Pronto empezarán a aparecer aquí.',
   'pills.reader.keyboardTipLabel': 'Consejo de navegación',
   'pills.reader.keyboardTip': 'Usa las flechas ← y → para cambiar de píldora.',
+  'pills.reader.enlargeImage': 'Ampliar imagen',
+  'pills.reader.closeImage': 'Cerrar imagen',
   'pills.reader.dismissKeyboardTip': 'Cerrar consejo de navegación',
   'pills.reader.nextSeries': 'Siguiente serie',
   'pills.reader.allSeries': 'Ver todas las series',

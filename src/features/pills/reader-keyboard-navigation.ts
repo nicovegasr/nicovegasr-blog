@@ -16,7 +16,7 @@ document.addEventListener('keydown', (event) => {
   if (
     event.target instanceof Element &&
     event.target.closest(
-      'input, textarea, select, button, [contenteditable]:not([contenteditable="false"]), [role="slider"], [role="tablist"], pre, table, video, audio, .site-header, .site-footer',
+      'dialog, input, textarea, select, button, [contenteditable]:not([contenteditable="false"]), [role="slider"], [role="tablist"], pre, table, video, audio, .site-header, .site-footer',
     )
   )
     return;
