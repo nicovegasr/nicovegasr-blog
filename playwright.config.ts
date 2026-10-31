@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const port = 4330;
+const port = Number(process.env.PLAYWRIGHT_PORT ?? 4330);
 const continuousIntegration = !!process.env.CI;
 
 export default defineConfig({
@@ -18,9 +18,12 @@ export default defineConfig({
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } } }],
   // The labs are static pages: test the real production build, not the dev server.
   webServer: {
-    command: `npm run build && npm run preview -- --host 127.0.0.1 --port ${port}`,
+    // Without --ignore-lock, astro exits quietly if a preview of this checkout is already running on any port.
+    command: `npm run build && npm run preview -- --ignore-lock --host 127.0.0.1 --port ${port}`,
+    gracefulShutdown: { signal: 'SIGTERM', timeout: 2_000 },
     url: `http://127.0.0.1:${port}/es/contenido/laboratorios/`,
-    reuseExistingServer: !continuousIntegration,
+    // Reusing is opt-in: a server left running by another checkout would test the wrong code.
+    reuseExistingServer: process.env.PLAYWRIGHT_REUSE_SERVER === '1',
     timeout: 180_000,
   },
 });

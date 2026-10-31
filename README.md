@@ -20,6 +20,8 @@ npm run build
 npm run test:e2e   # Playwright; la primera vez: npx playwright install chromium
 ```
 
+`test:e2e` compila siempre este checkout. Para reutilizar un servidor ya levantado en el puerto 4330, usa `PLAYWRIGHT_REUSE_SERVER=1 npm run test:e2e`; para ejecutar en otro puerto (por ejemplo, en paralelo con otro worktree), `PLAYWRIGHT_PORT=4331 npm run test:e2e`.
+
 CI (GitHub Actions) ejecuta todo lo anterior en cada push a `main` y en cada pull request.
 
 ## Documentación
