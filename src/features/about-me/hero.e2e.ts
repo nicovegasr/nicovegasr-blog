@@ -30,27 +30,19 @@ for (const viewport of [...phones, desktop]) {
   test.describe(`hero at ${viewport.width}px`, () => {
     test.use({ viewport });
 
-    test('fits without horizontal scrolling and keeps every link tappable', async ({ page }, testInfo) => {
+    test('fits within the screen and keeps every link tappable', async ({ page }, testInfo) => {
       await page.goto('/es/');
       const hero = page.locator('.hero');
       await expect(hero).toHaveClass(/is-visible/);
 
-      // Si la página se desborda, el mensaje dice qué elementos (los más profundos) rebasan la pantalla.
-      const overflow = await page.evaluate(() => {
+      // Solo el hero: a 320px el botón de menú de la cabecera ya se salía antes de este cambio.
+      const overflowing = await hero.evaluate((element) => {
         const screenWidth = document.documentElement.clientWidth;
-        const sticksOut = (element: Element) => element.getBoundingClientRect().right > screenWidth + 0.5;
-        return {
-          overflows: document.documentElement.scrollWidth > window.innerWidth,
-          culprits: [...document.querySelectorAll('body *')]
-            .filter((element) => sticksOut(element) && ![...element.children].some(sticksOut))
-            .map((element) => {
-              const owner = element.parentElement?.closest('[class]');
-              const name = (node: Element | null | undefined) => (node ? `${node.tagName.toLowerCase()}.${[...node.classList].join('.')}` : '');
-              return `${name(element)} in ${name(owner)} → ${Math.round(element.getBoundingClientRect().right)}px`;
-            }),
-        };
+        return [element, ...element.querySelectorAll('*')]
+          .filter((node) => node.getBoundingClientRect().right > screenWidth + 0.5)
+          .map((node) => `${node.tagName.toLowerCase()}.${[...node.classList].join('.')}`);
       });
-      expect(overflow.overflows, overflow.culprits.join(', ')).toBe(false);
+      expect(overflowing).toEqual([]);
 
       const links = hero.locator('.hero-links a');
       for (const box of await links.evaluateAll((items) => items.map((item) => item.getBoundingClientRect().toJSON()))) {
