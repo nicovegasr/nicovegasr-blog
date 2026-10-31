@@ -1,5 +1,5 @@
 ---
-title: "Trabajé en una plataforma de KPIs, con frontend incluido."
+title: "Trabajé en una plataforma de KPIs y en su visualizador."
 place: "Tenerife"
 organization: "Bitbox"
 role: "Ingeniero de Software"
