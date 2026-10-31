@@ -38,6 +38,7 @@ export const english: Dictionary = {
   'about.heroStatement': 'Nicolás Vegas.',
   'about.heroRole': 'Software engineer · High-volume systems · AI-assisted development',
   'about.heroIntro': 'I like understanding how things work under the hood and solving problems pragmatically.',
+  'about.projectsLink': 'View projects',
   'about.contributionsTitle': 'What I bring',
   'about.skillsTitle': 'What I know',
   'about.timelineTitle': 'Journey',
