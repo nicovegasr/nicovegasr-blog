@@ -1,3 +1,4 @@
+import { createMascotAtlases } from './mascot-atlases';
 import {
   createMascotWalker,
   isMascotPoseName,
@@ -87,17 +88,21 @@ const trackMascotJourney = () => {
     return;
   }
 
+  stopTracking = new AbortController();
+  const { signal } = stopTracking;
   const walker = createMascotWalker(mascot);
-  const atlases: Record<string, { walking: string; reactions: string }> = JSON.parse(mascot.dataset.mascotAtlases!);
-  const showAge = (age: string) => {
-    if (mascot.dataset.mascotAge === age) {
-      return;
+  const atlases = createMascotAtlases(mascot, signal);
+  const atlasObserver = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      const age = entry.target === lastRoute ? '2026' : (entry.target as HTMLElement).dataset.startYear;
+      if (age) atlases.preload(age);
+      atlasObserver.unobserve(entry.target);
     }
-    const atlas = atlases[age] ?? atlases.original!;
-    mascot.style.setProperty('--walking-atlas', `url(${atlas.walking})`);
-    mascot.style.setProperty('--reactions-atlas', `url(${atlas.reactions})`);
-    mascot.dataset.mascotAge = age;
-  };
+  }, { rootMargin: '100% 0px' });
+  stops.forEach((stop) => atlasObserver.observe(stop));
+  atlasObserver.observe(lastRoute);
+  signal.addEventListener('abort', () => atlasObserver.disconnect());
   let threadTop = 0;
   let threadHeight = 0;
   let lineInset = 0;
@@ -175,7 +180,7 @@ const trackMascotJourney = () => {
       }
     });
     stops.forEach((stop) => stop.classList.toggle('is-active', stop === activeStop));
-    showAge(isOnFirstRoute ? 'original' : isOnLastRoute ? '2026' : activeStop?.dataset.startYear ?? 'original');
+    atlases.show(isOnFirstRoute ? 'original' : isOnLastRoute ? '2026' : activeStop?.dataset.startYear ?? 'original');
     mascot.classList.toggle('is-arrived', last.ratio >= 1);
   };
   const requestPaint = () => {
@@ -272,8 +277,6 @@ const trackMascotJourney = () => {
   };
 
 
-  stopTracking = new AbortController();
-  const { signal } = stopTracking;
   window.addEventListener('keydown', startWalkingWithArrowKey, { signal });
   window.addEventListener('keyup', stopWalkingWithArrowKey, { signal });
   window.addEventListener('blur', stopHeldWalk, { signal });

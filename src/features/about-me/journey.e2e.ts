@@ -13,12 +13,11 @@ for (const viewport of [{ width: 1280, height: 800 }, { width: 360, height: 640 
         const walker = page.locator('[data-page-walker]');
         await expect(walker).toHaveAttribute('data-mascot-age', 'original');
         const atlasUrls = await walker.evaluate((element) =>
-          [...new Set(Object.values(JSON.parse(element.getAttribute('data-mascot-atlases')!) as Record<string, { walking: string; reactions: string }>)
-            .flatMap(({ walking, reactions }) => [walking, reactions]))],
+          Object.values((JSON.parse(element.getAttribute('data-mascot-atlases')!) as Record<string, { walking: string; reactions: string }>).original!),
         );
         const preloadedUrls = await page.locator('link[rel="preload"][as="image"]')
           .evaluateAll((links) => links.map((link) => link.getAttribute('href')));
-        expect(preloadedUrls).toEqual(expect.arrayContaining(atlasUrls));
+        expect(preloadedUrls).toEqual(atlasUrls);
 
         const scrollToStop = async (year: string) => {
           await page.locator(`${stops}[data-start-year="${year}"]`).evaluate((element) => {

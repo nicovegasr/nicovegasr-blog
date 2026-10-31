@@ -80,8 +80,10 @@ before the timeline begins. Lo que conozco uses the 2026 walking and reaction
 atlases. Reverse scrolling must restore the corresponding earlier age and,
 when leaving the timeline upwards, the original character.
 
-The home page preloads every atlas and changes the selected pair only when the
-age changes. The active timeline stop supplies its start year; the contributions
+The home page preloads only the original walking and reaction atlases. Other
+pairs are prefetched as their timeline stops approach the viewport and decoded
+before replacing the visible pair. A delayed load cannot override a newer age
+request. The active timeline stop supplies its start year; the contributions
 and skills routes retain their original and mature appearances respectively.
 Preserve the existing walking, keyboard and swipe controls during integration.
 

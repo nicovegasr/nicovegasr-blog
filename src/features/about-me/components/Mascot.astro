@@ -15,10 +15,10 @@ const atlases = {
   2024: { walking: tieAtlas, reactions: reactionsAtlas },
   2026: { walking: matureAtlas, reactions: matureReactionsAtlas },
 };
-const atlasUrls = [...new Set(Object.values(atlases).flatMap(({ walking, reactions }) => [walking, reactions]))];
+const initialAtlasUrls = [walkingAtlas, reactionsAtlas];
 ---
 
-{atlasUrls.map((href) => <link rel="preload" as="image" href={href} />)}
+{initialAtlasUrls.map((href) => <link rel="preload" as="image" href={href} media="(prefers-reduced-motion: no-preference) and (min-height: 34rem)" />)}
 <span
   {...attributes}
   class:list={['mascot', className]}
