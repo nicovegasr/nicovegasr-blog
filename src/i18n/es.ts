@@ -13,7 +13,6 @@ export const spanish = {
   'content.pills': 'Píldoras',
   'content.labs': 'Laboratorios',
 
-  'language.switchTo': 'English',
   'language.current': 'Español',
 
   'theme.toggle': 'Cambiar tema',
@@ -41,7 +40,7 @@ export const spanish = {
   'about.present': 'Actualidad',
 
   'pills.metaDescription':
-    'Píldoras formativas de Nicolás Vegas: conceptos concretos explicados en pequeño. Próximamente.',
+    'Píldoras de Nicolás Vegas sobre Docker, APIs y diseño de sistemas: conceptos concretos explicados en pequeño.',
   'pills.upcoming': 'En obras 🚧',
   'pills.heading': 'Píldoras formativas',
   'pills.comingSoonText':
@@ -57,7 +56,6 @@ export const spanish = {
   'pills.reader.chapter': 'Píldora',
   'pills.reader.next': 'Siguiente',
   'pills.reader.previous': 'Anterior',
-  'pills.reader.back': 'Volver al recorrido',
   'pills.reader.toggleIndex': 'Mostrar u ocultar el recorrido',
   'pills.reader.paginationLabel': 'Entre píldoras',
   'pills.seriesCount': 'píldoras',

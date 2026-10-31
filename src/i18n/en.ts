@@ -15,7 +15,6 @@ export const english: Dictionary = {
   'content.pills': 'Pills',
   'content.labs': 'Labs',
 
-  'language.switchTo': 'Español',
   'language.current': 'English',
 
   'theme.toggle': 'Toggle theme',
@@ -43,7 +42,7 @@ export const english: Dictionary = {
   'about.present': 'Present',
 
   'pills.metaDescription':
-    "Nicolás Vegas's learning pills: concrete concepts explained small. Coming soon.",
+    "Nicolás Vegas's learning pills on Docker, APIs and system design: concrete concepts explained in small pieces.",
   'pills.upcoming': 'Under construction 🚧',
   'pills.heading': 'Learning pills',
   'pills.comingSoonText':
@@ -59,7 +58,6 @@ export const english: Dictionary = {
   'pills.reader.chapter': 'Pill',
   'pills.reader.next': 'Next',
   'pills.reader.previous': 'Previous',
-  'pills.reader.back': 'Back to the journey',
   'pills.reader.toggleIndex': 'Show or hide the journey',
   'pills.reader.paginationLabel': 'Between pills',
   'pills.seriesCount': 'pills',
