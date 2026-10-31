@@ -224,12 +224,16 @@ const skillStations = findSkillAreas(locale).map((area) => ({
     }
 
     :global(.js) .walkway {
+      /* mascot-journey.ts mide cuánto hay que apartar el hilo del borde para que la mascota quepa entera.
+         El texto conserva al menos esta distancia al hilo. */
+      --walk-line-inset: 0px;
+      --walk-text-indent: max(var(--space-12), var(--walk-line-inset) + var(--space-6));
       margin-top: calc(var(--space-16) * -1 - max(0px, (100svh - 40rem) * 0.3));
     }
 
     :global(.js) .thread {
       position: absolute;
-      left: 0;
+      left: var(--walk-line-inset);
       display: block;
       width: 2px;
       background: var(--color-rule);
@@ -259,7 +263,7 @@ const skillStations = findSkillAreas(locale).map((area) => ({
 
     /* El hilo baja por la izquierda: el título se aparta como los capítulos. */
     :global(.js) .section-title {
-      padding-inline-start: var(--space-12);
+      padding-inline-start: var(--walk-text-indent);
     }
   }
 
@@ -268,8 +272,8 @@ const skillStations = findSkillAreas(locale).map((area) => ({
       --walker-size: clamp(3rem, 10vh, 4.5rem);
     }
 
-    :global(.js) .section-title {
-      padding-inline-start: var(--space-8);
+    :global(.js) .walkway {
+      --walk-text-indent: max(var(--space-8), var(--walk-line-inset) + var(--space-6));
     }
   }
 </style>
