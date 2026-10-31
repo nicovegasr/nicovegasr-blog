@@ -51,6 +51,8 @@ Feature-specific page composition stays in the feature. `PillNotebook.astro`, fo
 
 To withhold an entire pill series, set `draft: true` in its localized `overview.md` files. Draft series and all their individual pill routes are excluded from page generation and the sitemap. The home page and pills index use a separate metadata-only catalogue: once their announcement date is reached, draft titles and icons appear as non-clickable Under construction cards. Their overview body, editorial summary, and individual articles are not rendered. Remove the flag or set it to `false` when the series is ready.
 
+The header menu links directly to the blog, pills and labs indexes. `ContentLayout.astro` gives each index its own title and sentence, and shows section tabs only at the hamburger breakpoint and below.
+
 The active collections are posts, timeline, and pills. The retired Principles and current-work sections have no remaining collections, modules, or editorial files. When retiring another section, check its consumers, schema, Markdown, translations, components, and styles together.
 
 ## Internationalization
@@ -71,7 +73,7 @@ Use `getTranslator(locale)` in components. Do not embed parallel language dictio
 
 Design tokens live in `src/styles/tokens.css`. `base.css` contains the reset, typography, and genuinely global patterns. Components use scoped styles and theme-independent color tokens. See the visual guide for the palette, typography, depth, and motion rules.
 
-Series and individual pill routes render the same notebook component. Individual routes select their article during the build. Reader links point to generated HTML pages, so direct visits, reloads, and navigation without JavaScript remain available.
+Series and individual pill routes render the same notebook component. Individual routes select their article during the build. Reader links point to generated HTML pages, so direct visits, reloads, and navigation without JavaScript remain available. The pill title is the page's `h1`, and the series appears in the breadcrumb. On screens up to 800px the index starts closed behind one line and closes again after choosing a pill; without JavaScript it stays open.
 
 The notebook opts into Astro's `ClientRouter` through `BaseLayout`. It loads generated pages without a full document reload, updating the URL, history, metadata, and translated links. Within the same locale and series, a custom swap replaces only `.reading-desk` and the translated language link, preserving the shell and index DOM.
 
@@ -81,7 +83,8 @@ Browser behavior stays in the pills feature, separated by responsibility:
 - `reader-actions.ts` exposes `changePill('previous' | 'next')`. It owns adjacent-pill lookup, the generated next-series continuation, visibility and selection checks, the shared loading lock, and fallback to the real static link. It returns whether navigation started so keyboard handling can prevent only accepted shortcuts. Input methods coexist on hybrid devices; there is no device-type switch or required interface hierarchy. The final pill links directly to the first available pill of the next published series in catalogue order. Draft, future and empty series are skipped. This static link also drives keyboard and swipe continuation; previous stays within the current series and the final available series does not wrap.
 - `reader-keyboard-navigation.ts` translates left/right arrow keys into that action. Up/down retain native reading scroll. Editing controls, horizontal code/table navigation, text selection, and browser shortcuts keep their own key behavior.
 - `reader-swipe-navigation.ts` translates a left swipe into next and a right swipe into previous, only inside the article marked `data-pill-swipe`. A swipe must travel at least 72 CSS pixels within 700ms and be clearly horizontal. Vertical movement, page scrolling, multiple touches, cancellation, and navigation discard the pending gesture. Touches within 32px of either screen edge, text selection, links, controls, code blocks, tables, and media keep their native behavior. Touch listeners are passive and do not change `touch-action` or prevent native scrolling/zooming.
-- `reader-keyboard-tip.ts` controls the dismissible hint for fine pointers with hover support. Dismissal uses session storage with an in-memory fallback.
+- `reader-image-zoom.ts` opens article images in a full-screen native dialog. Activating the image toggles between fitting the screen and its natural size, which scrolls.
+- `reader-keyboard-tip.ts` controls the hint: a floating arrow-key tip for fine pointers with hover support, and a swipe hint that briefly replaces the reading time on other devices. It counts down three seconds across chapter changes and then closes itself for the session. Dismissal uses session storage with an in-memory fallback.
 
 The reading panel uses a direct Web Animation rather than browser view-transition snapshots. Its duration is controlled by `--motion-duration-reading` in `tokens.css` (400ms by default); reduced-motion preferences disable it. Skipping the native snapshot handles the expected rejected `ready` promise. No server-side session or persisted reading state is required.
 
