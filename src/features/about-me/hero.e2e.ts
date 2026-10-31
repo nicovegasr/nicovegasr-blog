@@ -35,8 +35,18 @@ for (const viewport of [...phones, desktop]) {
       const hero = page.locator('.hero');
       await expect(hero).toHaveClass(/is-visible/);
 
-      const overflows = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
-      expect(overflows).toBe(false);
+      // Si la página se desborda, el mensaje dice qué elementos (los más profundos) rebasan la pantalla.
+      const overflow = await page.evaluate(() => {
+        const screenWidth = document.documentElement.clientWidth;
+        const sticksOut = (element: Element) => element.getBoundingClientRect().right > screenWidth + 0.5;
+        return {
+          overflows: document.documentElement.scrollWidth > window.innerWidth,
+          culprits: [...document.querySelectorAll('body *')]
+            .filter((element) => sticksOut(element) && ![...element.children].some(sticksOut))
+            .map((element) => `${element.tagName.toLowerCase()}.${[...element.classList].join('.')} → ${Math.round(element.getBoundingClientRect().right)}px`),
+        };
+      });
+      expect(overflow.overflows, overflow.culprits.join(', ')).toBe(false);
 
       const links = hero.locator('.hero-links a');
       for (const box of await links.evaluateAll((items) => items.map((item) => item.getBoundingClientRect().toJSON()))) {
