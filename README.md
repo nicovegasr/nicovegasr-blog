@@ -26,6 +26,7 @@ CI (GitHub Actions) ejecuta todo lo anterior en cada push a `main` y en cada pul
 
 - [Arquitectura técnica](docs/technical/architecture.md)
 - [Guía de estilo](docs/design/styleguide.md)
+- [Deuda técnica](docs/technical/technical-debt.md)
 
 La producción audiovisual (vídeos, guía de imágenes, voz) vive en un repositorio
 privado aparte que se clona en `studio/` (ignorado por este repo).
