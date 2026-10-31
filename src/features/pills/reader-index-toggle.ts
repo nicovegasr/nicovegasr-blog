@@ -9,8 +9,21 @@ const render = (reader: HTMLElement, collapsed: boolean) => {
     ?.setAttribute('aria-expanded', String(!collapsed));
 };
 
+const renderDisclosure = (reader: HTMLElement, open: boolean) => {
+  reader.setAttribute('data-index-disclosure', open ? 'open' : 'closed');
+  reader
+    .querySelector('[data-pill-index-disclosure]')
+    ?.setAttribute('aria-expanded', String(open));
+};
+
 document.addEventListener('click', (event) => {
   if (!(event.target instanceof Element)) return;
+  if (event.target.closest('[data-pill-index-disclosure]')) {
+    const reader = readerIn();
+    if (reader)
+      renderDisclosure(reader, reader.getAttribute('data-index-disclosure') !== 'open');
+    return;
+  }
   if (!event.target.closest('[data-pill-index-toggle]')) return;
   const reader = readerIn();
   if (!reader) return;
@@ -25,7 +38,10 @@ document.addEventListener('click', (event) => {
 
 document.addEventListener('astro:page-load', () => {
   const reader = readerIn();
-  if (reader) render(reader, reader.hasAttribute('data-index-collapsed'));
+  if (!reader) return;
+  render(reader, reader.hasAttribute('data-index-collapsed'));
+  // Same-series visits keep the index DOM, so choosing a pill must close it here.
+  renderDisclosure(reader, false);
 });
 
 export {};

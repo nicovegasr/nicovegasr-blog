@@ -46,6 +46,8 @@ const Content = rendered?.Content;
 
 <div class="notebook" id="pill-contents" tabindex="-1" data-pill-reader={`${locale}/${series.slug}`}>
   <script is:inline>
+    // Set before paint: without JavaScript the phone index stays open and usable.
+    document.currentScript.parentElement.setAttribute('data-index-disclosure', 'closed');
     try {
       if (localStorage.getItem('pills.index.collapsed') === 'true')
         document.currentScript.parentElement.setAttribute('data-index-collapsed', '');
@@ -73,8 +75,18 @@ const Content = rendered?.Content;
       >
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2" /><path d="M9.5 4.5v15" /></svg>
       </button>
+      <button
+        type="button"
+        class="index-disclosure"
+        data-pill-index-disclosure
+        aria-controls="pill-index-navigation"
+        aria-expanded="false"
+        aria-label={translate('pills.reader.toggleIndex')}
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+      </button>
     </div>
-    <nav aria-label={translate('pills.reader.heading')}>
+    <nav id="pill-index-navigation" aria-label={translate('pills.reader.heading')}>
       <ol class="journey">
         {chapters.map((chapter) => (
           <li>
@@ -208,6 +220,9 @@ const Content = rendered?.Content;
     stroke: currentColor;
     stroke-width: 1.6;
     stroke-linejoin: round;
+  }
+  .index-disclosure {
+    display: none;
   }
   @media (min-width: 801px) {
     .notebook[data-index-collapsed] {
@@ -509,7 +524,47 @@ const Content = rendered?.Content;
       position: static;
       max-height: none;
       overflow: visible;
-      padding: var(--space-6) 0;
+      padding: 0;
+    }
+    .contents-heading {
+      position: relative;
+      padding-block: var(--space-4);
+    }
+    .notebook[data-index-disclosure] .index-disclosure {
+      display: grid;
+      place-items: center;
+      width: var(--space-6);
+      height: var(--space-6);
+      padding: 0;
+      border: 0;
+      background: none;
+      color: var(--color-ink);
+      cursor: pointer;
+    }
+    /* The whole line opens the index, not only the chevron. */
+    .index-disclosure::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+    }
+    .index-disclosure svg {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: transform var(--motion-duration-fast) var(--motion-easing);
+    }
+    .index-disclosure[aria-expanded='true'] svg {
+      transform: rotate(180deg);
+    }
+    .notebook[data-index-disclosure='closed'] .contents nav {
+      display: none;
+    }
+    .contents nav {
+      padding-bottom: var(--space-4);
     }
     .journey {
       display: grid;
