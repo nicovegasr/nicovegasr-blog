@@ -5,10 +5,9 @@ import SocialLinks from '@/layouts/SocialLinks.astro';
 
 interface Props {
   locale: Locale;
-  showSocialLinks: boolean;
 }
 
-const { locale, showSocialLinks } = Astro.props;
+const { locale } = Astro.props;
 const translate = getTranslator(locale);
 const currentYear = new Date().getFullYear();
 ---
@@ -19,13 +18,9 @@ const currentYear = new Date().getFullYear();
       © {currentYear} Nicolás Vegas
       <span> — {translate('footer.rights')}</span>
     </p>
-    {
-      showSocialLinks && (
-        <div class="social">
-          <SocialLinks />
-        </div>
-      )
-    }
+    <div class="social">
+      <SocialLinks />
+    </div>
   </div>
 </footer>
 
