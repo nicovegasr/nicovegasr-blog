@@ -96,7 +96,7 @@ Use the Node.js version and startup commands documented in the root README. For 
 
 1. Read the owning feature, its consumers, and the relevant design guidance.
 2. Keep ES/EN routes and interface dictionaries aligned.
-3. Keep the diff focused and preserve unrelated working-tree changes.
+3. Keep the diff focused and preserve unrelated working-tree changes. Write new source comments in English.
 4. Run the standard checks:
 
    ```bash
