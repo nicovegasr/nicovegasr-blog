@@ -34,14 +34,15 @@ export const english: Dictionary = {
   'blog.relatedTitle': 'Related articles',
 
   'about.metaDescription':
-    'Nicolás Vegas, software engineer: what I do, my stack and my journey.',
-  'about.heroTitle': 'About',
+    'Nicolás Vegas, software engineer: what I know and my journey.',
   'about.portraitAlt': 'Photo of Nicolás Vegas',
-  'about.lead':
-    'I enjoy investigating how things work under the hood to make the most of what technology offers us, building predictable, scalable and maintainable software.',
-  'about.approach':
-    'I am interested in software and solution architecture, exploring the best technologies to solve problems and designing architectures that can evolve sustainably over time.',
-  'about.stackTitle': 'Stack',
+  'about.heroStatement': 'Nicolás Vegas.',
+  'about.heroRole': 'Software engineer · High-volume systems · AI-assisted development',
+  'about.heroIntro': 'I like understanding how things work under the hood and solving problems pragmatically.',
+  'about.contributionsTitle': 'What I bring',
+  'about.walkLeft': 'Move left',
+  'about.walkRight': 'Move right',
+  'about.skillsTitle': 'What I know',
   'about.timelineTitle': 'Journey',
   'about.present': 'Present',
 

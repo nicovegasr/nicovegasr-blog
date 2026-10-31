@@ -32,14 +32,15 @@ export const spanish = {
   'blog.relatedTitle': 'Artículos relacionados',
 
   'about.metaDescription':
-    'Nicolás Vegas, ingeniero informático: a qué me dedico, mi stack y mi trayectoria.',
-  'about.heroTitle': 'Sobre mí',
+    'Nicolás Vegas, ingeniero informático: lo que conozco y mi trayectoria.',
   'about.portraitAlt': 'Foto de Nicolás Vegas',
-  'about.lead':
-    'Disfruto investigando cómo funcionan las cosas por dentro para aprovechar todo lo que las tecnologías nos ofrecen, construyendo software predecible, escalable y mantenible.',
-  'about.approach':
-    'Me interesa el mundo de la arquitectura de software y de soluciones, explorar las mejores tecnologías para resolver problemas y plantear una arquitectura que evolucione con el tiempo de forma sostenible.',
-  'about.stackTitle': 'Stack',
+  'about.heroStatement': 'Nicolás Vegas.',
+  'about.heroRole': 'Ingeniero de software · Sistemas de alto volumen · Desarrollo con IA',
+  'about.heroIntro': 'Me gusta entender cómo funcionan las cosas por dentro y resolver los problemas con pragmatismo.',
+  'about.contributionsTitle': 'Lo que aporto',
+  'about.walkLeft': 'Mover a la izquierda',
+  'about.walkRight': 'Mover a la derecha',
+  'about.skillsTitle': 'Lo que conozco',
   'about.timelineTitle': 'Trayectoria',
   'about.present': 'Actualidad',
 

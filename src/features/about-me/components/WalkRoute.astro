@@ -1,0 +1,392 @@
+---
+export type WalkRouteStation = {
+  title: string;
+  items: readonly string[];
+  tags?: readonly string[];
+  label?: string;
+  pose?: string;
+};
+
+interface Props {
+  title: string;
+  stations: readonly WalkRouteStation[];
+  direction: 'left' | 'right';
+  titleSize: 'large' | 'medium';
+  walkLeftLabel: string;
+  walkRightLabel: string;
+}
+
+const { title, stations, direction, titleSize, walkLeftLabel, walkRightLabel } = Astro.props;
+const lastIndex = stations.length - 1;
+const tickRatio = (index: number): number =>
+  direction === 'right' ? index / lastIndex : 1 - index / lastIndex;
+---
+
+<section
+  class:list={['route', `route--${direction}`, `route--${titleSize}`]}
+  data-route
+  data-direction={direction}
+  style={`--route-stations: ${stations.length};`}
+>
+  <div class="stage" data-route-stage>
+    <h2 class="route-title">{title}</h2>
+    <ol class="stations">
+      {
+        stations.map((station, stationIndex) => (
+          <li
+            class:list={['station', { 'is-current': stationIndex === 0 }]}
+            data-route-station
+            data-pose={station.pose}
+          >
+            <h3 class="station-title">
+              <span class="station-name">{station.title}</span>
+            </h3>
+            <ul class="items">
+              {station.items.map((item, itemIndex) => (
+                <li style={`--item-index: ${itemIndex};`}>{item}</li>
+              ))}
+            </ul>
+            {
+              station.tags !== undefined && (
+                <ul class="tags">
+                  {station.tags.map((tag) => (
+                    <li>{tag}</li>
+                  ))}
+                </ul>
+              )
+            }
+          </li>
+        ))
+      }
+    </ol>
+    <div class="arrows">
+      <button type="button" data-route-arrow="left" aria-label={walkLeftLabel}>
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path d="M19 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+      <button type="button" data-route-arrow="right" aria-label={walkRightLabel}>
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+    </div>
+    <div class="ground" aria-hidden="true" data-route-ground>
+      <ol class="ticks">
+        {
+          stations.map((station, stationIndex) => (
+            <li
+              class:list={['tick', { 'is-reached': stationIndex === 0 }]}
+              style={`--tick-ratio: ${tickRatio(stationIndex)};`}
+              data-route-tick
+            >
+              {station.label !== undefined && <span class="tick-label">{station.label}</span>}
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Sin JS, con movimiento reducido o en pantallas muy bajas: todas las paradas seguidas. */
+  .route {
+    --route-ratio: 0;
+    --walker-size: clamp(3.75rem, 15vh, 7.5rem);
+    --thread-indent: var(--space-12);
+  }
+
+  .route-title {
+    font-size: var(--font-size-heading-1);
+  }
+
+  .stations {
+    padding: 0;
+    list-style: none;
+  }
+
+  .station {
+    margin-top: var(--space-12);
+  }
+
+  .station-title {
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+  }
+
+  .route--large .station-title {
+    font-size: clamp(3rem, min(8vw, 15vh), 7rem);
+  }
+
+  .route--medium .station-title {
+    max-width: 16em;
+    font-size: clamp(2.5rem, min(6.5vw, 12vh), 5.5rem);
+    text-wrap: balance;
+  }
+
+  .station-name {
+    padding-inline: 0.08em;
+    margin-inline-start: -0.08em;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+
+  .items {
+    max-width: 44rem;
+    margin-top: var(--space-6);
+    padding: 0;
+    list-style: none;
+    color: var(--color-text-soft);
+    font-size: clamp(1.125rem, min(2vw, 3.2vh), 1.625rem);
+    line-height: 1.4;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-6);
+    padding: 0;
+    list-style: none;
+  }
+
+  .tags li {
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-small);
+    font-size: var(--font-size-small);
+    line-height: 1.4;
+  }
+
+  .ground {
+    display: none;
+  }
+
+  .arrows {
+    display: none;
+  }
+
+  @media (max-width: 48rem) {
+    .route {
+      --thread-indent: var(--space-8);
+      /* Debe coincidir con el tamaño de .page-walker en AboutPage. */
+      --walker-size: clamp(3rem, 10vh, 4.5rem);
+    }
+
+    /* "Infraestructura" y "Mantenibilidad" tienen que caber enteras en un móvil de 360px. */
+    .route--large .station-title,
+    .route--medium .station-title {
+      font-size: 9.5vw;
+    }
+
+    .tags {
+      gap: var(--space-1);
+    }
+
+    .tags li {
+      padding: 0.125rem var(--space-2);
+      font-size: var(--font-size-meta);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) and (min-height: 34rem) {
+    :global(.js) .route {
+      height: calc(100svh + (var(--route-stations) - 1) * 80svh);
+    }
+
+    :global(.js) .stage {
+      position: sticky;
+      top: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100svh;
+      justify-content: safe center;
+      /* Deja libre la cabecera fija de la web. */
+      padding-top: calc(var(--space-16) + var(--space-8));
+      /* El texto se centra entre el título y la cabeza del muñequito. */
+      padding-bottom: calc(12svh + var(--walker-size) * 0.86);
+    }
+
+    :global(.js) .route-title {
+      margin-inline-start: var(--thread-indent);
+      font-size: var(--font-size-heading-3);
+    }
+
+    /* Las paradas se apilan: el bloque mide lo que la más alta y título y texto quedan juntos. */
+    :global(.js) .stations {
+      display: grid;
+      margin-top: var(--space-4);
+      margin-inline-start: var(--thread-indent);
+    }
+
+    :global(.js) .station {
+      grid-area: 1 / 1;
+      margin: 0;
+    }
+
+    :global(.js) .station-title,
+    :global(.js) .items li,
+    :global(.js) .tags {
+      opacity: 0;
+      transform: translateY(16px);
+      transition:
+        opacity var(--motion-duration-fast) var(--motion-easing),
+        transform var(--motion-duration-fast) var(--motion-easing);
+    }
+
+    :global(.js) .station.is-current .station-title,
+    :global(.js) .station.is-current .items li,
+    :global(.js) .station.is-current .tags {
+      opacity: 1;
+      transform: none;
+      transition-duration: var(--motion-duration-reading);
+    }
+
+    /* El mismo rotulador que marca el año del capítulo activo en la trayectoria. */
+    :global(.js) .station-name {
+      background: linear-gradient(var(--color-accent), var(--color-accent)) no-repeat left center / 0% 100%;
+      transition:
+        background-size var(--motion-duration-reading) var(--motion-easing) 80ms,
+        color var(--motion-duration-reading) var(--motion-easing) 80ms;
+    }
+
+    :global(.js) .station.is-current .station-name {
+      color: var(--color-accent-ink);
+      background-size: 100% 100%;
+    }
+
+    :global(.js) .station.is-current .items li {
+      transition-delay: calc(var(--item-index) * 40ms + 60ms);
+    }
+
+    :global(.js) .station.is-current .tags {
+      transition-delay: 200ms;
+    }
+
+    :global(.js) .stage {
+      /* El gesto horizontal mueve al muñequito; el vertical sigue siendo scroll. */
+      touch-action: pan-y;
+    }
+
+    :global(.js) .arrows {
+      position: absolute;
+      top: calc(var(--space-16) + var(--space-6));
+      right: 0;
+      z-index: 6;
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    :global(.js) .arrows button {
+      display: grid;
+      place-items: center;
+      width: 2.75rem;
+      height: 2.75rem;
+      padding: 0;
+      border: 1px solid var(--color-rule);
+      border-radius: 50%;
+      color: var(--color-ink);
+      background: var(--color-paper);
+      cursor: pointer;
+      transition:
+        background var(--motion-duration-fast) var(--motion-easing),
+        opacity var(--motion-duration-fast) var(--motion-easing);
+    }
+
+    @media (hover: hover) {
+      :global(.js) .arrows button:hover:not(:disabled) {
+        color: var(--color-accent-ink);
+        background: var(--color-accent);
+      }
+    }
+
+    :global(.js) .arrows button:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+
+    :global(.js) .ground {
+      position: absolute;
+      /* Debe coincidir con GROUND_RATIO de mascot-journey.ts. */
+      top: 88%;
+      right: 0;
+      left: 0;
+      display: block;
+      height: 2px;
+      background: var(--color-rule);
+    }
+
+    :global(.js) .ground::before {
+      content: '';
+      position: absolute;
+      inset-block: 0;
+      background: var(--color-ink);
+    }
+
+    :global(.js) .route--right .ground::before {
+      right: calc(100% - var(--route-ratio) * (100% - var(--walker-size) / 2));
+      left: 0;
+    }
+
+    :global(.js) .route--left .ground::before {
+      right: calc(var(--walker-size) / 2);
+      left: calc(var(--route-ratio) * (100% - var(--walker-size) / 2));
+    }
+
+    :global(.js) .ticks {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    :global(.js) .tick {
+      position: absolute;
+      top: -5px;
+      left: calc(var(--tick-ratio) * (100% - var(--walker-size) / 2) - 6px);
+      width: 12px;
+      height: 12px;
+      border: 2px solid var(--color-ink);
+      border-radius: 50%;
+      background: var(--color-paper);
+      transition: background var(--motion-duration-base) var(--motion-easing);
+    }
+
+    :global(.js) .tick.is-reached {
+      background: var(--color-ink);
+    }
+
+    :global(.js) .tick-label {
+      position: absolute;
+      top: var(--space-6);
+      left: 50%;
+      color: var(--color-text-soft);
+      font-size: var(--font-size-small);
+      font-weight: 500;
+      white-space: nowrap;
+      transform: translateX(-50%);
+    }
+
+    @media (max-width: 48rem) {
+      :global(.js) .tick-label {
+        display: none;
+      }
+
+      /* En móvil, debajo de la línea y al alcance del pulgar. */
+      :global(.js) .arrows {
+        top: calc(88% + var(--space-3));
+        right: 50%;
+        transform: translateX(50%);
+      }
+
+      :global(.js) .items {
+        margin-top: var(--space-3);
+        font-size: 1rem;
+      }
+
+      :global(.js) .tags {
+        margin-top: var(--space-3);
+      }
+    }
+  }
+</style>

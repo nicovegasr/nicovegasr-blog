@@ -1,0 +1,52 @@
+---
+import walkingAtlas from '@/shared/mascot/worker-walk-atlas.webp?url';
+import reactionsAtlas from '@/shared/mascot/worker-reactions.webp?url';
+
+const { class: className, ...attributes } = Astro.props;
+---
+
+<span
+  {...attributes}
+  class:list={['mascot', className]}
+  style={`--walking-atlas: url(${walkingAtlas}); --reactions-atlas: url(${reactionsAtlas});`}
+  aria-hidden="true"
+></span>
+
+<style>
+  .mascot {
+    --sprite-column: 0;
+    --sprite-row: 1;
+    --reaction-column: 2;
+    --reaction-row: 1;
+    --reaction-visibility: 0;
+    --facing: 1;
+    display: block;
+  }
+
+  .mascot.is-arrived {
+    --reaction-visibility: 1;
+  }
+
+  .mascot::before,
+  .mascot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-repeat: no-repeat;
+    background-size: 300% 200%;
+    transform: scaleX(var(--facing));
+  }
+
+  .mascot::before {
+    background-image: var(--walking-atlas);
+    background-position: calc(var(--sprite-column) * 50%) calc(var(--sprite-row) * 100%);
+    opacity: calc(1 - var(--reaction-visibility));
+  }
+
+  /* Las dos capas se cargan desde el principio para que las reacciones no parpadeen. */
+  .mascot::after {
+    background-image: var(--reactions-atlas);
+    background-position: calc(var(--reaction-column) * 50%) calc(var(--reaction-row) * 100%);
+    opacity: var(--reaction-visibility);
+  }
+</style>
