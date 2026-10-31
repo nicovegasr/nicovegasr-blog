@@ -78,6 +78,72 @@ test.describe('without JavaScript', () => {
     await expect(page.locator('#pill-index-navigation')).toBeVisible();
     await expect(page.locator('[data-pill-index-disclosure]')).toBeHidden();
   });
+
+  test('moves to another pill through its real link', async ({ page }) => {
+    await page.goto(firstPill);
+
+    await page.locator('#pill-index-navigation').getByRole('link', { name: /Dockerfile/ }).click();
+
+    await expect(page).toHaveURL(/\/es\/pildoras\/docker\/docker-file\//);
+    await expect(page.getByRole('heading', { level: 1, name: 'Dockerfile' })).toBeVisible();
+  });
+});
+
+test.describe('moving through the reader', () => {
+  test('goes back and forward through the pills it visited', async ({ page }) => {
+    await page.goto(firstPill);
+    const title = page.getByRole('heading', { level: 1 });
+
+    await page.keyboard.press('ArrowRight');
+    await expect(page).not.toHaveURL(/\/docker\/intro\//);
+    const secondPillUrl = page.url();
+    const secondPillTitle = await title.textContent();
+
+    await page.goBack();
+    await expect(page).toHaveURL(/\/docker\/intro\//);
+    await expect(title).toHaveText('¿Qué es Docker?');
+    await expect(page.locator('.journey a[aria-current]')).toHaveAttribute('href', /\/docker\/intro\//);
+
+    await page.goForward();
+    await expect(page).toHaveURL(secondPillUrl);
+    await expect(title).toHaveText(secondPillTitle!);
+  });
+
+  test('keeps the same pill when switching language', async ({ page }) => {
+    await page.goto(firstPill);
+
+    await page.locator('.language-switcher a').first().click();
+
+    await expect(page).toHaveURL(/\/en\/.*\/docker\/intro\//);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('What is Docker?');
+
+    await page.locator('.language-switcher a').first().click();
+
+    await expect(page).toHaveURL(/\/es\/pildoras\/docker\/intro\//);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'es');
+  });
+
+  test('restores the collapsed index', async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('pills.index.collapsed', 'true'));
+
+    await page.goto(firstPill);
+
+    await expect(page.locator('[data-pill-reader]')).toHaveAttribute('data-index-collapsed', '');
+  });
+});
+
+test.describe('with reduced motion', () => {
+  test.use({ reducedMotion: 'reduce' });
+
+  test('changes pill with the keyboard', async ({ page }) => {
+    await page.goto(firstPill);
+
+    await page.keyboard.press('ArrowRight');
+
+    await expect(page).not.toHaveURL(/\/docker\/intro\//);
+    await expect(page.getByRole('heading', { level: 1 })).not.toHaveText('¿Qué es Docker?');
+  });
 });
 
 test.describe('on the desktop catalogue', () => {
