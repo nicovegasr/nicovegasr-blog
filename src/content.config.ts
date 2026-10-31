@@ -39,13 +39,16 @@ const posts = defineCollection({
 const timeline = defineCollection({
   loader: localizedMarkdown('timeline'),
   schema: z.object({
-    kind: z.enum(['work', 'personal']).default('work'),
     title: z.string().min(1),
+    place: z.string().min(1),
+    organization: z.string().min(1).optional(),
     role: z.string().min(1).optional(),
     sector: z.string().optional(),
     startDate: z.coerce.date(),
     endDate: z.coerce.date().optional(),
-    summary: z.string().min(10),
+    summary: z.string().min(10).optional(),
+    documentLabel: z.string().min(1).optional(),
+    documentUrl: z.string().url().optional(),
   }),
 });
 

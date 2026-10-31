@@ -19,13 +19,16 @@ const toTimelineEntry = (
   return {
     slug: identifier.slug,
     locale: identifier.locale,
-    kind: entry.data.kind,
     title: entry.data.title,
+    place: entry.data.place,
+    organization: entry.data.organization,
     role: entry.data.role,
     sector: entry.data.sector,
     startDate: entry.data.startDate,
     endDate: entry.data.endDate,
     summary: entry.data.summary,
+    documentLabel: entry.data.documentLabel,
+    documentUrl: entry.data.documentUrl,
   };
 };
 

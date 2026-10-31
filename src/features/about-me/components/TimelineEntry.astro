@@ -9,47 +9,49 @@ interface Props {
 const { entry } = Astro.props;
 const translate = getTranslator(entry.locale);
 
-const dateFormat: Intl.DateTimeFormatOptions =
-  entry.kind === 'personal'
-    ? { year: 'numeric' }
-    : { month: 'short', year: 'numeric' };
+const formatMonthYear = (date: Date): string =>
+  new Intl.DateTimeFormat(entry.locale, { month: 'short', year: 'numeric' }).format(date);
 
-const formatDate = (date: Date): string =>
-  new Intl.DateTimeFormat(entry.locale, dateFormat).format(date);
-
-const startLabel = formatDate(entry.startDate);
 const startMachine = entry.startDate.toISOString().slice(0, 10);
-const endLabel =
-  entry.endDate === undefined
-    ? translate('about.present')
-    : formatDate(entry.endDate);
 const endMachine = entry.endDate?.toISOString().slice(0, 10);
-const isSinglePoint = entry.kind === 'personal' && entry.endDate === undefined;
+const credit = [entry.organization, entry.role, entry.sector].filter(
+  (part): part is string => part !== undefined,
+);
 ---
 
-<article class:list={['timeline-entry', `timeline-entry--${entry.kind}`]} data-journey-stop>
-  <p class="period">
-    <span>
-      <time datetime={startMachine}>{startLabel}</time>
-      {
-        !isSinglePoint && (
-          <>
-            {' – '}
-            {endMachine === undefined ? (
-              <span>{endLabel}</span>
-            ) : (
-              <time datetime={endMachine}>{endLabel}</time>
-            )}
-          </>
-        )
-      }
-    </span>
-    {entry.sector !== undefined && <span class="sector">{entry.sector}</span>}
-  </p>
+<article class="timeline-entry" data-journey-stop>
+  <div class="when">
+    <time class="year" datetime={startMachine}>{entry.startDate.getUTCFullYear()}</time>
+    <span class="place">{entry.place}</span>
+  </div>
   <div class="body">
     <h3>{entry.title}</h3>
-    {entry.role !== undefined && <p class="role">{entry.role}</p>}
-    <p class="summary">{entry.summary}</p>
+    {entry.summary !== undefined && <p class="summary">{entry.summary}</p>}
+    {
+      entry.documentUrl !== undefined && (
+        <p class="document">
+          <a href={entry.documentUrl} target="_blank" rel="noopener noreferrer">
+            {entry.documentLabel} →
+          </a>
+        </p>
+      )
+    }
+    {
+      entry.organization !== undefined && (
+        <p class="credit">
+          <span>{credit.join(' · ')}</span>
+          <span class="period">
+            <time datetime={startMachine}>{formatMonthYear(entry.startDate)}</time>
+            {' – '}
+            {entry.endDate === undefined ? (
+              <span>{translate('about.present')}</span>
+            ) : (
+              <time datetime={endMachine}>{formatMonthYear(entry.endDate)}</time>
+            )}
+          </span>
+        </p>
+      )
+    }
   </div>
 </article>
 
@@ -57,7 +59,7 @@ const isSinglePoint = entry.kind === 'personal' && entry.endDate === undefined;
   .timeline-entry {
     position: relative;
     display: grid;
-    grid-template-columns: 11rem minmax(0, var(--content-width-reading));
+    grid-template-columns: 13rem minmax(0, var(--content-width-reading));
     column-gap: var(--space-8);
     padding-left: var(--space-12);
     padding-bottom: var(--space-24);
@@ -67,7 +69,7 @@ const isSinglePoint = entry.kind === 'personal' && entry.endDate === undefined;
     content: '';
     position: absolute;
     left: -6px;
-    top: 0.75rem;
+    top: 1.45rem;
     width: 14px;
     height: 14px;
     border-radius: 50%;
@@ -76,38 +78,46 @@ const isSinglePoint = entry.kind === 'personal' && entry.endDate === undefined;
     transition: background var(--motion-duration-reading) var(--motion-easing);
   }
 
-  .timeline-entry--personal::before {
-    left: -10px;
-    top: 0.5rem;
-    width: 22px;
-    height: 22px;
-    background: var(--color-accent);
-  }
-
-  .timeline-entry.is-reached:not(.timeline-entry--personal)::before {
+  .timeline-entry.is-reached::before {
     background: var(--color-ink);
   }
 
-  .period {
-    display: flex;
-    flex-direction: column;
-    padding-top: 0.6rem;
-    font-family: var(--font-family-mono);
-    font-size: var(--font-size-meta);
-    line-height: 1.6;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+  .year {
+    display: inline-block;
+    padding-inline: 0.12em;
+    margin-inline-start: -0.12em;
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-display);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    background: linear-gradient(var(--color-accent), var(--color-accent)) no-repeat left center / 0% 100%;
+    transition:
+      background-size var(--motion-duration-reading) var(--motion-easing),
+      color var(--motion-duration-reading) var(--motion-easing);
+  }
+
+  /* El rotulador solo acompaña al capítulo que se está leyendo. */
+  .timeline-entry.is-active .year {
+    color: var(--color-accent-ink);
+    background-size: 100% 100%;
+  }
+
+  .place {
+    display: block;
+    margin-top: var(--space-2);
+    font-size: var(--font-size-small);
     color: var(--color-text-soft);
+  }
+
+  .body {
+    padding-top: var(--space-2);
   }
 
   .body h3 {
     font-size: var(--font-size-heading-2);
-  }
-
-  .role {
-    margin-top: var(--space-2);
-    color: var(--color-text-soft);
-    font-size: var(--font-size-small);
+    text-wrap: balance;
   }
 
   .summary {
@@ -115,27 +125,42 @@ const isSinglePoint = entry.kind === 'personal' && entry.endDate === undefined;
     color: var(--color-text-soft);
   }
 
-  .timeline-entry--personal .summary {
-    color: var(--color-ink);
-    font-size: var(--font-size-lead);
+  .document {
+    margin-top: var(--space-2);
+    font-size: var(--font-size-small);
   }
 
-  /* Solo con JS: sin él, todas las paradas se leen desde el principio. */
-  :global(.js) .period,
+  .credit {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-1) var(--space-6);
+    margin-top: var(--space-4);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-rule);
+    font-size: var(--font-size-small);
+    line-height: 1.5;
+    color: var(--color-text-soft);
+  }
+
+  .period {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /* Solo con JS: sin él, todos los capítulos se leen desde el principio. */
+  :global(.js) .when,
   :global(.js) .body {
-    opacity: 0.2;
-    filter: blur(3px);
+    opacity: 0.3;
     transform: translateY(12px);
     transition:
       opacity var(--motion-duration-reading) var(--motion-easing),
-      filter var(--motion-duration-reading) var(--motion-easing),
       transform var(--motion-duration-reading) var(--motion-easing);
   }
 
-  :global(.js) .timeline-entry.is-reached .period,
+  :global(.js) .timeline-entry.is-reached .when,
   :global(.js) .timeline-entry.is-reached .body {
     opacity: 1;
-    filter: none;
     transform: none;
   }
 
@@ -147,16 +172,27 @@ const isSinglePoint = entry.kind === 'personal' && entry.endDate === undefined;
       padding-bottom: var(--space-16);
     }
 
-    .period {
-      padding-top: 0.15rem;
-    }
-
     .timeline-entry::before {
-      top: 0.3rem;
+      top: 0.95rem;
     }
 
-    .timeline-entry--personal::before {
-      top: 0.1rem;
+    .when {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: var(--space-1) var(--space-3);
+    }
+
+    .year {
+      font-size: var(--font-size-heading-1);
+    }
+
+    .place {
+      margin-top: 0;
+    }
+
+    .body {
+      padding-top: 0;
     }
   }
 </style>
