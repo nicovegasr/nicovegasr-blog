@@ -1,6 +1,6 @@
 import type { PaymentLab } from '../payment-simulation/controller';
 import { isExternal } from '../payment-simulation/engine';
-import { escapeHtml as esc } from '../shared/text';
+import { escapeHtml } from '../shared/text';
 import { workerStepsConfig } from './rules';
 
 export const usesCustomSteps = (lab: PaymentLab) =>
@@ -12,9 +12,9 @@ export const usesCustomSteps = (lab: PaymentLab) =>
 
 export function workerStepsFeedback(lab: PaymentLab): [string, string] {
   const state = lab.state,
-    job = esc(lab.job(Math.max(state.active, 0))),
-    step = esc(lab.step(state.step)),
-    previous = esc(lab.step(Math.max(0, state.step - 1)));
+    job = escapeHtml(lab.job(Math.max(state.active, 0))),
+    step = escapeHtml(lab.step(state.step)),
+    previous = escapeHtml(lab.step(Math.max(0, state.step - 1)));
   if (lab.retryStage)
     return lab.retryStage === 'failure'
       ? [
@@ -91,14 +91,14 @@ export function workerStepsFeedback(lab: PaymentLab): [string, string] {
   if (state.phase === 'won') {
     const wasted = state.events.filter(
       // The final retry is necessary when its completion marker was lost.
-      (e) => e.job === 3 && e.kind === 'wasted' && e.step < lab.config.steps.length - 1,
+      (event) => event.job === 3 && event.kind === 'wasted' && event.step < lab.config.steps.length - 1,
     ).length;
     return [
       lab.inLocale('LOS TRES PAGOS COMPLETADOS', 'ALL THREE PAYMENTS COMPLETE'),
       wasted
         ? lab.inLocale(
-            `Completaste los pagos sin duplicar resultados. En «${esc(lab.job(2))}» repetiste ${wasted} pasos ya resueltos, cuando solo faltaba el último. Recordar esos avances es opcional: valora si el coste de repetirlos compensa guardar más estado.`,
-            `You completed the payments without duplicating results. For “${esc(lab.job(2))}”, you repeated ${wasted} successful steps when only the last one remained. Remembering that progress is optional: weigh the repeated work against storing more state.`,
+            `Completaste los pagos sin duplicar resultados. En «${escapeHtml(lab.job(2))}» repetiste ${wasted} pasos ya resueltos, cuando solo faltaba el último. Recordar esos avances es opcional: valora si el coste de repetirlos compensa guardar más estado.`,
+            `You completed the payments without duplicating results. For “${escapeHtml(lab.job(2))}”, you repeated ${wasted} successful steps when only the last one remained. Remembering that progress is optional: weigh the repeated work against storing more state.`,
           )
         : lab.inLocale(
             `Saltaste ${state.skipped} pasos ya resueltos. Recuperaste cada pago sin volver a aplicar sus efectos externos en este escenario.`,

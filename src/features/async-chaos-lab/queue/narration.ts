@@ -1,16 +1,16 @@
 import type { PaymentLab } from '../payment-simulation/controller';
 import { totals } from '../payment-simulation/engine';
-import { escapeHtml as esc } from '../shared/text';
+import { escapeHtml } from '../shared/text';
 
 export function queueFeedback(lab: PaymentLab): [string, string] {
   const state = lab.state,
-    job = esc(lab.job(Math.max(state.active, 0)));
+    job = escapeHtml(lab.job(Math.max(state.active, 0)));
   if (state.phase === 'lost')
     return [
       lab.inLocale('PERDISTE LOS DATOS', 'YOU LOST THE DATA'),
       lab.inLocale(
-        `El primer pago está registrado. Los otros ${totals(state).lost} solo estaban pendientes en la RAM de ${esc(lab.name('worker'))}. Al caer ese proceso, desapareció su única copia. La API había dicho «recibido», no «guardado».`,
-        `The first payment is recorded. The other ${totals(state).lost} were only pending in ${esc(lab.name('worker'))}’s RAM. When that process crashed, their only copy disappeared. The API said “received”, not “saved”.`,
+        `El primer pago está registrado. Los otros ${totals(state).lost} solo estaban pendientes en la RAM de ${escapeHtml(lab.name('worker'))}. Al caer ese proceso, desapareció su única copia. La API había dicho «recibido», no «guardado».`,
+        `The first payment is recorded. The other ${totals(state).lost} were only pending in ${escapeHtml(lab.name('worker'))}’s RAM. When that process crashed, their only copy disappeared. The API said “received”, not “saved”.`,
       ),
     ];
   if (state.phase === 'duplicate')

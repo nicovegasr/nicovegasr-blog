@@ -1,7 +1,7 @@
 import type { PaymentLab } from './controller';
 import type { GuideBeat } from './guide';
 import { button } from '../shared/lab-ui';
-import { escapeHtml as esc } from '../shared/text';
+import { escapeHtml } from '../shared/text';
 
 export function guidePanel(lab: PaymentLab, beat: GuideBeat) {
   let action = '';
@@ -23,7 +23,7 @@ export function guidePanel(lab: PaymentLab, beat: GuideBeat) {
   const optional = lab.definition.guideOptionalAction(lab);
   return /* HTML */ `<header class="qs-guide-header">
       <span
-        >${lab.copy.guidedWalkthroughLabel}
+        >${lab.copy.guidedWalkthroughHeading}
         <span class="qs-guide-chapter">${beat.chapter}/4</span></span
       ><button
         type="button"
@@ -35,13 +35,13 @@ export function guidePanel(lab: PaymentLab, beat: GuideBeat) {
     </header>
     <div class="qs-guide-body">
       <div class="qs-guide-story">
-        <h2>${esc(beat.title)}</h2>
-        <p>${esc(beat.story)}</p>
+        <h2>${escapeHtml(beat.title)}</h2>
+        <p>${escapeHtml(beat.story)}</p>
       </div>
       <div class="qs-guide-next">
         <span class="qs-eyebrow">${lab.copy.now}</span>
         <p id="qs-guide-task" role="status" aria-live="polite">
-          ${esc(beat.task)}
+          ${escapeHtml(beat.task)}
         </p>
         ${action || optional ? /* HTML */ `<div class="qs-guide-actions">${action}${optional}</div>` : ''}
       </div>

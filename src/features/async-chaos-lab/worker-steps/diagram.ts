@@ -2,7 +2,7 @@ import type { PaymentLab } from '../payment-simulation/controller';
 import type { ActionKind, StepConfig } from '../payment-simulation/engine';
 import { isExternal, isSafeToRepeat } from '../payment-simulation/engine';
 import { labFigure } from '../shared/figures';
-import { escapeHtml as esc } from '../shared/text';
+import { escapeHtml } from '../shared/text';
 import { workerStepsCopy } from './copy';
 
 export function workerStepsDiagram(lab: PaymentLab) {
@@ -87,7 +87,7 @@ export const stepOptions = (lab: PaymentLab, step: StepConfig, index: number) =>
     >
     <button type="button" class="qs-step-configure" popovertarget="qs-step-options-${index}">${workerStepsCopy(lab.es).configureStep} ↗</button>
     <div class="qs-step-editor" id="qs-step-options-${index}" popover="auto" data-step-editor="${index}">
-      <header><strong>${esc(lab.step(index))}</strong><button type="button" popovertarget="qs-step-options-${index}" popovertargetaction="hide" aria-label="${workerStepsCopy(lab.es).closeOptions}">×</button></header>
+      <header><strong>${escapeHtml(lab.step(index))}</strong><button type="button" popovertarget="qs-step-options-${index}" popovertargetaction="hide" aria-label="${workerStepsCopy(lab.es).closeOptions}">×</button></header>
       <small class="qs-step-tradeoff"
         >${isSafeToRepeat(step.kind) ? workerStepsCopy(lab.es).optionalHereSavesRepeatedWork : workerStepsCopy(lab.es).avoidsRepeatingItIfIts}</small
       ><label class="qs-kind-label"
@@ -108,5 +108,5 @@ export const stepOptions = (lab: PaymentLab, step: StepConfig, index: number) =>
               </p>`
       }
     </div>
-    ${isExternal(step.kind) ? /* HTML */ `<label class="qs-provider-option"><input type="checkbox" data-setting="provider-${index}" aria-describedby="qs-provider-hint-${index}" ${step.providerDeduplication ? 'checked' : ''} /><span>${workerStepsCopy(lab.es).deduplicateAtTheServiceBy}<small class="qs-provider-hint" id="qs-provider-hint-${index}">${workerStepsCopy(lab.es).coversAtimeoutTheService}</small></span></label>` : ''}
+    ${isExternal(step.kind) ? /* HTML */ `<label class="qs-provider-option"><input type="checkbox" data-setting="provider-${index}" aria-describedby="qs-provider-hint-${index}" ${step.providerDeduplication ? 'checked' : ''} /><span>${workerStepsCopy(lab.es).deduplicateAtTheServiceBy}<small class="qs-provider-hint" id="qs-provider-hint-${index}">${workerStepsCopy(lab.es).coversTimeoutAtService}</small></span></label>` : ''}
   </div>`;

@@ -73,19 +73,24 @@ shared/              What all three share: outcome shell, figures, links, styles
 2. **`payment-simulation/engine.test.ts`**: concrete examples of RAM loss, repeated
    delivery, partial work and recovery. Read the first three tests before following
    the whole model.
-3. **`queue/lab.ts`, `worker-steps/lab.ts`**: everything that makes each lab different,
-   collected in the `PaymentLabDefinition` from `payment-simulation/definition.ts`.
-   Their `diagram.ts`, `narration.ts` and `guide.ts` hold its templates and copy.
-4. **`payment-simulation/controller.ts`**: the custom element handles clicks and
+3. **`queue/rules.ts`, `worker-steps/rules.ts`**: each lab's default configuration,
+   injected faults and retry behavior, as the `SimulationRules` the engine runs on.
+4. **`queue/lab.ts`, `worker-steps/lab.ts`**: everything else that makes each lab
+   different, collected in the `PaymentLabDefinition` from `payment-simulation/definition.ts`.
+   Their `diagram.ts`, `narration.ts`, `guide.ts`, `labels.ts` and `copy.ts` hold its
+   templates and text.
+5. **`payment-simulation/controller.ts`**: the custom element handles clicks and
    schedules `advance` every 650 ms, and delegates what differs to the definition.
    `dialogs.ts` and `guide-panel.ts` build the HTML of the calls, outcomes and
    walkthrough; the controller owns their timers, focus and modal state. None of them
    decides whether a charge, record or checkpoint exists.
-5. **`queue/QueuePage.astro`, `worker-steps/WorkerStepsPage.astro`, `scaling/ScalingPage.astro`,
+6. **`queue/QueuePage.astro`, `worker-steps/WorkerStepsPage.astro`, `scaling/ScalingPage.astro`,
    `LabsPage.astro`**: static page composition. Each lab page loads only its own script.
 
-`payment-simulation/labels.ts` owns the default names of labs 1 and 2, and
-`shared/text.ts` their length limits and HTML escaping.
+Interface text lives in typed catalogues: `payment-simulation/copy.ts` for what labs 1
+and 2 share, `queue/copy.ts`, `worker-steps/copy.ts` and `scaling/copy.ts` for the rest.
+Text that depends on the simulation state stays in each lab's `narration.ts` and `guide.ts`.
+`shared/text.ts` owns length limits and HTML escaping.
 `payment-simulation/session.ts` restores and saves names and awards in `sessionStorage`;
 `scaling/session.ts` does the same for lab 3. `shared/lab-ui.ts` holds the helpers both
 controllers share. `shared/stories.css` only imports `shared/stories/*.css`, in cascade

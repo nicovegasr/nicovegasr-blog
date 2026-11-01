@@ -6,9 +6,7 @@ Known issues and what has already been resolved. Fix an item when its area is ne
 
 | Priority | Item | Where | Next step |
 | --- | --- | --- | --- |
-| 🟠 Medium | The lab 3 controller still builds its diagram and its names, cost and comparison dialogs (684 lines) | [scaling/controller.ts](../../src/features/async-chaos-lab/scaling/controller.ts) | Move them next to [result.ts](../../src/features/async-chaos-lab/scaling/result.ts) when that lab next changes |
-| 🟠 Medium | The shared payment controller paints the whole diagram in one long `update` method (832 lines in total) | [payment-simulation/controller.ts](../../src/features/async-chaos-lab/payment-simulation/controller.ts) | Split the painting by area when it next changes |
-| 🟠 Medium | Some lab interface copy is still inline `t(es, en)` calls beside behavior | Both controllers | Keep moving one group at a time to each lab's `narration.ts` or `content.ts` |
+| ⚪ Low | Labs 1 and 2 share one stylesheet, with `data-level` selectors for lab 1 | [shared/stories](../../src/features/async-chaos-lab/shared/stories) | Move each lab's rules to its folder, checking the cascade page by page |
 
 ## Accepted
 
@@ -16,6 +14,8 @@ Known issues and what has already been resolved. Fix an item when its area is ne
 | --- | --- |
 | The header needs at least 344px, so it overflows on narrower screens | Those widths do not justify the work |
 | `--walk-line-inset` is set by JavaScript, which shifts the home layout slightly on load | Home CLS is well below the 0.1 threshold: at most 0.0225 locally (390×844) and 0.0054 in production (Lighthouse, mobile, 412×823). Deriving it in CSS would have to duplicate the centered gutter and the mascot size |
+| The lab controllers are still long (about 860 and 600 lines) | They now hold only state, events and painting; splitting them further would scatter a single flow |
+| State-dependent lab text uses `inLocale` in `narration.ts` and `guide.ts` | Those files are the catalogue for text that depends on the simulation state |
 | Existing source comments mix Spanish and English | New comments are written in English; existing ones change only when their code does |
 
 ## Resolved
@@ -34,6 +34,9 @@ Known issues and what has already been resolved. Fix an item when its area is ne
 | ✅ | Lab session persistence and small helpers extracted from the controllers |
 | ✅ | Each lab has its own folder, with shared code in `payment-simulation/` and `shared/` |
 | ✅ | Tutorial, incident and result rendering extracted from the controllers |
+| ✅ | The engine no longer knows about levels: each lab declares its own rules, configuration and names |
+| ✅ | Controller copy moved to typed catalogues |
+| ✅ | The lab 3 diagram and dialogs extracted, and abbreviated identifiers replaced across the labs |
 | ✅ | `stories.css` split into ordered sections |
 | ✅ | Mascot calculations extracted into pure functions with unit tests |
 | ✅ | Hero tests no longer depend on the live shields.io badge |

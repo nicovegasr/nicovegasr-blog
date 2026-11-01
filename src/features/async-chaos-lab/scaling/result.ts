@@ -1,6 +1,6 @@
 import { button } from '../shared/lab-ui';
 import { outcomeShell } from '../shared/outcome-shell';
-import { escapeHtml as esc } from '../shared/text';
+import { escapeHtml } from '../shared/text';
 import type { Names } from './content';
 import { scalingCopy } from './copy';
 import { PAYMENT_COUNT, scalingMetrics, scalingVerdict, TARGET_COST, TARGET_SECONDS } from './engine';
@@ -26,9 +26,9 @@ export function rateLimitScene(
     step = rejection.step;
   return outcomeShell({
   es: es, trial: history.length, fatal: true,
-  kicker: copy.trialStoppedhttp429,
+  kicker: copy.trialStoppedHttp429,
   title: copy.slotsWereFreeTheQuota,
-  evidence: `<div class="sc-rate-evidence"><strong>HTTP 429</strong><p>${esc(names.steps[step]!)} · ${esc(names.jobs[rejection.job - 1]!)}</p><p>${copy.requestsAcceptedInThis1(state.requestsInWindow[step], rejection.limit, metrics.steps[step]!.active.length, config.capacities[step])}</p></div>`,
+  evidence: `<div class="sc-rate-evidence"><strong>HTTP 429</strong><p>${escapeHtml(names.steps[step]!)} · ${escapeHtml(names.jobs[rejection.job - 1]!)}</p><p>${copy.requestsAcceptedInThis1(state.requestsInWindow[step], rejection.limit, metrics.steps[step]!.active.length, config.capacities[step])}</p></div>`,
   text: copy.theProviderRejectedThisRequest(rejection.limit, number(rejection.retryAfterSeconds, 1)),
   actions: button('close', copy.reviewMySystem, 'data-primary'),
   dismissAction: 'close', awards: '',
@@ -58,7 +58,7 @@ export function trialResult({ es, state, config, names, history, awards }: Resul
   ] as const;
   return {
     title,
-    body: `<p class="sc-result-label">${verdict.won ? copy.missionComplete : copy.trialCompleteadjustyoursystem}</p>${comparison}<div class="sc-checks">${flags.map(([ok, label]) => `<span data-ok="${ok}">${ok ? '✓' : '×'} ${label}</span>`).join('')}</div><p>${copy.n24PaymentsNoDuplicateEffects(metrics.completed, number(metrics.waitingSeconds, 1), waitingWhere)}</p><p class="sc-call-hint">${verdict.won ? copy.workersAndServiceSlotsAre : copy.findWhereWaitingBuildsUp}</p>${awards}`,
+    body: `<p class="sc-result-label">${verdict.won ? copy.missionComplete : copy.trialCompleteAdjustSystem}</p>${comparison}<div class="sc-checks">${flags.map(([ok, label]) => `<span data-ok="${ok}">${ok ? '✓' : '×'} ${label}</span>`).join('')}</div><p>${copy.n24PaymentsNoDuplicateEffects(metrics.completed, number(metrics.waitingSeconds, 1), waitingWhere)}</p><p class="sc-call-hint">${verdict.won ? copy.workersAndServiceSlotsAre : copy.findWhereWaitingBuildsUp}</p>${awards}`,
     tone: verdict.won ? 'win' : 'review',
   } as const;
 }

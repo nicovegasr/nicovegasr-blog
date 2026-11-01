@@ -12,7 +12,8 @@ Functions or new dependencies.
 - `achievements.ts` / `achievements.test.ts`: actual-run rewards and minimum-team proof.
 - `engine.test.ts`: repeatability, capacity, FIFO waiting, HTTP 429, effects and mission rules.
 - `controller.ts`: playback, diagram, introductions and session comparison.
-- `result.ts`: the HTML of a finished or rejected trial; `format.ts`: its number and team labels.
+- `diagram.ts`, `dialogs.ts`, `result.ts`: the HTML of the board, its dialogs and a finished or rejected trial.
+- `format.ts`: number and team labels; `copy.ts`: the interface text.
 - `content.ts`: bilingual names and introductory call.
 - `scaling.css`: feature-scoped layout and signals.
 - `scaling.e2e.ts`: Playwright browser tests and review screenshots.

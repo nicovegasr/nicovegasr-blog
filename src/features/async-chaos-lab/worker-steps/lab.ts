@@ -4,7 +4,7 @@ import type { PaymentLabDefinition } from '../payment-simulation/definition';
 import type { ActionKind, SimulationState } from '../payment-simulation/engine';
 import { isExternal, isSafeToRepeat, totals } from '../payment-simulation/engine';
 import { button } from '../shared/lab-ui';
-import { escapeHtml as esc } from '../shared/text';
+import { escapeHtml } from '../shared/text';
 import { stepNature, stepOptions, workerStepsDiagram } from './diagram';
 import { workerStepsGuideBeat } from './guide';
 import { workerStepsLabels } from './labels';
@@ -174,14 +174,14 @@ export const workerStepsLab: PaymentLabDefinition = {
                   <span class="qs-evidence-step"
                     >${String(index + 1).padStart(2, '0')}
                     <b>${index === state.step && state.incident === 'email-uncertain' ? '?' : progress.effects ? '✓' : index === state.step ? '×' : '○'}</b></span
-                  ><strong>${esc(lab.step(index))}</strong
+                  ><strong>${escapeHtml(lab.step(index))}</strong
                   ><small>${index === state.step && state.incident === 'email-uncertain' ? workerStepsCopy(lab.es).unconfirmedTimeout : resultLabel(lab, index, progress.effects)}</small>
                 </article>`,
             )
             .join('')}
         </div>
         <p class="qs-evidence-caption">
-          ${esc(lab.job(job.id - 1))} · ID ${String(job.id).padStart(2, '0')} ·
+          ${escapeHtml(lab.job(job.id - 1))} · ID ${String(job.id).padStart(2, '0')} ·
           ${workerStepsCopy(lab.es).whatAlreadyHappenedStillExists}
         </p>`;
   },

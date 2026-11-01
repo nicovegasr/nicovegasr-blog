@@ -1,5 +1,5 @@
 import { button } from '../shared/lab-ui';
-import { escapeHtml as esc } from '../shared/text';
+import { escapeHtml } from '../shared/text';
 import type { Names } from './content';
 import { scalingNames } from './content';
 import { scalingCopy } from './copy';
@@ -12,7 +12,7 @@ export function namesDialog(es: boolean, names: Names, currentName: (key: string
   const copy = scalingCopy(es),
     defaults = scalingNames(es);
   const field = (key: string, label: string) =>
-    `<label>${esc(label)}<input data-rename="${key}" maxlength="64" value="${esc(currentName(key))}" /></label>`;
+    `<label>${escapeHtml(label)}<input data-rename="${key}" maxlength="64" value="${escapeHtml(currentName(key))}" /></label>`;
   return `<p>${copy.namesChangeTheStoryThe}</p><div class="sc-name-fields">${field('api', 'API')}${field('queue', copy.queue)}${field('worker', 'Worker')}${names.steps.map((_, index) => field(`step-${index}`, `${copy.step} ${index + 1}`)).join('')}<details><summary>${copy.namesOfThe24Payments}</summary>${names.jobs.map((_, index) => field(`job-${index}`, defaults.jobs[index]!)).join('')}</details></div>`;
 }
 

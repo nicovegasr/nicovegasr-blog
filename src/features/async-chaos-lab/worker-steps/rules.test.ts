@@ -82,7 +82,7 @@ describe('Inside a worker: checkpoints and external effects', () => {
       config.steps[gap === 'charge' ? 1 : 3]!.providerDeduplication = true;
       const state = run(config);
       expect(state.phase).toBe('won');
-      expect(state.events.some((e) => e.kind === 'provider-dedup')).toBe(true);
+      expect(state.events.some((event) => event.kind === 'provider-dedup')).toBe(true);
       for (const job of state.jobs)
         for (const step of job.steps) expect(step.effects).toBe(1);
     },

@@ -4,7 +4,7 @@ import type { PaymentLabDefinition } from '../payment-simulation/definition';
 import type { SimulationState } from '../payment-simulation/engine';
 import { totals } from '../payment-simulation/engine';
 import { labFigure } from '../shared/figures';
-import { escapeHtml as esc } from '../shared/text';
+import { escapeHtml } from '../shared/text';
 import { queueDiagram } from './diagram';
 import { queueGuideBeat } from './guide';
 import { queueLabels } from './labels';
@@ -28,7 +28,7 @@ export function earnedAchievements(state: SimulationState): AchievementId[] {
   const unprotected = state.config.storage === 'ram' && !state.config.protectLocalRecord;
   if (unprotected && ['lost', 'duplicate'].includes(state.phase)) earned.push('brave');
   if (state.phase === 'duplicate') earned.push('double');
-  if (state.config.storage === 'db' && state.events.some((e) => e.kind === 'recovered' && e.job === 2))
+  if (state.config.storage === 'db' && state.events.some((event) => event.kind === 'recovered' && event.job === 2))
     earned.push('survivor');
   if (state.phase === 'won' && state.config.protectLocalRecord) earned.push('identity');
   return earned;
@@ -141,7 +141,7 @@ export const queueLab: PaymentLabDefinition = {
       <div>
         <span>${queueCopy(lab.es).paymentId}</span
         ><strong
-          >${String(job.id).padStart(2, '0')} · ${esc(lab.job(job.id - 1))}</strong
+          >${String(job.id).padStart(2, '0')} · ${escapeHtml(lab.job(job.id - 1))}</strong
         >
       </div>
       <div>

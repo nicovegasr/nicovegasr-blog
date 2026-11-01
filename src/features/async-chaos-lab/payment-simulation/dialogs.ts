@@ -4,7 +4,7 @@ import { totals } from './engine';
 import { labFigure } from '../shared/figures';
 import { button } from '../shared/lab-ui';
 import { outcomeShell } from '../shared/outcome-shell';
-import { escapeHtml as esc } from '../shared/text';
+import { escapeHtml } from '../shared/text';
 
 export function tutorialCall(lab: PaymentLab, introduction: boolean) {
   const { title, lines } = lab.definition.tutorial(lab);
@@ -21,11 +21,11 @@ export function tutorialCall(lab: PaymentLab, introduction: boolean) {
         <span class="qs-eyebrow"
           >${lab.copy.yourOncallteammate}</span
         >
-        <h2 id="qs-outcome-title">${esc(title)}</h2>
+        <h2 id="qs-outcome-title">${escapeHtml(title)}</h2>
       </div>
     </div>
     <div id="qs-outcome-text" class="qs-phone-conversation">
-      ${lines.map((line, index) => /* HTML */ `<p${index === lines.length - 1 ? ' class="qs-phone-aside"' : ''}>${esc(line)}</p>`).join('')}
+      ${lines.map((line, index) => /* HTML */ `<p${index === lines.length - 1 ? ' class="qs-phone-aside"' : ''}>${escapeHtml(line)}</p>`).join('')}
     </div>
     <div class="qs-outcome-actions">
       ${button(introduction ? 'dismiss' : 'tutorial-start', introduction ? lab.copy.showMeTheSystem : lab.guide !== 'off' ? lab.copy.continueWalkthrough : lab.copy.letUsProcessThem).replace('<button ', '<button data-primary ')}${button('walkthrough', lab.copy.iWouldPreferAguided)}
@@ -49,10 +49,10 @@ export function incidentCall(lab: PaymentLab) {
         <span class="qs-eyebrow"
           >${lab.copy.yourOncallteammate}</span
         >
-        <h2 id="qs-outcome-title">${esc(call.title)}</h2>
+        <h2 id="qs-outcome-title">${escapeHtml(call.title)}</h2>
       </div>
     </div>
-    <p id="qs-outcome-text" class="qs-caller-report">«${esc(call.report)}»</p>
+    <p id="qs-outcome-text" class="qs-caller-report">«${escapeHtml(call.report)}»</p>
     <div class="qs-call-evidence">${outcomeEvidence(lab)}</div>
     <div class="qs-outcome-actions">
       ${button('play', ack ? lab.copy.processTheSameIdagain : lab.copy.restartAndRetryThisPayment).replace('<button ', '<button data-primary ')}${button('dismiss', lab.copy.letMeCheckTheSystem)}
@@ -68,7 +68,7 @@ function outcomeTicket(lab: PaymentLab, index: number, lost = false) {
       <span>ID ${String(index + 1).padStart(2, '0')}</span
       ><span>${lost ? '×' : '✓'}</span>
     </header>
-    <strong>${esc(lab.job(index))}</strong
+    <strong>${escapeHtml(lab.job(index))}</strong
     ><span class="qs-ticket-lines" aria-hidden="true"></span>
     <footer>
       ${lost ? lab.copy.noDurableCopy : lab.copy.resultSaved}
@@ -94,7 +94,7 @@ function outcomeEvidence(lab: PaymentLab) {
         <header>
           <span>ID ${String(job.id).padStart(2, '0')}</span><span>✓</span>
         </header>
-        <strong>${esc(lab.job(job.id - 1))}</strong
+        <strong>${escapeHtml(lab.job(job.id - 1))}</strong
         ><span class="qs-ticket-lines" aria-hidden="true"></span>
         <footer>
           ${firstFooter}
@@ -105,14 +105,14 @@ function outcomeEvidence(lab: PaymentLab) {
         <header>
           <span>ID ${String(job.id).padStart(2, '0')}</span><span>×</span>
         </header>
-        <strong>${esc(lab.job(job.id - 1))}</strong
+        <strong>${escapeHtml(lab.job(job.id - 1))}</strong
         ><span class="qs-ticket-lines" aria-hidden="true"></span>
         <footer>
           ${secondFooter}
         </footer>
       </article>
       <p>
-        ${esc(lab.step(state.step))}<br /><b
+        ${escapeHtml(lab.step(state.step))}<br /><b
           >${lab.copy.theSamePaymentTwoResults}</b
         >
       </p>
@@ -145,7 +145,7 @@ export function outcomeScene(lab: PaymentLab) {
         ? lab.copy.walkthroughComplete
         : lab.copy.trialComplete;
   }
-  if (fatal) text = '«' + esc(lab.definition.incidentCall(lab).report) + '»';
+  if (fatal) text = '«' + escapeHtml(lab.definition.incidentCall(lab).report) + '»';
   let action = 'dismiss',
     label = lab.copy.reviewMySystem;
   if (lab.guide !== 'off' && fatal) {
@@ -167,9 +167,9 @@ export function outcomeScene(lab: PaymentLab) {
         <span aria-hidden="true">✦</span>
         <div>
           <span class="qs-award-label"
-            >${lab.copy.achievementUnlocked2}</span
-          ><strong>${esc(name)}</strong>
-          <p>${esc(description)}</p>
+            >${lab.copy.achievementUnlockedAward}</span
+          ><strong>${escapeHtml(name)}</strong>
+          <p>${escapeHtml(description)}</p>
         </div>
       </div>`;
     })

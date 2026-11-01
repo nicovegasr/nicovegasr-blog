@@ -24,7 +24,7 @@ import { scalingCopy } from './copy';
 import { scalingDiagram } from './diagram';
 import { comparisonDialog, costDialog, namesDialog } from './dialogs';
 import type { Names } from './content';
-import { cleanLabel, escapeHtml as esc } from '../shared/text';
+import { cleanLabel, escapeHtml } from '../shared/text';
 import { labFigure } from '../shared/figures';
 import walkingAtlas from '@/shared/mascot/worker-walk-atlas.webp?url';
 import reactionsAtlas from '@/shared/mascot/worker-reactions.webp?url';
@@ -98,7 +98,7 @@ class QueueScaling extends HTMLElement {
   private renderNewAwards() {
     return `<div class="sc-result-awards">${scalingAchievements.filter(({ id }) => this.newAwards.includes(id)).map((award) => {
       const [title, description] = this.es ? award.es : award.en;
-      return `<div class="qs-earned" data-earned="${award.id}"><span aria-hidden="true">✦</span><div><small class="qs-award-label">${this.copy.achievementUnlocked}</small><strong>${esc(title)}</strong><p>${esc(description)}</p></div></div>`;
+      return `<div class="qs-earned" data-earned="${award.id}"><span aria-hidden="true">✦</span><div><small class="qs-award-label">${this.copy.achievementUnlocked}</small><strong>${escapeHtml(title)}</strong><p>${escapeHtml(description)}</p></div></div>`;
     }).join('')}</div>`;
   }
   private renderAchievements() {
@@ -106,7 +106,7 @@ class QueueScaling extends HTMLElement {
     this.element('[data-achievements]').innerHTML = scalingAchievements.map((award) => {
       const unlocked = this.unlocked.has(award.id);
       const [title, description] = this.es ? award.es : award.en;
-      return `<article class="${unlocked ? 'is-unlocked' : ''}" data-achievement="${award.id}"><span aria-hidden="true">${unlocked ? '✦' : '◇'}</span><div><h3>${esc(title)}${unlocked ? ` <small>· ${this.copy.unlocked}</small>` : ''}</h3><p>${esc(description)}</p></div></article>`;
+      return `<article class="${unlocked ? 'is-unlocked' : ''}" data-achievement="${award.id}"><span aria-hidden="true">${unlocked ? '✦' : '◇'}</span><div><h3>${escapeHtml(title)}${unlocked ? ` <small>· ${this.copy.unlocked}</small>` : ''}</h3><p>${escapeHtml(description)}</p></div></article>`;
     }).join('');
   }
   private name(key: string) {
@@ -131,7 +131,7 @@ class QueueScaling extends HTMLElement {
     return text
       .split(expression)
       .map((part) =>
-        names.includes(part) ? `<strong>${esc(part)}</strong>` : esc(part),
+        names.includes(part) ? `<strong>${escapeHtml(part)}</strong>` : escapeHtml(part),
       )
       .join('');
   }
@@ -302,7 +302,7 @@ class QueueScaling extends HTMLElement {
     this.element('[data-occupied]').textContent =
       `${metrics.occupied}/${this.config.workers} ${this.copy.busy}`;
     this.element('[data-waiting]').textContent =
-      `${metrics.waiting} ${this.copy.waitingForAslot}`;
+      `${metrics.waiting} ${this.copy.waitingForSlotStatus}`;
     this.element('[data-cost]').textContent =
       `${this.copy.cost} ${number(metrics.cost)} u`;
     this.element('[data-action=play]').textContent = playing
@@ -311,7 +311,7 @@ class QueueScaling extends HTMLElement {
         ? this.copy.resume
         : state.phase === 'complete' || state.phase === 'rate-limited'
           ? this.copy.tryAgain
-          : this.copy.processPayments2;
+          : this.copy.processPaymentsAction;
     this.querySelectorAll<HTMLButtonElement | HTMLInputElement | HTMLSelectElement>(
       '[data-config]',
     ).forEach((control) => {
@@ -342,12 +342,12 @@ class QueueScaling extends HTMLElement {
       const labels: Record<TeamPose, string> = {
         idle: this.copy.idle,
         working: this.copy.validating,
-        'waiting-cpu': this.copy.waitingForCpu,
+        'waiting-cpu': this.copy.waitingForCpuLabel,
         'waiting-service': this.copy.awaitingReply,
-        'waiting-slot': this.copy.waitingForAslot2,
+        'waiting-slot': this.copy.waitingForSlotLabel,
         rejected: this.copy.rejected429,
         paused: this.copy.paused,
-        done: this.copy.complete,
+        done: this.copy.completeLabel,
       };
       worker.title = `${this.names.worker} ${id} · ${labels[frame.pose]}${job ? ` · ${this.names.jobs[job.id - 1]} · ${this.names.steps[job.step]}` : ''}`;
       worker.setAttribute('aria-label', worker.title);
@@ -363,7 +363,7 @@ class QueueScaling extends HTMLElement {
       sprite.style.backgroundImage = `url('${reaction ? reactionsAtlas : walkingAtlas}')`;
       sprite.style.backgroundPosition = `${(pose % 3) * 50}% ${Math.floor(pose / 3) * 100}%`;
     });
-    this.element('[data-team-summary]').textContent = this.copy.teamWorkerspaymentsinflight(metrics.occupied, this.config.workers, metrics.inFlight, this.config.workers * this.config.concurrencyPerWorker);
+    this.element('[data-team-summary]').textContent = this.copy.teamOccupancy(metrics.occupied, this.config.workers, metrics.inFlight, this.config.workers * this.config.concurrencyPerWorker);
     metrics.steps.forEach((step, index) => {
       const node = this.element(`[data-step="${index}"]`);
       node.classList.toggle('is-working', step.active.length > 0);
@@ -386,7 +386,7 @@ class QueueScaling extends HTMLElement {
         : step.active.length
         ? this.copy.working
         : this.copy.available;
-      this.element(`[data-wait-label="${index}"]`).textContent = `${step.waiting.length} ${index === 0 ? this.copy.waitingForCpu2 : this.copy.waitingForAslot}${step.rejected.length ? this.copy.n1Rejected429 : ''}`;
+      this.element(`[data-wait-label="${index}"]`).textContent = `${step.waiting.length} ${index === 0 ? this.copy.waitingForCpuStatus : this.copy.waitingForSlotStatus}${step.rejected.length ? this.copy.n1Rejected429 : ''}`;
       this.element(`[data-resource-size="${index}"]`).textContent = String(step.capacity);
       this.element<HTMLButtonElement>(`[data-action="grow:${index}"]`).disabled = playing || step.capacity === 8;
       this.element<HTMLButtonElement>(`[data-action="shrink:${index}"]`).disabled = playing || step.capacity === 1;
@@ -397,7 +397,7 @@ class QueueScaling extends HTMLElement {
       if (isHttpStep(index)) {
         const limit = this.config.rateLimits[index];
         this.element(`[data-rate-limit="${index}"]`).textContent = String(limit);
-        this.element(`[data-rate-usage="${index}"]`).textContent = this.copy.inThis1Swindow(state.requestsInWindow[index], limit);
+        this.element(`[data-rate-usage="${index}"]`).textContent = this.copy.requestsInThisWindow(state.requestsInWindow[index], limit);
         this.element<HTMLButtonElement>(`[data-action="rate-more:${index}"]`).disabled = playing || limit === 8;
         this.element<HTMLButtonElement>(`[data-action="rate-less:${index}"]`).disabled = playing || limit === 1;
         const quotaExtra = Math.max(0, limit - BASE_RATE_LIMITS[index]);
@@ -439,7 +439,7 @@ class QueueScaling extends HTMLElement {
       }
       packet.dataset.status = job.status;
       packet.textContent = `#${String(job.id).padStart(2, '0')}${job.worker !== null ? ` · W${job.worker}` : ''}`;
-      packet.title = `${this.names.jobs[job.id - 1]!} · ${job.status === 'done' ? this.copy.complete : (this.names.steps[job.step]! ?? '')}`;
+      packet.title = `${this.names.jobs[job.id - 1]!} · ${job.status === 'done' ? this.copy.completeLabel : (this.names.steps[job.step]! ?? '')}`;
       packet.setAttribute('aria-label', packet.title);
       const progress =
         job.status === 'running'
@@ -460,7 +460,7 @@ class QueueScaling extends HTMLElement {
       text = this.copy.http429AtTheQuota(this.names.steps[state.rateLimit.step]!, state.rateLimit.limit);
     else if (this.selectedJob) {
       const job = state.jobs[this.selectedJob - 1]!;
-      text = `${this.names.jobs[job.id - 1]!} · ${job.status === 'done' ? this.copy.complete2 : job.status === 'pending' ? this.copy.storedWaitingForAworker : `${this.names.steps[job.step]!} · ${job.status === 'waiting' ? job.step === 0 ? this.copy.waitingForCpuitsWorker : this.copy.waitingForAslotBefore : this.copy.runningNow}`}`;
+      text = `${this.names.jobs[job.id - 1]!} · ${job.status === 'done' ? this.copy.completeStatus : job.status === 'pending' ? this.copy.storedWaitingForAworker : `${this.names.steps[job.step]!} · ${job.status === 'waiting' ? job.step === 0 ? this.copy.waitingForCpuitsWorker : this.copy.waitingForAslotBefore : this.copy.runningNow}`}`;
     } else if (state.phase === 'ready')
       text =
         this.config.workers === 1 && this.config.concurrencyPerWorker === 1
@@ -525,7 +525,7 @@ class QueueScaling extends HTMLElement {
     dialog.setAttribute('aria-labelledby', 'sc-dialog-title');
     dialog.setAttribute('aria-describedby', 'sc-dialog-text');
     dialog.dataset.tone = tone;
-    dialog.innerHTML = `<header><span>${labFigure('phone')}${this.copy.onCallasyncchaoslab}</span>${button('close', '×', `aria-label="${this.copy.close}"`)}</header><h2 id="sc-dialog-title">${esc(title)}</h2><div id="sc-dialog-text">${body}</div><footer>${button('modal-primary', label, 'class="sc-primary"')}${button('close', this.copy.backToDiagram)}</footer>`;
+    dialog.innerHTML = `<header><span>${labFigure('phone')}${this.copy.onCallAsyncChaosLab}</span>${button('close', '×', `aria-label="${this.copy.close}"`)}</header><h2 id="sc-dialog-title">${escapeHtml(title)}</h2><div id="sc-dialog-text">${body}</div><footer>${button('modal-primary', label, 'class="sc-primary"')}${button('close', this.copy.backToDiagram)}</footer>`;
     if (!dialog.open) dialog.showModal();
     dialog.scrollTop = 0;
     dialog

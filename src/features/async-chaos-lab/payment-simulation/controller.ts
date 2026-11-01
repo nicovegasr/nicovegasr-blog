@@ -6,7 +6,7 @@ import {
   totals,
 } from './engine';
 import type { SimulationConfig, SimulationState } from './engine';
-import { cleanLabel, escapeHtml as esc } from '../shared/text';
+import { cleanLabel, escapeHtml } from '../shared/text';
 import type { Labels } from './labels';
 import { achievements } from './achievements';
 import { paymentCopy } from './copy';
@@ -183,14 +183,14 @@ export abstract class PaymentLab extends HTMLElement {
   // Diagram templates. These methods render data and never advance the engine.
   editor(key: string, value: string, label: string) {
     return /* HTML */ `<span class="qs-editable"
-      ><strong data-display-label="${key}">${esc(value)}</strong
+      ><strong data-display-label="${key}">${escapeHtml(value)}</strong
       ><input
         class="qs-name"
         type="text"
         data-label="${key}"
-        value="${esc(value)}"
+        value="${escapeHtml(value)}"
         maxlength="64"
-        aria-label="${esc(label)}"
+        aria-label="${escapeHtml(label)}"
         spellcheck="false"
     /></span>`;
   }
@@ -391,8 +391,8 @@ export abstract class PaymentLab extends HTMLElement {
     this.backup = undefined;
     this.notices = [];
   }
-  private onClick = (e: Event) => {
-    const clickedButton = (e.target as HTMLElement).closest<HTMLButtonElement>(
+  private onClick = (event: Event) => {
+    const clickedButton = (event.target as HTMLElement).closest<HTMLButtonElement>(
       'button[data-action]',
     );
     if (!clickedButton || clickedButton.disabled) return;
@@ -444,8 +444,8 @@ export abstract class PaymentLab extends HTMLElement {
     this.update();
     if (action === 'lesson') this.revealGuide();
   };
-  private onInput = (e: Event) => {
-    const input = e.target as HTMLInputElement,
+  private onInput = (event: Event) => {
+    const input = event.target as HTMLInputElement,
       key = input.dataset.label;
     if (!key) return;
     const value = input.value.slice(0, 64);
@@ -471,8 +471,8 @@ export abstract class PaymentLab extends HTMLElement {
     const input = this.querySelector<HTMLInputElement>('[data-label=storage]');
     if (input) input.value = this.labels.storage;
   }
-  private onChange = (e: Event) => {
-    const input = e.target as HTMLInputElement | HTMLSelectElement,
+  private onChange = (event: Event) => {
+    const input = event.target as HTMLInputElement | HTMLSelectElement,
       key = input.dataset.setting;
     if (!key) return;
 
@@ -606,9 +606,9 @@ export abstract class PaymentLab extends HTMLElement {
             >
             <div>
               <h3>
-                ${esc(title)}${this.unlocked.has(achievement.id) ? /* HTML */ ` <small>· ${this.copy.unlocked}</small>` : ''}
+                ${escapeHtml(title)}${this.unlocked.has(achievement.id) ? /* HTML */ ` <small>· ${this.copy.unlocked}</small>` : ''}
               </h3>
-              <p>${esc(description)}</p>
+              <p>${escapeHtml(description)}</p>
             </div>
           </article>`;
         })
@@ -618,13 +618,13 @@ export abstract class PaymentLab extends HTMLElement {
       '[data-toast]',
       this.notices.length
         ? /* HTML */ `<span class="qs-eyebrow"
-              >✦ ${this.copy.achievementUnlocked}</span
+              >✦ ${this.copy.achievementUnlockedToast}</span
             >${this.notices
               .map((id) => {
                 const achievement = achievements.find((first) => first.id === id)!;
                 return /* HTML */ `<strong
-                    >${esc((this.es ? achievement.es : achievement.en)[0])}</strong
-                  ><small>${esc((this.es ? achievement.es : achievement.en)[1])}</small>`;
+                    >${escapeHtml((this.es ? achievement.es : achievement.en)[0])}</strong
+                  ><small>${escapeHtml((this.es ? achievement.es : achievement.en)[1])}</small>`;
               })
               .join('')}${button('toast-close', this.copy.gotIt)}`
         : '',
@@ -645,8 +645,8 @@ export abstract class PaymentLab extends HTMLElement {
     this.replace(
       '[data-results]',
       /* HTML */ `<span
-          ><b>${counts.done}</b> ${this.copy.completed2}</span
-        ><span><b>${counts.lost}</b> ${this.copy.lost2}</span
+          ><b>${counts.done}</b> ${this.copy.completedCount}</span
+        ><span><b>${counts.lost}</b> ${this.copy.lostCount}</span
         >${this.definition.metrics(this)}`,
     );
   }
@@ -663,7 +663,7 @@ export abstract class PaymentLab extends HTMLElement {
     const [title, text] = this.definition.feedback(this);
     this.replace(
       '[data-feedback]',
-      /* HTML */ `<strong>${esc(title)}</strong>
+      /* HTML */ `<strong>${escapeHtml(title)}</strong>
         <p>${text}</p>`,
     );
     this.renderMetrics();
@@ -836,7 +836,7 @@ export abstract class PaymentLab extends HTMLElement {
       saving: this.copy.savingThisStepsCheckpoint,
       skipping: this.copy.stepSavedSkippingIt(frame.step + 1),
       dead: this.copy.workerCrashedEarlierEffectsStill,
-      uncertain: this.copy.stillAliveWaitingForA,
+      uncertain: this.copy.stillAliveWaitingForConfirmation,
       duplicate: this.copy.againTheSameIdproduced,
       returning: ['activation-failed', 'worker-retry'].includes(this.state.incident)
         ? this.copy.newWorkerSamePaymentBack
