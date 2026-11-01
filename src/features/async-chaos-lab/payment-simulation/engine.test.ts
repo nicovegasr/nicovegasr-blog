@@ -99,9 +99,9 @@ describe('Simulation invariants', () => {
         ).toBe(true);
         expect(
           state.events.every(
-            (event, i) =>
+            (event, stepIndex) =>
               event.tick <= state.tick &&
-              (!i || event.tick >= state.events[i - 1]!.tick),
+              (!stepIndex || event.tick >= state.events[stepIndex - 1]!.tick),
           ),
         ).toBe(true);
       }

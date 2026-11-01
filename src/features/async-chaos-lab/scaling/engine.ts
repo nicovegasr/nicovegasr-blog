@@ -127,7 +127,7 @@ function schedule(state: ScalingState) {
     ).length;
     const waiting = state.jobs
       .filter((job) => job.step === step && job.status === 'waiting')
-      .sort((a, b) => a.waitingSince - b.waitingSince || a.id - b.id);
+      .sort((job, clickedButton) => job.waitingSince - clickedButton.waitingSince || job.id - clickedButton.id);
     for (const job of waiting) {
       // Explicit per-resource admission: the worker retains its payment and
       // waits locally before sending a call. Async I/O alone does not do this.

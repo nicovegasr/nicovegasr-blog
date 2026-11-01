@@ -50,9 +50,9 @@ describe('Scaling achievements', () => {
     expect(eligibleAchievements(largerTeam)).not.toContain('minimum-team');
   });
   it('does not award a trial stopped by a 429', () => {
-    const s = runScaling({ ...scalingDefaults(), workers: 4, capacities: [4, 4, 2, 5] });
-    expect(s.phase).toBe('rate-limited');
-    expect(eligibleAchievements(s)).toEqual([]);
+    const state = runScaling({ ...scalingDefaults(), workers: 4, capacities: [4, 4, 2, 5] });
+    expect(state.phase).toBe('rate-limited');
+    expect(eligibleAchievements(state)).toEqual([]);
   });
   it('keeps the catalogue focused without revealing the winning worker count', () => {
     expect(scalingAchievements.map(({ id }) => id)).toEqual(['pods-only', 'on-time', 'minimum-team']);

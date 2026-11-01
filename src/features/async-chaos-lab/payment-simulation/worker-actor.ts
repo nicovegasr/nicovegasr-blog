@@ -9,22 +9,22 @@ export type ActorState =
 export type WorkerFrame = { state: ActorState; step: number; job: number | null };
 
 /** Presentation only: the actor cannot acknowledge work or advance the engine. */
-export function workerFrame(s: SimulationState, retry: RetryStage): WorkerFrame {
-  const job = s.jobs[Math.max(0, s.active)]!;
-  const step = Math.min(s.step, s.config.steps.length - 1);
-  const frame = { step, job: s.active < 0 ? null : job.id };
+export function workerFrame(state: SimulationState, retry: RetryStage): WorkerFrame {
+  const job = state.jobs[Math.max(0, state.active)]!;
+  const step = Math.min(state.step, state.config.steps.length - 1);
+  const frame = { step, job: state.active < 0 ? null : job.id };
   if (retry === 'restart') return { ...frame, state: 'returning', step: 0 };
-  if (s.phase === 'ready') return { state: 'idle', step: 0, job: null };
-  if (s.phase === 'won') return { ...frame, state: 'done' };
-  if (s.phase === 'duplicate') return { ...frame, state: 'duplicate' };
-  if (s.phase === 'lost' || (s.phase === 'incident' &&
-    ['activation-failed', 'worker-retry'].includes(s.incident)))
+  if (state.phase === 'ready') return { state: 'idle', step: 0, job: null };
+  if (state.phase === 'won') return { ...frame, state: 'done' };
+  if (state.phase === 'duplicate') return { ...frame, state: 'duplicate' };
+  if (state.phase === 'lost' || (state.phase === 'incident' &&
+    ['activation-failed', 'worker-retry'].includes(state.incident)))
     return { ...frame, state: 'dead' };
-  if (s.phase === 'incident') return { ...frame, state: 'uncertain' };
-  const last = s.events.at(-1);
+  if (state.phase === 'incident') return { ...frame, state: 'uncertain' };
+  const last = state.events.at(-1);
   if (last?.kind === 'skipped' && last.job === job.id)
     return { ...frame, state: 'skipping', step: last.step };
-  if (s.cursor === 'save') return { ...frame, state: 'saving' };
+  if (state.cursor === 'save') return { ...frame, state: 'saving' };
   if (job.status === 'done') return { ...frame, state: 'done' };
   return { ...frame, state: 'working' };
 }

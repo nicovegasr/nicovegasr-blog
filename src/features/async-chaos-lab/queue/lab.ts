@@ -12,25 +12,25 @@ import { queueFeedback, queueIncidentCall, queueTutorial } from './narration';
 import { queueConfig, queueRules } from './rules';
 import { queueCopy } from './copy';
 
-function resultLabel(lab: PaymentLab, i: number, count: number) {
-  const kind = lab.config.steps[i]?.kind ?? 'append';
+function resultLabel(lab: PaymentLab, index: number, count: number) {
+  const kind = lab.config.steps[index]?.kind ?? 'append';
   if (kind === 'check')
     return count
-      ? i === 0
+      ? index === 0
         ? queueCopy(lab.es).validated
         : queueCopy(lab.es).prepared
       : queueCopy(lab.es).pending;
-  return `${count} ${lab.t(count === 1 ? 'registro' : 'registros', count === 1 ? 'record' : 'records')}`;
+  return `${count} ${lab.inLocale(count === 1 ? 'registro' : 'registros', count === 1 ? 'record' : 'records')}`;
 }
 
-export function earnedAchievements(s: SimulationState): AchievementId[] {
+export function earnedAchievements(state: SimulationState): AchievementId[] {
   const earned: AchievementId[] = [];
-  const unprotected = s.config.storage === 'ram' && !s.config.protectLocalRecord;
-  if (unprotected && ['lost', 'duplicate'].includes(s.phase)) earned.push('brave');
-  if (s.phase === 'duplicate') earned.push('double');
-  if (s.config.storage === 'db' && s.events.some((e) => e.kind === 'recovered' && e.job === 2))
+  const unprotected = state.config.storage === 'ram' && !state.config.protectLocalRecord;
+  if (unprotected && ['lost', 'duplicate'].includes(state.phase)) earned.push('brave');
+  if (state.phase === 'duplicate') earned.push('double');
+  if (state.config.storage === 'db' && state.events.some((e) => e.kind === 'recovered' && e.job === 2))
     earned.push('survivor');
-  if (s.phase === 'won' && s.config.protectLocalRecord) earned.push('identity');
+  if (state.phase === 'won' && state.config.protectLocalRecord) earned.push('identity');
   return earned;
 }
 
@@ -44,10 +44,10 @@ export const queueLab: PaymentLabDefinition = {
   stepDescription: (lab, step) =>
     /* HTML */ `<p class="qs-step-contract">${step.kind === 'append' ? queueCopy(lab.es).only1RecordPerId : queueCopy(lab.es).safeToRepeat}</p>`,
   stepOptions: () => '',
-  stepState: (lab, i, { progress, shown, active }) =>
+  stepState: (lab, index, { progress, shown, active }) =>
     active
       ? `▶ ID ${String(shown + 1).padStart(2, '0')} · ${lab.job(shown)}`
-      : `${resultLabel(lab, i, progress.effects)}${progress.skipped ? ' · ' + progress.skipped + ' ↷' : ''}`,
+      : `${resultLabel(lab, index, progress.effects)}${progress.skipped ? ' · ' + progress.skipped + ' ↷' : ''}`,
   lessonStage: (lab) => (lab.state.phase === 'lost' ? 'storage' : 'identity'),
   applySetting(lab, key, input) {
     if (key === 'storage') {
@@ -73,9 +73,9 @@ export const queueLab: PaymentLabDefinition = {
     }
   },
   paintSystem(lab) {
-    lab.q('[data-process]').className =
+    lab.element('[data-process]').className =
       `qs-process ${lab.config.storage === 'ram' ? 'is-ram' : 'is-durable'}`;
-    lab.q('[data-boundary]').textContent =
+    lab.element('[data-boundary]').textContent =
       lab.config.storage === 'ram'
         ? queueCopy(lab.es).sameProcesssharedFate
         : queueCopy(lab.es).independentDbsurvivesWorker;
@@ -83,35 +83,35 @@ export const queueLab: PaymentLabDefinition = {
       '[data-store-figure]',
       labFigure(lab.config.storage === 'ram' ? 'ram' : 'db'),
     );
-    lab.q<HTMLSelectElement>('[data-setting=storage]').value =
+    lab.element<HTMLSelectElement>('[data-setting=storage]').value =
       lab.config.storage;
-    lab.q<HTMLSelectElement>('[data-setting=protect]').value = lab.config
+    lab.element<HTMLSelectElement>('[data-setting=protect]').value = lab.config
       .protectLocalRecord
       ? 'on'
       : 'off';
-    lab.q('[data-storage-note]').textContent =
+    lab.element('[data-storage-note]').textContent =
       lab.config.storage === 'ram'
         ? queueCopy(lab.es).pendingWorkInsideTheWorker
         : queueCopy(lab.es).pendingWorkSurvivesTheWorker;
-    lab.q('[data-protection-note]').textContent = lab.config
+    lab.element('[data-protection-note]').textContent = lab.config
       .protectLocalRecord
       ? queueCopy(lab.es).keepOneRowPerId
       : queueCopy(lab.es).eachAttemptCanCreateAnother;
   },
   metrics(lab) {
-    const s = lab.state,
-      repeatedDeliveries = s.jobs.reduce(
-        (n, j) => n + Math.max(0, j.attempt - 1),
+    const state = lab.state,
+      repeatedDeliveries = state.jobs.reduce(
+        (total, job) => total + Math.max(0, job.attempt - 1),
         0,
       ),
-      extraRecords = s.jobs.reduce(
-        (n, j) =>
-          n +
-          j.steps.reduce(
-            (sum, st, i) =>
+      extraRecords = state.jobs.reduce(
+        (total, job) =>
+          total +
+          job.steps.reduce(
+            (sum, progress, index) =>
               sum +
-              (s.config.steps[i]?.kind === 'append'
-                ? Math.max(0, st.effects - 1)
+              (state.config.steps[index]?.kind === 'append'
+                ? Math.max(0, progress.effects - 1)
                 : 0),
             0,
           ),
@@ -127,27 +127,27 @@ export const queueLab: PaymentLabDefinition = {
   wonOptionalAction: () => '',
   duplicateTitle: (lab) => queueCopy(lab.es).onePaymentTwoRecords,
   wonCaption: (lab) => {
-    const m = totals(lab.state);
-    return queueCopy(lab.es).attempts3RecordsOnePer(m.attempts);
+    const counts = totals(lab.state);
+    return queueCopy(lab.es).attempts3RecordsOnePer(counts.attempts);
   },
   duplicateFooters: (lab) => [
     queueCopy(lab.es).firstRecord,
     queueCopy(lab.es).secondRecord,
   ],
   interruptedEvidence(lab) {
-    const s = lab.state,
-      j = s.jobs[Math.max(0, s.active)]!;
+    const state = lab.state,
+      job = state.jobs[Math.max(0, state.active)]!;
     return /* HTML */ `<div class="qs-ack-evidence">
       <div>
         <span>${queueCopy(lab.es).paymentId}</span
         ><strong
-          >${String(j.id).padStart(2, '0')} · ${esc(lab.job(j.id - 1))}</strong
+          >${String(job.id).padStart(2, '0')} · ${esc(lab.job(job.id - 1))}</strong
         >
       </div>
       <div>
         <span>${queueCopy(lab.es).itsRecord}</span
         ><strong
-          >${s.incident === 'ack-retry' ? '✓ ' + queueCopy(lab.es).oneRowAlreadyExists : '— ' + queueCopy(lab.es).notRecordedYet}</strong
+          >${state.incident === 'ack-retry' ? '✓ ' + queueCopy(lab.es).oneRowAlreadyExists : '— ' + queueCopy(lab.es).notRecordedYet}</strong
         >
       </div>
       <div>

@@ -53,7 +53,7 @@ class QueueScaling extends HTMLElement {
   private get copy() {
     return scalingCopy(this.es);
   }
-  private q<T extends HTMLElement = HTMLElement>(selector: string) {
+  private element<T extends HTMLElement = HTMLElement>(selector: string) {
     return this.querySelector<T>(selector)!;
   }
 
@@ -61,7 +61,7 @@ class QueueScaling extends HTMLElement {
     ({ names: this.names, history: this.history } = restoreSession(scalingNames(this.es), this.es));
     this.unlocked = restoreAchievements();
     this.innerHTML = scalingDiagram(this.es, this.speed);
-    const pending = this.q('[data-location=pending]');
+    const pending = this.element('[data-location=pending]');
     this.packets = this.state.jobs.map((job) => {
       const packet = document.createElement('button');
       packet.type = 'button';
@@ -74,7 +74,7 @@ class QueueScaling extends HTMLElement {
     });
     this.addEventListener('click', this.onClick);
     this.addEventListener('input', this.onInput);
-    this.q<HTMLDialogElement>('dialog').addEventListener(
+    this.element<HTMLDialogElement>('dialog').addEventListener(
       'close',
       this.onDialogClosed,
     );
@@ -102,8 +102,8 @@ class QueueScaling extends HTMLElement {
     }).join('')}</div>`;
   }
   private renderAchievements() {
-    this.q('[data-achievement-summary]').textContent = `✦ ${this.copy.sessionAchievements} · ${this.unlocked.size}/${scalingAchievements.length}`;
-    this.q('[data-achievements]').innerHTML = scalingAchievements.map((award) => {
+    this.element('[data-achievement-summary]').textContent = `✦ ${this.copy.sessionAchievements} · ${this.unlocked.size}/${scalingAchievements.length}`;
+    this.element('[data-achievements]').innerHTML = scalingAchievements.map((award) => {
       const unlocked = this.unlocked.has(award.id);
       const [title, description] = this.es ? award.es : award.en;
       return `<article class="${unlocked ? 'is-unlocked' : ''}" data-achievement="${award.id}"><span aria-hidden="true">${unlocked ? '✦' : '◇'}</span><div><h3>${esc(title)}${unlocked ? ` <small>· ${this.copy.unlocked}</small>` : ''}</h3><p>${esc(description)}</p></div></article>`;
@@ -123,7 +123,7 @@ class QueueScaling extends HTMLElement {
         ...this.names.steps,
         ...this.names.jobs,
       ]),
-    ].sort((a, b) => b.length - a.length);
+    ].sort((achievement, clickedButton) => clickedButton.length - achievement.length);
     const expression = new RegExp(
       `(${names.map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`,
       'g',
@@ -256,17 +256,17 @@ class QueueScaling extends HTMLElement {
     if (action === 'replay') {
       const trial = this.history[Number(value)];
       if (trial) {
-        this.q<HTMLDialogElement>('dialog').close();
+        this.element<HTMLDialogElement>('dialog').close();
         this.configure((config) =>
           Object.assign(config, structuredClone(trial.config)),
         );
       }
     }
     if (action === 'cost') this.showCost();
-    if (action === 'close') this.q<HTMLDialogElement>('dialog').close();
+    if (action === 'close') this.element<HTMLDialogElement>('dialog').close();
     if (action === 'modal-primary') {
       const callback = this.modalAction;
-      this.q<HTMLDialogElement>('dialog').close();
+      this.element<HTMLDialogElement>('dialog').close();
       callback?.();
     }
   };
@@ -292,20 +292,20 @@ class QueueScaling extends HTMLElement {
     this.querySelectorAll<HTMLElement>('[data-name]').forEach((node) => {
       node.textContent = this.name(node.dataset.name!);
     });
-    this.q('[data-pending]').textContent = String(metrics.pending);
-    this.q('[data-workers]').textContent = String(this.config.workers);
-    this.q('[data-concurrency]').textContent = String(this.config.concurrencyPerWorker);
-    this.q('[data-done]').textContent = `${metrics.completed}/${PAYMENT_COUNT}`;
-    this.q('[data-time]').textContent = `${number(metrics.seconds, 1)} s`;
-    this.q('[data-throughput]').textContent =
+    this.element('[data-pending]').textContent = String(metrics.pending);
+    this.element('[data-workers]').textContent = String(this.config.workers);
+    this.element('[data-concurrency]').textContent = String(this.config.concurrencyPerWorker);
+    this.element('[data-done]').textContent = `${metrics.completed}/${PAYMENT_COUNT}`;
+    this.element('[data-time]').textContent = `${number(metrics.seconds, 1)} s`;
+    this.element('[data-throughput]').textContent =
       `${number(metrics.throughput, 2)} ${this.copy.paymentsS}`;
-    this.q('[data-occupied]').textContent =
+    this.element('[data-occupied]').textContent =
       `${metrics.occupied}/${this.config.workers} ${this.copy.busy}`;
-    this.q('[data-waiting]').textContent =
+    this.element('[data-waiting]').textContent =
       `${metrics.waiting} ${this.copy.waitingForAslot}`;
-    this.q('[data-cost]').textContent =
+    this.element('[data-cost]').textContent =
       `${this.copy.cost} ${number(metrics.cost)} u`;
-    this.q('[data-action=play]').textContent = playing
+    this.element('[data-action=play]').textContent = playing
       ? this.copy.pause
       : state.phase === 'paused'
         ? this.copy.resume
@@ -317,16 +317,16 @@ class QueueScaling extends HTMLElement {
     ).forEach((control) => {
       control.disabled = playing;
     });
-    this.q<HTMLButtonElement>('[data-action=less]').disabled =
+    this.element<HTMLButtonElement>('[data-action=less]').disabled =
       playing || this.config.workers === 1;
-    this.q<HTMLButtonElement>('[data-action=more]').disabled =
+    this.element<HTMLButtonElement>('[data-action=more]').disabled =
       playing || this.config.workers === AVAILABLE_WORKERS;
-    this.q<HTMLButtonElement>('[data-action=concurrency-less]').disabled =
+    this.element<HTMLButtonElement>('[data-action=concurrency-less]').disabled =
       playing || this.config.concurrencyPerWorker === 1;
-    this.q<HTMLButtonElement>('[data-action=concurrency-more]').disabled =
+    this.element<HTMLButtonElement>('[data-action=concurrency-more]').disabled =
       playing || this.config.concurrencyPerWorker === MAX_CONCURRENCY_PER_WORKER;
     for (const speed of [1, 2, 4])
-      this.q(`[data-action="speed:${speed}"]`).setAttribute(
+      this.element(`[data-action="speed:${speed}"]`).setAttribute(
         'aria-pressed',
         String(this.speed === speed),
       );
@@ -363,9 +363,9 @@ class QueueScaling extends HTMLElement {
       sprite.style.backgroundImage = `url('${reaction ? reactionsAtlas : walkingAtlas}')`;
       sprite.style.backgroundPosition = `${(pose % 3) * 50}% ${Math.floor(pose / 3) * 100}%`;
     });
-    this.q('[data-team-summary]').textContent = this.copy.teamWorkerspaymentsinflight(metrics.occupied, this.config.workers, metrics.inFlight, this.config.workers * this.config.concurrencyPerWorker);
+    this.element('[data-team-summary]').textContent = this.copy.teamWorkerspaymentsinflight(metrics.occupied, this.config.workers, metrics.inFlight, this.config.workers * this.config.concurrencyPerWorker);
     metrics.steps.forEach((step, index) => {
-      const node = this.q(`[data-step="${index}"]`);
+      const node = this.element(`[data-step="${index}"]`);
       node.classList.toggle('is-working', step.active.length > 0);
       node.classList.toggle('is-rejected', state.rateLimit?.step === index);
       node.classList.toggle('is-congested', step.waiting.length > 0);
@@ -373,9 +373,9 @@ class QueueScaling extends HTMLElement {
         '--load',
         `${(step.active.length / step.capacity) * 100}%`,
       );
-      this.q(`[data-capacity="${index}"]`).textContent =
+      this.element(`[data-capacity="${index}"]`).textContent =
         `${step.active.length}/${step.capacity} ${this.copy.inUse}`;
-      this.q(`[data-status="${index}"]`).textContent = state.rateLimit?.step === index
+      this.element(`[data-status="${index}"]`).textContent = state.rateLimit?.step === index
         ? this.copy.n429QuotaExhausted
         : state.phase === 'rate-limited'
         ? this.copy.trialStopped
@@ -386,22 +386,22 @@ class QueueScaling extends HTMLElement {
         : step.active.length
         ? this.copy.working
         : this.copy.available;
-      this.q(`[data-wait-label="${index}"]`).textContent = `${step.waiting.length} ${index === 0 ? this.copy.waitingForCpu2 : this.copy.waitingForAslot}${step.rejected.length ? this.copy.n1Rejected429 : ''}`;
-      this.q(`[data-resource-size="${index}"]`).textContent = String(step.capacity);
-      this.q<HTMLButtonElement>(`[data-action="grow:${index}"]`).disabled = playing || step.capacity === 8;
-      this.q<HTMLButtonElement>(`[data-action="shrink:${index}"]`).disabled = playing || step.capacity === 1;
+      this.element(`[data-wait-label="${index}"]`).textContent = `${step.waiting.length} ${index === 0 ? this.copy.waitingForCpu2 : this.copy.waitingForAslot}${step.rejected.length ? this.copy.n1Rejected429 : ''}`;
+      this.element(`[data-resource-size="${index}"]`).textContent = String(step.capacity);
+      this.element<HTMLButtonElement>(`[data-action="grow:${index}"]`).disabled = playing || step.capacity === 8;
+      this.element<HTMLButtonElement>(`[data-action="shrink:${index}"]`).disabled = playing || step.capacity === 1;
       const extra = Math.max(0, step.capacity - BASE_CAPACITIES[index]!);
-      this.q(`[data-resource-cost="${index}"]`).textContent = extra
+      this.element(`[data-resource-cost="${index}"]`).textContent = extra
         ? `+${extra} ${this.copy.capacityUnitsS}`
         : this.copy.includedCapacity;
       if (isHttpStep(index)) {
         const limit = this.config.rateLimits[index];
-        this.q(`[data-rate-limit="${index}"]`).textContent = String(limit);
-        this.q(`[data-rate-usage="${index}"]`).textContent = this.copy.inThis1Swindow(state.requestsInWindow[index], limit);
-        this.q<HTMLButtonElement>(`[data-action="rate-more:${index}"]`).disabled = playing || limit === 8;
-        this.q<HTMLButtonElement>(`[data-action="rate-less:${index}"]`).disabled = playing || limit === 1;
+        this.element(`[data-rate-limit="${index}"]`).textContent = String(limit);
+        this.element(`[data-rate-usage="${index}"]`).textContent = this.copy.inThis1Swindow(state.requestsInWindow[index], limit);
+        this.element<HTMLButtonElement>(`[data-action="rate-more:${index}"]`).disabled = playing || limit === 8;
+        this.element<HTMLButtonElement>(`[data-action="rate-less:${index}"]`).disabled = playing || limit === 1;
         const quotaExtra = Math.max(0, limit - BASE_RATE_LIMITS[index]);
-        this.q(`[data-rate-cost="${index}"]`).textContent = quotaExtra
+        this.element(`[data-rate-cost="${index}"]`).textContent = quotaExtra
           ? this.copy.quotaUnitsS(quotaExtra)
           : this.copy.includedQuota;
       }
@@ -419,7 +419,7 @@ class QueueScaling extends HTMLElement {
           : job.status === 'running'
             ? `active-${job.step}`
             : `waiting-${Math.min(3, job.step)}`;
-      const parent = this.q(`[data-location="${location}"]`);
+      const parent = this.element(`[data-location="${location}"]`);
       if (packet.parentElement !== parent) {
         const before = packet.getBoundingClientRect();
         packet.getAnimations().forEach((animation) => animation.cancel());
@@ -448,7 +448,7 @@ class QueueScaling extends HTMLElement {
       packet.style.setProperty('--progress', `${progress * 100}%`);
     }
     if (this.state.phase === 'ready') {
-      const queue = this.q('[data-location="pending"]');
+      const queue = this.element('[data-location="pending"]');
       for (const packet of this.packets) queue.append(packet);
     }
   }
@@ -495,13 +495,13 @@ class QueueScaling extends HTMLElement {
     }
     const html = this.highlight(text);
     if (this.radioMarkup !== html) {
-      this.q('[data-radio]').innerHTML = html;
+      this.element('[data-radio]').innerHTML = html;
       this.radioMarkup = html;
     }
   }
   private renderTrials() {
     this.renderAchievements();
-    this.q('[data-trials]').innerHTML = this.history.length
+    this.element('[data-trials]').innerHTML = this.history.length
       ? this.history
           .slice(-4)
           .map(
@@ -519,7 +519,7 @@ class QueueScaling extends HTMLElement {
     tone = 'call',
   ) {
     this.pause();
-    const dialog = this.q<HTMLDialogElement>('dialog');
+    const dialog = this.element<HTMLDialogElement>('dialog');
     this.modalAction = callback;
     dialog.className = 'sc-dialog';
     dialog.setAttribute('aria-labelledby', 'sc-dialog-title');
@@ -541,7 +541,7 @@ class QueueScaling extends HTMLElement {
   private showResult() {
     const rejection = this.state.rateLimit;
     if (rejection) {
-      const dialog = this.q<HTMLDialogElement>('dialog');
+      const dialog = this.element<HTMLDialogElement>('dialog');
       this.pause();
       this.modalAction = undefined;
       dialog.className = 'qs-outcome';
@@ -558,7 +558,7 @@ class QueueScaling extends HTMLElement {
       title,
       body,
       this.copy.backToMySystem,
-      () => { this.q('[data-action=play]').focus({ preventScroll: true }); },
+      () => { this.element('[data-action=play]').focus({ preventScroll: true }); },
       tone,
     );
   }

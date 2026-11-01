@@ -98,8 +98,8 @@ export function initialState(config: SimulationConfig): SimulationState {
     cursor: 'claim',
     active: -1,
     step: 0,
-    jobs: Array.from({ length: JOB_COUNT }, (_, i) => ({
-      id: i + 1,
+    jobs: Array.from({ length: JOB_COUNT }, (_, index) => ({
+      id: index + 1,
       status: 'pending',
       attempt: 0,
       steps: config.steps.map(() => ({
@@ -230,7 +230,7 @@ export function advance(previous: SimulationState, rules: SimulationRules): Simu
 export function run(config: SimulationConfig, rules: SimulationRules) {
   // Test/reproduction helper. The UI uses explicit user retries instead.
   let state = initialState(config);
-  for (let i = 0; i < 500; i++) {
+  for (let index = 0; index < 500; index++) {
     state =
       state.phase === 'incident'
         ? continueAfterIncident(state)
@@ -242,9 +242,9 @@ export function run(config: SimulationConfig, rules: SimulationRules) {
 export const totals = (state: SimulationState) => ({
   done: state.jobs.filter((job) => job.status === 'done').length,
   lost: state.jobs.filter((job) => job.status === 'lost').length,
-  attempts: state.jobs.reduce((n, job) => n + job.attempt, 0),
+  attempts: state.jobs.reduce((total, job) => total + job.attempt, 0),
   executions: state.jobs.reduce(
-    (n, job) => n + job.steps.reduce((sum, step) => sum + step.executions, 0),
+    (total, job) => total + job.steps.reduce((sum, step) => sum + step.executions, 0),
     0,
   ),
   skipped: state.skipped,
@@ -253,7 +253,7 @@ export const totals = (state: SimulationState) => ({
 
 export const recordCount = (state: SimulationState, job: Job) =>
   job.steps.reduce(
-    (n, step, i) =>
-      n + (state.config.steps[i]?.kind === 'append' ? step.effects : 0),
+    (total, step, index) =>
+      total + (state.config.steps[index]?.kind === 'append' ? step.effects : 0),
     0,
   );

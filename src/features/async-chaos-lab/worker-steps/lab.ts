@@ -12,10 +12,10 @@ import { usesCustomSteps, workerStepsFeedback, workerStepsIncidentCall, workerSt
 import { workerStepsConfig, workerStepsRules } from './rules';
 import { workerStepsCopy } from './copy';
 
-function resultLabel(lab: PaymentLab, i: number, count: number) {
-  const kind = lab.config.steps[i]?.kind ?? 'append';
+function resultLabel(lab: PaymentLab, index: number, count: number) {
+  const kind = lab.config.steps[index]?.kind ?? 'append';
   if (kind === 'append')
-    return `${count} ${lab.t(count === 1 ? 'registro' : 'registros', count === 1 ? 'record' : 'records')}`;
+    return `${count} ${lab.inLocale(count === 1 ? 'registro' : 'registros', count === 1 ? 'record' : 'records')}`;
   if (kind === 'check')
     return count
       ? workerStepsCopy(lab.es).validationOk
@@ -24,17 +24,17 @@ function resultLabel(lab: PaymentLab, i: number, count: number) {
     return count
       ? workerStepsCopy(lab.es).stateSet
       : workerStepsCopy(lab.es).unchanged;
-  return `${count} ${lab.t(count === 1 ? 'efecto externo' : 'efectos externos', count === 1 ? 'external effect' : 'external effects')}`;
+  return `${count} ${lab.inLocale(count === 1 ? 'efecto externo' : 'efectos externos', count === 1 ? 'external effect' : 'external effects')}`;
 }
 
-export function earnedAchievements(s: SimulationState): AchievementId[] {
+export function earnedAchievements(state: SimulationState): AchievementId[] {
   const earned: AchievementId[] = [];
   const unprotected =
-    s.config.steps.every((step) => !step.remember && !step.providerDeduplication) &&
-    s.config.steps.some((step) => !isSafeToRepeat(step.kind));
-  if (unprotected && ['lost', 'duplicate'].includes(s.phase)) earned.push('brave');
-  if (s.phase === 'duplicate') earned.push('double');
-  if (s.phase === 'won' && s.skipped >= 5 && s.wasted === 0) earned.push('efficient');
+    state.config.steps.every((step) => !step.remember && !step.providerDeduplication) &&
+    state.config.steps.some((step) => !isSafeToRepeat(step.kind));
+  if (unprotected && ['lost', 'duplicate'].includes(state.phase)) earned.push('brave');
+  if (state.phase === 'duplicate') earned.push('double');
+  if (state.phase === 'won' && state.skipped >= 5 && state.wasted === 0) earned.push('efficient');
   return earned;
 }
 
@@ -47,21 +47,21 @@ export const workerStepsLab: PaymentLabDefinition = {
   diagram: workerStepsDiagram,
   stepDescription: stepNature,
   stepOptions,
-  stepState(lab, i, { progress: st, active, restarting, uncertain, failed }) {
-    const s = lab.state;
+  stepState(lab, index, { progress: progress, active, restarting, uncertain, failed }) {
+    const state = lab.state;
     return restarting
       ? workerStepsCopy(lab.es).restartingBackToTheFirst
   : uncertain
-    ? workerStepsCopy(lab.es).stepUnconfirmedTimeoutAfterRequesting(i + 1)
+    ? workerStepsCopy(lab.es).stepUnconfirmedTimeoutAfterRequesting(index + 1)
   : failed
-    ? workerStepsCopy(lab.es).stepFailedDidNotComplete(i + 1)
+    ? workerStepsCopy(lab.es).stepFailedDidNotComplete(index + 1)
   : active
-    ? s.cursor === 'save'
+    ? state.cursor === 'save'
       ? workerStepsCopy(lab.es).actionDoneSavingProgress
       : workerStepsCopy(lab.es).runningNow
-    : st.executions === 0
+    : progress.executions === 0
       ? workerStepsCopy(lab.es).pending
-      : `${st.executions} ${lab.t(st.executions === 1 ? 'intento' : 'intentos', st.executions === 1 ? 'attempt' : 'attempts')} · ${resultLabel(lab, i, st.effects)}${st.checkpoint ? ' · ✓ ' + workerStepsCopy(lab.es).saved : ''}${st.skipped ? ' · ' + st.skipped + ' ↷' : ''}`;
+      : `${progress.executions} ${lab.inLocale(progress.executions === 1 ? 'intento' : 'intentos', progress.executions === 1 ? 'attempt' : 'attempts')} · ${resultLabel(lab, index, progress.effects)}${progress.checkpoint ? ' · ✓ ' + workerStepsCopy(lab.es).saved : ''}${progress.skipped ? ' · ' + progress.skipped + ' ↷' : ''}`;
   },
   lessonStage(lab) {
     if (lab.state.phase === 'won') return 'optimize';
@@ -75,12 +75,12 @@ export const workerStepsLab: PaymentLabDefinition = {
   },
   applySetting(lab, key, input) {
     const [group, index] = key.split('-'),
-      i = Number(index),
-      step = lab.config.steps[i];
+      stepIndex = Number(index),
+      step = lab.config.steps[stepIndex];
     if (step && group === 'remember') {
       step.remember = (input as HTMLInputElement).checked;
       if (lab.guide !== 'off') {
-        if (lab.config.steps.every((s) => s.remember))
+        if (lab.config.steps.every((state) => state.remember))
           lab.guide = 'efficient';
         else if (lab.config.steps[1]?.remember && lab.guide !== 'optimize')
           lab.guide = 'safe';
@@ -110,30 +110,30 @@ export const workerStepsLab: PaymentLabDefinition = {
           '.qs-step-editor',
         ),
       ].forEach((panel, index) => { if (expanded[index]) panel.showPopover(); });
-      lab.q<HTMLSelectElement>(`[data-setting="kind-${i}"]`).focus({
+      lab.element<HTMLSelectElement>(`[data-setting="kind-${stepIndex}"]`).focus({
         preventScroll: true,
       });
     }
   },
   paintSystem(lab) {
-    for (let i = 0; i < lab.config.steps.length; i++)
-      lab.q<HTMLInputElement>(`[data-setting="remember-${i}"]`).checked =
-        lab.config.steps[i]!.remember;
+    for (let index = 0; index < lab.config.steps.length; index++)
+      lab.element<HTMLInputElement>(`[data-setting="remember-${index}"]`).checked =
+        lab.config.steps[index]!.remember;
   },
   metrics(lab) {
-    const s = lab.state,
-      m = totals(s),
-      external = s.jobs.reduce(
-        (n, j) =>
-          n +
-          j.steps.reduce(
-            (sum, st, i) =>
-              sum + (isExternal(lab.config.steps[i]!.kind) ? st.effects : 0),
+    const state = lab.state,
+      counts = totals(state),
+      external = state.jobs.reduce(
+        (total, job) =>
+          total +
+          job.steps.reduce(
+            (sum, progress, index) =>
+              sum + (isExternal(lab.config.steps[index]!.kind) ? progress.effects : 0),
             0,
           ),
         0,
       );
-    return /* HTML */ `<span><b>${external}</b> ${workerStepsCopy(lab.es).externalEffects}</span><span><b>${m.attempts}</b> ${workerStepsCopy(lab.es).attempts}</span><span><b>${m.skipped}</b> ${workerStepsCopy(lab.es).skippedSteps}</span><span><b>${m.wasted}</b> ${workerStepsCopy(lab.es).repeatedSteps}</span>`;
+    return /* HTML */ `<span><b>${external}</b> ${workerStepsCopy(lab.es).externalEffects}</span><span><b>${counts.attempts}</b> ${workerStepsCopy(lab.es).attempts}</span><span><b>${counts.skipped}</b> ${workerStepsCopy(lab.es).skippedSteps}</span><span><b>${counts.wasted}</b> ${workerStepsCopy(lab.es).repeatedSteps}</span>`;
   },
   feedback: workerStepsFeedback,
   tutorial: workerStepsTutorial,
@@ -154,34 +154,34 @@ export const workerStepsLab: PaymentLabDefinition = {
       ? workerStepsCopy(lab.es).youChargedThemTwice
       : workerStepsCopy(lab.es).onePaymentTwoEffects,
   wonCaption: (lab) => {
-    const m = totals(lab.state);
-    return workerStepsCopy(lab.es).attemptsSkippedStepsNoDuplicate(m.attempts, m.skipped);
+    const counts = totals(lab.state);
+    return workerStepsCopy(lab.es).attemptsSkippedStepsNoDuplicate(counts.attempts, counts.skipped);
   },
   duplicateFooters: (lab) => [
     workerStepsCopy(lab.es).firstEffect,
     workerStepsCopy(lab.es).repeatedEffect,
   ],
   interruptedEvidence(lab) {
-    const s = lab.state,
-      j = s.jobs[Math.max(0, s.active)]!;
+    const state = lab.state,
+      job = state.jobs[Math.max(0, state.active)]!;
       return /* HTML */ `<div class="qs-action-evidence">
-          ${j.steps
+          ${job.steps
             .map(
-              (st, i) =>
+              (progress, index) =>
                 /* HTML */ `<article
-                  class="${i === s.step && s.incident === 'email-uncertain' ? 'is-uncertain' : st.effects ? 'is-finished' : i === s.step ? 'was-interrupted' : ''}"
+                  class="${index === state.step && state.incident === 'email-uncertain' ? 'is-uncertain' : progress.effects ? 'is-finished' : index === state.step ? 'was-interrupted' : ''}"
                 >
                   <span class="qs-evidence-step"
-                    >${String(i + 1).padStart(2, '0')}
-                    <b>${i === s.step && s.incident === 'email-uncertain' ? '?' : st.effects ? '✓' : i === s.step ? '×' : '○'}</b></span
-                  ><strong>${esc(lab.step(i))}</strong
-                  ><small>${i === s.step && s.incident === 'email-uncertain' ? workerStepsCopy(lab.es).unconfirmedTimeout : resultLabel(lab, i, st.effects)}</small>
+                    >${String(index + 1).padStart(2, '0')}
+                    <b>${index === state.step && state.incident === 'email-uncertain' ? '?' : progress.effects ? '✓' : index === state.step ? '×' : '○'}</b></span
+                  ><strong>${esc(lab.step(index))}</strong
+                  ><small>${index === state.step && state.incident === 'email-uncertain' ? workerStepsCopy(lab.es).unconfirmedTimeout : resultLabel(lab, index, progress.effects)}</small>
                 </article>`,
             )
             .join('')}
         </div>
         <p class="qs-evidence-caption">
-          ${esc(lab.job(j.id - 1))} · ID ${String(j.id).padStart(2, '0')} ·
+          ${esc(lab.job(job.id - 1))} · ID ${String(job.id).padStart(2, '0')} ·
           ${workerStepsCopy(lab.es).whatAlreadyHappenedStillExists}
         </p>`;
   },

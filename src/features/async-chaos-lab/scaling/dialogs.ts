@@ -13,7 +13,7 @@ export function namesDialog(es: boolean, names: Names, currentName: (key: string
     defaults = scalingNames(es);
   const field = (key: string, label: string) =>
     `<label>${esc(label)}<input data-rename="${key}" maxlength="64" value="${esc(currentName(key))}" /></label>`;
-  return `<p>${copy.namesChangeTheStoryThe}</p><div class="sc-name-fields">${field('api', 'API')}${field('queue', copy.queue)}${field('worker', 'Worker')}${names.steps.map((_, i) => field(`step-${i}`, `${copy.step} ${i + 1}`)).join('')}<details><summary>${copy.namesOfThe24Payments}</summary>${names.jobs.map((_, i) => field(`job-${i}`, defaults.jobs[i]!)).join('')}</details></div>`;
+  return `<p>${copy.namesChangeTheStoryThe}</p><div class="sc-name-fields">${field('api', 'API')}${field('queue', copy.queue)}${field('worker', 'Worker')}${names.steps.map((_, index) => field(`step-${index}`, `${copy.step} ${index + 1}`)).join('')}<details><summary>${copy.namesOfThe24Payments}</summary>${names.jobs.map((_, index) => field(`job-${index}`, defaults.jobs[index]!)).join('')}</details></div>`;
 }
 
 export function costDialog(es: boolean, state: ScalingState, config: ScalingConfig) {

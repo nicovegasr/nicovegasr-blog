@@ -25,7 +25,7 @@ export function tutorialCall(lab: PaymentLab, introduction: boolean) {
       </div>
     </div>
     <div id="qs-outcome-text" class="qs-phone-conversation">
-      ${lines.map((line, i) => /* HTML */ `<p${i === lines.length - 1 ? ' class="qs-phone-aside"' : ''}>${esc(line)}</p>`).join('')}
+      ${lines.map((line, index) => /* HTML */ `<p${index === lines.length - 1 ? ' class="qs-phone-aside"' : ''}>${esc(line)}</p>`).join('')}
     </div>
     <div class="qs-outcome-actions">
       ${button(introduction ? 'dismiss' : 'tutorial-start', introduction ? lab.copy.showMeTheSystem : lab.guide !== 'off' ? lab.copy.continueWalkthrough : lab.copy.letUsProcessThem).replace('<button ', '<button data-primary ')}${button('walkthrough', lab.copy.iWouldPreferAguided)}
@@ -60,15 +60,15 @@ export function incidentCall(lab: PaymentLab) {
   </div>`;
 }
 
-function outcomeTicket(lab: PaymentLab, i: number, lost = false) {
+function outcomeTicket(lab: PaymentLab, index: number, lost = false) {
   return /* HTML */ `<article
     class="qs-ticket ${lost ? 'is-lost' : 'is-kept'}"
   >
     <header>
-      <span>ID ${String(i + 1).padStart(2, '0')}</span
+      <span>ID ${String(index + 1).padStart(2, '0')}</span
       ><span>${lost ? '×' : '✓'}</span>
     </header>
-    <strong>${esc(lab.job(i))}</strong
+    <strong>${esc(lab.job(index))}</strong
     ><span class="qs-ticket-lines" aria-hidden="true"></span>
     <footer>
       ${lost ? lab.copy.noDurableCopy : lab.copy.resultSaved}
@@ -77,24 +77,24 @@ function outcomeTicket(lab: PaymentLab, i: number, lost = false) {
 }
 
 function outcomeEvidence(lab: PaymentLab) {
-  const s = lab.state,
-    m = totals(s),
-    j = s.jobs[Math.max(0, s.active)]!;
-  if (s.phase === 'lost' || s.phase === 'won')
+  const state = lab.state,
+    counts = totals(state),
+    job = state.jobs[Math.max(0, state.active)]!;
+  if (state.phase === 'lost' || state.phase === 'won')
     return /* HTML */ `<div class="qs-ticket-row">
-        ${s.jobs.map((job, i) => outcomeTicket(lab, i, job.status === 'lost')).join('')}
+        ${state.jobs.map((job, index) => outcomeTicket(lab, index, job.status === 'lost')).join('')}
       </div>
       <p class="qs-evidence-caption">
-        ${s.phase === 'lost' ? lab.copy.completedLostWhenRamdisappeared(m.done, m.lost) : lab.definition.wonCaption(lab)}
+        ${state.phase === 'lost' ? lab.copy.completedLostWhenRamdisappeared(counts.done, counts.lost) : lab.definition.wonCaption(lab)}
       </p>`;
-  if (s.phase === 'duplicate') {
+  if (state.phase === 'duplicate') {
     const [firstFooter, secondFooter] = lab.definition.duplicateFooters(lab);
     return /* HTML */ `<div class="qs-repeat-evidence">
       <article class="qs-ticket is-kept">
         <header>
-          <span>ID ${String(j.id).padStart(2, '0')}</span><span>✓</span>
+          <span>ID ${String(job.id).padStart(2, '0')}</span><span>✓</span>
         </header>
-        <strong>${esc(lab.job(j.id - 1))}</strong
+        <strong>${esc(lab.job(job.id - 1))}</strong
         ><span class="qs-ticket-lines" aria-hidden="true"></span>
         <footer>
           ${firstFooter}
@@ -103,16 +103,16 @@ function outcomeEvidence(lab: PaymentLab) {
       <span class="qs-repeat-symbol" aria-hidden="true">+</span>
       <article class="qs-ticket is-repeated">
         <header>
-          <span>ID ${String(j.id).padStart(2, '0')}</span><span>×</span>
+          <span>ID ${String(job.id).padStart(2, '0')}</span><span>×</span>
         </header>
-        <strong>${esc(lab.job(j.id - 1))}</strong
+        <strong>${esc(lab.job(job.id - 1))}</strong
         ><span class="qs-ticket-lines" aria-hidden="true"></span>
         <footer>
           ${secondFooter}
         </footer>
       </article>
       <p>
-        ${esc(lab.step(s.step))}<br /><b
+        ${esc(lab.step(state.step))}<br /><b
           >${lab.copy.theSamePaymentTwoResults}</b
         >
       </p>
@@ -125,16 +125,16 @@ export const isFatalOutcome = (lab: PaymentLab) =>
   lab.state.phase === 'lost' || lab.state.phase === 'duplicate';
 
 export function outcomeScene(lab: PaymentLab) {
-  const s = lab.state,
+  const state = lab.state,
     fatal = isFatalOutcome(lab),
-    won = s.phase === 'won';
+    won = state.phase === 'won';
   let [, text] = lab.definition.feedback(lab),
     title = '',
     kicker = '';
-  if (s.phase === 'lost') {
-    title = lab.copy.paymentsWillNeverBeRecorded(totals(s).lost);
+  if (state.phase === 'lost') {
+    title = lab.copy.paymentsWillNeverBeRecorded(totals(state).lost);
     kicker = 'GAME LOSS / ' + lab.copy.dataLost;
-  } else if (s.phase === 'duplicate') {
+  } else if (state.phase === 'duplicate') {
     title = lab.definition.duplicateTitle(lab);
     kicker =
       'GAME LOSS / ' + lab.copy.duplicateResult;
@@ -151,7 +151,7 @@ export function outcomeScene(lab: PaymentLab) {
   if (lab.guide !== 'off' && fatal) {
     action = 'lesson';
     label =
-      s.phase === 'lost'
+      state.phase === 'lost'
         ? lab.copy.learnHowToRetainThem
         : lab.copy.preventThisDuplicate;
   }
@@ -161,8 +161,8 @@ export function outcomeScene(lab: PaymentLab) {
   }
   const awards = lab.notices
     .map((id) => {
-      const a = achievements.find((a) => a.id === id)!,
-        [name, description] = lab.es ? a.es : a.en;
+      const achievement = achievements.find((first) => first.id === id)!,
+        [name, description] = lab.es ? achievement.es : achievement.en;
       return /* HTML */ `<div class="qs-earned">
         <span aria-hidden="true">✦</span>
         <div>

@@ -7,40 +7,40 @@ import { workerFrame } from './worker-actor';
 function incident(kind: Incident) {
   const config = workerStepsConfig();
   config.steps[1]!.remember = true;
-  let s = initialState(config);
-  for (let i = 0; i < 200; i++) {
-    s = s.phase === 'incident' ? continueAfterIncident(s) : advance(s, workerStepsRules);
-    if (s.incident === kind) return s;
+  let state = initialState(config);
+  for (let index = 0; index < 200; index++) {
+    state = state.phase === 'incident' ? continueAfterIncident(state) : advance(state, workerStepsRules);
+    if (state.incident === kind) return state;
   }
   throw new Error(`Did not reach ${kind}`);
 }
 
 describe('The worker character tells the engine story', () => {
   it('falls at the interrupted activation, then returns with the same stable payment ID', () => {
-    const s = incident('activation-failed');
-    const snapshot = structuredClone(s);
-    expect(workerFrame(s, undefined)).toEqual({ state: 'dead', step: 2, job: 2 });
-    expect(workerFrame(s, 'failure')).toEqual({ state: 'dead', step: 2, job: 2 });
-    expect(workerFrame(s, 'restart')).toEqual({ state: 'returning', step: 0, job: 2 });
-    expect(s).toEqual(snapshot);
+    const state = incident('activation-failed');
+    const snapshot = structuredClone(state);
+    expect(workerFrame(state, undefined)).toEqual({ state: 'dead', step: 2, job: 2 });
+    expect(workerFrame(state, 'failure')).toEqual({ state: 'dead', step: 2, job: 2 });
+    expect(workerFrame(state, 'restart')).toEqual({ state: 'returning', step: 0, job: 2 });
+    expect(state).toEqual(snapshot);
   });
 
   it('keeps the worker alive when the email response times out after an effect', () => {
-    const s = incident('email-uncertain');
-    expect(s.jobs[2]!.steps[3]!.effects).toBe(1);
-    expect(s.jobs[2]!.steps[3]!.checkpoint).toBe(false);
-    expect(workerFrame(s, undefined)).toEqual({ state: 'uncertain', step: 3, job: 3 });
-    expect(workerFrame(s, 'restart')).toEqual({ state: 'returning', step: 0, job: 3 });
+    const state = incident('email-uncertain');
+    expect(state.jobs[2]!.steps[3]!.effects).toBe(1);
+    expect(state.jobs[2]!.steps[3]!.checkpoint).toBe(false);
+    expect(workerFrame(state, undefined)).toEqual({ state: 'uncertain', step: 3, job: 3 });
+    expect(workerFrame(state, 'restart')).toEqual({ state: 'returning', step: 0, job: 3 });
   });
 
   it('points to the saved step actually skipped, instead of pretending to execute it', () => {
-    let s = continueAfterIncident(incident('activation-failed'));
-    for (let i = 0; i < 20; i++) {
-      s = advance(s, workerStepsRules);
-      if (s.events.at(-1)?.kind === 'skipped') break;
+    let state = continueAfterIncident(incident('activation-failed'));
+    for (let index = 0; index < 20; index++) {
+      state = advance(state, workerStepsRules);
+      if (state.events.at(-1)?.kind === 'skipped') break;
     }
-    expect(s.events.at(-1)?.kind).toBe('skipped');
-    expect(workerFrame(s, undefined)).toEqual({ state: 'skipping', step: 1, job: 2 });
-    expect(s.jobs[1]!.steps[1]!.effects).toBe(1);
+    expect(state.events.at(-1)?.kind).toBe('skipped');
+    expect(workerFrame(state, undefined)).toEqual({ state: 'skipping', step: 1, job: 2 });
+    expect(state.jobs[1]!.steps[1]!.effects).toBe(1);
   });
 });

@@ -11,6 +11,6 @@ export const sharedLabels = (es: boolean) => ({
   worker: 'PaymentAsyncProcess',
   jobs: Array.from(
     { length: JOB_COUNT },
-    (_, i) => `${es ? 'Pago' : 'Payment'} #${i + 1}`,
+    (_, index) => `${es ? 'Pago' : 'Payment'} #${index + 1}`,
   ),
 });

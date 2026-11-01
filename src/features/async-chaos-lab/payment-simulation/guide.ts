@@ -39,14 +39,14 @@ export type GuideBeat = {
   target: GuideTarget;
 };
 
-export function guideHelpers(c: GuideContext) {
-  const t = (es: string, en: string) => (c.es ? es : en);
+export function guideHelpers(context: GuideContext) {
+  const translate = (es: string, en: string) => (context.es ? es : en);
   const start =
-    c.state.phase === 'running'
-      ? t('Pulsa «Continuar».', 'Press “Resume”.')
-      : t('Pulsa «Iniciar».', 'Press “Start”.');
-  const follow = c.playing
-    ? t(
+    context.state.phase === 'running'
+      ? translate('Pulsa «Continuar».', 'Press “Resume”.')
+      : translate('Pulsa «Iniciar».', 'Press “Start”.');
+  const follow = context.playing
+    ? translate(
         'Sigue el pago verde y la acción que se está ejecutando.',
         'Follow the green payment and the action currently running.',
       )
@@ -58,5 +58,5 @@ export function guideHelpers(c: GuideContext) {
     task: string,
     target: GuideTarget = null,
   ): GuideBeat => ({ chapter, title, story, task, target });
-  return { t, follow, beat };
+  return { t: translate, follow, beat };
 }

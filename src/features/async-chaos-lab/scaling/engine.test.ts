@@ -189,7 +189,7 @@ describe('Scaling actual resource capacity', () => {
   it('resumes the same fixed-clock execution after a pause', () => {
     const settings = config(4, [4, 4, 4, 5]);
     let state = playScaling(createScaling(settings));
-    for (let i = 0; i < 5; i++) state = tickScaling(state);
+    for (let index = 0; index < 5; index++) state = tickScaling(state);
     const paused = pauseScaling(state);
     expect(tickScaling(paused)).toBe(paused);
     state = playScaling(paused);
@@ -216,18 +216,18 @@ describe('Scaling actual resource capacity', () => {
     expect(scalingVerdict(result).won).toBe(false);
   });
   it('returns 429 with free concurrency slots, preserving the rejected payment and earlier effects', () => {
-    const s = runScaling({ ...scalingDefaults(), workers: 3 });
-    expect(s.phase).toBe('rate-limited');
-    expect(s.rateLimit).toEqual({ step: 1, job: 3, limit: 2, retryAfterSeconds: 1 });
-    expect(scalingMetrics(s).steps[1]!.active).toHaveLength(2);
-    expect(scalingMetrics(s).steps[1]!.capacity).toBe(3);
-    expect(s.jobs[2]).toMatchObject({ id: 3, worker: 3, step: 1, status: 'rejected', effects: [1, 0, 0, 0] });
-    expect(s.jobs).toHaveLength(PAYMENT_COUNT);
-    expect(s.events.filter((event) => event.kind === 'rate-limit')).toHaveLength(1);
-    expect(scalingVerdict(s).won).toBe(false);
-    expect(tickScaling(s)).toBe(s);
-    expect(playScaling(s)).toBe(s);
-    invariants(s);
+    const state = runScaling({ ...scalingDefaults(), workers: 3 });
+    expect(state.phase).toBe('rate-limited');
+    expect(state.rateLimit).toEqual({ step: 1, job: 3, limit: 2, retryAfterSeconds: 1 });
+    expect(scalingMetrics(state).steps[1]!.active).toHaveLength(2);
+    expect(scalingMetrics(state).steps[1]!.capacity).toBe(3);
+    expect(state.jobs[2]).toMatchObject({ id: 3, worker: 3, step: 1, status: 'rejected', effects: [1, 0, 0, 0] });
+    expect(state.jobs).toHaveLength(PAYMENT_COUNT);
+    expect(state.events.filter((event) => event.kind === 'rate-limit')).toHaveLength(1);
+    expect(scalingVerdict(state).won).toBe(false);
+    expect(tickScaling(state)).toBe(state);
+    expect(playScaling(state)).toBe(state);
+    invariants(state);
   });
   it('moves the 429 to email when a wider database lets more payments reach it', () => {
     const narrow = runScaling({ ...scalingDefaults(), workers: 5, rateLimits: { 1: 3, 3: 2 } });
@@ -238,22 +238,22 @@ describe('Scaling actual resource capacity', () => {
   });
   it('waits for occupied slots before attempting another request, so no unnecessary 429 is sent', () => {
     const settings = { ...config(4, [4, 1, 2, 5]), rateLimits: { 1: 1, 3: 5 } };
-    const s = runScaling(settings);
-    expect(s.phase).toBe('complete');
-    expect(s.rateLimit).toBeNull();
-    expect(s.waitTicks[1]).toBeGreaterThan(0);
-    expect(s.events.some((event) => event.kind === 'rate-limit')).toBe(false);
-    invariants(s);
+    const state = runScaling(settings);
+    expect(state.phase).toBe('complete');
+    expect(state.rateLimit).toBeNull();
+    expect(state.waitTicks[1]).toBeGreaterThan(0);
+    expect(state.events.some((event) => event.kind === 'rate-limit')).toBe(false);
+    invariants(state);
   });
   it('resets the HTTP quota at the next fixed one-second boundary without accumulating spare credits', () => {
     const settings = { ...config(4, [4, 2, 4, 5]), rateLimits: { 1: 2, 3: 5 } };
-    let s = playScaling(createScaling(settings));
-    s = tickScaling(tickScaling(s));
-    expect(s.rateWindow).toBe(1);
-    expect(s.requestsInWindow[1]).toBe(2);
-    s = tickScaling(tickScaling(s));
-    expect(s.rateWindow).toBe(2);
-    expect(s.requestsInWindow[1]).toBe(0);
+    let state = playScaling(createScaling(settings));
+    state = tickScaling(tickScaling(state));
+    expect(state.rateWindow).toBe(1);
+    expect(state.requestsInWindow[1]).toBe(2);
+    state = tickScaling(tickScaling(state));
+    expect(state.rateWindow).toBe(2);
+    expect(state.requestsInWindow[1]).toBe(0);
     const result = runScaling(settings);
     expect(result.phase).toBe('complete');
     const perWindow = new Map<number, number>();
@@ -265,13 +265,13 @@ describe('Scaling actual resource capacity', () => {
   });
   it('enforces email quota separately from the charge quota', () => {
     const settings = { ...config(4, [4, 4, 4, 4]), rateLimits: { 1: 4, 3: 2 } };
-    const s = runScaling(settings);
-    expect(s.phase).toBe('rate-limited');
-    expect(s.rateLimit?.step).toBe(3);
-    const rejected = s.jobs.find((job) => job.status === 'rejected')!;
+    const state = runScaling(settings);
+    expect(state.phase).toBe('rate-limited');
+    expect(state.rateLimit?.step).toBe(3);
+    const rejected = state.jobs.find((job) => job.status === 'rejected')!;
     expect(rejected.effects).toEqual([1, 1, 1, 0]);
-    expect(scalingMetrics(s).steps[3]!.active).toHaveLength(2);
-    invariants(s);
+    expect(scalingMetrics(state).steps[3]!.active).toHaveLength(2);
+    invariants(state);
   });
   it('validates resource capacity and worker counts', () => {
     expect(() => createScaling(config(0))).toThrow();

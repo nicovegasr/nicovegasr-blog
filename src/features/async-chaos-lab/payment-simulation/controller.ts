@@ -54,22 +54,22 @@ export abstract class PaymentLab extends HTMLElement {
   get copy() {
     return paymentCopy(this.es);
   }
-  t(es: string, en: string) {
+  inLocale(es: string, en: string) {
     return inLanguage(this.es, es, en);
   }
-  q<T extends HTMLElement = HTMLElement>(selector: string) {
+  element<T extends HTMLElement = HTMLElement>(selector: string) {
     return this.querySelector<T>(selector)!;
   }
   name(key: 'api' | 'storage' | 'worker') {
     return cleanLabel(this.labels[key], this.defaults[key]);
   }
-  job(i: number) {
-    return cleanLabel(this.labels.jobs[i], this.defaults.jobs[i]!);
+  job(index: number) {
+    return cleanLabel(this.labels.jobs[index], this.defaults.jobs[index]!);
   }
-  step(i: number) {
+  step(index: number) {
     return cleanLabel(
-      this.labels.steps[i],
-      this.defaults.steps[i] ?? `${this.copy.step} ${i + 1}`,
+      this.labels.steps[index],
+      this.defaults.steps[index] ?? `${this.copy.step} ${index + 1}`,
     );
   }
   // Lifecycle: initialize once connected; stop timers/listeners on disconnect.
@@ -121,7 +121,7 @@ export abstract class PaymentLab extends HTMLElement {
           aria-label="${this.copy.completedPayments}"
         >
           <div class="qs-progress-dots" aria-hidden="true">
-            ${Array.from({ length: JOB_COUNT }, (_, i) => /* HTML */ `<span data-progress="${i}"></span>`).join('')}
+            ${Array.from({ length: JOB_COUNT }, (_, index) => /* HTML */ `<span data-progress="${index}"></span>`).join('')}
           </div>
           <span class="qs-score" data-score>0/${JOB_COUNT}</span>
         </div>
@@ -168,7 +168,7 @@ export abstract class PaymentLab extends HTMLElement {
     this.addEventListener('input', this.onInput);
     document.addEventListener('visibilitychange', this.onVisibility);
     this.buildSteps();
-    this.actor = new WorkerActor(this.q('[data-worker-actor]'), this.config.steps.length);
+    this.actor = new WorkerActor(this.element('[data-worker-actor]'), this.config.steps.length);
     this.update();
     this.showTutorial(true);
   }
@@ -197,15 +197,15 @@ export abstract class PaymentLab extends HTMLElement {
   jobRows() {
     return this.labels.jobs
       .map(
-        (value, i) =>
-          /* HTML */ `<div class="qs-job" data-job-row="${i}">
-            ${button('inspect:' + i, String(i + 1).padStart(2, '0'))}
+        (value, index) =>
+          /* HTML */ `<div class="qs-job" data-job-row="${index}">
+            ${button('inspect:' + index, String(index + 1).padStart(2, '0'))}
             <div>
-              ${this.editor('job-' + i, value, this.copy.paymentName + ' ' + (i + 1))}<small
-                data-job-status="${i}"
+              ${this.editor('job-' + index, value, this.copy.paymentName + ' ' + (index + 1))}<small
+                data-job-status="${index}"
               ></small>
             </div>
-            <span class="qs-job-icon" data-job-icon="${i}">○</span>
+            <span class="qs-job-icon" data-job-icon="${index}">○</span>
           </div>`,
       )
       .join('');
@@ -229,28 +229,28 @@ export abstract class PaymentLab extends HTMLElement {
   workerJourney() {
     return /* HTML */ `<div class="qs-worker-journey" data-worker-journey>
       <div class="qs-actor-track">
-        <div class="qs-actor-stations" aria-hidden="true">${this.config.steps.map((_, i) => `<span data-actor-station="${i}">${String(i + 1).padStart(2, '0')}</span>`).join('')}</div>
+        <div class="qs-actor-stations" aria-hidden="true">${this.config.steps.map((_, index) => `<span data-actor-station="${index}">${String(index + 1).padStart(2, '0')}</span>`).join('')}</div>
         ${actorMarkup()}
       </div>
       <p class="qs-actor-caption" data-actor-caption></p>
     </div>`;
   }
   buildSteps() {
-    this.q('[data-steps]').innerHTML = this.config.steps
+    this.element('[data-steps]').innerHTML = this.config.steps
       .map(
-        (step, i) =>
-          /* HTML */ `<article class="qs-step" data-step-card="${i}">
+        (step, index) =>
+          /* HTML */ `<article class="qs-step" data-step-card="${index}">
             <div class="qs-step-heading">
               <span class="qs-step-number"
-                >${String(i + 1).padStart(2, '0')}</span
-              >${this.editor('step-' + i, this.step(i), this.copy.stepName + ' ' + (i + 1))}<span
-                data-step-icon="${i}"
+                >${String(index + 1).padStart(2, '0')}</span
+              >${this.editor('step-' + index, this.step(index), this.copy.stepName + ' ' + (index + 1))}<span
+                data-step-icon="${index}"
                 >○</span
               >
             </div>
-            ${this.definition.stepDescription(this, step, i)}
-            <p class="qs-step-state" data-step-state="${i}"></p>
-            ${this.definition.stepOptions(this, step, i)}
+            ${this.definition.stepDescription(this, step, index)}
+            <p class="qs-step-state" data-step-state="${index}"></p>
+            ${this.definition.stepOptions(this, step, index)}
           </article>`,
       )
       .join('');
@@ -293,11 +293,11 @@ export abstract class PaymentLab extends HTMLElement {
     this.inspected = -1;
     this.retryStage = 'failure';
     this.update();
-    this.q('[data-worker-journey]').scrollIntoView({
+    this.element('[data-worker-journey]').scrollIntoView({
       block: 'center',
       behavior: 'smooth',
     });
-    this.q<HTMLButtonElement>('.qs-dock [data-action=play]').focus({
+    this.element<HTMLButtonElement>('.qs-dock [data-action=play]').focus({
       preventScroll: true,
     });
     // Let the player locate the interrupted step before showing the restart.
@@ -358,13 +358,13 @@ export abstract class PaymentLab extends HTMLElement {
     this.syncStorageName();
     this.buildSteps();
     this.reset();
-    this.q<HTMLButtonElement>('.qs-dock [data-action=play]').focus({
+    this.element<HTMLButtonElement>('.qs-dock [data-action=play]').focus({
       preventScroll: true,
     });
   }
   /** On short screens the diagram and its explanation do not fit together; the explanation wins. */
   private revealGuide(focus = true) {
-    const guide = this.q('[data-guide]');
+    const guide = this.element('[data-guide]');
     guide.scrollIntoView({ block: 'nearest', behavior: 'instant' });
     if (focus) guide.focus({ preventScroll: true });
   }
@@ -392,11 +392,11 @@ export abstract class PaymentLab extends HTMLElement {
     this.notices = [];
   }
   private onClick = (e: Event) => {
-    const b = (e.target as HTMLElement).closest<HTMLButtonElement>(
+    const clickedButton = (e.target as HTMLElement).closest<HTMLButtonElement>(
       'button[data-action]',
     );
-    if (!b || b.disabled) return;
-    const [action, value] = b.dataset.action!.split(':');
+    if (!clickedButton || clickedButton.disabled) return;
+    const [action, value] = clickedButton.dataset.action!.split(':');
     if (action === 'play') {
       if (this.playing || this.retryStage) this.stop();
       else this.start();
@@ -480,7 +480,7 @@ export abstract class PaymentLab extends HTMLElement {
     this.reset();
   };
   replace(selector: string, html: string) {
-    const node = this.q(selector);
+    const node = this.element(selector);
     if (node.innerHTML === html) return false;
     node.innerHTML = html;
     return true;
@@ -529,21 +529,21 @@ export abstract class PaymentLab extends HTMLElement {
   private showTutorial(introduction = false) {
     this.stop();
     this.closeOutcome();
-    const d = this.q<HTMLDialogElement>('[data-outcome]');
-    d.dataset.tone = 'story';
-    d.innerHTML = tutorialCall(this, introduction);
-    d.showModal();
-    d.querySelector<HTMLButtonElement>('[data-primary]')?.focus({
+    const dialog = this.element<HTMLDialogElement>('[data-outcome]');
+    dialog.dataset.tone = 'story';
+    dialog.innerHTML = tutorialCall(this, introduction);
+    dialog.showModal();
+    dialog.querySelector<HTMLButtonElement>('[data-primary]')?.focus({
       preventScroll: true,
     });
   }
   private renderIncident() {
-    const d = this.q<HTMLDialogElement>('[data-outcome]');
-    d.dataset.tone = 'incident';
-    d.innerHTML = incidentCall(this);
-    if (!d.open) d.showModal();
-    d.scrollTop = 0;
-    d.querySelector<HTMLButtonElement>('[data-primary]')?.focus({
+    const dialog = this.element<HTMLDialogElement>('[data-outcome]');
+    dialog.dataset.tone = 'incident';
+    dialog.innerHTML = incidentCall(this);
+    if (!dialog.open) dialog.showModal();
+    dialog.scrollTop = 0;
+    dialog.querySelector<HTMLButtonElement>('[data-primary]')?.focus({
       preventScroll: true,
     });
   }
@@ -551,12 +551,12 @@ export abstract class PaymentLab extends HTMLElement {
     return `${this.runId}:${this.state.phase}:${this.state.tick}`;
   }
   private renderOutcome(revealed = false) {
-    const s = this.state;
-    if (!['incident', 'won', 'lost', 'duplicate'].includes(s.phase)) return;
+    const state = this.state;
+    if (!['incident', 'won', 'lost', 'duplicate'].includes(state.phase)) return;
     const key = this.outcomeKey();
     if (this.lastOutcome === key) return;
     this.lastOutcome = key;
-    if (!revealed && s.phase !== 'won' && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (!revealed && state.phase !== 'won' && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
       // Let the character react before a dialog obscures the worker stage.
       this.dataset.outcomePending = 'true';
       this.outcomeTimer = setTimeout(() => {
@@ -568,16 +568,16 @@ export abstract class PaymentLab extends HTMLElement {
       }, 700);
       return;
     }
-    if (s.phase === 'incident') {
+    if (state.phase === 'incident') {
       this.renderIncident();
       return;
     }
-    const d = this.q<HTMLDialogElement>('[data-outcome]');
-    d.dataset.tone = isFatalOutcome(this) ? 'loss' : 'win';
-    d.innerHTML = outcomeScene(this);
-    if (!d.open) d.showModal();
-    d.scrollTop = 0;
-    d.querySelector<HTMLButtonElement>('[data-primary]')?.focus({
+    const dialog = this.element<HTMLDialogElement>('[data-outcome]');
+    dialog.dataset.tone = isFatalOutcome(this) ? 'loss' : 'win';
+    dialog.innerHTML = outcomeScene(this);
+    if (!dialog.open) dialog.showModal();
+    dialog.scrollTop = 0;
+    dialog.querySelector<HTMLButtonElement>('[data-primary]')?.focus({
       preventScroll: true,
     });
   }
@@ -596,17 +596,17 @@ export abstract class PaymentLab extends HTMLElement {
     this.replace(
       '[data-achievements]',
       achievements
-        .map((a) => {
-          const [title, description] = this.es ? a.es : a.en;
+        .map((achievement) => {
+          const [title, description] = this.es ? achievement.es : achievement.en;
           return /* HTML */ `<article
-            class="${this.unlocked.has(a.id) ? 'is-unlocked' : ''}"
+            class="${this.unlocked.has(achievement.id) ? 'is-unlocked' : ''}"
           >
             <span aria-hidden="true"
-              >${this.unlocked.has(a.id) ? '✦' : '◇'}</span
+              >${this.unlocked.has(achievement.id) ? '✦' : '◇'}</span
             >
             <div>
               <h3>
-                ${esc(title)}${this.unlocked.has(a.id) ? /* HTML */ ` <small>· ${this.copy.unlocked}</small>` : ''}
+                ${esc(title)}${this.unlocked.has(achievement.id) ? /* HTML */ ` <small>· ${this.copy.unlocked}</small>` : ''}
               </h3>
               <p>${esc(description)}</p>
             </div>
@@ -621,10 +621,10 @@ export abstract class PaymentLab extends HTMLElement {
               >✦ ${this.copy.achievementUnlocked}</span
             >${this.notices
               .map((id) => {
-                const a = achievements.find((a) => a.id === id)!;
+                const achievement = achievements.find((first) => first.id === id)!;
                 return /* HTML */ `<strong
-                    >${esc((this.es ? a.es : a.en)[0])}</strong
-                  ><small>${esc((this.es ? a.es : a.en)[1])}</small>`;
+                    >${esc((this.es ? achievement.es : achievement.en)[0])}</strong
+                  ><small>${esc((this.es ? achievement.es : achievement.en)[1])}</small>`;
               })
               .join('')}${button('toast-close', this.copy.gotIt)}`
         : '',
@@ -641,12 +641,12 @@ export abstract class PaymentLab extends HTMLElement {
     }[status];
   }
   private renderMetrics() {
-    const m = totals(this.state);
+    const counts = totals(this.state);
     this.replace(
       '[data-results]',
       /* HTML */ `<span
-          ><b>${m.done}</b> ${this.copy.completed2}</span
-        ><span><b>${m.lost}</b> ${this.copy.lost2}</span
+          ><b>${counts.done}</b> ${this.copy.completed2}</span
+        ><span><b>${counts.lost}</b> ${this.copy.lost2}</span
         >${this.definition.metrics(this)}`,
     );
   }
@@ -676,26 +676,26 @@ export abstract class PaymentLab extends HTMLElement {
     return this.inspected >= 0 ? this.inspected : Math.max(0, this.state.active);
   }
   private paintStatus() {
-    const s = this.state,
-      m = totals(s);
-    this.dataset.phase = s.phase;
+    const state = this.state,
+      counts = totals(state);
+    this.dataset.phase = state.phase;
     this.dataset.retryStage = this.retryStage ?? '';
     this.style.setProperty('--qs-tick-duration', `${650 / this.speed}ms`);
     for (const speed of [1, 2, 3, 4])
-      this.q(`[data-action="speed:${speed}"]`).setAttribute('aria-pressed', String(speed === this.speed));
+      this.element(`[data-action="speed:${speed}"]`).setAttribute('aria-pressed', String(speed === this.speed));
     this.classList.toggle('is-playing', this.playing || !!this.retryStage);
     this.classList.toggle('is-guided', this.guide !== 'off');
     this.classList.toggle(
       'is-worker-down',
-      s.phase === 'lost' ||
-        (s.phase === 'incident' && s.incident !== 'ack-retry'),
+      state.phase === 'lost' ||
+        (state.phase === 'incident' && state.incident !== 'ack-retry'),
     );
     this.classList.toggle('is-personalizing', this.personalizing);
-    this.q('[data-score]').textContent = `${m.done}/${JOB_COUNT}`;
+    this.element('[data-score]').textContent = `${counts.done}/${JOB_COUNT}`;
   }
   private paintControls() {
-    const s = this.state,
-      terminal = ['won', 'lost', 'duplicate'].includes(s.phase);
+    const state = this.state,
+      terminal = ['won', 'lost', 'duplicate'].includes(state.phase);
     for (const play of this.querySelectorAll<HTMLButtonElement>(
       '[data-action=play]',
     ))
@@ -703,15 +703,15 @@ export abstract class PaymentLab extends HTMLElement {
         ? this.copy.pauseRestart
         : this.playing
         ? this.copy.pause
-        : s.phase === 'incident'
+        : state.phase === 'incident'
           ? this.copy.reprocessPayment
           : terminal
             ? this.copy.tryAgain
-            : s.phase === 'ready'
+            : state.phase === 'ready'
               ? this.copy.start
               : this.copy.resume;
-    const help = this.q('[data-action=guide]');
-    this.q('[data-tutorial-label]').textContent =
+    const help = this.element('[data-action=guide]');
+    this.element('[data-tutorial-label]').textContent =
       this.guide === 'off'
         ? this.copy.tutorial
         : this.copy.viewStep;
@@ -722,10 +722,10 @@ export abstract class PaymentLab extends HTMLElement {
         : this.copy.readTheWalkthroughStep,
     );
     help.title = help.getAttribute('aria-label')!;
-    this.q('[data-personalize-label]').textContent = this.personalizing
+    this.element('[data-personalize-label]').textContent = this.personalizing
       ? this.copy.done
       : this.copy.names;
-    this.q('[data-action=personalize]').setAttribute(
+    this.element('[data-action=personalize]').setAttribute(
       'aria-label',
       this.personalizing
         ? this.copy.finishEditing
@@ -746,12 +746,12 @@ export abstract class PaymentLab extends HTMLElement {
   }
   private paintJobs() {
     for (const job of this.state.jobs) {
-      const i = job.id - 1;
-      this.q(`[data-progress="${i}"]`).className = `is-${job.status}`;
-      this.q(`[data-job-row="${i}"]`).className =
-        `qs-job is-${job.status}${this.inspected === i ? ' is-inspected' : ''}`;
-      this.q(`[data-job-status="${i}"]`).textContent = this.status(job.status);
-      this.q(`[data-job-icon="${i}"]`).textContent = {
+      const index = job.id - 1;
+      this.element(`[data-progress="${index}"]`).className = `is-${job.status}`;
+      this.element(`[data-job-row="${index}"]`).className =
+        `qs-job is-${job.status}${this.inspected === index ? ' is-inspected' : ''}`;
+      this.element(`[data-job-status="${index}"]`).textContent = this.status(job.status);
+      this.element(`[data-job-icon="${index}"]`).textContent = {
         pending: '○',
         working: '▶',
         retrying: '↻',
@@ -762,55 +762,55 @@ export abstract class PaymentLab extends HTMLElement {
     }
   }
   private paintActiveJob() {
-    const s = this.state,
+    const state = this.state,
       shown = this.shownJobIndex,
-      j = s.jobs[shown]!;
-    this.q('[data-active-job]').classList.toggle(
+      job = state.jobs[shown]!;
+    this.element('[data-active-job]').classList.toggle(
       'is-executing',
-      j.status === 'working' && s.active === shown,
+      job.status === 'working' && state.active === shown,
     );
-    this.q('[data-active-job]').textContent =
-      s.phase === 'ready'
+    this.element('[data-active-job]').textContent =
+      state.phase === 'ready'
         ? this.copy.waitingForTheFirstPayment
-        : `${this.inspected >= 0 ? this.copy.inspecting : ''}${this.job(shown)} · ID ${String(shown + 1).padStart(2, '0')}${j.status === 'working' && s.active === shown ? ' → ' + (s.cursor === 'ack' ? this.copy.confirmCompletion : this.step(s.step)) : ''}`;
+        : `${this.inspected >= 0 ? this.copy.inspecting : ''}${this.job(shown)} · ID ${String(shown + 1).padStart(2, '0')}${job.status === 'working' && state.active === shown ? ' → ' + (state.cursor === 'ack' ? this.copy.confirmCompletion : this.step(state.step)) : ''}`;
   }
   private paintSteps() {
-    const s = this.state,
+    const state = this.state,
       shown = this.shownJobIndex,
-      j = s.jobs[shown]!;
-    for (let i = 0; i < this.config.steps.length; i++) {
-      const st = j.steps[i]!,
-        retryOrigin = this.retryStage === 'failure' && s.active === shown && s.step === i,
-        restarting = this.retryStage === 'restart' && s.active === shown && i === 0,
-        uncertain = s.phase === 'incident' && s.incident === 'email-uncertain' && s.active === shown && s.step === i,
+      job = state.jobs[shown]!;
+    for (let index = 0; index < this.config.steps.length; index++) {
+      const progress = job.steps[index]!,
+        retryOrigin = this.retryStage === 'failure' && state.active === shown && state.step === index,
+        restarting = this.retryStage === 'restart' && state.active === shown && index === 0,
+        uncertain = state.phase === 'incident' && state.incident === 'email-uncertain' && state.active === shown && state.step === index,
         failed =
-          s.phase === 'incident' &&
-          s.incident === 'activation-failed' &&
-          s.active === shown &&
-          s.step === i,
+          state.phase === 'incident' &&
+          state.incident === 'activation-failed' &&
+          state.active === shown &&
+          state.step === index,
         active =
-          s.active === shown &&
-          j.status === 'working' &&
-          s.step === i &&
-          ['execute', 'save'].includes(s.cursor);
-      this.q(`[data-step-card="${i}"]`).className =
-        `qs-step ${active ? 'is-active' : ''} ${failed ? 'is-failed' : ''} ${uncertain ? 'is-uncertain' : ''} ${retryOrigin ? 'is-retry-origin' : ''} ${restarting ? 'is-restarting' : ''} ${st.effects > 1 ? 'has-duplicate' : ''}`;
-      this.q(`[data-step-icon="${i}"]`).textContent =
+          state.active === shown &&
+          job.status === 'working' &&
+          state.step === index &&
+          ['execute', 'save'].includes(state.cursor);
+      this.element(`[data-step-card="${index}"]`).className =
+        `qs-step ${active ? 'is-active' : ''} ${failed ? 'is-failed' : ''} ${uncertain ? 'is-uncertain' : ''} ${retryOrigin ? 'is-retry-origin' : ''} ${restarting ? 'is-restarting' : ''} ${progress.effects > 1 ? 'has-duplicate' : ''}`;
+      this.element(`[data-step-icon="${index}"]`).textContent =
         restarting
           ? '↻'
           : uncertain
             ? '?'
-          : failed || st.effects > 1
+          : failed || progress.effects > 1
           ? '×'
-          : st.skipped
+          : progress.skipped
             ? '↷'
-            : st.effects
+            : progress.effects
               ? '✓'
               : active
                 ? '▶'
                 : '○';
-      this.q(`[data-step-state="${i}"]`).textContent = this.definition.stepState(this, i, {
-        progress: st,
+      this.element(`[data-step-state="${index}"]`).textContent = this.definition.stepState(this, index, {
+        progress: progress,
         shown,
         active,
         restarting,
@@ -823,12 +823,12 @@ export abstract class PaymentLab extends HTMLElement {
     const frame = workerFrame(this.state, this.retryStage);
     this.actor?.render(frame, this.speed, this.playing || !!this.retryStage,
       matchMedia('(prefers-reduced-motion: reduce)').matches);
-    this.q('[data-worker-journey]').dataset.actorState = frame.state;
-    for (let i = 0; i < this.config.steps.length; i++) {
-      const station = this.q(`[data-actor-station="${i}"]`);
-      station.classList.toggle('is-current', i === frame.step);
-      const progress = this.state.jobs[Math.max(0, this.state.active)]!.steps[i]!;
-      station.classList.toggle('is-finished', progress.effects > 0 && !(frame.state === 'uncertain' && i === frame.step));
+    this.element('[data-worker-journey]').dataset.actorState = frame.state;
+    for (let index = 0; index < this.config.steps.length; index++) {
+      const station = this.element(`[data-actor-station="${index}"]`);
+      station.classList.toggle('is-current', index === frame.step);
+      const progress = this.state.jobs[Math.max(0, this.state.active)]!.steps[index]!;
+      station.classList.toggle('is-finished', progress.effects > 0 && !(frame.state === 'uncertain' && index === frame.step));
     }
     const caption: Record<typeof frame.state, string> = {
       idle: this.copy.workerReadyWaitingForA,
@@ -843,7 +843,7 @@ export abstract class PaymentLab extends HTMLElement {
         : this.copy.sameWorkerSamePaymentBack,
       done: this.copy.paymentCompleteWorkDelivered,
     };
-    this.q('[data-actor-caption]').textContent = `${!this.playing && !this.retryStage && this.state.phase === 'running' ? this.copy.paused : ''}${caption[frame.state]}`;
+    this.element('[data-actor-caption]').textContent = `${!this.playing && !this.retryStage && this.state.phase === 'running' ? this.copy.paused : ''}${caption[frame.state]}`;
   }
 }
 export function definePaymentLab(definition: PaymentLabDefinition) {
