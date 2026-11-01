@@ -8,29 +8,29 @@ export function guidePanel(lab: PaymentLab, beat: GuideBeat) {
   if (beat.target)
     action = button(
       'guide-focus',
-      lab.t('Ver esta decisión ↑', 'Show this choice ↑'),
+      lab.copy.showThisChoice,
     );
   else if (lab.state.phase === 'won')
     action = button(
       'guide-finish',
-      lab.t('Seguir experimentando', 'Keep experimenting'),
+      lab.copy.keepExperimenting,
     );
   else if (['lost', 'duplicate'].includes(lab.state.phase))
     action = button(
       'lesson',
-      lab.t('Cambiar el diseño', 'Change the design'),
+      lab.copy.changeTheDesign,
     );
   const optional = lab.definition.guideOptionalAction(lab);
   return /* HTML */ `<header class="qs-guide-header">
       <span
-        >${lab.t('RECORRIDO GUIADO', 'GUIDED WALKTHROUGH')}
+        >${lab.copy.guidedWalkthroughLabel}
         <span class="qs-guide-chapter">${beat.chapter}/4</span></span
       ><button
         type="button"
         data-action="guide-close"
-        title="${lab.state.phase === 'won' ? lab.t('Salir y conservar el resultado', 'Leave and keep the result') : lab.t('Salir y recuperar mi ensayo anterior', 'Leave and restore my previous trial')}"
+        title="${lab.state.phase === 'won' ? lab.copy.leaveAndKeepTheResult : lab.copy.leaveAndRestoreMyPrevious}"
       >
-        ${lab.t('Salir del recorrido', 'Leave walkthrough')} ×
+        ${lab.copy.leaveWalkthrough} ×
       </button>
     </header>
     <div class="qs-guide-body">
@@ -39,7 +39,7 @@ export function guidePanel(lab: PaymentLab, beat: GuideBeat) {
         <p>${esc(beat.story)}</p>
       </div>
       <div class="qs-guide-next">
-        <span class="qs-eyebrow">${lab.t('AHORA', 'NOW')}</span>
+        <span class="qs-eyebrow">${lab.copy.now}</span>
         <p id="qs-guide-task" role="status" aria-live="polite">
           ${esc(beat.task)}
         </p>

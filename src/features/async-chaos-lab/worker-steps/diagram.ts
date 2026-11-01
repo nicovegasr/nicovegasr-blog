@@ -3,15 +3,16 @@ import type { ActionKind, StepConfig } from '../payment-simulation/engine';
 import { isExternal, isSafeToRepeat } from '../payment-simulation/engine';
 import { labFigure } from '../shared/figures';
 import { escapeHtml as esc } from '../shared/text';
+import { workerStepsCopy } from './copy';
 
 export function workerStepsDiagram(lab: PaymentLab) {
   return /* HTML */ `<div class="qs-ready-queue">
       <span
         >✓
-        ${lab.t('Pagos en BDD independiente · recuperación preparada', 'Payments in independent DB · recovery ready')}</span
+        ${workerStepsCopy(lab.es).paymentsInIndependentDbrecovery}</span
       >
       <div class="qs-extra-names">
-        ${lab.editor('api', lab.labels.api, lab.t('Nombre de la entrada', 'Intake name'))}${lab.editor('storage', lab.labels.storage, lab.t('Nombre del almacenamiento', 'Storage name'))}
+        ${lab.editor('api', lab.labels.api, workerStepsCopy(lab.es).intakeName)}${lab.editor('storage', lab.labels.storage, workerStepsCopy(lab.es).storageName)}
       </div>
     </div>
     <div class="qs-payments-header">
@@ -23,8 +24,8 @@ export function workerStepsDiagram(lab: PaymentLab) {
         ${labFigure('worker')}
         <div>
           <span class="qs-eyebrow"
-            >${lab.t('DENTRO DEL WORKER', 'INSIDE THE WORKER')}</span
-          >${lab.editor('worker', lab.labels.worker, lab.t('Nombre del worker', 'Worker name'))}
+            >${workerStepsCopy(lab.es).insideTheworker}</span
+          >${lab.editor('worker', lab.labels.worker, workerStepsCopy(lab.es).workerName)}
         </div>
         <div class="qs-active-job" data-active-job></div>
       </header>
@@ -82,30 +83,30 @@ export const stepOptions = (lab: PaymentLab, step: StepConfig, i: number) =>
         data-setting="remember-${i}"
         ${step.remember ? 'checked' : ''}
       />
-      ${lab.t('Guardar avance al recibir confirmación', 'Save progress after confirmation')}</label
+      ${workerStepsCopy(lab.es).saveProgressAfterConfirmation}</label
     >
-    <button type="button" class="qs-step-configure" popovertarget="qs-step-options-${i}">${lab.t('Configurar paso', 'Configure step')} ↗</button>
+    <button type="button" class="qs-step-configure" popovertarget="qs-step-options-${i}">${workerStepsCopy(lab.es).configureStep} ↗</button>
     <div class="qs-step-editor" id="qs-step-options-${i}" popover="auto" data-step-editor="${i}">
-      <header><strong>${esc(lab.step(i))}</strong><button type="button" popovertarget="qs-step-options-${i}" popovertargetaction="hide" aria-label="${lab.t('Cerrar opciones', 'Close options')}">×</button></header>
+      <header><strong>${esc(lab.step(i))}</strong><button type="button" popovertarget="qs-step-options-${i}" popovertargetaction="hide" aria-label="${workerStepsCopy(lab.es).closeOptions}">×</button></header>
       <small class="qs-step-tradeoff"
-        >${isSafeToRepeat(step.kind) ? lab.t('Opcional aquí: ahorra repetir trabajo.', 'Optional here: saves repeated work.') : lab.t('Evita repetirlo si su marca llegó a guardarse.', 'Avoids repeating it if its marker was saved.')}</small
+        >${isSafeToRepeat(step.kind) ? workerStepsCopy(lab.es).optionalHereSavesRepeatedWork : workerStepsCopy(lab.es).avoidsRepeatingItIfIts}</small
       ><label class="qs-kind-label"
-        >${lab.t('Este paso hace…', 'This step does…')}<select
+        >${workerStepsCopy(lab.es).thisStepDoes}<select
           data-setting="kind-${i}"
         >
           ${(['check', 'set-state', 'append', 'external', 'notify'] as ActionKind[]).map((kind) => /* HTML */ `<option value="${kind}" ${step.kind === kind ? 'selected' : ''}>${kindLabel(lab, kind)}</option>`).join('')}
         </select></label
       >${
         isExternal(step.kind)
-          ? /* HTML */ `<p>${lab.t('Permite saltar este paso cuando llegó su confirmación y guardamos la marca.', 'Lets the worker skip this step after confirmation was received and saved.')}</p>`
+          ? /* HTML */ `<p>${workerStepsCopy(lab.es).letsTheWorkerSkipThis}</p>`
           : step.kind === 'append'
             ? /* HTML */ `<p>
-                ${lab.t('Es local, pero añadir otra fila cambia el resultado. La idempotencia también importa dentro de tu sistema.', 'It is local, but adding another row changes the result. Idempotency also matters inside your system.')}
+                ${workerStepsCopy(lab.es).itIsLocalButAdding}
               </p>`
             : /* HTML */ `<p>
-                ${lab.t('Esta acción concreta puede repetirse con seguridad. No necesita deduplicación del proveedor.', 'This particular action is safe to repeat. It does not need receiver deduplication.')}
+                ${workerStepsCopy(lab.es).thisParticularActionIsSafe}
               </p>`
       }
     </div>
-    ${isExternal(step.kind) ? /* HTML */ `<label class="qs-provider-option"><input type="checkbox" data-setting="provider-${i}" aria-describedby="qs-provider-hint-${i}" ${step.providerDeduplication ? 'checked' : ''} /><span>${lab.t('Deduplicar en el servicio por clave (simulado)', 'Deduplicate at the service by key (simulated)')}<small class="qs-provider-hint" id="qs-provider-hint-${i}">${lab.t('Cubre el timeout: el servicio reconoce la misma clave aunque se pierda su respuesta.', 'Covers a timeout: the service recognizes the same key even if its response is lost.')}</small></span></label>` : ''}
+    ${isExternal(step.kind) ? /* HTML */ `<label class="qs-provider-option"><input type="checkbox" data-setting="provider-${i}" aria-describedby="qs-provider-hint-${i}" ${step.providerDeduplication ? 'checked' : ''} /><span>${workerStepsCopy(lab.es).deduplicateAtTheServiceBy}<small class="qs-provider-hint" id="qs-provider-hint-${i}">${workerStepsCopy(lab.es).coversAtimeoutTheService}</small></span></label>` : ''}
   </div>`;

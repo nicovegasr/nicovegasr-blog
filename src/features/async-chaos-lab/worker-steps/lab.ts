@@ -10,6 +10,7 @@ import { workerStepsGuideBeat } from './guide';
 import { workerStepsLabels } from './labels';
 import { usesCustomSteps, workerStepsFeedback, workerStepsIncidentCall, workerStepsTutorial } from './narration';
 import { workerStepsConfig, workerStepsRules } from './rules';
+import { workerStepsCopy } from './copy';
 
 function resultLabel(lab: PaymentLab, i: number, count: number) {
   const kind = lab.config.steps[i]?.kind ?? 'append';
@@ -17,12 +18,12 @@ function resultLabel(lab: PaymentLab, i: number, count: number) {
     return `${count} ${lab.t(count === 1 ? 'registro' : 'registros', count === 1 ? 'record' : 'records')}`;
   if (kind === 'check')
     return count
-      ? lab.t('validación OK', 'validation OK')
-      : lab.t('sin validar', 'not validated');
+      ? workerStepsCopy(lab.es).validationOk
+      : workerStepsCopy(lab.es).notValidated;
   if (kind === 'set-state')
     return count
-      ? lab.t('estado fijado', 'state set')
-      : lab.t('sin modificar', 'unchanged');
+      ? workerStepsCopy(lab.es).stateSet
+      : workerStepsCopy(lab.es).unchanged;
   return `${count} ${lab.t(count === 1 ? 'efecto externo' : 'efectos externos', count === 1 ? 'external effect' : 'external effects')}`;
 }
 
@@ -49,24 +50,18 @@ export const workerStepsLab: PaymentLabDefinition = {
   stepState(lab, i, { progress: st, active, restarting, uncertain, failed }) {
     const s = lab.state;
     return restarting
-      ? lab.t('↻ Reiniciando · volvemos al primer paso del mismo pago', '↻ Restarting · back to the first step of the same payment')
+      ? workerStepsCopy(lab.es).restartingBackToTheFirst
   : uncertain
-    ? lab.t(`? Paso ${i + 1} sin confirmar · timeout tras solicitar el envío`, `? Step ${i + 1} unconfirmed · timeout after requesting the send`)
+    ? workerStepsCopy(lab.es).stepUnconfirmedTimeoutAfterRequesting(i + 1)
   : failed
-    ? lab.t(
-        `× Paso ${i + 1} falló · no llegó a completarse`,
-        `× Step ${i + 1} failed · did not complete`,
-      )
+    ? workerStepsCopy(lab.es).stepFailedDidNotComplete(i + 1)
   : active
     ? s.cursor === 'save'
-      ? lab.t(
-          '✓ Acción hecha · guardando avance',
-          '✓ Action done · saving progress',
-        )
-      : lab.t('▶ Ejecutando ahora', '▶ Running now')
+      ? workerStepsCopy(lab.es).actionDoneSavingProgress
+      : workerStepsCopy(lab.es).runningNow
     : st.executions === 0
-      ? lab.t('Pendiente', 'Pending')
-      : `${st.executions} ${lab.t(st.executions === 1 ? 'intento' : 'intentos', st.executions === 1 ? 'attempt' : 'attempts')} · ${resultLabel(lab, i, st.effects)}${st.checkpoint ? ' · ✓ ' + lab.t('guardado', 'saved') : ''}${st.skipped ? ' · ' + st.skipped + ' ↷' : ''}`;
+      ? workerStepsCopy(lab.es).pending
+      : `${st.executions} ${lab.t(st.executions === 1 ? 'intento' : 'intentos', st.executions === 1 ? 'attempt' : 'attempts')} · ${resultLabel(lab, i, st.effects)}${st.checkpoint ? ' · ✓ ' + workerStepsCopy(lab.es).saved : ''}${st.skipped ? ' · ' + st.skipped + ' ↷' : ''}`;
   },
   lessonStage(lab) {
     if (lab.state.phase === 'won') return 'optimize';
@@ -138,7 +133,7 @@ export const workerStepsLab: PaymentLabDefinition = {
           ),
         0,
       );
-    return /* HTML */ `<span><b>${external}</b> ${lab.t('efectos externos', 'external effects')}</span><span><b>${m.attempts}</b> ${lab.t('intentos', 'attempts')}</span><span><b>${m.skipped}</b> ${lab.t('pasos saltados', 'skipped steps')}</span><span><b>${m.wasted}</b> ${lab.t('pasos repetidos', 'repeated steps')}</span>`;
+    return /* HTML */ `<span><b>${external}</b> ${workerStepsCopy(lab.es).externalEffects}</span><span><b>${m.attempts}</b> ${workerStepsCopy(lab.es).attempts}</span><span><b>${m.skipped}</b> ${workerStepsCopy(lab.es).skippedSteps}</span><span><b>${m.wasted}</b> ${workerStepsCopy(lab.es).repeatedSteps}</span>`;
   },
   feedback: workerStepsFeedback,
   tutorial: workerStepsTutorial,
@@ -148,23 +143,23 @@ export const workerStepsLab: PaymentLabDefinition = {
     lab.state.phase === 'won' &&
     lab.guide !== 'optimize' &&
     !lab.config.steps.every((step) => step.remember)
-      ? button('lesson', lab.t('Comparar el trabajo repetido', 'Compare repeated work'))
+      ? button('lesson', workerStepsCopy(lab.es).compareRepeatedWork)
       : '',
   wonOptionalAction: (lab) =>
     lab.guide !== 'off' && !lab.config.steps.every((step) => step.remember)
-      ? button('lesson', lab.t('Opcional: ahorrar trabajo', 'Optional: save repeated work'))
+      ? button('lesson', workerStepsCopy(lab.es).optionalSaveRepeatedWork)
       : '',
   duplicateTitle: (lab) =>
     !usesCustomSteps(lab) && lab.state.step === 1
-      ? lab.t('Le has cobrado dos veces.', 'You charged them twice.')
-      : lab.t('Un pago. Dos efectos.', 'One payment. Two effects.'),
+      ? workerStepsCopy(lab.es).youChargedThemTwice
+      : workerStepsCopy(lab.es).onePaymentTwoEffects,
   wonCaption: (lab) => {
     const m = totals(lab.state);
-    return lab.t(`${m.attempts} intentos · ${m.skipped} pasos saltados · ningún resultado duplicado`, `${m.attempts} attempts · ${m.skipped} skipped steps · no duplicate results`);
+    return workerStepsCopy(lab.es).attemptsSkippedStepsNoDuplicate(m.attempts, m.skipped);
   },
   duplicateFooters: (lab) => [
-    lab.t('Primer efecto', 'First effect'),
-    lab.t('Efecto repetido', 'Repeated effect'),
+    workerStepsCopy(lab.es).firstEffect,
+    workerStepsCopy(lab.es).repeatedEffect,
   ],
   interruptedEvidence(lab) {
     const s = lab.state,
@@ -180,14 +175,14 @@ export const workerStepsLab: PaymentLabDefinition = {
                     >${String(i + 1).padStart(2, '0')}
                     <b>${i === s.step && s.incident === 'email-uncertain' ? '?' : st.effects ? '✓' : i === s.step ? '×' : '○'}</b></span
                   ><strong>${esc(lab.step(i))}</strong
-                  ><small>${i === s.step && s.incident === 'email-uncertain' ? lab.t('Sin confirmar · timeout', 'Unconfirmed · timeout') : resultLabel(lab, i, st.effects)}</small>
+                  ><small>${i === s.step && s.incident === 'email-uncertain' ? workerStepsCopy(lab.es).unconfirmedTimeout : resultLabel(lab, i, st.effects)}</small>
                 </article>`,
             )
             .join('')}
         </div>
         <p class="qs-evidence-caption">
           ${esc(lab.job(j.id - 1))} · ID ${String(j.id).padStart(2, '0')} ·
-          ${lab.t('lo que ya ocurrió sigue existiendo', 'what already happened still exists')}
+          ${workerStepsCopy(lab.es).whatAlreadyHappenedStillExists}
         </p>`;
   },
   earnedAchievements,

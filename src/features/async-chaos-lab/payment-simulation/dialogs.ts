@@ -12,14 +12,14 @@ export function tutorialCall(lab: PaymentLab, introduction: boolean) {
     <header class="qs-call-top">
       <span class="qs-call-channel"
         ><i aria-hidden="true"></i
-        >${lab.t('LLAMADA ENTRANTE', 'INCOMING CALL')}</span
-      >${button('dismiss', lab.t('Colgar ×', 'Hang up ×'))}
+        >${lab.copy.incomingCall}</span
+      >${button('dismiss', lab.copy.hangUp)}
     </header>
     <div class="qs-call-heading">
       ${labFigure('phone')}
       <div>
         <span class="qs-eyebrow"
-          >${lab.t('TU COMPAÑERO DE GUARDIA', 'YOUR ON-CALL TEAMMATE')}</span
+          >${lab.copy.yourOncallteammate}</span
         >
         <h2 id="qs-outcome-title">${esc(title)}</h2>
       </div>
@@ -28,7 +28,7 @@ export function tutorialCall(lab: PaymentLab, introduction: boolean) {
       ${lines.map((line, i) => /* HTML */ `<p${i === lines.length - 1 ? ' class="qs-phone-aside"' : ''}>${esc(line)}</p>`).join('')}
     </div>
     <div class="qs-outcome-actions">
-      ${button(introduction ? 'dismiss' : 'tutorial-start', introduction ? lab.t('Déjame ver el sistema', 'Show me the system') : lab.guide !== 'off' ? lab.t('Continuar el recorrido', 'Continue walkthrough') : lab.t('Vamos a procesarlos', 'Let us process them')).replace('<button ', '<button data-primary ')}${button('walkthrough', lab.t('Prefiero un recorrido guiado', 'I would prefer a guided walkthrough'))}
+      ${button(introduction ? 'dismiss' : 'tutorial-start', introduction ? lab.copy.showMeTheSystem : lab.guide !== 'off' ? lab.copy.continueWalkthrough : lab.copy.letUsProcessThem).replace('<button ', '<button data-primary ')}${button('walkthrough', lab.copy.iWouldPreferAguided)}
     </div>
   </div>`;
 }
@@ -40,14 +40,14 @@ export function incidentCall(lab: PaymentLab) {
     <header class="qs-call-top">
       <span class="qs-call-channel"
         ><i aria-hidden="true"></i
-        >${lab.t('LLAMADA DE GUARDIA', 'ON-CALL ALERT')}</span
-      >${button('dismiss', lab.t('Ver esquema ×', 'View diagram ×'))}
+        >${lab.copy.onCallalert}</span
+      >${button('dismiss', lab.copy.viewDiagram)}
     </header>
     <div class="qs-call-heading">
       ${labFigure('phone')}
       <div>
         <span class="qs-eyebrow"
-          >${lab.t('TU COMPAÑERO DE GUARDIA', 'YOUR ON-CALL TEAMMATE')}</span
+          >${lab.copy.yourOncallteammate}</span
         >
         <h2 id="qs-outcome-title">${esc(call.title)}</h2>
       </div>
@@ -55,7 +55,7 @@ export function incidentCall(lab: PaymentLab) {
     <p id="qs-outcome-text" class="qs-caller-report">«${esc(call.report)}»</p>
     <div class="qs-call-evidence">${outcomeEvidence(lab)}</div>
     <div class="qs-outcome-actions">
-      ${button('play', ack ? lab.t('Volver a procesar el mismo ID', 'Process the same ID again') : lab.t('Reiniciar y reintentar este pago', 'Restart and retry this payment')).replace('<button ', '<button data-primary ')}${button('dismiss', lab.t('Voy a mirar el sistema', 'Let me check the system'))}
+      ${button('play', ack ? lab.copy.processTheSameIdagain : lab.copy.restartAndRetryThisPayment).replace('<button ', '<button data-primary ')}${button('dismiss', lab.copy.letMeCheckTheSystem)}
     </div>
   </div>`;
 }
@@ -71,7 +71,7 @@ function outcomeTicket(lab: PaymentLab, i: number, lost = false) {
     <strong>${esc(lab.job(i))}</strong
     ><span class="qs-ticket-lines" aria-hidden="true"></span>
     <footer>
-      ${lost ? lab.t('Sin copia duradera', 'No durable copy') : lab.t('Resultado guardado', 'Result saved')}
+      ${lost ? lab.copy.noDurableCopy : lab.copy.resultSaved}
     </footer>
   </article>`;
 }
@@ -85,7 +85,7 @@ function outcomeEvidence(lab: PaymentLab) {
         ${s.jobs.map((job, i) => outcomeTicket(lab, i, job.status === 'lost')).join('')}
       </div>
       <p class="qs-evidence-caption">
-        ${s.phase === 'lost' ? lab.t(`${m.done} completado · ${m.lost} perdidos al desaparecer la RAM`, `${m.done} completed · ${m.lost} lost when RAM disappeared`) : lab.definition.wonCaption(lab)}
+        ${s.phase === 'lost' ? lab.copy.completedLostWhenRamdisappeared(m.done, m.lost) : lab.definition.wonCaption(lab)}
       </p>`;
   if (s.phase === 'duplicate') {
     const [firstFooter, secondFooter] = lab.definition.duplicateFooters(lab);
@@ -113,7 +113,7 @@ function outcomeEvidence(lab: PaymentLab) {
       </article>
       <p>
         ${esc(lab.step(s.step))}<br /><b
-          >${lab.t('El mismo pago. Dos resultados.', 'The same payment. Two results.')}</b
+          >${lab.copy.theSamePaymentTwoResults}</b
         >
       </p>
     </div>`;
@@ -132,35 +132,32 @@ export function outcomeScene(lab: PaymentLab) {
     title = '',
     kicker = '';
   if (s.phase === 'lost') {
-    title = lab.t(
-      `Faltan ${totals(s).lost} pagos por registrar.`,
-      `${totals(s).lost} payments will never be recorded.`,
-    );
-    kicker = 'GAME LOSS / ' + lab.t('PERDISTE LOS DATOS', 'DATA LOST');
+    title = lab.copy.paymentsWillNeverBeRecorded(totals(s).lost);
+    kicker = 'GAME LOSS / ' + lab.copy.dataLost;
   } else if (s.phase === 'duplicate') {
     title = lab.definition.duplicateTitle(lab);
     kicker =
-      'GAME LOSS / ' + lab.t('RESULTADO DUPLICADO', 'DUPLICATE RESULT');
+      'GAME LOSS / ' + lab.copy.duplicateResult;
   } else if (won) {
-    title = lab.t('Los tres, completados.', 'All three, complete.');
+    title = lab.copy.allThreeComplete;
     kicker =
       lab.guide !== 'off'
-        ? lab.t('RECORRIDO COMPLETADO', 'WALKTHROUGH COMPLETE')
-        : lab.t('ENSAYO COMPLETADO', 'TRIAL COMPLETE');
+        ? lab.copy.walkthroughComplete
+        : lab.copy.trialComplete;
   }
   if (fatal) text = '«' + esc(lab.definition.incidentCall(lab).report) + '»';
   let action = 'dismiss',
-    label = lab.t('Revisar mi sistema', 'Review my system');
+    label = lab.copy.reviewMySystem;
   if (lab.guide !== 'off' && fatal) {
     action = 'lesson';
     label =
       s.phase === 'lost'
-        ? lab.t('Aprender a conservarlos', 'Learn how to retain them')
-        : lab.t('Evitar este duplicado', 'Prevent this duplicate');
+        ? lab.copy.learnHowToRetainThem
+        : lab.copy.preventThisDuplicate;
   }
   if (lab.guide !== 'off' && won) {
     action = 'guide-finish';
-    label = lab.t('Seguir experimentando', 'Keep experimenting');
+    label = lab.copy.keepExperimenting;
   }
   const awards = lab.notices
     .map((id) => {
@@ -170,7 +167,7 @@ export function outcomeScene(lab: PaymentLab) {
         <span aria-hidden="true">✦</span>
         <div>
           <span class="qs-award-label"
-            >${lab.t('LOGRO DESBLOQUEADO', 'ACHIEVEMENT UNLOCKED')}</span
+            >${lab.copy.achievementUnlocked2}</span
           ><strong>${esc(name)}</strong>
           <p>${esc(description)}</p>
         </div>
@@ -180,6 +177,6 @@ export function outcomeScene(lab: PaymentLab) {
   return outcomeShell({
   es: lab.es, trial: lab.runId + 1, fatal, kicker, title,
   evidence: outcomeEvidence(lab), text, awards,
-  actions: `${button(action, label).replace('<button ', '<button data-primary ')}${won ? lab.definition.wonOptionalAction(lab) : ''}${action !== 'dismiss' ? button('dismiss', lab.t('Revisar el esquema', 'Review diagram')) : ''}`,
+  actions: `${button(action, label).replace('<button ', '<button data-primary ')}${won ? lab.definition.wonOptionalAction(lab) : ''}${action !== 'dismiss' ? button('dismiss', lab.copy.reviewDiagram) : ''}`,
 });
 }

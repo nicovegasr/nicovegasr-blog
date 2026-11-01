@@ -9,6 +9,7 @@ import type { SimulationConfig, SimulationState } from './engine';
 import { cleanLabel, escapeHtml as esc } from '../shared/text';
 import type { Labels } from './labels';
 import { achievements } from './achievements';
+import { paymentCopy } from './copy';
 import { incidentCall, isFatalOutcome, outcomeScene, tutorialCall } from './dialogs';
 import { guidePanel } from './guide-panel';
 import type { PaymentLabDefinition } from './definition';
@@ -50,6 +51,9 @@ export abstract class PaymentLab extends HTMLElement {
   get es() {
     return isSpanishLab(this);
   }
+  get copy() {
+    return paymentCopy(this.es);
+  }
   t(es: string, en: string) {
     return inLanguage(this.es, es, en);
   }
@@ -65,7 +69,7 @@ export abstract class PaymentLab extends HTMLElement {
   step(i: number) {
     return cleanLabel(
       this.labels.steps[i],
-      this.defaults.steps[i] ?? `${this.t('Paso', 'Step')} ${i + 1}`,
+      this.defaults.steps[i] ?? `${this.copy.step} ${i + 1}`,
     );
   }
   // Lifecycle: initialize once connected; stop timers/listeners on disconnect.
@@ -91,30 +95,30 @@ export abstract class PaymentLab extends HTMLElement {
           id="qs-guide"
           data-guide
           tabindex="-1"
-          aria-label="${this.t('Recorrido guiado', 'Guided walkthrough')}"
+          aria-label="${this.copy.guidedWalkthrough}"
         ></aside>
       </div>
       <div
         class="qs-dock"
-        aria-label="${this.t('Controles de la simulación', 'Simulation controls')}"
+        aria-label="${this.copy.simulationControls}"
       >
         <div class="qs-transport">
-          ${button('play', this.t('Iniciar', 'Start'))}<button
+          ${button('play', this.copy.start)}<button
             type="button"
             class="qs-dock-icon"
             data-action="reset"
-            aria-label="${this.t('Reiniciar el recorrido', 'Reset walkthrough')}"
-            title="${this.t('Reiniciar', 'Reset')}"
+            aria-label="${this.copy.resetWalkthrough}"
+            title="${this.copy.reset}"
           >
             <span aria-hidden="true">↺</span>
           </button>
         </div>
-        <div class="qs-speeds" role="group" aria-label="${this.t('Velocidad de reproducción', 'Playback speed')}">
+        <div class="qs-speeds" role="group" aria-label="${this.copy.playbackSpeed}">
           ${[1, 2, 3, 4].map((speed) => button(`speed:${speed}`, `×${speed}`).replace('<button ', `<button aria-pressed="${speed === this.speed}" `)).join('')}
         </div>
         <div
           class="qs-progress"
-          aria-label="${this.t('Pagos completados', 'Completed payments')}"
+          aria-label="${this.copy.completedPayments}"
         >
           <div class="qs-progress-dots" aria-hidden="true">
             ${Array.from({ length: JOB_COUNT }, (_, i) => /* HTML */ `<span data-progress="${i}"></span>`).join('')}
@@ -125,12 +129,12 @@ export abstract class PaymentLab extends HTMLElement {
           <button
             type="button"
             data-action="guide"
-            aria-label="${this.t('Abrir el tutorial', 'Open tutorial')}"
-            title="${this.t('Tutorial', 'Tutorial')}"
+            aria-label="${this.copy.openTutorial}"
+            title="${this.copy.tutorial}"
           >
             <span class="qs-tool-symbol" aria-hidden="true">?</span
             ><span class="qs-tool-label" data-tutorial-label
-              >${this.t('Tutorial', 'Tutorial')}</span
+              >${this.copy.tutorial}</span
             >
           </button>
         </div>
@@ -138,12 +142,12 @@ export abstract class PaymentLab extends HTMLElement {
       <div
         class="qs-result-metrics"
         data-results
-        aria-label="${this.t('Métricas del ensayo', 'Trial metrics')}"
+        aria-label="${this.copy.trialMetrics}"
       ></div>
       <details class="qs-achievements">
         <summary data-achievement-summary></summary>
         <p>
-          ${this.t('Logros de esta sesión del navegador. Los reinicios del laboratorio no los borran.', 'Achievements for this browser session. Resetting the lab does not erase them.')}
+          ${this.copy.achievementsForThisBrowserSession}
         </p>
         <div data-achievements></div>
       </details>
@@ -197,7 +201,7 @@ export abstract class PaymentLab extends HTMLElement {
           /* HTML */ `<div class="qs-job" data-job-row="${i}">
             ${button('inspect:' + i, String(i + 1).padStart(2, '0'))}
             <div>
-              ${this.editor('job-' + i, value, this.t('Nombre del pago', 'Payment name') + ' ' + (i + 1))}<small
+              ${this.editor('job-' + i, value, this.copy.paymentName + ' ' + (i + 1))}<small
                 data-job-status="${i}"
               ></small>
             </div>
@@ -212,12 +216,12 @@ export abstract class PaymentLab extends HTMLElement {
         type="button"
         class="qs-rename-button"
         data-action="personalize"
-        aria-label="${this.t('Editar nombres', 'Edit names')}"
-        title="${this.t('Editar nombres', 'Edit names')}"
+        aria-label="${this.copy.editNames}"
+        title="${this.copy.editNames}"
       >
         <span class="qs-tool-symbol" aria-hidden="true">✎</span
         ><span class="qs-rename-label" data-personalize-label
-          >${this.t('Nombres', 'Names')}</span
+          >${this.copy.names}</span
         >
       </button>
     </div>`;
@@ -239,7 +243,7 @@ export abstract class PaymentLab extends HTMLElement {
             <div class="qs-step-heading">
               <span class="qs-step-number"
                 >${String(i + 1).padStart(2, '0')}</span
-              >${this.editor('step-' + i, this.step(i), this.t('Nombre del paso', 'Step name') + ' ' + (i + 1))}<span
+              >${this.editor('step-' + i, this.step(i), this.copy.stepName + ' ' + (i + 1))}<span
                 data-step-icon="${i}"
                 >○</span
               >
@@ -462,8 +466,8 @@ export abstract class PaymentLab extends HTMLElement {
     )
       this.labels.storage =
         this.config.storage === 'ram'
-          ? this.t('Memoria RAM', 'RAM memory')
-          : this.t('Base de datos', 'Database');
+          ? this.copy.ramMemory
+          : this.copy.database;
     const input = this.querySelector<HTMLInputElement>('[data-label=storage]');
     if (input) input.value = this.labels.storage;
   }
@@ -587,7 +591,7 @@ export abstract class PaymentLab extends HTMLElement {
     for (const id of this.definition.earnedAchievements(this.state)) this.award(id);
     this.replace(
       '[data-achievement-summary]',
-      `✦ ${this.t('Logros de sesión', 'Session achievements')} · ${this.unlocked.size}/${achievements.length}`,
+      `✦ ${this.copy.sessionAchievements} · ${this.unlocked.size}/${achievements.length}`,
     );
     this.replace(
       '[data-achievements]',
@@ -602,7 +606,7 @@ export abstract class PaymentLab extends HTMLElement {
             >
             <div>
               <h3>
-                ${esc(title)}${this.unlocked.has(a.id) ? /* HTML */ ` <small>· ${this.t('conseguido', 'unlocked')}</small>` : ''}
+                ${esc(title)}${this.unlocked.has(a.id) ? /* HTML */ ` <small>· ${this.copy.unlocked}</small>` : ''}
               </h3>
               <p>${esc(description)}</p>
             </div>
@@ -614,7 +618,7 @@ export abstract class PaymentLab extends HTMLElement {
       '[data-toast]',
       this.notices.length
         ? /* HTML */ `<span class="qs-eyebrow"
-              >✦ ${this.t('LOGRO CONSEGUIDO', 'ACHIEVEMENT UNLOCKED')}</span
+              >✦ ${this.copy.achievementUnlocked}</span
             >${this.notices
               .map((id) => {
                 const a = achievements.find((a) => a.id === id)!;
@@ -622,18 +626,18 @@ export abstract class PaymentLab extends HTMLElement {
                     >${esc((this.es ? a.es : a.en)[0])}</strong
                   ><small>${esc((this.es ? a.es : a.en)[1])}</small>`;
               })
-              .join('')}${button('toast-close', this.t('Entendido', 'Got it'))}`
+              .join('')}${button('toast-close', this.copy.gotIt)}`
         : '',
     );
   }
   private status(status: SimulationState['jobs'][number]['status']) {
     return {
-      pending: this.t('Pendiente', 'Pending'),
-      working: this.t('Procesando', 'Processing'),
-      retrying: this.t('Sin confirmar · reintentar', 'Unconfirmed · retry'),
-      done: this.t('Completado', 'Completed'),
-      lost: this.t('PERDIDO', 'LOST'),
-      failed: this.t('DUPLICADO · detenido', 'DUPLICATED · stopped'),
+      pending: this.copy.pending,
+      working: this.copy.processing,
+      retrying: this.copy.unconfirmedRetry,
+      done: this.copy.completed,
+      lost: this.copy.lost,
+      failed: this.copy.duplicatedStopped,
     }[status];
   }
   private renderMetrics() {
@@ -641,8 +645,8 @@ export abstract class PaymentLab extends HTMLElement {
     this.replace(
       '[data-results]',
       /* HTML */ `<span
-          ><b>${m.done}</b> ${this.t('completados', 'completed')}</span
-        ><span><b>${m.lost}</b> ${this.t('perdidos', 'lost')}</span
+          ><b>${m.done}</b> ${this.copy.completed2}</span
+        ><span><b>${m.lost}</b> ${this.copy.lost2}</span
         >${this.definition.metrics(this)}`,
     );
   }
@@ -671,36 +675,36 @@ export abstract class PaymentLab extends HTMLElement {
       '[data-action=play]',
     ))
       play.textContent = this.retryStage
-        ? this.t('Pausar reinicio', 'Pause restart')
+        ? this.copy.pauseRestart
         : this.playing
-        ? this.t('Pausar', 'Pause')
+        ? this.copy.pause
         : s.phase === 'incident'
-          ? this.t('Reprocesar pago', 'Reprocess payment')
+          ? this.copy.reprocessPayment
           : terminal
-            ? this.t('Probar de nuevo', 'Try again')
+            ? this.copy.tryAgain
             : s.phase === 'ready'
-              ? this.t('Iniciar', 'Start')
-              : this.t('Continuar', 'Resume');
+              ? this.copy.start
+              : this.copy.resume;
     const help = this.q('[data-action=guide]');
     this.q('[data-tutorial-label]').textContent =
       this.guide === 'off'
-        ? this.t('Tutorial', 'Tutorial')
-        : this.t('Ver paso', 'View step');
+        ? this.copy.tutorial
+        : this.copy.viewStep;
     help.setAttribute(
       'aria-label',
       this.guide === 'off'
-        ? this.t('Abrir el tutorial', 'Open tutorial')
-        : this.t('Leer el paso del recorrido', 'Read the walkthrough step'),
+        ? this.copy.openTutorial
+        : this.copy.readTheWalkthroughStep,
     );
     help.title = help.getAttribute('aria-label')!;
     this.q('[data-personalize-label]').textContent = this.personalizing
-      ? this.t('Listo', 'Done')
-      : this.t('Nombres', 'Names');
+      ? this.copy.done
+      : this.copy.names;
     this.q('[data-action=personalize]').setAttribute(
       'aria-label',
       this.personalizing
-        ? this.t('Terminar de editar', 'Finish editing')
-        : this.t('Editar nombres', 'Edit names'),
+        ? this.copy.finishEditing
+        : this.copy.editNames,
     );
     for (const display of this.querySelectorAll<HTMLElement>(
       '[data-display-label]',
@@ -734,8 +738,8 @@ export abstract class PaymentLab extends HTMLElement {
     );
     this.q('[data-active-job]').textContent =
       s.phase === 'ready'
-        ? this.t('Esperando el primer pago', 'Waiting for the first payment')
-        : `${this.inspected >= 0 ? this.t('Viendo: ', 'Inspecting: ') : ''}${this.job(shown)} · ID ${String(shown + 1).padStart(2, '0')}${j.status === 'working' && s.active === shown ? ' → ' + (s.cursor === 'ack' ? this.t('Confirmar fin', 'Confirm completion') : this.step(s.step)) : ''}`;
+        ? this.copy.waitingForTheFirstPayment
+        : `${this.inspected >= 0 ? this.copy.inspecting : ''}${this.job(shown)} · ID ${String(shown + 1).padStart(2, '0')}${j.status === 'working' && s.active === shown ? ' → ' + (s.cursor === 'ack' ? this.copy.confirmCompletion : this.step(s.step)) : ''}`;
     for (let i = 0; i < this.config.steps.length; i++) {
       const st = j.steps[i]!,
         retryOrigin = this.retryStage === 'failure' && s.active === shown && s.step === i,
@@ -801,19 +805,19 @@ export abstract class PaymentLab extends HTMLElement {
       station.classList.toggle('is-finished', progress.effects > 0 && !(frame.state === 'uncertain' && i === frame.step));
     }
     const caption: Record<typeof frame.state, string> = {
-      idle: this.t('Worker preparado · esperando un pago', 'Worker ready · waiting for a payment'),
-      working: this.t(`${frame.step + 1} · ${this.step(frame.step)}`, `${frame.step + 1} · ${this.step(frame.step)}`),
-      saving: this.t('Guardando la marca de este paso · ✓', 'Saving this step’s checkpoint · ✓'),
-      skipping: this.t(`↷ Paso ${frame.step + 1} guardado · lo saltamos`, `↷ Step ${frame.step + 1} saved · skipping it`),
-      dead: this.t('Worker caído · sus efectos anteriores siguen existiendo', 'Worker crashed · earlier effects still exist'),
-      uncertain: this.t('Sigue vivo · esperando una confirmación que no llegó', 'Still alive · waiting for a confirmation that never arrived'),
-      duplicate: this.t('¡Otra vez! · el mismo ID produjo dos efectos', 'Again! · the same ID produced two effects'),
+      idle: this.copy.workerReadyWaitingForA,
+      working: this.copy.symbol(frame.step + 1, this.step(frame.step)),
+      saving: this.copy.savingThisStepsCheckpoint,
+      skipping: this.copy.stepSavedSkippingIt(frame.step + 1),
+      dead: this.copy.workerCrashedEarlierEffectsStill,
+      uncertain: this.copy.stillAliveWaitingForA,
+      duplicate: this.copy.againTheSameIdproduced,
       returning: ['activation-failed', 'worker-retry'].includes(this.state.incident)
-        ? this.t('Nuevo worker · mismo pago · volvemos a 01', 'New worker · same payment · back to 01')
-        : this.t('Mismo worker · mismo pago · volvemos a 01', 'Same worker · same payment · back to 01'),
-      done: this.t('Pago completado · trabajo entregado', 'Payment complete · work delivered'),
+        ? this.copy.newWorkerSamePaymentBack
+        : this.copy.sameWorkerSamePaymentBack,
+      done: this.copy.paymentCompleteWorkDelivered,
     };
-    this.q('[data-actor-caption]').textContent = `${!this.playing && !this.retryStage && this.state.phase === 'running' ? this.t('En pausa · ', 'Paused · ') : ''}${caption[frame.state]}`;
+    this.q('[data-actor-caption]').textContent = `${!this.playing && !this.retryStage && this.state.phase === 'running' ? this.copy.paused : ''}${caption[frame.state]}`;
   }
 }
 export function definePaymentLab(definition: PaymentLabDefinition) {

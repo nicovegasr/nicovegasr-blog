@@ -10,15 +10,16 @@ import { queueGuideBeat } from './guide';
 import { queueLabels } from './labels';
 import { queueFeedback, queueIncidentCall, queueTutorial } from './narration';
 import { queueConfig, queueRules } from './rules';
+import { queueCopy } from './copy';
 
 function resultLabel(lab: PaymentLab, i: number, count: number) {
   const kind = lab.config.steps[i]?.kind ?? 'append';
   if (kind === 'check')
     return count
       ? i === 0
-        ? lab.t('Validado', 'Validated')
-        : lab.t('Preparado', 'Prepared')
-      : lab.t('Pendiente', 'Pending');
+        ? queueCopy(lab.es).validated
+        : queueCopy(lab.es).prepared
+      : queueCopy(lab.es).pending;
   return `${count} ${lab.t(count === 1 ? 'registro' : 'registros', count === 1 ? 'record' : 'records')}`;
 }
 
@@ -41,7 +42,7 @@ export const queueLab: PaymentLabDefinition = {
   firstGuideStage: 'ram',
   diagram: queueDiagram,
   stepDescription: (lab, step) =>
-    /* HTML */ `<p class="qs-step-contract">${step.kind === 'append' ? lab.t('Solo 1 registro por ID.', 'Only 1 record per ID.') : lab.t('Repetirlo es seguro.', 'Safe to repeat.')}</p>`,
+    /* HTML */ `<p class="qs-step-contract">${step.kind === 'append' ? queueCopy(lab.es).only1RecordPerId : queueCopy(lab.es).safeToRepeat}</p>`,
   stepOptions: () => '',
   stepState: (lab, i, { progress, shown, active }) =>
     active
@@ -76,14 +77,8 @@ export const queueLab: PaymentLabDefinition = {
       `qs-process ${lab.config.storage === 'ram' ? 'is-ram' : 'is-durable'}`;
     lab.q('[data-boundary]').textContent =
       lab.config.storage === 'ram'
-        ? lab.t(
-            'MISMO PROCESO · comparten la caída',
-            'SAME PROCESS · shared fate',
-          )
-        : lab.t(
-            'BDD INDEPENDIENTE · sobrevive al worker',
-            'INDEPENDENT DB · survives worker',
-          );
+        ? queueCopy(lab.es).sameProcesssharedFate
+        : queueCopy(lab.es).independentDbsurvivesWorker;
     lab.replace(
       '[data-store-figure]',
       labFigure(lab.config.storage === 'ram' ? 'ram' : 'db'),
@@ -96,21 +91,12 @@ export const queueLab: PaymentLabDefinition = {
       : 'off';
     lab.q('[data-storage-note]').textContent =
       lab.config.storage === 'ram'
-        ? lab.t(
-            'Pendientes dentro del worker.',
-            'Pending work inside the worker.',
-          )
-        : lab.t(
-            'Los pendientes sobreviven al worker.',
-            'Pending work survives the worker.',
-          );
+        ? queueCopy(lab.es).pendingWorkInsideTheWorker
+        : queueCopy(lab.es).pendingWorkSurvivesTheWorker;
     lab.q('[data-protection-note]').textContent = lab.config
       .protectLocalRecord
-      ? lab.t('Conserva una sola fila por ID.', 'Keep one row per ID.')
-      : lab.t(
-          'Cada intento puede crear otra fila.',
-          'Each attempt can create another row.',
-        );
+      ? queueCopy(lab.es).keepOneRowPerId
+      : queueCopy(lab.es).eachAttemptCanCreateAnother;
   },
   metrics(lab) {
     const s = lab.state,
@@ -131,7 +117,7 @@ export const queueLab: PaymentLabDefinition = {
           ),
         0,
       );
-    return /* HTML */ `<span><b>${repeatedDeliveries}</b> ${lab.t('reentregas', 'redeliveries')}</span><span><b>${extraRecords}</b> ${lab.t('registros de más', 'extra records')}</span>`;
+    return /* HTML */ `<span><b>${repeatedDeliveries}</b> ${queueCopy(lab.es).redeliveries}</span><span><b>${extraRecords}</b> ${queueCopy(lab.es).extraRecords}</span>`;
   },
   feedback: queueFeedback,
   tutorial: queueTutorial,
@@ -139,36 +125,36 @@ export const queueLab: PaymentLabDefinition = {
   guideBeat: queueGuideBeat,
   guideOptionalAction: () => '',
   wonOptionalAction: () => '',
-  duplicateTitle: (lab) => lab.t('Un pago. Dos registros.', 'One payment. Two records.'),
+  duplicateTitle: (lab) => queueCopy(lab.es).onePaymentTwoRecords,
   wonCaption: (lab) => {
     const m = totals(lab.state);
-    return lab.t(`${m.attempts} intentos · 3 registros · uno por ID`, `${m.attempts} attempts · 3 records · one per ID`);
+    return queueCopy(lab.es).attempts3RecordsOnePer(m.attempts);
   },
   duplicateFooters: (lab) => [
-    lab.t('Primer registro', 'First record'),
-    lab.t('Segundo registro', 'Second record'),
+    queueCopy(lab.es).firstRecord,
+    queueCopy(lab.es).secondRecord,
   ],
   interruptedEvidence(lab) {
     const s = lab.state,
       j = s.jobs[Math.max(0, s.active)]!;
     return /* HTML */ `<div class="qs-ack-evidence">
       <div>
-        <span>${lab.t('ID DEL PAGO', 'PAYMENT ID')}</span
+        <span>${queueCopy(lab.es).paymentId}</span
         ><strong
           >${String(j.id).padStart(2, '0')} · ${esc(lab.job(j.id - 1))}</strong
         >
       </div>
       <div>
-        <span>${lab.t('SU REGISTRO', 'ITS RECORD')}</span
+        <span>${queueCopy(lab.es).itsRecord}</span
         ><strong
-          >${s.incident === 'ack-retry' ? '✓ ' + lab.t('Ya existe una fila', 'One row already exists') : '— ' + lab.t('Todavía sin registrar', 'Not recorded yet')}</strong
+          >${s.incident === 'ack-retry' ? '✓ ' + queueCopy(lab.es).oneRowAlreadyExists : '— ' + queueCopy(lab.es).notRecordedYet}</strong
         >
       </div>
       <div>
-        <span>${lab.t('EN LA BASE DE DATOS', 'IN THE DATABASE')}</span
+        <span>${queueCopy(lab.es).inThedatabase}</span
         ><strong
           >↻
-          ${lab.t('Disponible para reintentar', 'Available to retry')}</strong
+          ${queueCopy(lab.es).availableToRetry}</strong
         >
       </div>
     </div>`;
