@@ -652,11 +652,32 @@ export abstract class PaymentLab extends HTMLElement {
   }
   // Paint the current engine snapshot. Animation and DOM state cannot commit work.
   private update() {
+    this.paintStatus();
+    this.paintControls();
+    this.paintNames();
+    this.paintJobs();
+    this.definition.paintSystem(this);
+    this.paintActiveJob();
+    this.paintSteps();
+    this.renderActor();
+    const [title, text] = this.definition.feedback(this);
+    this.replace(
+      '[data-feedback]',
+      /* HTML */ `<strong>${esc(title)}</strong>
+        <p>${text}</p>`,
+    );
+    this.renderMetrics();
+    this.checkAchievements();
+    // Closing a dialog restores focus to its opener, which scrolls; reveal the guide afterwards.
+    this.renderOutcome();
+    this.renderGuide();
+  }
+  private get shownJobIndex() {
+    return this.inspected >= 0 ? this.inspected : Math.max(0, this.state.active);
+  }
+  private paintStatus() {
     const s = this.state,
-      m = totals(s),
-      terminal = ['won', 'lost', 'duplicate'].includes(s.phase),
-      shown = this.inspected >= 0 ? this.inspected : Math.max(0, s.active),
-      j = s.jobs[shown]!;
+      m = totals(s);
     this.dataset.phase = s.phase;
     this.dataset.retryStage = this.retryStage ?? '';
     this.style.setProperty('--qs-tick-duration', `${650 / this.speed}ms`);
@@ -671,6 +692,10 @@ export abstract class PaymentLab extends HTMLElement {
     );
     this.classList.toggle('is-personalizing', this.personalizing);
     this.q('[data-score]').textContent = `${m.done}/${JOB_COUNT}`;
+  }
+  private paintControls() {
+    const s = this.state,
+      terminal = ['won', 'lost', 'duplicate'].includes(s.phase);
     for (const play of this.querySelectorAll<HTMLButtonElement>(
       '[data-action=play]',
     ))
@@ -706,6 +731,8 @@ export abstract class PaymentLab extends HTMLElement {
         ? this.copy.finishEditing
         : this.copy.editNames,
     );
+  }
+  private paintNames() {
     for (const display of this.querySelectorAll<HTMLElement>(
       '[data-display-label]',
     )) {
@@ -716,7 +743,9 @@ export abstract class PaymentLab extends HTMLElement {
           ? this.step(Number(key.slice(5)))
           : this.name(key as 'api' | 'storage' | 'worker');
     }
-    for (const job of s.jobs) {
+  }
+  private paintJobs() {
+    for (const job of this.state.jobs) {
       const i = job.id - 1;
       this.q(`[data-progress="${i}"]`).className = `is-${job.status}`;
       this.q(`[data-job-row="${i}"]`).className =
@@ -731,7 +760,11 @@ export abstract class PaymentLab extends HTMLElement {
         failed: '×',
       }[job.status];
     }
-    this.definition.paintSystem(this);
+  }
+  private paintActiveJob() {
+    const s = this.state,
+      shown = this.shownJobIndex,
+      j = s.jobs[shown]!;
     this.q('[data-active-job]').classList.toggle(
       'is-executing',
       j.status === 'working' && s.active === shown,
@@ -740,6 +773,11 @@ export abstract class PaymentLab extends HTMLElement {
       s.phase === 'ready'
         ? this.copy.waitingForTheFirstPayment
         : `${this.inspected >= 0 ? this.copy.inspecting : ''}${this.job(shown)} · ID ${String(shown + 1).padStart(2, '0')}${j.status === 'working' && s.active === shown ? ' → ' + (s.cursor === 'ack' ? this.copy.confirmCompletion : this.step(s.step)) : ''}`;
+  }
+  private paintSteps() {
+    const s = this.state,
+      shown = this.shownJobIndex,
+      j = s.jobs[shown]!;
     for (let i = 0; i < this.config.steps.length; i++) {
       const st = j.steps[i]!,
         retryOrigin = this.retryStage === 'failure' && s.active === shown && s.step === i,
@@ -780,18 +818,6 @@ export abstract class PaymentLab extends HTMLElement {
         failed,
       });
     }
-    this.renderActor();
-    const [title, text] = this.definition.feedback(this);
-    this.replace(
-      '[data-feedback]',
-      /* HTML */ `<strong>${esc(title)}</strong>
-        <p>${text}</p>`,
-    );
-    this.renderMetrics();
-    this.checkAchievements();
-    // Closing a dialog restores focus to its opener, which scrolls; reveal the guide afterwards.
-    this.renderOutcome();
-    this.renderGuide();
   }
   private renderActor() {
     const frame = workerFrame(this.state, this.retryStage);

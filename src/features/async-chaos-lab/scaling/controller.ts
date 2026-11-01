@@ -16,13 +16,13 @@ import {
   scalingVerdict,
   tickScaling,
   AVAILABLE_WORKERS,
-  TARGET_COST,
-  TARGET_SECONDS,
   MAX_CONCURRENCY_PER_WORKER,
 } from './engine';
 import type { ScalingConfig } from './engine';
-import { callCopy, scalingNames, stepControlsCopy } from './content';
+import { callCopy, scalingNames } from './content';
 import { scalingCopy } from './copy';
+import { scalingDiagram } from './diagram';
+import { comparisonDialog, costDialog, namesDialog } from './dialogs';
 import type { Names } from './content';
 import { cleanLabel, escapeHtml as esc } from '../shared/text';
 import { labFigure } from '../shared/figures';
@@ -60,36 +60,7 @@ class QueueScaling extends HTMLElement {
   connectedCallback() {
     ({ names: this.names, history: this.history } = restoreSession(scalingNames(this.es), this.es));
     this.unlocked = restoreAchievements();
-    this.innerHTML = `
-      <div class="sc-mission"><span class="sc-mission-mark" aria-hidden="true">↗</span><p><strong>${this.copy.n24PaymentsLessWaiting}</strong><span>${this.copy.yourMissionFinishWithinS(TARGET_SECONDS, TARGET_COST)}</span></p></div>
-      <section class="sc-board" aria-label="${this.copy.paymentFlow}">
-        <div class="sc-intake">
-          ${button('names', `✎ ${this.copy.names}`, 'class="sc-edit-names"')}
-          <div class="sc-api">${labFigure('api')}<strong data-name="api"></strong><span class="sc-202">202 <small>${this.copy.accepted}</small></span></div>
-          <div class="sc-queue"><header><strong data-name="queue"></strong><span data-pending>24</span></header><div class="sc-queue-jobs" data-location="pending"></div><p>${this.copy.durableNoLosses} <span aria-hidden="true">✓</span></p></div>
-        </div>
-        <div class="sc-machine">
-          <div class="sc-team">
-            <div class="sc-team-heading">${labFigure('worker')}<div><small data-team-summary>${this.copy.teamUpto8Workers}</small><strong data-name="worker"></strong></div><div class="sc-hire"><span>Workers</span>${button('less', '−', `aria-label="${this.copy.removeOneWorker}" data-config`)}<output data-workers>1</output>${button('more', '+', `aria-label="${this.copy.addOneWorker}" data-config`)}</div><div class="sc-hire"><span>${this.copy.paymentsAtOncePerWorker}</span>${button('concurrency-less', '−', `aria-label="${this.copy.reducePaymentsAtOncePer}" data-config`)}<output data-concurrency>1</output>${button('concurrency-more', '+', `aria-label="${this.copy.increasePaymentsAtOncePer}" data-config`)}</div></div>
-            <div class="sc-worker-rack" data-worker-rack>${Array.from({ length: AVAILABLE_WORKERS }, (_, i) => button(`worker:${i + 1}`, `<span class="sc-worker-name">W${String(i + 1).padStart(2, '0')}</span><span class="sc-worker-character" aria-hidden="true"><span class="sc-worker-sprite"></span><span class="sc-worker-signal" data-worker-signal></span></span><b>—</b><small data-worker-status></small>`, `data-worker="${i + 1}" class="sc-worker" hidden`)).join('')}</div>
-          </div>
-          <div class="sc-flow">${[0, 1, 2, 3].map((step) => this.stepCard(step)).join('')}</div>
-          <div class="sc-delivered"><span>✓ ${this.copy.completed}</span><div data-location="done"></div><b data-done>0/24</b></div>
-        </div>
-      </section>
-      <aside class="sc-radio" role="status" aria-live="polite">${labFigure('phone')}<div><small>${this.copy.onCalllive}</small><p data-radio>${this.copy.customersAreWaitingPressPlay}</p></div></aside>
-      <div class="sc-dock">
-        <div class="sc-playback">${button('play', `▶ ${this.copy.processPayments}`, 'class="sc-primary"')}${button('reset', '↺', `aria-label="${this.copy.resetTrial}"`)}<div class="sc-speeds" role="group" aria-label="${this.copy.playbackSpeed}">${[1, 2, 4].map((speed) => button(`speed:${speed}`, `×${speed}`, `aria-pressed="${speed === this.speed}"`)).join('')}</div></div>
-        <div class="sc-clock"><strong data-time>0 s</strong><span data-throughput>0 ${this.copy.paymentsS}</span></div>
-        <div class="sc-dock-metrics"><span data-occupied></span><span data-waiting></span>${button('cost', '<span data-cost></span>', `aria-label="${this.copy.showTheCostCalculation}"`)}</div>
-      </div>
-      <div class="sc-trial-bar"><span>${this.copy.yourTrials}</span><div data-trials></div>${button('compare', this.copy.compare)}</div>
-      <details class="qs-achievements">
-        <summary data-achievement-summary></summary>
-        <p>${this.copy.achievementsForThisBrowserSession}</p>
-        <div data-achievements></div>
-      </details>
-      <dialog class="sc-dialog" aria-labelledby="sc-dialog-title" aria-describedby="sc-dialog-text"></dialog>`;
+    this.innerHTML = scalingDiagram(this.es, this.speed);
     const pending = this.q('[data-location=pending]');
     this.packets = this.state.jobs.map((job) => {
       const packet = document.createElement('button');
@@ -117,24 +88,6 @@ class QueueScaling extends HTMLElement {
     this.removeEventListener('click', this.onClick);
     this.removeEventListener('input', this.onInput);
     document.removeEventListener('visibilitychange', this.onVisibility);
-  }
-  private stepCard(step: number) {
-    const copy = stepControlsCopy(this.es);
-    const resources = [
-      'CPU · 1 s',
-      'HTTP · 3 s',
-      `${this.copy.db} · 1 s`,
-      'HTTP · 1 s',
-    ];
-    return `<article class="sc-step" data-step="${step}">
-      <div class="sc-step-heading"><small>0${step + 1} <span>${resources[step]}</span></small><strong data-name="step-${step}"></strong></div>
-      <div class="sc-resource"><span data-status="${step}"></span><b data-capacity="${step}"></b></div>
-      <div class="sc-slots" data-location="active-${step}"></div>
-      <div class="sc-wait"><small data-wait-label="${step}">${copy.waiting}</small><div data-location="waiting-${step}"></div></div>
-      <div class="sc-step-controls"><span>${copy.concurrentSlots}</span><div class="sc-capacity-control">${button(`shrink:${step}`, '−', `data-config aria-label="${copy.reduceCapacity} ${step + 1}"`)}<output data-resource-size="${step}"></output>${button(`grow:${step}`, '+', `data-config aria-label="${copy.expandCapacity} ${step + 1}"`)}</div></div>
-      <small class="sc-capacity-cost" data-resource-cost="${step}"></small>
-      ${isHttpStep(step) ? `<div class="sc-step-controls sc-rate-controls"><span>${copy.httpQuota}</span><div class="sc-capacity-control">${button(`rate-less:${step}`, '−', `data-config aria-label="${copy.reduceQuota} ${step + 1}"`)}<output data-rate-limit="${step}"></output>${button(`rate-more:${step}`, '+', `data-config aria-label="${copy.expandQuota} ${step + 1}"`)}</div></div><small class="sc-rate-usage" data-rate-usage="${step}"></small><small class="sc-capacity-cost" data-rate-cost="${step}"></small>` : ''}
-    </article>`;
   }
   private checkAchievements() {
     this.newAwards = eligibleAchievements(this.state)
@@ -620,29 +573,23 @@ class QueueScaling extends HTMLElement {
     };
   }
   private showNames() {
-    const defaults = scalingNames(this.es);
-    const field = (key: string, label: string) =>
-      `<label>${esc(label)}<input data-rename="${key}" maxlength="64" value="${esc(this.name(key))}" /></label>`;
     this.modal(
       this.copy.makeItYourSystem,
-      `<p>${this.copy.namesChangeTheStoryThe}</p><div class="sc-name-fields">${field('api', 'API')}${field('queue', this.copy.queue)}${field('worker', 'Worker')}${this.names.steps.map((_, i) => field(`step-${i}`, `${this.copy.step} ${i + 1}`)).join('')}<details><summary>${this.copy.namesOfThe24Payments}</summary>${this.names.jobs.map((_, i) => field(`job-${i}`, defaults.jobs[i]!)).join('')}</details></div>`,
+      namesDialog(this.es, this.names, (key) => this.name(key)),
       this.copy.done,
     );
   }
   private showCost() {
-    const metrics = scalingMetrics(this.state);
     this.modal(
       this.copy.payingForReservedCapacity,
-      `<p>${this.copy.theseAreTeachingUnitsNot}</p><p><strong>${this.config.workers} × ${number(metrics.seconds, 1)} s = ${number(metrics.workerCost)} u</strong></p><p>${this.copy.theOriginalServiceContractIs} ${this.config.capacities.reduce((total, capacity, step) => total + Math.max(0, capacity - BASE_CAPACITIES[step]!), 0)} × ${number(metrics.seconds, 1)} s = ${number(metrics.extraServiceCost)} u.</p><p>${this.copy.eachExtraRequestSof(number(metrics.extraRateCost))}</p><p>${this.copy.efficiencyCompletedPaymentsReservedUnits}</p>`,
+      costDialog(this.es, this.state, this.config),
       this.copy.gotIt,
     );
   }
   private showComparison() {
     this.modal(
       this.copy.sameWorkDifferentTeams,
-      this.history.length
-        ? `<div class="sc-comparison"><table><thead><tr>${[this.copy.workersStripe, this.copy.time, this.copy.cumulativeWaiting, this.copy.cost, this.copy.paymentsU].map((title) => `<th scope="col">${title}</th>`).join('')}</tr></thead><tbody>${this.history.map((trial, index) => `<tr><td>${button(`replay:${index}`, `${teamLabel(trial.config)} / ${trial.config.capacities[1]} ${trial.won ? '✓' : ''}`, `aria-label="${this.copy.prepareThisConfiguration}"`)}<small class="sc-trial-config">${trial.config.capacities.map((limit) => limit).join(' / ')}<br />HTTP ${trial.config.rateLimits[1]} / ${trial.config.rateLimits[3]} ${this.copy.requestsS}</small></td><td>${number(trial.seconds, 1)} s${trial.rateLimitedStep !== null ? `<small class="sc-rejected-result">429 · ${this.copy.step2} ${trial.rateLimitedStep + 1}</small>` : ''}</td><td>${number(trial.waitingSeconds, 1)} s</td><td>${number(trial.cost)} u</td><td>${number(trial.completed / (trial.cost || 1), 3)}</td></tr>`).join('')}</tbody></table></div><p class="sc-call-hint">${this.copy.theLast8FinishedTrials}</p>`
-        : `<p>${this.copy.finishAtrialToStart}</p>`,
+      comparisonDialog(this.es, this.history),
       this.copy.keepExperimenting,
     );
   }
