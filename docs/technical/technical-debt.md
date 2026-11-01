@@ -6,8 +6,9 @@ Known issues and what has already been resolved. Fix an item when its area is ne
 
 | Priority | Item | Where | Next step |
 | --- | --- | --- | --- |
-| 🟠 Medium | Lab controllers hold too many responsibilities (1,819 and 713 lines) | [controller.ts](../../src/features/async-chaos-lab/controller.ts), [scaling/controller.ts](../../src/features/async-chaos-lab/scaling/controller.ts) | Extract tutorial and outcome rendering, inside the feature |
-| 🟠 Medium | Lab interface copy is mixed with controller behavior through inline `t(es, en)` calls | Lab controllers | Keep moving one group at a time to functions like `stepControlsCopy` in [scaling/content.ts](../../src/features/async-chaos-lab/scaling/content.ts) |
+| 🟠 Medium | The lab 3 controller still builds its diagram and its names, cost and comparison dialogs (684 lines) | [scaling/controller.ts](../../src/features/async-chaos-lab/scaling/controller.ts) | Move them next to [result.ts](../../src/features/async-chaos-lab/scaling/result.ts) when that lab next changes |
+| 🟠 Medium | The shared payment controller paints the whole diagram in one long `update` method (832 lines in total) | [payment-simulation/controller.ts](../../src/features/async-chaos-lab/payment-simulation/controller.ts) | Split the painting by area when it next changes |
+| 🟠 Medium | Some lab interface copy is still inline `t(es, en)` calls beside behavior | Both controllers | Keep moving one group at a time to each lab's `narration.ts` or `content.ts` |
 
 ## Accepted
 
@@ -31,6 +32,8 @@ Known issues and what has already been resolved. Fix an item when its area is ne
 | ✅ | Browser tests build the current checkout; reusing a server is explicit |
 | ✅ | Browser journeys for reader history, language switching, reduced motion and no JavaScript |
 | ✅ | Lab session persistence and small helpers extracted from the controllers |
+| ✅ | Each lab has its own folder, with shared code in `payment-simulation/` and `shared/` |
+| ✅ | Tutorial, incident and result rendering extracted from the controllers |
 | ✅ | `stories.css` split into ordered sections |
 | ✅ | Mascot calculations extracted into pure functions with unit tests |
 | ✅ | Hero tests no longer depend on the live shields.io badge |

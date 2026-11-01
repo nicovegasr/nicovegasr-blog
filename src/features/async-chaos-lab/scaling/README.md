@@ -12,10 +12,11 @@ Functions or new dependencies.
 - `achievements.ts` / `achievements.test.ts`: actual-run rewards and minimum-team proof.
 - `engine.test.ts`: repeatability, capacity, FIFO waiting, HTTP 429, effects and mission rules.
 - `controller.ts`: playback, diagram, introductions and session comparison.
+- `result.ts`: the HTML of a finished or rejected trial; `format.ts`: its number and team labels.
 - `content.ts`: bilingual names and introductory call.
 - `scaling.css`: feature-scoped layout and signals.
 - `scaling.e2e.ts`: Playwright browser tests and review screenshots.
-- `../outcome-shell.ts`: the same outcome scene used by all three levels.
+- `../shared/outcome-shell.ts`: the same outcome scene used by all three levels.
 
 ## Simulation rules
 

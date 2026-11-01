@@ -28,7 +28,7 @@ wrapper, navigation, visual language and native custom-element approach. See
 All three labs open with an on-call introduction. Dismissing it leaves the
 configuration editable and does not start processing. Lab 2's **Configure step**
 opens a native popover without changing the diagram's dimensions. All fatal
-outcomes share `outcome-shell.ts` and the same `qs-outcome` styles.
+outcomes share `shared/outcome-shell.ts` and the same `qs-outcome` styles.
 
 In labs 1 and 2, use Start/Pause and explicitly retry when an incident interrupts processing.
 The shared transport offers ×1, ×2, ×3 and ×4 playback. Switching speed preserves
@@ -56,26 +56,42 @@ Changing a rule starts a fresh batch; changing a name does not.
 
 ## Read the code in this order
 
-1. **`engine.ts`**: the types, default configurations and three state operations.
-   `initialState` creates a batch; `advance` performs one logical transition;
-   `continueAfterIncident` allows an interrupted job to be claimed again.
-2. **`engine.test.ts`**: concrete examples of RAM loss, repeated delivery, partial
-   work and recovery. Read the first three tests before following the whole model.
-3. **`guide.ts`**: pure functions turn the current simulation state into an
-   explanation, a next action and an optional field to highlight.
-4. **`controller.ts`**: the custom element builds the diagram, handles clicks and
-   schedules `advance` every 650 ms. Its rendering methods display state; they do
-   not decide whether a charge, record or checkpoint exists.
-5. **`StoryPage.astro`, `LabsPage.astro`, `links.ts`, `stories.css`, `figures.ts`**:
-   static page composition, localized paths and presentation.
+Each lab has its own folder; labs 1 and 2 run on the same simulation, and all three
+share a small set of helpers:
 
-`labels.ts` owns default names, length limits and HTML escaping.
-`session.ts` restores and saves names and awards in `sessionStorage`; `scaling/session.ts`
-does the same for the second lab. `lab-ui.ts` holds the helpers both controllers share.
-`stories.css` only imports `stories/*.css`, in cascade order.
-`achievements.ts` contains the five session awards. Feature-local ES/EN copy leaves
-shared site dictionaries and navigation unchanged. The page files only select a
-locale and a level; there are no parallel implementations of the two labs.
+```text
+queue/               Lab 1: page, diagram, narration, guide, achievements rule, tests
+worker-steps/        Lab 2: the same pieces
+scaling/             Lab 3: its own engine, controller, result and README
+payment-simulation/  What labs 1 and 2 share: engine, controller, dialogs, actor, session
+shared/              What all three share: outcome shell, figures, links, styles, test fixture
+```
+
+1. **`payment-simulation/engine.ts`**: the types, default configurations and three
+   state operations. `initialState` creates a batch; `advance` performs one logical
+   transition; `continueAfterIncident` allows an interrupted job to be claimed again.
+2. **`payment-simulation/engine.test.ts`**: concrete examples of RAM loss, repeated
+   delivery, partial work and recovery. Read the first three tests before following
+   the whole model.
+3. **`queue/lab.ts`, `worker-steps/lab.ts`**: everything that makes each lab different,
+   collected in the `PaymentLabDefinition` from `payment-simulation/definition.ts`.
+   Their `diagram.ts`, `narration.ts` and `guide.ts` hold its templates and copy.
+4. **`payment-simulation/controller.ts`**: the custom element handles clicks and
+   schedules `advance` every 650 ms, and delegates what differs to the definition.
+   `dialogs.ts` and `guide-panel.ts` build the HTML of the calls, outcomes and
+   walkthrough; the controller owns their timers, focus and modal state. None of them
+   decides whether a charge, record or checkpoint exists.
+5. **`queue/QueuePage.astro`, `worker-steps/WorkerStepsPage.astro`, `scaling/ScalingPage.astro`,
+   `LabsPage.astro`**: static page composition. Each lab page loads only its own script.
+
+`payment-simulation/labels.ts` owns the default names of labs 1 and 2, and
+`shared/text.ts` their length limits and HTML escaping.
+`payment-simulation/session.ts` restores and saves names and awards in `sessionStorage`;
+`scaling/session.ts` does the same for lab 3. `shared/lab-ui.ts` holds the helpers both
+controllers share. `shared/stories.css` only imports `shared/stories/*.css`, in cascade
+order. `payment-simulation/achievements.ts` contains the five session awards; each lab
+decides which ones it earns. Feature-local ES/EN copy leaves shared site dictionaries
+and navigation unchanged.
 
 ### State transitions
 
@@ -209,15 +225,16 @@ npm run test:e2e
 ```
 
 `npm run test:e2e` runs the Playwright browser tests (`*.e2e.ts`) against the real
-static build: it builds the site and serves it on port 4330, or reuses a preview
-already running there. The first time, install the browser with
+static build: it builds this checkout and serves it on port 4330. Set
+`PLAYWRIGHT_REUSE_SERVER=1` to reuse a preview already running there, or
+`PLAYWRIGHT_PORT` to use another port. The first time, install the browser with
 `npx playwright install chromium`. CI runs the same suite on every push and pull
 request.
 
-`lab-test.ts` is the shared fixture. It shortens only the simulation intervals
+`shared/lab-test.ts` is the shared fixture. It shortens only the simulation intervals
 (at most 650 ms), so playback is faster while results stay identical, and every
 test fails on an uncaught browser error or on any request that is not a local GET.
-`stories-lab.ts` drives levels 1 and 2 through their real controls. The tests cover
+`payment-simulation/stories-lab.ts` drives labs 1 and 2 through their real controls. The tests cover
 both walkthroughs, customization/XSS, keyboard focus, blocked storage, mobile, EN,
 dark mode and reduced motion. Review screenshots are attached to the HTML report:
 `npx playwright show-report`.
