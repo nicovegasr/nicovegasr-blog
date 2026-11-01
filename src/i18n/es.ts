@@ -38,6 +38,7 @@ export const spanish = {
   'about.skillsTitle': 'Lo que conozco',
   'about.timelineTitle': 'Trayectoria',
   'about.present': 'Actualidad',
+  'about.organizationWebsite': 'Visitar la web de',
 
   'pills.metaDescription':
     'Píldoras de Nicolás Vegas sobre Docker, APIs y diseño de sistemas: conceptos concretos explicados en pequeño.',

@@ -40,6 +40,7 @@ export const english: Dictionary = {
   'about.skillsTitle': 'What I know',
   'about.timelineTitle': 'Journey',
   'about.present': 'Present',
+  'about.organizationWebsite': 'Visit the website of',
 
   'pills.metaDescription':
     "Nicolás Vegas's learning pills on Docker, APIs and system design: concrete concepts explained in small pieces.",

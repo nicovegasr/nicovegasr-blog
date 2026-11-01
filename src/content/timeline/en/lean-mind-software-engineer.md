@@ -1,5 +1,5 @@
 ---
-title: "I went back to Lean Mind with more experience."
+title: "I joined Lean Mind as a senior software engineer."
 place: "Tenerife"
 organization: "Lean Mind"
 role: "Senior Software Engineer"

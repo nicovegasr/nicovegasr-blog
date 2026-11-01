@@ -1,6 +1,9 @@
 ---
 import type { TimelineEntry } from '@/features/about-me/timeline-entry';
 import { getTranslator } from '@/i18n/translator';
+import universitySymbol from '@/features/about-me/assets/ull-symbol.webp?url';
+import bitboxSymbol from '@/features/about-me/assets/bitbox-symbol.webp?url';
+import inetumSymbol from '@/features/about-me/assets/inetum-symbol.webp?url';
 
 interface Props {
   entry: TimelineEntry;
@@ -8,6 +11,13 @@ interface Props {
 
 const { entry } = Astro.props;
 const translate = getTranslator(entry.locale);
+const organizations: Record<string, { symbol: string; website: string }> = {
+  'Universidad de La Laguna': { symbol: universitySymbol, website: 'https://www.ull.es/' },
+  Bitbox: { symbol: bitboxSymbol, website: 'https://www.bitbox.es/' },
+  Inetum: { symbol: inetumSymbol, website: 'https://www.inetum.com/' },
+  'Lean Mind': { symbol: '/lean-mind-isotipo.webp', website: 'https://leanmind.es/' },
+};
+const organization = entry.organization ? organizations[entry.organization] : undefined;
 
 const formatMonthYear = (date: Date): string =>
   new Intl.DateTimeFormat(entry.locale, { month: 'short', year: 'numeric' }).format(date);
@@ -25,7 +35,20 @@ const credit = [entry.organization, entry.role, entry.sector].filter(
     <span class="place">{entry.place}</span>
   </div>
   <div class="body">
-    <h3>{entry.title}</h3>
+    <div class="entry-heading">
+      <h3>{entry.title}</h3>
+      {organization && (
+        <a
+          class="organization-link"
+          href={organization.website}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`${translate('about.organizationWebsite')}: ${entry.organization}`}
+        >
+          <img src={organization.symbol} alt="" width="26" height="26" loading="lazy" />
+        </a>
+      )}
+    </div>
     {entry.summary !== undefined && <p class="summary">{entry.summary}</p>}
     {
       entry.documentUrl !== undefined && (
@@ -118,6 +141,32 @@ const credit = [entry.organization, entry.role, entry.sector].filter(
   .body h3 {
     font-size: var(--font-size-heading-2);
     text-wrap: balance;
+  }
+
+  .entry-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .entry-heading h3 {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .organization-link {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex: 0 0 44px;
+    height: 44px;
+    margin-top: -5px;
+  }
+
+  .organization-link img {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
   }
 
   .summary {
