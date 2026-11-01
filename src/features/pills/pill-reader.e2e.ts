@@ -69,6 +69,19 @@ test.describe('reading on a phone', () => {
   });
 });
 
+test.describe('on the narrowest phone', () => {
+  test.use({ ...phone, viewport: { width: 320, height: 568 } });
+
+  test('fits the longest series name beside its count', async ({ page }) => {
+    await page.goto('/es/pildoras/diseno-de-sistemas/kiss/');
+    const heading = page.locator('.contents-heading');
+
+    await expect(heading.locator('.eyebrow')).toHaveText('Diseño de sistemas');
+    expect(await heading.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+    await page.screenshot({ path: test.info().outputPath('longest-series.png') });
+  });
+});
+
 test.describe('without JavaScript', () => {
   test.use({ ...phone, javaScriptEnabled: false });
 
@@ -194,6 +207,12 @@ test.describe('on the desktop catalogue', () => {
     await page.goto(firstPill);
 
     await expect(page.locator('.page-meta')).toContainText('Píldora 01');
+  });
+
+  test('names the series above its index', async ({ page }) => {
+    await page.goto('/es/pildoras/fundamentos/base-de-datos/');
+
+    await expect(page.locator('.contents-heading .eyebrow')).toHaveText('Fundamentos');
   });
 
   test('keeps the side index always open', async ({ page }) => {
