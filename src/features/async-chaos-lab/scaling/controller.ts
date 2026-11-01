@@ -1,6 +1,8 @@
 import { eligibleAchievements, scalingAchievements } from './achievements';
 import type { ScalingAchievementId } from './achievements';
-import { outcomeShell } from '../shared/outcome-shell';
+import { number, teamLabel } from './format';
+import { rateLimitScene, trialResult } from './result';
+import type { ResultContext } from './result';
 import {
   createScaling,
   BASE_CAPACITIES,
@@ -31,16 +33,6 @@ import { button, inLanguage, isSpanishLab } from '../shared/lab-ui';
 import { restoreAchievements, restoreSession, saveAchievements, saveSession } from './session';
 import type { Trial } from './session';
 
-const number = (value: number, digits = 0) =>
-  value.toFixed(digits).replace(/\.0+$/, '');
-const stepWithMostWaiting = (waitTicks: number[]) => {
-  const longest = Math.max(...waitTicks);
-  return longest > 0 ? waitTicks.indexOf(longest) : null;
-};
-const teamLabel = ({ workers, concurrencyPerWorker }: ScalingConfig) =>
-  `${workers} W × ${concurrencyPerWorker}`;
-
-/** The controller owns playback and presentation. All processing rules live in engine.ts. */
 class QueueScaling extends HTMLElement {
   private config = scalingDefaults();
   private state = createScaling();
@@ -625,57 +617,36 @@ class QueueScaling extends HTMLElement {
   private showResult() {
     const rejection = this.state.rateLimit;
     if (rejection) {
-      const metrics = scalingMetrics(this.state),
-        step = rejection.step,
-        dialog = this.q<HTMLDialogElement>('dialog');
+      const dialog = this.q<HTMLDialogElement>('dialog');
       this.pause();
       this.modalAction = undefined;
       dialog.className = 'qs-outcome';
       dialog.dataset.tone = 'loss';
       dialog.setAttribute('aria-labelledby', 'qs-outcome-title');
       dialog.setAttribute('aria-describedby', 'qs-outcome-text');
-      dialog.innerHTML = outcomeShell({
-        es: this.es, trial: this.history.length, fatal: true,
-        kicker: this.t('ENSAYO DETENIDO / HTTP 429', 'TRIAL STOPPED / HTTP 429'),
-        title: this.t('Había plazas. Se agotó la cuota.', 'Slots were free. The quota ran out.'),
-        evidence: `<div class="sc-rate-evidence"><strong>HTTP 429</strong><p>${esc(this.names.steps[step]!)} · ${esc(this.names.jobs[rejection.job - 1]!)}</p><p>${this.t(`${this.state.requestsInWindow[step]}/${rejection.limit} peticiones aceptadas en esta ventana de 1 s · ${metrics.steps[step]!.active.length}/${this.config.capacities[step]} plazas en uso`, `${this.state.requestsInWindow[step]}/${rejection.limit} requests accepted in this 1 s window · ${metrics.steps[step]!.active.length}/${this.config.capacities[step]} concurrent slots in use`)}</p></div>`,
-        text: this.t(`El proveedor rechazó esta petición por superar su cuota de ${rejection.limit} peticiones por segundo, aunque quedaba una plaza libre. El servicio sigue activo y la petición rechazada no produjo su efecto. Los pagos y los efectos anteriores se conservan. La siguiente ventana empieza en ${number(rejection.retryAfterSeconds, 1)} s simulados, pero este ensayo no reintenta automáticamente. Revisa los workers, las plazas o la cuota antes de otra prueba.`, `The provider rejected this request for exceeding its quota of ${rejection.limit} requests per second, even though a concurrent slot was free. The service is still up and the rejected request produced no effect. Payments and earlier effects are retained. The next window starts in ${number(rejection.retryAfterSeconds, 1)} simulated seconds, but this trial does not retry automatically. Review workers, slots or quota before another trial.`),
-        actions: button('close', this.t('Revisar mi sistema', 'Review my system'), 'data-primary'),
-        dismissAction: 'close', awards: '',
-      });
+      dialog.innerHTML = rateLimitScene(this.resultContext(), rejection);
       dialog.showModal();
       dialog.querySelector<HTMLButtonElement>('[data-primary]')?.focus({ preventScroll: true });
       return;
     }
-    const metrics = scalingMetrics(this.state),
-      verdict = scalingVerdict(this.state);
-    const title = verdict.won
-      ? this.t('Ahora sí llegamos a tiempo.', 'Now we are on time.')
-      : !verdict.fast
-        ? this.t('Llegaron. Los últimos esperaron demasiado.', 'They arrived. The last ones waited too long.')
-        : this.t('Llegaron. A un coste demasiado alto.', 'They arrived. At too high a cost.');
-    const previous = this.history.slice(0, -1).findLast((trial) => trial.completed === PAYMENT_COUNT);
-    const currentResult = `<div><small>${this.t('ESTE INTENTO', 'THIS TRIAL')} · ${teamLabel(this.config)}</small><strong>${number(metrics.seconds, 1)} s</strong><span>${number(metrics.throughput, 2)} ${this.t('pagos/s', 'payments/s')} · ${number(metrics.cost)} u</span></div>`;
-    const comparison = previous
-      ? `<div class="sc-before-after"><div><small>${this.t('TU INTENTO ANTERIOR', 'YOUR PREVIOUS TRIAL')} · ${teamLabel(previous.config)}</small><strong>${number(previous.seconds, 1)} s</strong><span>${number(previous.completed / previous.seconds, 2)} ${this.t('pagos/s', 'payments/s')} · ${number(previous.cost)} u</span></div><span aria-hidden="true">→</span>${currentResult}</div>`
-      : `<div class="sc-before-after sc-first-result">${currentResult}</div><p class="sc-first-trial">${this.t('Es tu primer intento completado. El siguiente se comparará con este resultado.', 'This is your first completed trial. The next one will be compared with this result.')}</p>`;
-    const busiestWait = stepWithMostWaiting(this.state.waitTicks);
-    const waitingWhere = busiestWait === null ? '' : this.t(
-      ` Donde más se esperó: ${this.names.steps[busiestWait]}.`,
-      ` Most waiting happened at: ${this.names.steps[busiestWait]}.`,
-    );
-    const flags = [
-      [verdict.fast, `≤ ${TARGET_SECONDS} s`],
-      [verdict.economical, `≤ ${TARGET_COST} u`],
-      [verdict.safe, this.t('Un efecto por paso', 'One effect per step')],
-    ] as const;
+    const { title, body, tone } = trialResult(this.resultContext());
     this.modal(
       title,
-      `<p class="sc-result-label">${verdict.won ? this.t('MISIÓN SUPERADA', 'MISSION COMPLETE') : this.t('ENSAYO TERMINADO · AJUSTA TU SISTEMA', 'TRIAL COMPLETE · ADJUST YOUR SYSTEM')}</p>${comparison}<div class="sc-checks">${flags.map(([ok, label]) => `<span data-ok="${ok}">${ok ? '✓' : '×'} ${label}</span>`).join('')}</div><p>${this.t(`${metrics.completed}/24 pagos · ningún efecto duplicado · ${number(metrics.waitingSeconds, 1)} s de espera acumulada.${waitingWhere}`, `${metrics.completed}/24 payments · no duplicate effects · ${number(metrics.waitingSeconds, 1)} s of cumulative waiting.${waitingWhere}`)}</p><p class="sc-call-hint">${verdict.won ? this.t('Los workers y las plazas de los servicios están equilibrados. Compara tus intentos: ampliar todo también tiene un coste.', 'Workers and service slots are balanced. Compare your trials: expanding everything has a cost too.') : this.t('Busca dónde se acumula la espera. Sin esperas, cada worker puede llevar más pagos a la vez. Si esperan CPU, hace falta otro worker. Si esperan a un servicio, más workers no lo aceleran: le faltan plazas.', 'Find where waiting builds up. With no waiting, each worker can hold more payments. If they wait for CPU, you need another worker. If they wait for a service, more workers will not speed it up: it needs more slots.')}</p>${this.renderNewAwards()}`,
+      body,
       this.t('Volver a mi sistema', 'Back to my system'),
       () => { this.q('[data-action=play]').focus({ preventScroll: true }); },
-      verdict.won ? 'win' : 'review',
+      tone,
     );
+  }
+  private resultContext(): ResultContext {
+    return {
+      es: this.es,
+      state: this.state,
+      config: this.config,
+      names: this.names,
+      history: this.history,
+      awards: this.renderNewAwards(),
+    };
   }
   private showNames() {
     const defaults = scalingNames(this.es);

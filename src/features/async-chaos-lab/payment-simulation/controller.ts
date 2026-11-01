@@ -1,4 +1,3 @@
-import { outcomeShell } from '../shared/outcome-shell';
 import {
   JOB_COUNT,
   advance,
@@ -12,9 +11,10 @@ import { cleanLabel, escapeHtml as esc } from '../shared/text';
 import { defaultLabels } from './labels';
 import type { Labels } from './labels';
 import { achievements } from './achievements';
+import { incidentCall, isFatalOutcome, outcomeScene, tutorialCall } from './dialogs';
+import { guidePanel } from './guide-panel';
 import type { PaymentLabDefinition } from './definition';
 import type { GuideStage } from './guide';
-import { labFigure } from '../shared/figures';
 import type { AchievementId } from './achievements';
 import { actorMarkup, workerFrame, WorkerActor } from './worker-actor';
 import { button, inLanguage, isSpanishLab } from '../shared/lab-ui';
@@ -45,10 +45,10 @@ export abstract class PaymentLab extends HTMLElement {
   private inspected = -1;
   private guideTarget = '';
   private personalizing = false;
-  private runId = 0;
+  runId = 0;
   private lastOutcome = '';
   private unlocked = new Set<AchievementId>();
-  private notices: AchievementId[] = [];
+  notices: AchievementId[] = [];
   private get level() {
     return this.definition.level;
   }
@@ -524,51 +524,7 @@ export abstract class PaymentLab extends HTMLElement {
       node?.setAttribute('data-guide-focus', 'true');
       node?.setAttribute('aria-describedby', 'qs-guide-task');
     }
-    let action = '';
-    if (beat.target)
-      action = button(
-        'guide-focus',
-        this.t('Ver esta decisión ↑', 'Show this choice ↑'),
-      );
-    else if (this.state.phase === 'won')
-      action = button(
-        'guide-finish',
-        this.t('Seguir experimentando', 'Keep experimenting'),
-      );
-    else if (['lost', 'duplicate'].includes(this.state.phase))
-      action = button(
-        'lesson',
-        this.t('Cambiar el diseño', 'Change the design'),
-      );
-    const optional = this.definition.guideOptionalAction(this);
-    const changed = this.replace(
-      '[data-guide]',
-      /* HTML */ `<header class="qs-guide-header">
-          <span
-            >${this.t('RECORRIDO GUIADO', 'GUIDED WALKTHROUGH')}
-            <span class="qs-guide-chapter">${beat.chapter}/4</span></span
-          ><button
-            type="button"
-            data-action="guide-close"
-            title="${this.state.phase === 'won' ? this.t('Salir y conservar el resultado', 'Leave and keep the result') : this.t('Salir y recuperar mi ensayo anterior', 'Leave and restore my previous trial')}"
-          >
-            ${this.t('Salir del recorrido', 'Leave walkthrough')} ×
-          </button>
-        </header>
-        <div class="qs-guide-body">
-          <div class="qs-guide-story">
-            <h2>${esc(beat.title)}</h2>
-            <p>${esc(beat.story)}</p>
-          </div>
-          <div class="qs-guide-next">
-            <span class="qs-eyebrow">${this.t('AHORA', 'NOW')}</span>
-            <p id="qs-guide-task" role="status" aria-live="polite">
-              ${esc(beat.task)}
-            </p>
-            ${action || optional ? /* HTML */ `<div class="qs-guide-actions">${action}${optional}</div>` : ''}
-          </div>
-        </div>`,
-    );
+    const changed = this.replace('[data-guide]', guidePanel(this, beat));
     if (changed) this.revealGuide(false);
   }
   private showTutorial(introduction = false) {
@@ -576,62 +532,16 @@ export abstract class PaymentLab extends HTMLElement {
     this.closeOutcome();
     const d = this.q<HTMLDialogElement>('[data-outcome]');
     d.dataset.tone = 'story';
-    const { title, lines } = this.definition.tutorial(this);
-    d.innerHTML = /* HTML */ `<div class="qs-call-shell">
-      <header class="qs-call-top">
-        <span class="qs-call-channel"
-          ><i aria-hidden="true"></i
-          >${this.t('LLAMADA ENTRANTE', 'INCOMING CALL')}</span
-        >${button('dismiss', this.t('Colgar ×', 'Hang up ×'))}
-      </header>
-      <div class="qs-call-heading">
-        ${labFigure('phone')}
-        <div>
-          <span class="qs-eyebrow"
-            >${this.t('TU COMPAÑERO DE GUARDIA', 'YOUR ON-CALL TEAMMATE')}</span
-          >
-          <h2 id="qs-outcome-title">${esc(title)}</h2>
-        </div>
-      </div>
-      <div id="qs-outcome-text" class="qs-phone-conversation">
-        ${lines.map((line, i) => /* HTML */ `<p${i === lines.length - 1 ? ' class="qs-phone-aside"' : ''}>${esc(line)}</p>`).join('')}
-      </div>
-      <div class="qs-outcome-actions">
-        ${button(introduction ? 'dismiss' : 'tutorial-start', introduction ? this.t('Déjame ver el sistema', 'Show me the system') : this.guide !== 'off' ? this.t('Continuar el recorrido', 'Continue walkthrough') : this.t('Vamos a procesarlos', 'Let us process them')).replace('<button ', '<button data-primary ')}${button('walkthrough', this.t('Prefiero un recorrido guiado', 'I would prefer a guided walkthrough'))}
-      </div>
-    </div>`;
+    d.innerHTML = tutorialCall(this, introduction);
     d.showModal();
     d.querySelector<HTMLButtonElement>('[data-primary]')?.focus({
       preventScroll: true,
     });
   }
   private renderIncident() {
-    const d = this.q<HTMLDialogElement>('[data-outcome]'),
-      ack = this.state.incident === 'ack-retry',
-      call = this.definition.incidentCall(this);
+    const d = this.q<HTMLDialogElement>('[data-outcome]');
     d.dataset.tone = 'incident';
-    d.innerHTML = /* HTML */ `<div class="qs-call-shell">
-      <header class="qs-call-top">
-        <span class="qs-call-channel"
-          ><i aria-hidden="true"></i
-          >${this.t('LLAMADA DE GUARDIA', 'ON-CALL ALERT')}</span
-        >${button('dismiss', this.t('Ver esquema ×', 'View diagram ×'))}
-      </header>
-      <div class="qs-call-heading">
-        ${labFigure('phone')}
-        <div>
-          <span class="qs-eyebrow"
-            >${this.t('TU COMPAÑERO DE GUARDIA', 'YOUR ON-CALL TEAMMATE')}</span
-          >
-          <h2 id="qs-outcome-title">${esc(call.title)}</h2>
-        </div>
-      </div>
-      <p id="qs-outcome-text" class="qs-caller-report">«${esc(call.report)}»</p>
-      <div class="qs-call-evidence">${this.outcomeEvidence()}</div>
-      <div class="qs-outcome-actions">
-        ${button('play', ack ? this.t('Volver a procesar el mismo ID', 'Process the same ID again') : this.t('Reiniciar y reintentar este pago', 'Restart and retry this payment')).replace('<button ', '<button data-primary ')}${button('dismiss', this.t('Voy a mirar el sistema', 'Let me check the system'))}
-      </div>
-    </div>`;
+    d.innerHTML = incidentCall(this);
     if (!d.open) d.showModal();
     d.scrollTop = 0;
     d.querySelector<HTMLButtonElement>('[data-primary]')?.focus({
@@ -640,65 +550,6 @@ export abstract class PaymentLab extends HTMLElement {
   }
   private outcomeKey() {
     return `${this.runId}:${this.state.phase}:${this.state.tick}`;
-  }
-  private outcomeTicket(i: number, lost = false) {
-    return /* HTML */ `<article
-      class="qs-ticket ${lost ? 'is-lost' : 'is-kept'}"
-    >
-      <header>
-        <span>ID ${String(i + 1).padStart(2, '0')}</span
-        ><span>${lost ? '×' : '✓'}</span>
-      </header>
-      <strong>${esc(this.job(i))}</strong
-      ><span class="qs-ticket-lines" aria-hidden="true"></span>
-      <footer>
-        ${lost ? this.t('Sin copia duradera', 'No durable copy') : this.t('Resultado guardado', 'Result saved')}
-      </footer>
-    </article>`;
-  }
-  private outcomeEvidence() {
-    const s = this.state,
-      m = totals(s),
-      j = s.jobs[Math.max(0, s.active)]!;
-    if (s.phase === 'lost' || s.phase === 'won')
-      return /* HTML */ `<div class="qs-ticket-row">
-          ${s.jobs.map((job, i) => this.outcomeTicket(i, job.status === 'lost')).join('')}
-        </div>
-        <p class="qs-evidence-caption">
-          ${s.phase === 'lost' ? this.t(`${m.done} completado · ${m.lost} perdidos al desaparecer la RAM`, `${m.done} completed · ${m.lost} lost when RAM disappeared`) : this.definition.wonCaption(this)}
-        </p>`;
-    if (s.phase === 'duplicate') {
-      const [firstFooter, secondFooter] = this.definition.duplicateFooters(this);
-      return /* HTML */ `<div class="qs-repeat-evidence">
-        <article class="qs-ticket is-kept">
-          <header>
-            <span>ID ${String(j.id).padStart(2, '0')}</span><span>✓</span>
-          </header>
-          <strong>${esc(this.job(j.id - 1))}</strong
-          ><span class="qs-ticket-lines" aria-hidden="true"></span>
-          <footer>
-            ${firstFooter}
-          </footer>
-        </article>
-        <span class="qs-repeat-symbol" aria-hidden="true">+</span>
-        <article class="qs-ticket is-repeated">
-          <header>
-            <span>ID ${String(j.id).padStart(2, '0')}</span><span>×</span>
-          </header>
-          <strong>${esc(this.job(j.id - 1))}</strong
-          ><span class="qs-ticket-lines" aria-hidden="true"></span>
-          <footer>
-            ${secondFooter}
-          </footer>
-        </article>
-        <p>
-          ${esc(this.step(s.step))}<br /><b
-            >${this.t('El mismo pago. Dos resultados.', 'The same payment. Two results.')}</b
-          >
-        </p>
-      </div>`;
-    }
-    return this.definition.interruptedEvidence(this);
   }
   private renderOutcome(revealed = false) {
     const s = this.state;
@@ -722,64 +573,9 @@ export abstract class PaymentLab extends HTMLElement {
       this.renderIncident();
       return;
     }
-    const d = this.q<HTMLDialogElement>('[data-outcome]'),
-      fatal = s.phase === 'lost' || s.phase === 'duplicate',
-      won = s.phase === 'won';
-    let [, text] = this.definition.feedback(this),
-      title = '',
-      kicker = '';
-    if (s.phase === 'lost') {
-      title = this.t(
-        `Faltan ${totals(s).lost} pagos por registrar.`,
-        `${totals(s).lost} payments will never be recorded.`,
-      );
-      kicker = 'GAME LOSS / ' + this.t('PERDISTE LOS DATOS', 'DATA LOST');
-    } else if (s.phase === 'duplicate') {
-      title = this.definition.duplicateTitle(this);
-      kicker =
-        'GAME LOSS / ' + this.t('RESULTADO DUPLICADO', 'DUPLICATE RESULT');
-    } else if (won) {
-      title = this.t('Los tres, completados.', 'All three, complete.');
-      kicker =
-        this.guide !== 'off'
-          ? this.t('RECORRIDO COMPLETADO', 'WALKTHROUGH COMPLETE')
-          : this.t('ENSAYO COMPLETADO', 'TRIAL COMPLETE');
-    }
-    if (fatal) text = '«' + esc(this.definition.incidentCall(this).report) + '»';
-    let action = 'dismiss',
-      label = this.t('Revisar mi sistema', 'Review my system');
-    if (this.guide !== 'off' && fatal) {
-      action = 'lesson';
-      label =
-        s.phase === 'lost'
-          ? this.t('Aprender a conservarlos', 'Learn how to retain them')
-          : this.t('Evitar este duplicado', 'Prevent this duplicate');
-    }
-    if (this.guide !== 'off' && won) {
-      action = 'guide-finish';
-      label = this.t('Seguir experimentando', 'Keep experimenting');
-    }
-    d.dataset.tone = fatal ? 'loss' : 'win';
-    const awards = this.notices
-      .map((id) => {
-        const a = achievements.find((a) => a.id === id)!,
-          [name, description] = this.es ? a.es : a.en;
-        return /* HTML */ `<div class="qs-earned">
-          <span aria-hidden="true">✦</span>
-          <div>
-            <span class="qs-award-label"
-              >${this.t('LOGRO DESBLOQUEADO', 'ACHIEVEMENT UNLOCKED')}</span
-            ><strong>${esc(name)}</strong>
-            <p>${esc(description)}</p>
-          </div>
-        </div>`;
-      })
-      .join('');
-    d.innerHTML = outcomeShell({
-      es: this.es, trial: this.runId + 1, fatal, kicker, title,
-      evidence: this.outcomeEvidence(), text, awards,
-      actions: `${button(action, label).replace('<button ', '<button data-primary ')}${won ? this.definition.wonOptionalAction(this) : ''}${action !== 'dismiss' ? button('dismiss', this.t('Revisar el esquema', 'Review diagram')) : ''}`,
-    });
+    const d = this.q<HTMLDialogElement>('[data-outcome]');
+    d.dataset.tone = isFatalOutcome(this) ? 'loss' : 'win';
+    d.innerHTML = outcomeScene(this);
     if (!d.open) d.showModal();
     d.scrollTop = 0;
     d.querySelector<HTMLButtonElement>('[data-primary]')?.focus({
