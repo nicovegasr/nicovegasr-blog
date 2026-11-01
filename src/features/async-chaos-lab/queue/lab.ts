@@ -7,7 +7,9 @@ import { labFigure } from '../shared/figures';
 import { escapeHtml as esc } from '../shared/text';
 import { queueDiagram } from './diagram';
 import { queueGuideBeat } from './guide';
+import { queueLabels } from './labels';
 import { queueFeedback, queueIncidentCall, queueTutorial } from './narration';
+import { queueConfig, queueRules } from './rules';
 
 function resultLabel(lab: PaymentLab, i: number, count: number) {
   const kind = lab.config.steps[i]?.kind ?? 'append';
@@ -32,7 +34,10 @@ export function earnedAchievements(s: SimulationState): AchievementId[] {
 }
 
 export const queueLab: PaymentLabDefinition = {
-  level: 1,
+  defaultConfig: queueConfig,
+  rules: queueRules,
+  defaultLabels: queueLabels,
+  stepNamesKey: 'steps1',
   firstGuideStage: 'ram',
   diagram: queueDiagram,
   stepDescription: (lab, step) =>

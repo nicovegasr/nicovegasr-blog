@@ -6,39 +6,11 @@ export type Labels = {
   jobs: string[];
   steps: string[];
 };
-export function defaultLabels(level: 1 | 2, es: boolean): Labels {
-  return {
-    api: es ? 'API de pagos' : 'Payment API',
-    storage:
-      level === 1
-        ? es
-          ? 'Memoria RAM'
-          : 'RAM memory'
-        : es
-          ? 'Base de datos'
-          : 'Database',
-    worker: 'PaymentAsyncProcess',
-    jobs: Array.from(
-      { length: JOB_COUNT },
-      (_, i) => `${es ? 'Pago' : 'Payment'} #${i + 1}`,
-    ),
-    steps:
-      level === 1
-        ? es
-          ? ['Validar pago', 'Registrar pago', 'Preparar resultado']
-          : ['Validate payment', 'Record payment', 'Prepare result']
-        : es
-          ? [
-              'Validar formato',
-              'Cobrar en Stripe',
-              'Activar suscripción',
-              'Enviar confirmación',
-            ]
-          : [
-              'Validate format',
-              'Charge in Stripe',
-              'Activate subscription',
-              'Send confirmation',
-            ],
-  };
-}
+export const sharedLabels = (es: boolean) => ({
+  api: es ? 'API de pagos' : 'Payment API',
+  worker: 'PaymentAsyncProcess',
+  jobs: Array.from(
+    { length: JOB_COUNT },
+    (_, i) => `${es ? 'Pago' : 'Payment'} #${i + 1}`,
+  ),
+});

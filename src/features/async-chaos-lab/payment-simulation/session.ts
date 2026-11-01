@@ -7,7 +7,7 @@ const achievementsKey = 'queue-story-achievements';
 const namesKey = (es: boolean) => `queue-story-names-${es ? 'es' : 'en'}`;
 
 // Browser storage is optional: every function works, without persisting, when it is blocked.
-export function restoreLabels(defaults: Labels, level: 1 | 2, es: boolean): Labels {
+export function restoreLabels(defaults: Labels, stepNamesKey: string, es: boolean): Labels {
   const labels = structuredClone(defaults);
   try {
     const saved = JSON.parse(sessionStorage.getItem(namesKey(es)) ?? '{}');
@@ -18,9 +18,9 @@ export function restoreLabels(defaults: Labels, level: 1 | 2, es: boolean): Labe
       labels.jobs = defaults.jobs.map((fallback, index) =>
         cleanLabel(saved.jobs[index], fallback),
       );
-    if (Array.isArray(saved[`steps${level}`]))
+    if (Array.isArray(saved[stepNamesKey]))
       labels.steps = defaults.steps.map((fallback, index) =>
-        cleanLabel(saved[`steps${level}`][index], fallback),
+        cleanLabel(saved[stepNamesKey][index], fallback),
       );
   } catch {
     return labels;
@@ -28,13 +28,13 @@ export function restoreLabels(defaults: Labels, level: 1 | 2, es: boolean): Labe
   return labels;
 }
 
-export function saveLabel(key: string, labels: Labels, level: 1 | 2, es: boolean) {
+export function saveLabel(key: string, labels: Labels, stepNamesKey: string, es: boolean) {
   try {
     const saved = JSON.parse(sessionStorage.getItem(namesKey(es)) ?? '{}');
     if (key === 'api' || key === 'storage' || key === 'worker')
       saved[key] = labels[key];
     if (key.startsWith('job-')) saved.jobs = labels.jobs;
-    if (key.startsWith('step-')) saved[`steps${level}`] = labels.steps;
+    if (key.startsWith('step-')) saved[stepNamesKey] = labels.steps;
     sessionStorage.setItem(namesKey(es), JSON.stringify(saved));
   } catch {
     return;

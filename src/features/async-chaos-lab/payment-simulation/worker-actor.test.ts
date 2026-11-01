@@ -1,14 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { advance, continueAfterIncident, defaultConfig, initialState } from './engine';
+import { advance, continueAfterIncident, initialState } from './engine';
+import { workerStepsConfig, workerStepsRules } from '../worker-steps/rules';
 import type { Incident } from './engine';
 import { workerFrame } from './worker-actor';
 
 function incident(kind: Incident) {
-  const config = defaultConfig(2);
+  const config = workerStepsConfig();
   config.steps[1]!.remember = true;
   let s = initialState(config);
   for (let i = 0; i < 200; i++) {
-    s = s.phase === 'incident' ? continueAfterIncident(s) : advance(s);
+    s = s.phase === 'incident' ? continueAfterIncident(s) : advance(s, workerStepsRules);
     if (s.incident === kind) return s;
   }
   throw new Error(`Did not reach ${kind}`);
@@ -35,7 +36,7 @@ describe('The worker character tells the engine story', () => {
   it('points to the saved step actually skipped, instead of pretending to execute it', () => {
     let s = continueAfterIncident(incident('activation-failed'));
     for (let i = 0; i < 20; i++) {
-      s = advance(s);
+      s = advance(s, workerStepsRules);
       if (s.events.at(-1)?.kind === 'skipped') break;
     }
     expect(s.events.at(-1)?.kind).toBe('skipped');

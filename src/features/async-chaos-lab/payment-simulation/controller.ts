@@ -2,13 +2,11 @@ import {
   JOB_COUNT,
   advance,
   continueAfterIncident,
-  defaultConfig,
   initialState,
   totals,
 } from './engine';
 import type { SimulationConfig, SimulationState } from './engine';
 import { cleanLabel, escapeHtml as esc } from '../shared/text';
-import { defaultLabels } from './labels';
 import type { Labels } from './labels';
 import { achievements } from './achievements';
 import { incidentCall, isFatalOutcome, outcomeScene, tutorialCall } from './dialogs';
@@ -49,9 +47,6 @@ export abstract class PaymentLab extends HTMLElement {
   private lastOutcome = '';
   private unlocked = new Set<AchievementId>();
   notices: AchievementId[] = [];
-  private get level() {
-    return this.definition.level;
-  }
   get es() {
     return isSpanishLab(this);
   }
@@ -75,10 +70,10 @@ export abstract class PaymentLab extends HTMLElement {
   }
   // Lifecycle: initialize once connected; stop timers/listeners on disconnect.
   connectedCallback() {
-    this.config = defaultConfig(this.level);
+    this.config = this.definition.defaultConfig();
     this.state = initialState(this.config);
-    this.defaults = defaultLabels(this.level, this.es);
-    this.labels = restoreLabels(this.defaults, this.level, this.es);
+    this.defaults = this.definition.defaultLabels(this.es);
+    this.labels = restoreLabels(this.defaults, this.definition.stepNamesKey, this.es);
     this.unlocked = restoreAchievements();
     this.syncStorageName();
     this.innerHTML = /* HTML */ ` <aside
@@ -322,7 +317,7 @@ export abstract class PaymentLab extends HTMLElement {
     }
     this.inspected = -1;
     this.playing = true;
-    this.state = advance(this.state);
+    this.state = advance(this.state, this.definition.rules);
     if (this.state.phase !== 'running') this.stop();
     this.update();
     this.schedulePlayback();
@@ -331,7 +326,7 @@ export abstract class PaymentLab extends HTMLElement {
     clearInterval(this.timer);
     if (!this.playing) return;
     this.timer = setInterval(() => {
-      this.state = advance(this.state);
+      this.state = advance(this.state, this.definition.rules);
       if (this.state.phase !== 'running') this.stop();
       this.update();
     }, 650 / this.speed);
@@ -355,7 +350,7 @@ export abstract class PaymentLab extends HTMLElement {
       };
     this.guide = this.definition.firstGuideStage;
     this.personalizing = false;
-    this.config = defaultConfig(this.level);
+    this.config = this.definition.defaultConfig();
     this.syncStorageName();
     this.buildSteps();
     this.reset();
@@ -456,7 +451,7 @@ export abstract class PaymentLab extends HTMLElement {
       this.labels.jobs[Number(key.slice(4))] = value;
     else if (key.startsWith('step-'))
       this.labels.steps[Number(key.slice(5))] = value;
-    saveLabel(key, this.labels, this.level, this.es);
+    saveLabel(key, this.labels, this.definition.stepNamesKey, this.es);
     this.update();
   };
   syncStorageName() {

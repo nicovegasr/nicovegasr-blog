@@ -9,9 +9,8 @@ export type StepConfig = {
   providerDeduplication: boolean;
 };
 export type SimulationConfig = {
-  level: 1 | 2;
   storage: 'ram' | 'db';
-  // Lab 1: the local record and its stable ID share an atomic write.
+  // The local record and its stable ID share an atomic write.
   protectLocalRecord: boolean;
   steps: StepConfig[];
   // Engine-only regression scenarios: external effect happened, local mark did not.
@@ -79,29 +78,18 @@ export type SimulationState = {
   skipped: number;
   wasted: number;
 };
-export function defaultConfig(level: 1 | 2): SimulationConfig {
-  const kinds: ActionKind[] =
-    level === 1
-      ? ['check', 'append', 'check']
-      : ['check', 'external', 'set-state', 'notify'];
-  return {
-    level,
-    storage: level === 1 ? 'ram' : 'db',
-    protectLocalRecord: level === 2,
-    steps: kinds.map((kind) => ({
-      kind,
-      remember: false,
-      providerDeduplication: false,
-    })),
-    gap: 'none',
-  };
-}
-export function initialState(config = defaultConfig(1)): SimulationState {
-  if (
-    config.steps.length < 1 ||
-    config.steps.length > 6 ||
-    (config.level === 2 && config.steps.length !== 4)
-  )
+/** What each lab decides about how the shared simulation behaves. */
+export type SimulationRules = {
+  /** Returns true when a fault used up this tick, before the step runs. */
+  interruptBeforeStep(state: SimulationState, job: Job, progress: StepProgress): boolean;
+  skipsStep(config: SimulationConfig, step: StepConfig, progress: StepProgress): boolean;
+  countsRepeatedWork: boolean;
+  afterStep(state: SimulationState, job: Job, step: StepConfig, progress: StepProgress): void;
+  /** Returns true when a fault used up this tick, before the job is acknowledged. */
+  interruptBeforeAcknowledge(state: SimulationState, job: Job): boolean;
+};
+export function initialState(config: SimulationConfig): SimulationState {
+  if (config.steps.length < 1 || config.steps.length > 6)
     throw new Error('Invalid step count');
   return {
     config: structuredClone(config),
@@ -128,7 +116,7 @@ export function initialState(config = defaultConfig(1)): SimulationState {
     wasted: 0,
   };
 }
-function recordEvent(state: SimulationState, kind: EventKind) {
+export function recordEvent(state: SimulationState, kind: EventKind) {
   state.events.push({
     tick: state.tick,
     job: state.active + 1,
@@ -136,18 +124,18 @@ function recordEvent(state: SimulationState, kind: EventKind) {
     kind,
   });
 }
-function injectFaultOnce(state: SimulationState, id: string) {
+export function injectFaultOnce(state: SimulationState, id: string) {
   if (state.injected.includes(id)) return false;
   state.injected.push(id);
   return true;
 }
-function pauseForIncident(state: SimulationState, kind: Incident) {
+export function pauseForIncident(state: SimulationState, kind: Incident) {
   state.phase = 'incident';
   state.incident = kind;
   state.jobs[state.active]!.status = 'retrying';
   state.cursor = 'claim';
 }
-function moveToNextStep(state: SimulationState) {
+export function moveToNextStep(state: SimulationState) {
   state.step++;
   state.cursor = state.step >= state.config.steps.length ? 'ack' : 'execute';
 }
@@ -161,7 +149,7 @@ export function continueAfterIncident(
   recordEvent(state, 'recovered');
   return state;
 }
-export function advance(previous: SimulationState): SimulationState {
+export function advance(previous: SimulationState, rules: SimulationRules): SimulationState {
   if (['incident', 'lost', 'duplicate', 'won'].includes(previous.phase))
     return previous;
   const state = structuredClone(previous);
@@ -188,41 +176,8 @@ export function advance(previous: SimulationState): SimulationState {
     stepConfig = config.steps[state.step],
     stepProgress = job.steps[state.step];
   if (state.cursor === 'execute' && stepConfig && stepProgress) {
-    // Lab 1, payment #2: the worker and its co-hosted RAM share the crash.
-    // The independent database and already-produced business results survive.
-    if (
-      config.level === 1 &&
-      job.id === 2 &&
-      injectFaultOnce(state, 'worker-2')
-    ) {
-      recordEvent(state, 'worker-crash');
-      if (config.storage === 'ram') {
-        for (const job of state.jobs)
-          if (job.status !== 'done') job.status = 'lost';
-        state.phase = 'lost';
-        state.incident = 'ram-lost';
-      } else pauseForIncident(state, 'worker-retry');
-      return state;
-    }
-    // Payment #2 crashes before activation takes effect, once per run.
-    if (
-      config.level === 2 &&
-      job.id === 2 &&
-      state.step === 2 &&
-      injectFaultOnce(state, 'activation-2')
-    ) {
-      stepProgress.executions++;
-      recordEvent(state, 'worker-crash');
-      pauseForIncident(state, 'activation-failed');
-      return state;
-    }
-    if (
-      (config.level === 1 &&
-        config.protectLocalRecord &&
-        !isSafeToRepeat(stepConfig.kind) &&
-        stepProgress.effects > 0) ||
-      (config.level === 2 && stepConfig.remember && stepProgress.checkpoint)
-    ) {
+    if (rules.interruptBeforeStep(state, job, stepProgress)) return state;
+    if (rules.skipsStep(config, stepConfig, stepProgress)) {
       stepProgress.skipped++;
       state.skipped++;
       recordEvent(state, 'skipped');
@@ -231,14 +186,13 @@ export function advance(previous: SimulationState): SimulationState {
     }
     stepProgress.executions++;
     const repeated = stepProgress.effects > 0;
-    if (repeated && config.level === 2) {
+    if (repeated && rules.countsRepeatedWork) {
       state.wasted++;
       recordEvent(state, 'wasted');
     }
     const nonrepeatable = !isSafeToRepeat(stepConfig.kind);
     if (
       repeated &&
-      config.level === 2 &&
       isExternal(stepConfig.kind) &&
       stepConfig.providerDeduplication
     ) {
@@ -254,39 +208,7 @@ export function advance(previous: SimulationState): SimulationState {
         return state;
       }
     }
-    if (config.level === 1) {
-      stepProgress.checkpoint =
-        config.protectLocalRecord && !isSafeToRepeat(stepConfig.kind);
-      moveToNextStep(state);
-      return state;
-    }
-    // The effect exists before the consumer can persist its local checkpoint.
-    const gapStep = config.gap === 'charge' ? 1 : 3;
-    if (
-      config.gap !== 'none' &&
-      job.id === 1 &&
-      state.step === gapStep &&
-      injectFaultOnce(state, 'gap-1')
-    ) {
-      recordEvent(state, 'gap');
-      pauseForIncident(state, 'effect-uncertain');
-      return state;
-    }
-    // Payment #3: the service accepts the email, but its response times out
-    // before the worker can save a checkpoint. A retry is ambiguous locally.
-    if (
-      config.level === 2 &&
-      job.id === 3 &&
-      state.step === 3 &&
-      injectFaultOnce(state, 'email-3')
-    ) {
-      recordEvent(state, 'response-timeout');
-      pauseForIncident(state, 'email-uncertain');
-      return state;
-    }
-    // Only a configured checkpoint writes progress; an unchecked action leaves no marker.
-    if (stepConfig.remember) state.cursor = 'save';
-    else moveToNextStep(state);
+    rules.afterStep(state, job, stepConfig, stepProgress);
     return state;
   }
   if (state.cursor === 'save' && stepProgress && stepConfig) {
@@ -296,11 +218,7 @@ export function advance(previous: SimulationState): SimulationState {
     return state;
   }
   if (state.cursor === 'ack') {
-    if (config.level === 1 && job.id === 3 && injectFaultOnce(state, 'ack-3')) {
-      recordEvent(state, 'ack-lost');
-      pauseForIncident(state, 'ack-retry');
-      return state;
-    }
+    if (rules.interruptBeforeAcknowledge(state, job)) return state;
     job.status = 'done';
     recordEvent(state, 'completed');
     state.cursor = 'claim';
@@ -309,14 +227,14 @@ export function advance(previous: SimulationState): SimulationState {
   }
   return state;
 }
-export function run(config: SimulationConfig) {
+export function run(config: SimulationConfig, rules: SimulationRules) {
   // Test/reproduction helper. The UI uses explicit user retries instead.
   let state = initialState(config);
   for (let i = 0; i < 500; i++) {
     state =
       state.phase === 'incident'
         ? continueAfterIncident(state)
-        : advance(state);
+        : advance(state, rules);
     if (['lost', 'duplicate', 'won'].includes(state.phase)) return state;
   }
   throw new Error('Scenario did not terminate');

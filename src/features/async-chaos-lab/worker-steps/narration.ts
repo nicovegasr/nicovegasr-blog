@@ -1,12 +1,13 @@
 import type { PaymentLab } from '../payment-simulation/controller';
-import { defaultConfig, isExternal } from '../payment-simulation/engine';
+import { isExternal } from '../payment-simulation/engine';
 import { escapeHtml as esc } from '../shared/text';
+import { workerStepsConfig } from './rules';
 
 export const usesCustomSteps = (lab: PaymentLab) =>
   lab.config.steps.some(
     (step, i) =>
       lab.step(i) !== lab.defaults.steps[i] ||
-      step.kind !== defaultConfig(2).steps[i]?.kind,
+      step.kind !== workerStepsConfig().steps[i]?.kind,
   );
 
 export function workerStepsFeedback(lab: PaymentLab): [string, string] {

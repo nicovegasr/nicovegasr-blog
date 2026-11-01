@@ -1,7 +1,8 @@
 import type { AchievementId } from './achievements';
 import type { PaymentLab } from './controller';
-import type { SimulationState, StepConfig, StepProgress } from './engine';
+import type { SimulationConfig, SimulationRules, SimulationState, StepConfig, StepProgress } from './engine';
 import type { GuideBeat, GuideContext, GuideStage } from './guide';
+import type { Labels } from './labels';
 
 export type StepPaint = {
   progress: StepProgress;
@@ -14,7 +15,11 @@ export type StepPaint = {
 
 /** Everything that makes one payment lab different from the other. */
 export type PaymentLabDefinition = {
-  level: 1 | 2;
+  defaultConfig(): SimulationConfig;
+  rules: SimulationRules;
+  defaultLabels(es: boolean): Labels;
+  /** Stored under this key so each lab keeps its own step names. */
+  stepNamesKey: string;
   firstGuideStage: GuideStage;
   diagram(lab: PaymentLab): string;
   stepDescription(lab: PaymentLab, step: StepConfig, index: number): string;

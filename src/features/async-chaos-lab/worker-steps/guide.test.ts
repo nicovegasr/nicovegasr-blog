@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { defaultConfig, run } from '../payment-simulation/engine';
+import { run } from '../payment-simulation/engine';
 import type { SimulationState } from '../payment-simulation/engine';
 import type { GuideStage } from '../payment-simulation/guide';
 import { workerStepsGuideBeat } from './guide';
+import { workerStepsConfig, workerStepsRules } from './rules';
 
 const context = (state: SimulationState, stage: GuideStage) => ({
   es: true,
@@ -20,17 +21,17 @@ const beat = (state: SimulationState, stage: GuideStage) => workerStepsGuideBeat
 
 describe('Worker steps walkthrough follows observed state', () => {
   it('explains the receiver protection after a correct worker run', () => {
-    const config = defaultConfig(2);
+    const config = workerStepsConfig();
     config.steps[1]!.remember = true;
     config.steps[3]!.providerDeduplication = true;
-    const state = run(config);
+    const state = run(config, workerStepsRules);
     expect(state.phase).toBe('won');
     expect(beat(state, 'safe').story).toContain('proveedor reconoció');
     expect(beat(state, 'optimize').task).toContain('opcional');
   });
 
   it('teaches the saved charge checkpoint before the ambiguous email outcome', () => {
-    const state = run(defaultConfig(2));
+    const state = run(workerStepsConfig(), workerStepsRules);
     expect(state.phase).toBe('duplicate');
     expect(state.step).toBe(1);
     const result = beat(state, 'charge');
@@ -39,9 +40,9 @@ describe('Worker steps walkthrough follows observed state', () => {
   });
 
   it('points to receiver deduplication after the final email is duplicated', () => {
-    const config = defaultConfig(2);
+    const config = workerStepsConfig();
     config.steps.forEach((step) => (step.remember = true));
-    const duplicate = run(config);
+    const duplicate = run(config, workerStepsRules);
 
     expect(duplicate.phase).toBe('duplicate');
     expect(duplicate.step).toBe(3);

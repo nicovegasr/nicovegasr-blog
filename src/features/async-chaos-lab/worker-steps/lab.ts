@@ -7,7 +7,9 @@ import { button } from '../shared/lab-ui';
 import { escapeHtml as esc } from '../shared/text';
 import { stepNature, stepOptions, workerStepsDiagram } from './diagram';
 import { workerStepsGuideBeat } from './guide';
+import { workerStepsLabels } from './labels';
 import { usesCustomSteps, workerStepsFeedback, workerStepsIncidentCall, workerStepsTutorial } from './narration';
+import { workerStepsConfig, workerStepsRules } from './rules';
 
 function resultLabel(lab: PaymentLab, i: number, count: number) {
   const kind = lab.config.steps[i]?.kind ?? 'append';
@@ -36,7 +38,10 @@ export function earnedAchievements(s: SimulationState): AchievementId[] {
 }
 
 export const workerStepsLab: PaymentLabDefinition = {
-  level: 2,
+  defaultConfig: workerStepsConfig,
+  rules: workerStepsRules,
+  defaultLabels: workerStepsLabels,
+  stepNamesKey: 'steps2',
   firstGuideStage: 'partial',
   diagram: workerStepsDiagram,
   stepDescription: stepNature,

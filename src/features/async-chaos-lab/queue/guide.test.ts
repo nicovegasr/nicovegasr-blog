@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { advance, defaultConfig, initialState, run } from '../payment-simulation/engine';
+import { advance, initialState, run } from '../payment-simulation/engine';
 import type { SimulationState } from '../payment-simulation/engine';
 import type { GuideStage } from '../payment-simulation/guide';
 import { queueGuideBeat } from './guide';
+import { queueConfig, queueRules } from './rules';
 
 const context = (state: SimulationState, stage: GuideStage) => ({
   es: true,
@@ -20,7 +21,7 @@ const beat = (state: SimulationState, stage: GuideStage) => queueGuideBeat(conte
 
 describe('Queue walkthrough follows observed state', () => {
   it('asks to start without highlighting an unrelated choice', () => {
-    const result = beat(initialState(defaultConfig(1)), 'ram');
+    const result = beat(initialState(queueConfig()), 'ram');
     expect(result.target).toBeNull();
     expect(result.task).toContain('Iniciar');
     expect(result.story).toContain('My intake');
@@ -28,20 +29,20 @@ describe('Queue walkthrough follows observed state', () => {
   });
 
   it('distinguishes a new design from an observed duplicate', () => {
-    const config = defaultConfig(1);
+    const config = queueConfig();
     config.storage = 'db';
     const ready = beat(initialState(config), 'identity');
     expect(ready.target).toBe('identity');
     expect(ready.story).not.toContain('acabó con dos filas');
-    const duplicate = beat(run(config), 'identity');
+    const duplicate = beat(run(config, queueRules), 'identity');
     expect(duplicate.story).toContain('Payment #3 acabó con dos filas');
   });
 
   it('asks to retry a real incident before suggesting another configuration', () => {
-    const config = defaultConfig(1);
+    const config = queueConfig();
     config.storage = 'db';
     let state = initialState(config);
-    while (state.phase !== 'incident') state = advance(state);
+    while (state.phase !== 'incident') state = advance(state, queueRules);
     const result = beat(state, 'durable');
     expect(result.target).toBeNull();
     expect(result.task).toContain('Reprocesar pago');
