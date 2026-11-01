@@ -8,17 +8,10 @@ import './worker-actor.css';
 interface Props {
   locale: Locale;
   level: 1 | 2;
+  title: string;
 }
-const { locale, level } = Astro.props;
+const { locale, level, title } = Astro.props;
 const es = locale === 'es';
-const title =
-  level === 1
-    ? es
-      ? 'Protege tus pagos.'
-      : 'Protect your payments.'
-    : es
-      ? 'Un pago. Cuatro pasos.'
-      : 'One payment. Four steps.';
 ---
 
 <BaseLayout
@@ -40,6 +33,3 @@ const title =
     }</noscript
   >
 </BaseLayout>
-<script>
-  import './controller';
-</script>

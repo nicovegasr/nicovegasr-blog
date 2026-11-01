@@ -5,16 +5,14 @@ import {
   continueAfterIncident,
   defaultConfig,
   initialState,
-  isExternal,
-  isSafeToRepeat,
   totals,
 } from './engine';
-import type { SimulationConfig, ActionKind, SimulationState } from './engine';
+import type { SimulationConfig, SimulationState } from './engine';
 import { cleanLabel, escapeHtml as esc } from '../shared/text';
 import { defaultLabels } from './labels';
 import type { Labels } from './labels';
 import { achievements } from './achievements';
-import { guideBeat } from './guide';
+import type { PaymentLabDefinition } from './definition';
 import type { GuideStage } from './guide';
 import { labFigure } from '../shared/figures';
 import type { AchievementId } from './achievements';
@@ -22,19 +20,20 @@ import { actorMarkup, workerFrame, WorkerActor } from './worker-actor';
 import { button, inLanguage, isSpanishLab } from '../shared/lab-ui';
 import { restoreAchievements, restoreLabels, saveAchievements, saveLabel } from './session';
 
-class QueueStories extends HTMLElement {
-  private config!: SimulationConfig;
-  private state!: SimulationState;
-  private labels!: Labels;
-  private defaults!: Labels;
+export abstract class PaymentLab extends HTMLElement {
+  abstract readonly definition: PaymentLabDefinition;
+  config!: SimulationConfig;
+  state!: SimulationState;
+  labels!: Labels;
+  defaults!: Labels;
   private timer: ReturnType<typeof setInterval> | undefined;
   private retryTimer: ReturnType<typeof setTimeout> | undefined;
-  private retryStage: 'failure' | 'restart' | undefined;
+  retryStage: 'failure' | 'restart' | undefined;
   private actor: WorkerActor | undefined;
   private outcomeTimer: ReturnType<typeof setTimeout> | undefined;
-  private playing = false;
+  playing = false;
   private speed = 1;
-  private guide: GuideStage = 'off';
+  guide: GuideStage = 'off';
   private backup:
     | {
         config: SimulationConfig;
@@ -50,25 +49,25 @@ class QueueStories extends HTMLElement {
   private lastOutcome = '';
   private unlocked = new Set<AchievementId>();
   private notices: AchievementId[] = [];
-  private get level(): 1 | 2 {
-    return this.dataset.level === '2' ? 2 : 1;
+  private get level() {
+    return this.definition.level;
   }
-  private get es() {
+  get es() {
     return isSpanishLab(this);
   }
-  private t(es: string, en: string) {
+  t(es: string, en: string) {
     return inLanguage(this.es, es, en);
   }
-  private q<T extends HTMLElement = HTMLElement>(selector: string) {
+  q<T extends HTMLElement = HTMLElement>(selector: string) {
     return this.querySelector<T>(selector)!;
   }
-  private name(key: 'api' | 'storage' | 'worker') {
+  name(key: 'api' | 'storage' | 'worker') {
     return cleanLabel(this.labels[key], this.defaults[key]);
   }
-  private job(i: number) {
+  job(i: number) {
     return cleanLabel(this.labels.jobs[i], this.defaults.jobs[i]!);
   }
-  private step(i: number) {
+  step(i: number) {
     return cleanLabel(
       this.labels.steps[i],
       this.defaults.steps[i] ?? `${this.t('Paso', 'Step')} ${i + 1}`,
@@ -90,7 +89,7 @@ class QueueStories extends HTMLElement {
       ></aside>
       <div class="qs-stage">
         <div class="qs-system">
-          ${this.level === 1 ? this.queueDiagram() : this.workerDiagram()}
+          ${this.definition.diagram(this)}
         </div>
         <aside
           class="qs-tutorial"
@@ -183,7 +182,7 @@ class QueueStories extends HTMLElement {
     document.removeEventListener('visibilitychange', this.onVisibility);
   }
   // Diagram templates. These methods render data and never advance the engine.
-  private editor(key: string, value: string, label: string) {
+  editor(key: string, value: string, label: string) {
     return /* HTML */ `<span class="qs-editable"
       ><strong data-display-label="${key}">${esc(value)}</strong
       ><input
@@ -196,7 +195,7 @@ class QueueStories extends HTMLElement {
         spellcheck="false"
     /></span>`;
   }
-  private jobRows() {
+  jobRows() {
     return this.labels.jobs
       .map(
         (value, i) =>
@@ -212,7 +211,7 @@ class QueueStories extends HTMLElement {
       )
       .join('');
   }
-  private namingControl() {
+  namingControl() {
     return /* HTML */ `<div class="qs-edit-controls">
       <button
         type="button"
@@ -228,105 +227,7 @@ class QueueStories extends HTMLElement {
       </button>
     </div>`;
   }
-  private queueDiagram() {
-    return /* HTML */ `<div class="qs-diagram">
-      <div class="qs-api-stack">
-        ${this.namingControl()}
-        <section class="qs-api">
-          ${labFigure('api')}<span class="qs-eyebrow">API</span
-          >${this.editor('api', this.labels.api, this.t('Nombre de la entrada', 'Intake name'))}<strong
-            >202</strong
-          >
-          <p>
-            ${this.t('Recibido. Falta registrarlo.', 'Received. Still to be recorded.')}
-          </p>
-        </section>
-      </div>
-      <span class="qs-arrow" aria-hidden="true">→</span>
-      <div class="qs-process" data-process>
-        <span class="qs-boundary" data-boundary></span>
-        <section class="qs-store">
-          <div class="qs-node-heading">
-            <span data-store-figure
-              >${labFigure(this.config.storage === 'ram' ? 'ram' : 'db')}</span
-            >
-            <div>
-              <span class="qs-eyebrow"
-                >${this.t('PAGOS PENDIENTES', 'PENDING PAYMENTS')}</span
-              >${this.editor('storage', this.labels.storage, this.t('Nombre del almacenamiento', 'Storage name'))}
-            </div>
-          </div>
-          <label class="qs-node-setting"
-            ><span class="qs-setting-title"
-              >${this.t('Dónde esperan', 'Where they wait')}</span
-            ><select data-setting="storage">
-              <option value="ram">
-                ${this.t('RAM del worker', 'Worker RAM')}
-              </option>
-              <option value="db">${this.t('Base de datos', 'Database')}</option>
-            </select></label
-          >
-          <p class="qs-choice-note" data-storage-note></p>
-          <div class="qs-array">${this.jobRows()}</div>
-        </section>
-        <span class="qs-arrow" aria-hidden="true">→</span>
-        <section class="qs-worker">
-          <div class="qs-node-heading">
-            ${labFigure('worker')}
-            <div>
-              <span class="qs-eyebrow">WORKER</span
-              >${this.editor('worker', this.labels.worker, this.t('Nombre del worker', 'Worker name'))}
-            </div>
-          </div>
-          <label class="qs-node-setting"
-            ><span class="qs-setting-title"
-              >${this.t('Si el pago vuelve', 'If the payment returns')}</span
-            ><select data-setting="protect">
-              <option value="off">
-                ${this.t('No comprobar su ID', 'Do not check its ID')}
-              </option>
-              <option value="on">
-                ${this.t('Comprobar su ID', 'Check its ID')}
-              </option>
-            </select></label
-          >
-          <p class="qs-choice-note" data-protection-note></p>
-          <div class="qs-active-job" data-active-job></div>
-          ${this.workerJourney()}
-          <div class="qs-worker-steps" data-steps></div>
-        </section>
-      </div>
-    </div>`;
-  }
-  private workerDiagram() {
-    return /* HTML */ `<div class="qs-ready-queue">
-        <span
-          >✓
-          ${this.t('Pagos en BDD independiente · recuperación preparada', 'Payments in independent DB · recovery ready')}</span
-        >
-        <div class="qs-extra-names">
-          ${this.editor('api', this.labels.api, this.t('Nombre de la entrada', 'Intake name'))}${this.editor('storage', this.labels.storage, this.t('Nombre del almacenamiento', 'Storage name'))}
-        </div>
-      </div>
-      <div class="qs-payments-header">
-        <div class="qs-job-strip">${this.jobRows()}</div>
-        ${this.namingControl()}
-      </div>
-      <section class="qs-worker-interior">
-        <header>
-          ${labFigure('worker')}
-          <div>
-            <span class="qs-eyebrow"
-              >${this.t('DENTRO DEL WORKER', 'INSIDE THE WORKER')}</span
-            >${this.editor('worker', this.labels.worker, this.t('Nombre del worker', 'Worker name'))}
-          </div>
-          <div class="qs-active-job" data-active-job></div>
-        </header>
-        ${this.workerJourney()}
-        <div class="qs-worker-steps" data-steps></div>
-      </section>`;
-  }
-  private workerJourney() {
+  workerJourney() {
     return /* HTML */ `<div class="qs-worker-journey" data-worker-journey>
       <div class="qs-actor-track">
         <div class="qs-actor-stations" aria-hidden="true">${this.config.steps.map((_, i) => `<span data-actor-station="${i}">${String(i + 1).padStart(2, '0')}</span>`).join('')}</div>
@@ -335,45 +236,7 @@ class QueueStories extends HTMLElement {
       <p class="qs-actor-caption" data-actor-caption></p>
     </div>`;
   }
-  private actionNature(kind: ActionKind) {
-    return this.t(
-      {
-        check: 'Validación pura · sin efectos externos',
-        'set-state': 'Estado local · repetible',
-        append: 'Registro local · no debe duplicarse',
-        external: 'Efecto externo · no debe duplicarse',
-        notify: 'Notificación externa · no debe duplicarse',
-      }[kind],
-      {
-        check: 'Pure check · no external effects',
-        'set-state': 'Local state · repeatable',
-        append: 'Local record · must not duplicate',
-        external: 'External effect · must not duplicate',
-        notify: 'External notification · must not duplicate',
-      }[kind],
-    );
-  }
-  private resultLabel(i: number, count: number) {
-    const kind = this.config.steps[i]?.kind ?? 'append';
-    if (this.level === 1 && kind === 'check')
-      return count
-        ? i === 0
-          ? this.t('Validado', 'Validated')
-          : this.t('Preparado', 'Prepared')
-        : this.t('Pendiente', 'Pending');
-    if (kind === 'append')
-      return `${count} ${this.t(count === 1 ? 'registro' : 'registros', count === 1 ? 'record' : 'records')}`;
-    if (kind === 'check')
-      return count
-        ? this.t('validación OK', 'validation OK')
-        : this.t('sin validar', 'not validated');
-    if (kind === 'set-state')
-      return count
-        ? this.t('estado fijado', 'state set')
-        : this.t('sin modificar', 'unchanged');
-    return `${count} ${this.t(count === 1 ? 'efecto externo' : 'efectos externos', count === 1 ? 'external effect' : 'external effects')}`;
-  }
-  private buildSteps() {
+  buildSteps() {
     this.q('[data-steps]').innerHTML = this.config.steps
       .map(
         (step, i) =>
@@ -386,67 +249,12 @@ class QueueStories extends HTMLElement {
                 >○</span
               >
             </div>
-            ${this.level === 2 ? /* HTML */ `<p class="qs-step-nature ${isExternal(step.kind) ? 'has-external' : ''}">${this.actionNature(step.kind)}</p>` : /* HTML */ `<p class="qs-step-contract">${step.kind === 'append' ? this.t('Solo 1 registro por ID.', 'Only 1 record per ID.') : this.t('Repetirlo es seguro.', 'Safe to repeat.')}</p>`}
+            ${this.definition.stepDescription(this, step, i)}
             <p class="qs-step-state" data-step-state="${i}"></p>
-            ${
-              this.level === 2
-                ? /* HTML */ `<div class="qs-step-options">
-                    <label
-                      ><input
-                        type="checkbox"
-                        data-setting="remember-${i}"
-                        ${step.remember ? 'checked' : ''}
-                      />
-                      ${this.t('Guardar avance al recibir confirmación', 'Save progress after confirmation')}</label
-                    >
-                    <button type="button" class="qs-step-configure" popovertarget="qs-step-options-${i}">${this.t('Configurar paso', 'Configure step')} ↗</button>
-                    <div class="qs-step-editor" id="qs-step-options-${i}" popover="auto" data-step-editor="${i}">
-                      <header><strong>${esc(this.step(i))}</strong><button type="button" popovertarget="qs-step-options-${i}" popovertargetaction="hide" aria-label="${this.t('Cerrar opciones', 'Close options')}">×</button></header>
-                      <small class="qs-step-tradeoff"
-                        >${isSafeToRepeat(step.kind) ? this.t('Opcional aquí: ahorra repetir trabajo.', 'Optional here: saves repeated work.') : this.t('Evita repetirlo si su marca llegó a guardarse.', 'Avoids repeating it if its marker was saved.')}</small
-                      ><label class="qs-kind-label"
-                        >${this.t('Este paso hace…', 'This step does…')}<select
-                          data-setting="kind-${i}"
-                        >
-                          ${(['check', 'set-state', 'append', 'external', 'notify'] as ActionKind[]).map((kind) => /* HTML */ `<option value="${kind}" ${step.kind === kind ? 'selected' : ''}>${this.kindLabel(kind)}</option>`).join('')}
-                        </select></label
-                      >${
-                        isExternal(step.kind)
-                          ? /* HTML */ `<p>${this.t('Permite saltar este paso cuando llegó su confirmación y guardamos la marca.', 'Lets the worker skip this step after confirmation was received and saved.')}</p>`
-                          : step.kind === 'append'
-                            ? /* HTML */ `<p>
-                                ${this.t('Es local, pero añadir otra fila cambia el resultado. La idempotencia también importa dentro de tu sistema.', 'It is local, but adding another row changes the result. Idempotency also matters inside your system.')}
-                              </p>`
-                            : /* HTML */ `<p>
-                                ${this.t('Esta acción concreta puede repetirse con seguridad. No necesita deduplicación del proveedor.', 'This particular action is safe to repeat. It does not need receiver deduplication.')}
-                              </p>`
-                      }
-                    </div>
-                    ${isExternal(step.kind) ? /* HTML */ `<label class="qs-provider-option"><input type="checkbox" data-setting="provider-${i}" aria-describedby="qs-provider-hint-${i}" ${step.providerDeduplication ? 'checked' : ''} /><span>${this.t('Deduplicar en el servicio por clave (simulado)', 'Deduplicate at the service by key (simulated)')}<small class="qs-provider-hint" id="qs-provider-hint-${i}">${this.t('Cubre el timeout: el servicio reconoce la misma clave aunque se pierda su respuesta.', 'Covers a timeout: the service recognizes the same key even if its response is lost.')}</small></span></label>` : ''}
-                  </div>`
-                : ''
-            }
+            ${this.definition.stepOptions(this, step, i)}
           </article>`,
       )
       .join('');
-  }
-  private kindLabel(kind: ActionKind) {
-    return this.t(
-      {
-        check: 'Comprobar datos (repetible)',
-        external: 'Crear un efecto externo',
-        'set-state': 'Fijar el mismo estado local (repetible)',
-        append: 'Añadir un registro local (no repetible)',
-        notify: 'Enviar una notificación externa',
-      }[kind],
-      {
-        check: 'Check data (repeatable)',
-        external: 'Create an external effect',
-        'set-state': 'Set the same local state (repeatable)',
-        append: 'Append a local record (not repeatable)',
-        notify: 'Send an external notification',
-      }[kind],
-    );
   }
   // Playback and user actions. This is the only layer that owns real timers.
   private onVisibility = () => {
@@ -545,7 +353,7 @@ class QueueStories extends HTMLElement {
         inspected: this.inspected,
         personalizing: this.personalizing,
       };
-    this.guide = this.level === 1 ? 'ram' : 'partial';
+    this.guide = this.definition.firstGuideStage;
     this.personalizing = false;
     this.config = defaultConfig(this.level);
     this.syncStorageName();
@@ -632,16 +440,7 @@ class QueueStories extends HTMLElement {
     if (action === 'toast-close') this.notices = [];
     if (action === 'lesson') {
       this.closeOutcome();
-      if (this.level === 1)
-        this.guide = this.state.phase === 'lost' ? 'storage' : 'identity';
-      else if (this.state.phase === 'won') this.guide = 'optimize';
-      else if (
-        this.state.phase === 'duplicate' &&
-        this.state.step === this.config.steps.length - 1 &&
-        isExternal(this.config.steps[this.state.step]?.kind ?? 'check')
-      )
-        this.guide = 'email';
-      else this.guide = 'charge';
+      this.guide = this.definition.lessonStage(this);
     }
     this.update();
     if (action === 'lesson') this.revealGuide();
@@ -660,7 +459,7 @@ class QueueStories extends HTMLElement {
     saveLabel(key, this.labels, this.level, this.es);
     this.update();
   };
-  private syncStorageName() {
+  syncStorageName() {
     if (
       ['Memoria RAM', 'RAM memory', 'Base de datos', 'Database'].includes(
         this.labels.storage,
@@ -678,303 +477,14 @@ class QueueStories extends HTMLElement {
       key = input.dataset.setting;
     if (!key) return;
 
-    if (key === 'storage') {
-      this.config.storage = input.value === 'db' ? 'db' : 'ram';
-      this.syncStorageName();
-      if (this.guide !== 'off')
-        this.guide =
-          this.config.storage === 'ram'
-            ? 'ram'
-            : this.config.protectLocalRecord
-              ? 'safe'
-              : 'durable';
-    }
-    if (key === 'protect') {
-      this.config.protectLocalRecord = input.value === 'on';
-      if (this.guide !== 'off')
-        this.guide =
-          this.config.storage === 'ram'
-            ? 'ram'
-            : this.config.protectLocalRecord
-              ? 'safe'
-              : 'identity';
-    }
-    const [group, index] = key.split('-'),
-      i = Number(index),
-      step = this.config.steps[i];
-    if (step && group === 'remember') {
-      step.remember = (input as HTMLInputElement).checked;
-      if (this.guide !== 'off') {
-        if (this.config.steps.every((s) => s.remember))
-          this.guide = 'efficient';
-        else if (this.config.steps[1]?.remember && this.guide !== 'optimize')
-          this.guide = 'safe';
-        else if (!this.config.steps[1]?.remember && this.guide !== 'partial')
-          this.guide = 'charge';
-      }
-    }
-    if (step && group === 'provider')
-      step.providerDeduplication = (input as HTMLInputElement).checked;
-    if (
-      step &&
-      group === 'kind' &&
-      ['check', 'external', 'set-state', 'notify', 'append'].includes(
-        input.value,
-      )
-    ) {
-      const expanded = [
-        ...this.querySelectorAll<HTMLElement>(
-          '.qs-step-editor',
-        ),
-      ].map((panel) => panel.matches(':popover-open'));
-      step.kind = input.value as ActionKind;
-      step.providerDeduplication = false;
-      this.buildSteps();
-      [
-        ...this.querySelectorAll<HTMLElement>(
-          '.qs-step-editor',
-        ),
-      ].forEach((panel, index) => { if (expanded[index]) panel.showPopover(); });
-      this.q<HTMLSelectElement>(`[data-setting="kind-${i}"]`).focus({
-        preventScroll: true,
-      });
-    }
+    this.definition.applySetting(this, key, input);
     this.reset();
   };
-  private replace(selector: string, html: string) {
+  replace(selector: string, html: string) {
     const node = this.q(selector);
     if (node.innerHTML === html) return false;
     node.innerHTML = html;
     return true;
-  }
-  private customSteps() {
-    return this.config.steps.some(
-      (step, i) =>
-        this.step(i) !== this.defaults.steps[i] ||
-        step.kind !== defaultConfig(2).steps[i]?.kind,
-    );
-  }
-  // Narration describes observed results; custom actions use generic outcome copy.
-  private paymentFeedback(): [string, string] {
-    const s = this.state,
-      j = esc(this.job(Math.max(s.active, 0)));
-    if (s.phase === 'lost')
-      return [
-        this.t('PERDISTE LOS DATOS', 'YOU LOST THE DATA'),
-        this.t(
-          `El primer pago está registrado. Los otros ${totals(s).lost} solo estaban pendientes en la RAM de ${esc(this.name('worker'))}. Al caer ese proceso, desapareció su única copia. La API había dicho «recibido», no «guardado».`,
-          `The first payment is recorded. The other ${totals(s).lost} were only pending in ${esc(this.name('worker'))}’s RAM. When that process crashed, their only copy disappeared. The API said “received”, not “saved”.`,
-        ),
-      ];
-    if (s.phase === 'duplicate')
-      return [
-        this.t(
-          'Este pago tiene dos registros.',
-          'This payment has two records.',
-        ),
-        this.t(
-          `${j} ya estaba registrado. Falló actualizar su estado y volvió como pendiente. El worker no comprobó su ID y creó otra fila. La meta era una por pago.`,
-          `${j} was already recorded. Its status update failed and it returned as pending. The worker did not check its ID and created another row. The goal was one per payment.`,
-        ),
-      ];
-    if (s.phase === 'won')
-      return [
-        this.t('Tres pagos. Tres registros.', 'Three payments. Three records.'),
-        this.t(
-          'Los pendientes sobrevivieron a la caída. El pago que volvió conservó su registro anterior. Hubo varios intentos, pero solo una fila por ID.',
-          'Pending payments survived the crash. The returning payment kept its existing record. There were multiple attempts, but only one row per ID.',
-        ),
-      ];
-    if (s.phase === 'incident')
-      return s.incident === 'ack-retry'
-        ? [
-            this.t(
-              'Registrado, pero todavía pendiente.',
-              'Recorded, but still pending.',
-            ),
-            this.t(
-              `${j} ya tiene una fila. Falló la confirmación que lo marca como terminado. El sistema vuelve a ofrecer el mismo ID: al reintentar, comprueba si ya existe su registro.`,
-              `${j} already has a row. The confirmation marking it complete failed. The system offers the same ID again: on retry, check whether its record already exists.`,
-            ),
-          ]
-        : [
-            this.t(
-              'El worker cayó. Los pagos siguen aquí.',
-              'The worker crashed. The payments are still here.',
-            ),
-            this.t(
-              `${j} aún no estaba registrado. La base de datos conserva el trabajo pendiente porque está fuera del worker. Reinícialo para continuar.`,
-              `${j} was not yet recorded. The database retains the pending job because it is outside the worker. Restart it to continue.`,
-            ),
-          ];
-    if (s.phase === 'ready')
-      return [
-        this.t('Tres pagos por registrar.', 'Three payments to record.'),
-        this.t(
-          'La tienda ya dijo «recibido». Ahora el worker tiene que registrar cada pago. Elige dónde esperan y qué hará si vuelve el mismo ID.',
-          'The shop already said “received”. Now the worker must record each payment. Choose where they wait and what happens if the same ID returns.',
-        ),
-      ];
-    const action =
-      s.cursor === 'ack'
-        ? this.t(
-            'La fila ya existe. Falta marcar el pago como terminado.',
-            'The row exists. The payment still needs to be marked complete.',
-          )
-        : s.step === 1
-          ? this.config.protectLocalRecord
-            ? this.t(
-                'Comprueba el ID: si ya tiene una fila, conserva esa misma.',
-                'Check the ID: if it already has a row, keep it.',
-              )
-            : this.t(
-                'Crea una fila sin comprobar si este ID ya estaba registrado.',
-                'Create a row without checking whether this ID was already recorded.',
-              )
-          : s.step === 0
-            ? this.t(
-                'Revisa los datos. Este paso no crea ningún registro.',
-                'Check the data. This step creates no record.',
-              )
-            : this.t(
-                'Prepara el resultado. Repetir este paso no crea otra fila.',
-                'Prepare the result. Repeating this step creates no additional row.',
-              );
-    return [
-      this.playing
-        ? this.t(
-            `Procesando ${this.job(Math.max(s.active, 0))}`,
-            `Processing ${this.job(Math.max(s.active, 0))}`,
-          )
-        : this.t('En pausa', 'Paused'),
-      action,
-    ];
-  }
-  private feedback(): [string, string] {
-    if (this.level === 1) return this.paymentFeedback();
-    const s = this.state,
-      j = esc(this.job(Math.max(s.active, 0))),
-      step = esc(this.step(s.step)),
-      previous = esc(this.step(Math.max(0, s.step - 1)));
-    if (this.retryStage)
-      return this.retryStage === 'failure'
-        ? [
-            this.t(`EL INCIDENTE OCURRIÓ EN EL PASO ${s.step + 1}`, `THE INCIDENT HAPPENED AT STEP ${s.step + 1}`),
-            s.incident === 'email-uncertain'
-              ? this.t(`«${step}»: no llegó confirmación. El envío pudo ocurrir; el worker no tiene una marca guardada.`, `“${step}”: no confirmation arrived. The send may have happened; the worker has no saved marker.`)
-              : this.t(`«${step}» no terminó. Los pasos anteriores ya produjeron sus resultados.`, `“${step}” did not complete. Earlier steps already produced their results.`),
-          ]
-        : [
-            this.t('REINICIANDO EL WORKER · MISMO PAGO', 'RESTARTING THE WORKER · SAME PAYMENT'),
-            this.t(`Volvemos al inicio de «${j}». Los efectos anteriores siguen existiendo; solo se saltarán los pasos cuyo avance se guardó.`, `Returning to the start of “${j}”. Earlier effects still exist; only steps with saved progress will be skipped.`),
-          ];
-    if (s.phase === 'duplicate')
-      return [
-        this.t('DUPLICASTE EFECTOS SIN QUERER', 'YOU DUPLICATED EFFECTS'),
-        !this.customSteps() && s.step === 1
-          ? this.t(
-              `Cobraste dos veces a «${j}». El primer cobro no se deshizo al caer el worker. Reintentar el pago completo volvió a pasar por Stripe.`,
-              `You charged “${j}” twice. The first charge was not undone when the worker crashed. Retrying the whole payment went through Stripe again.`,
-            )
-          : isExternal(this.config.steps[s.step]?.kind ?? 'check') && this.config.steps[s.step]?.remember
-            ? this.t(
-                `«${step}» produjo dos efectos para «${j}»: la respuesta se perdió antes de guardar el avance local. Esa marca no evita la repetición tras un timeout. Activa la deduplicación por clave en el proveedor y prueba de nuevo.`,
-                `“${step}” produced two effects for “${j}”: the response was lost before local progress was saved. That marker cannot prevent a retry after a timeout. Enable provider deduplication by key and try again.`,
-              )
-          : this.t(
-              `«${step}» produjo dos efectos para «${j}». Reiniciar el worker no deshizo el primero.`,
-              `“${step}” produced two effects for “${j}”. Restarting the worker did not undo the first.`,
-            ),
-      ];
-    if (s.phase === 'incident') {
-      if (s.incident === 'activation-failed')
-        return [
-          this.t('INCONSISTENCIAS EN EL SISTEMA', 'SYSTEM INCONSISTENCY'),
-          !this.customSteps()
-            ? this.t(
-                `Cobraste a «${j}», pero su suscripción sigue sin activar. El worker cayó antes de la activación. Los pasos muestran un cobro y ninguna activación. Reprocesar no debería cobrarle otra vez.`,
-                `You charged “${j}”, but its subscription is still inactive. The worker crashed before activation. The steps show one charge and no activation. Reprocessing should not charge again.`,
-              )
-            : this.t(
-                `«${previous}» terminó, pero el worker cayó antes de «${step}» para «${j}». Tienes un resultado parcial. Lo que ya ocurrió sigue existiendo.`,
-                `“${previous}” finished, but the worker crashed before “${step}” for “${j}”. You have a partial result. What already happened still exists.`,
-              ),
-        ];
-      if (s.incident === 'email-uncertain')
-        return [
-          this.customSteps()
-            ? this.t('La acción pudo completarse.', 'The action may have completed.')
-            : this.t(
-                'Timeout al enviar. El email pudo llegar, pero no recibimos confirmación.',
-                'Email request timed out. It may have arrived, but we got no confirmation.',
-              ),
-          this.customSteps()
-            ? this.t(
-                `La solicitud de «${step}» agotó el tiempo para «${j}». La acción pudo completarse, pero no llegó confirmación y no se guardó el resultado. Reintentar puede duplicarla.`,
-                `The request for “${step}” timed out for “${j}”. The action may have completed, but no confirmation arrived and no result was saved. Retrying can duplicate it.`,
-              )
-            : this.t(
-                `El servicio de correo pudo aceptar el mensaje, pero su respuesta se perdió por timeout. El worker no guardó el avance: reintentar puede duplicar el email; no reintentar puede dejar al cliente sin confirmación.`,
-                `The email service may have accepted the message, but its response was lost to a timeout. The worker did not save progress: retrying may duplicate the email; not retrying may leave the customer without confirmation.`,
-              ),
-        ];
-      return [
-        this.t(
-          'Ocurrió el efecto. No se guardó su marca.',
-          'The effect happened. Its marker was not saved.',
-        ),
-        this.t(
-          `«${step}» ya produjo su efecto para «${j}». El worker cayó antes de guardarlo. Una marca local no basta si nunca se guardó. Recordar pasos no puede recuperar una marca que nunca se escribió: necesitas consultar o reconocer la operación en el proveedor.`,
-          `“${step}” already produced its effect for “${j}”. The worker crashed before saving it. Remembering steps cannot recover a marker that was never written: you need to query or recognize the operation at the receiver.`,
-        ),
-      ];
-    }
-    if (s.phase === 'won') {
-      const wasted = s.events.filter(
-        // The final retry is necessary when its completion marker was lost.
-        (e) => e.job === 3 && e.kind === 'wasted' && e.step < this.config.steps.length - 1,
-      ).length;
-      return [
-        this.t('LOS TRES PAGOS COMPLETADOS', 'ALL THREE PAYMENTS COMPLETE'),
-        wasted
-          ? this.t(
-              `Completaste los pagos sin duplicar resultados. En «${esc(this.job(2))}» repetiste ${wasted} pasos ya resueltos, cuando solo faltaba el último. Recordar esos avances es opcional: valora si el coste de repetirlos compensa guardar más estado.`,
-              `You completed the payments without duplicating results. For “${esc(this.job(2))}”, you repeated ${wasted} successful steps when only the last one remained. Remembering that progress is optional: weigh the repeated work against storing more state.`,
-            )
-          : this.t(
-              `Saltaste ${s.skipped} pasos ya resueltos. Recuperaste cada pago sin volver a aplicar sus efectos externos en este escenario.`,
-              `You skipped ${s.skipped} previously resolved steps. You recovered each payment without reapplying its external effects in this scenario.`,
-            ),
-      ];
-    }
-    if (s.phase === 'ready')
-      return [
-        this.t(
-          'Un pago puede quedarse a medias.',
-          'A payment can stop halfway.',
-        ),
-        this.customSteps()
-          ? this.t(
-              'Los tres pagos están guardados. El worker ejecutará las acciones que has elegido. Mira cuáles pueden repetirse y decide qué avances recordar al reintentar.',
-              'The three payments are saved. The worker will run the actions you chose. Check which can safely repeat and decide what progress to remember on retry.',
-            )
-          : this.t(
-              'Los tres pagos están guardados en una base de datos. Tu worker debe validar, cobrar, activar la suscripción y avisar al cliente. Decide qué recordar si tiene que volver a empezar.',
-              'Three payments are saved in a database. Your worker must validate, charge, activate the subscription and notify the customer. Choose what to remember if it has to start again.',
-            ),
-      ];
-    return [
-      this.playing
-        ? this.t(
-            `Procesando ${this.job(Math.max(s.active, 0))}`,
-            `Processing ${this.job(Math.max(s.active, 0))}`,
-          )
-        : this.t('Procesamiento pausado', 'Processing paused'),
-      this.t(
-        'Sigue el pago por los pasos del worker. Validar datos, modificar estado local y llamar a un proveedor tienen consecuencias distintas.',
-        'Follow the payment through the worker steps. Checking data, changing local state and calling a receiver have different consequences.',
-      ),
-    ];
   }
   private renderGuide() {
     for (const node of this.querySelectorAll('[data-guide-focus]')) {
@@ -986,8 +496,7 @@ class QueueStories extends HTMLElement {
       this.replace('[data-guide]', '');
       return;
     }
-    const beat = guideBeat({
-      level: this.level,
+    const beat = this.definition.guideBeat({
       es: this.es,
       stage: this.guide,
       state: this.state,
@@ -1031,16 +540,7 @@ class QueueStories extends HTMLElement {
         'lesson',
         this.t('Cambiar el diseño', 'Change the design'),
       );
-    const optional =
-      this.level === 2 &&
-      this.state.phase === 'won' &&
-      this.guide !== 'optimize' &&
-      !this.config.steps.every((step) => step.remember)
-        ? button(
-            'lesson',
-            this.t('Comparar el trabajo repetido', 'Compare repeated work'),
-          )
-        : '';
+    const optional = this.definition.guideOptionalAction(this);
     const changed = this.replace(
       '[data-guide]',
       /* HTML */ `<header class="qs-guide-header">
@@ -1076,46 +576,7 @@ class QueueStories extends HTMLElement {
     this.closeOutcome();
     const d = this.q<HTMLDialogElement>('[data-outcome]');
     d.dataset.tone = 'story';
-    const title =
-      this.level === 1
-        ? this.t(
-            'Tenemos tres pagos. ¿Los ponemos en marcha?',
-            'Three payments. Shall we get them moving?',
-          )
-        : this.t(
-            'El pago está guardado. Falta terminarlo.',
-            'The payment is saved. Now finish it.',
-          );
-    const lines =
-      this.level === 1
-        ? [
-            this.t(
-              'El worker los irá sacando, revisando y registrando. Tú dale a «Iniciar» y vigila que todos lleguen al final.',
-              'The worker will pick them up, check them and record them. Press “Start” and watch them reach the finish.',
-            ),
-            this.t(
-              'Dónde esperan lo decides tú: RAM del worker o base de datos. Lo puedes cambiar en el esquema, en «Dónde esperan».',
-              'You decide where they wait: worker RAM or a database. Change it on the diagram under “Where they wait”.',
-            ),
-            this.t(
-              'Y si vuelve el mismo ID… no será que quieren pagarnos dos veces, ¿no? Échale un ojo a «Si el pago vuelve». Esa decisión también es tuya.',
-              'And if the same ID comes back… surely they are not trying to pay us twice? Take a look at “If the payment returns”. That choice is yours too.',
-            ),
-          ]
-        : [
-            this.t(
-              'Los pagos ya están guardados. Ahora mira dentro del worker: revisa los datos, cobra, activa la suscripción y manda el email.',
-              'The payments are already saved. Now look inside the worker: it checks the data, charges, activates the subscription and sends the email.',
-            ),
-            this.t(
-              'En los pasos externos verás dos protecciones. «Guardar avance al recibir confirmación» permite saltar el paso al reintentar. La deduplicación del proveedor cubre el timeout: puede que el servicio hiciera el envío aunque no recibimos su respuesta.',
-              'External steps show two protections. “Save progress after confirmation” lets the worker skip a step on retry. Provider deduplication covers a timeout: the service may have sent the message even though its reply never arrived.',
-            ),
-            this.t(
-              'Que el worker vuelva a empezar no devuelve el dinero al cliente. Así que eso de cobrar otra vez… mejor lo vigilamos, ¿eh?',
-              'Restarting the worker does not refund the customer. So charging again… let us keep an eye on that, shall we?',
-            ),
-          ];
+    const { title, lines } = this.definition.tutorial(this);
     d.innerHTML = /* HTML */ `<div class="qs-call-shell">
       <header class="qs-call-top">
         <span class="qs-call-channel"
@@ -1144,105 +605,10 @@ class QueueStories extends HTMLElement {
       preventScroll: true,
     });
   }
-  private incidentCall(): { title: string; report: string } {
-    const s = this.state,
-      job = this.job(Math.max(0, s.active)),
-      step = this.step(s.step);
-    if (s.phase === 'lost')
-      return {
-        title: this.t(
-          'Los clientes están esperando.',
-          'The customers are waiting.',
-        ),
-        report: this.t(
-          `Hay ${totals(s).lost} clientes preguntando por su pago. La web les dijo «recibido», pero aquí no aparecen. Los he buscado y no los encuentro. ¿Puedes mirar qué ha pasado?`,
-          `${totals(s).lost} customers are asking about their payments. The website said “received”, but they are missing here. I have looked and cannot find them. Can you check what happened?`,
-        ),
-      };
-    if (s.phase === 'duplicate')
-      return {
-        title:
-          this.level === 1
-            ? this.t(
-                'Este pago aparece dos veces.',
-                'This payment appears twice.',
-              )
-            : this.t(
-                'Tenemos un resultado duplicado.',
-                'We have a duplicate result.',
-              ),
-        report:
-          this.level === 1
-            ? this.t(
-                `Oye, ${job} aparece dos veces en el registro. El cliente solo ha hecho un pago. ¿Hemos guardado el mismo dos veces?`,
-                `Hey, ${job} appears twice in the register. The customer only made one payment. Have we recorded it twice?`,
-              )
-            : !this.customSteps() && s.step === 1
-              ? this.t(
-                  `Nos acaba de escribir el cliente de ${job}. Le hemos cobrado dos veces el mismo pago. Necesita saber qué ha ocurrido.`,
-                  `The customer for ${job} just wrote to us. We charged them twice for the same payment. They need to know what happened.`,
-                )
-              : this.t(
-                  `${step} aparece dos veces para ${job}. No ha entrado otro pago. ¿Puedes revisar qué hemos repetido?`,
-                  `${step} appears twice for ${job}. No new payment came in. Can you check what we repeated?`,
-                ),
-      };
-    if (s.incident === 'worker-retry')
-      return {
-        title: this.t(
-          'El cliente sigue esperando.',
-          'The customer is still waiting.',
-        ),
-        report: this.t(
-          `Oye, el cliente de ${job} pregunta si hemos recibido su pago. En la web pone que sí, pero aún no aparece registrado. ¿Puedes desbloquearlo?`,
-          `Hey, the customer for ${job} wants to know if we received their payment. The website says yes, but it has not been recorded yet. Can you get it moving?`,
-        ),
-      };
-    if (s.incident === 'ack-retry')
-      return {
-        title: this.t(
-          'Este pago vuelve a salir pendiente.',
-          'This payment is showing as pending again.',
-        ),
-        report: this.t(
-          `Me sale ${job} pendiente, pero yo juraría que ya lo habíamos registrado. ¿Puedes mirar ese ID antes de volver a pasarlo?`,
-          `${job} is showing as pending, but I could swear we already recorded it. Can you check that ID before running it again?`,
-        ),
-      };
-    if (!this.customSteps() && s.incident === 'activation-failed')
-      return {
-        title: this.t(
-          'Ha pagado y no puede entrar.',
-          'They paid and cannot get in.',
-        ),
-        report: this.t(
-          `El cliente de ${job} acaba de escribir: «Me habéis cobrado, pero no puedo entrar». ¿Puedes terminar de activarle la cuenta? Y ojo con volver a cobrarle.`,
-          `The customer for ${job} just wrote: “You charged me, but I cannot get in.” Can you finish activating their account? And watch out for charging them again.`,
-        ),
-      };
-    if (!this.customSteps() && s.incident === 'email-uncertain')
-      return {
-        title: this.t(
-          'Timeout: el email pudo llegar; no hay confirmación.',
-          'Timeout: the email may have arrived; there is no confirmation.',
-        ),
-        report: this.t(
-          `El servicio de correo pudo aceptar el mensaje, pero su respuesta se perdió por timeout. El worker no guardó el avance: reintentar puede duplicarlo; no reintentar puede dejar al cliente sin confirmación.`,
-          `The email service may have accepted the message, but its response was lost to a timeout. The worker saved no progress: retrying may duplicate it; not retrying may leave the customer without confirmation.`,
-        ),
-      };
-    return {
-      title: this.t('El pago quedó a medias.', 'The payment stopped halfway.'),
-      report: this.t(
-        `Me han pasado ${job} porque se ha quedado a medias. Veo resultados de algunas acciones, pero falta confirmar «${step}». ¿Puedes revisar cómo seguir?`,
-        `${job} was passed to me because it stopped halfway. I can see some action results, but “${step}” is still unconfirmed. Can you check how to continue?`,
-      ),
-    };
-  }
   private renderIncident() {
     const d = this.q<HTMLDialogElement>('[data-outcome]'),
       ack = this.state.incident === 'ack-retry',
-      call = this.incidentCall();
+      call = this.definition.incidentCall(this);
     d.dataset.tone = 'incident';
     d.innerHTML = /* HTML */ `<div class="qs-call-shell">
       <header class="qs-call-top">
@@ -1299,9 +665,10 @@ class QueueStories extends HTMLElement {
           ${s.jobs.map((job, i) => this.outcomeTicket(i, job.status === 'lost')).join('')}
         </div>
         <p class="qs-evidence-caption">
-          ${s.phase === 'lost' ? this.t(`${m.done} completado · ${m.lost} perdidos al desaparecer la RAM`, `${m.done} completed · ${m.lost} lost when RAM disappeared`) : this.level === 1 ? this.t(`${m.attempts} intentos · 3 registros · uno por ID`, `${m.attempts} attempts · 3 records · one per ID`) : this.t(`${m.attempts} intentos · ${m.skipped} pasos saltados · ningún resultado duplicado`, `${m.attempts} attempts · ${m.skipped} skipped steps · no duplicate results`)}
+          ${s.phase === 'lost' ? this.t(`${m.done} completado · ${m.lost} perdidos al desaparecer la RAM`, `${m.done} completed · ${m.lost} lost when RAM disappeared`) : this.definition.wonCaption(this)}
         </p>`;
-    if (s.phase === 'duplicate')
+    if (s.phase === 'duplicate') {
+      const [firstFooter, secondFooter] = this.definition.duplicateFooters(this);
       return /* HTML */ `<div class="qs-repeat-evidence">
         <article class="qs-ticket is-kept">
           <header>
@@ -1310,7 +677,7 @@ class QueueStories extends HTMLElement {
           <strong>${esc(this.job(j.id - 1))}</strong
           ><span class="qs-ticket-lines" aria-hidden="true"></span>
           <footer>
-            ${this.level === 1 ? this.t('Primer registro', 'First record') : this.t('Primer efecto', 'First effect')}
+            ${firstFooter}
           </footer>
         </article>
         <span class="qs-repeat-symbol" aria-hidden="true">+</span>
@@ -1321,7 +688,7 @@ class QueueStories extends HTMLElement {
           <strong>${esc(this.job(j.id - 1))}</strong
           ><span class="qs-ticket-lines" aria-hidden="true"></span>
           <footer>
-            ${this.level === 1 ? this.t('Segundo registro', 'Second record') : this.t('Efecto repetido', 'Repeated effect')}
+            ${secondFooter}
           </footer>
         </article>
         <p>
@@ -1330,48 +697,8 @@ class QueueStories extends HTMLElement {
           >
         </p>
       </div>`;
-    if (this.level === 2)
-      return /* HTML */ `<div class="qs-action-evidence">
-          ${j.steps
-            .map(
-              (st, i) =>
-                /* HTML */ `<article
-                  class="${i === s.step && s.incident === 'email-uncertain' ? 'is-uncertain' : st.effects ? 'is-finished' : i === s.step ? 'was-interrupted' : ''}"
-                >
-                  <span class="qs-evidence-step"
-                    >${String(i + 1).padStart(2, '0')}
-                    <b>${i === s.step && s.incident === 'email-uncertain' ? '?' : st.effects ? '✓' : i === s.step ? '×' : '○'}</b></span
-                  ><strong>${esc(this.step(i))}</strong
-                  ><small>${i === s.step && s.incident === 'email-uncertain' ? this.t('Sin confirmar · timeout', 'Unconfirmed · timeout') : this.resultLabel(i, st.effects)}</small>
-                </article>`,
-            )
-            .join('')}
-        </div>
-        <p class="qs-evidence-caption">
-          ${esc(this.job(j.id - 1))} · ID ${String(j.id).padStart(2, '0')} ·
-          ${this.t('lo que ya ocurrió sigue existiendo', 'what already happened still exists')}
-        </p>`;
-    return /* HTML */ `<div class="qs-ack-evidence">
-      <div>
-        <span>${this.t('ID DEL PAGO', 'PAYMENT ID')}</span
-        ><strong
-          >${String(j.id).padStart(2, '0')} · ${esc(this.job(j.id - 1))}</strong
-        >
-      </div>
-      <div>
-        <span>${this.t('SU REGISTRO', 'ITS RECORD')}</span
-        ><strong
-          >${s.incident === 'ack-retry' ? '✓ ' + this.t('Ya existe una fila', 'One row already exists') : '— ' + this.t('Todavía sin registrar', 'Not recorded yet')}</strong
-        >
-      </div>
-      <div>
-        <span>${this.t('EN LA BASE DE DATOS', 'IN THE DATABASE')}</span
-        ><strong
-          >↻
-          ${this.t('Disponible para reintentar', 'Available to retry')}</strong
-        >
-      </div>
-    </div>`;
+    }
+    return this.definition.interruptedEvidence(this);
   }
   private renderOutcome(revealed = false) {
     const s = this.state;
@@ -1398,7 +725,7 @@ class QueueStories extends HTMLElement {
     const d = this.q<HTMLDialogElement>('[data-outcome]'),
       fatal = s.phase === 'lost' || s.phase === 'duplicate',
       won = s.phase === 'won';
-    let [, text] = this.feedback(),
+    let [, text] = this.definition.feedback(this),
       title = '',
       kicker = '';
     if (s.phase === 'lost') {
@@ -1408,12 +735,7 @@ class QueueStories extends HTMLElement {
       );
       kicker = 'GAME LOSS / ' + this.t('PERDISTE LOS DATOS', 'DATA LOST');
     } else if (s.phase === 'duplicate') {
-      title =
-        this.level === 2 && !this.customSteps() && s.step === 1
-          ? this.t('Le has cobrado dos veces.', 'You charged them twice.')
-          : this.level === 1
-            ? this.t('Un pago. Dos registros.', 'One payment. Two records.')
-            : this.t('Un pago. Dos efectos.', 'One payment. Two effects.');
+      title = this.definition.duplicateTitle(this);
       kicker =
         'GAME LOSS / ' + this.t('RESULTADO DUPLICADO', 'DUPLICATE RESULT');
     } else if (won) {
@@ -1423,7 +745,7 @@ class QueueStories extends HTMLElement {
           ? this.t('RECORRIDO COMPLETADO', 'WALKTHROUGH COMPLETE')
           : this.t('ENSAYO COMPLETADO', 'TRIAL COMPLETE');
     }
-    if (fatal) text = '«' + esc(this.incidentCall().report) + '»';
+    if (fatal) text = '«' + esc(this.definition.incidentCall(this).report) + '»';
     let action = 'dismiss',
       label = this.t('Revisar mi sistema', 'Review my system');
     if (this.guide !== 'off' && fatal) {
@@ -1456,7 +778,7 @@ class QueueStories extends HTMLElement {
     d.innerHTML = outcomeShell({
       es: this.es, trial: this.runId + 1, fatal, kicker, title,
       evidence: this.outcomeEvidence(), text, awards,
-      actions: `${button(action, label).replace('<button ', '<button data-primary ')}${this.level === 2 && this.guide !== 'off' && won && !this.config.steps.every((s) => s.remember) ? button('lesson', this.t('Opcional: ahorrar trabajo', 'Optional: save repeated work')) : ''}${action !== 'dismiss' ? button('dismiss', this.t('Revisar el esquema', 'Review diagram')) : ''}`,
+      actions: `${button(action, label).replace('<button ', '<button data-primary ')}${won ? this.definition.wonOptionalAction(this) : ''}${action !== 'dismiss' ? button('dismiss', this.t('Revisar el esquema', 'Review diagram')) : ''}`,
     });
     if (!d.open) d.showModal();
     d.scrollTop = 0;
@@ -1471,32 +793,7 @@ class QueueStories extends HTMLElement {
     saveAchievements(this.unlocked);
   }
   private checkAchievements() {
-    const s = this.state;
-    const unprotected =
-      this.level === 1
-        ? s.config.storage === 'ram' && !s.config.protectLocalRecord
-        : s.config.steps.every(
-            (step) => !step.remember && !step.providerDeduplication,
-          ) && s.config.steps.some((step) => !isSafeToRepeat(step.kind));
-    if (unprotected && ['lost', 'duplicate'].includes(s.phase)) {
-      this.award('brave');
-    }
-    if (s.phase === 'duplicate') this.award('double');
-    if (
-      this.level === 1 &&
-      s.config.storage === 'db' &&
-      s.events.some((e) => e.kind === 'recovered' && e.job === 2)
-    )
-      this.award('survivor');
-    if (this.level === 1 && s.phase === 'won' && s.config.protectLocalRecord)
-      this.award('identity');
-    if (
-      this.level === 2 &&
-      s.phase === 'won' &&
-      s.skipped >= 5 &&
-      s.wasted === 0
-    )
-      this.award('efficient');
+    for (const id of this.definition.earnedAchievements(this.state)) this.award(id);
     this.replace(
       '[data-achievement-summary]',
       `✦ ${this.t('Logros de sesión', 'Session achievements')} · ${this.unlocked.size}/${achievements.length}`,
@@ -1549,41 +846,13 @@ class QueueStories extends HTMLElement {
     }[status];
   }
   private renderMetrics() {
-    const s = this.state;
-    const external = s.jobs.reduce(
-      (n, j) =>
-        n +
-        j.steps.reduce(
-          (sum, st, i) =>
-            sum + (isExternal(this.config.steps[i]!.kind) ? st.effects : 0),
-          0,
-        ),
-      0,
-    );
-    const m = totals(s),
-      repeatedDeliveries = s.jobs.reduce(
-        (n, j) => n + Math.max(0, j.attempt - 1),
-        0,
-      ),
-      extraRecords = s.jobs.reduce(
-        (n, j) =>
-          n +
-          j.steps.reduce(
-            (sum, st, i) =>
-              sum +
-              (s.config.steps[i]?.kind === 'append'
-                ? Math.max(0, st.effects - 1)
-                : 0),
-            0,
-          ),
-        0,
-      );
+    const m = totals(this.state);
     this.replace(
       '[data-results]',
       /* HTML */ `<span
           ><b>${m.done}</b> ${this.t('completados', 'completed')}</span
         ><span><b>${m.lost}</b> ${this.t('perdidos', 'lost')}</span
-        >${this.level === 1 ? /* HTML */ `<span><b>${repeatedDeliveries}</b> ${this.t('reentregas', 'redeliveries')}</span><span><b>${extraRecords}</b> ${this.t('registros de más', 'extra records')}</span>` : /* HTML */ `<span><b>${external}</b> ${this.t('efectos externos', 'external effects')}</span><span><b>${m.attempts}</b> ${this.t('intentos', 'attempts')}</span><span><b>${m.skipped}</b> ${this.t('pasos saltados', 'skipped steps')}</span><span><b>${m.wasted}</b> ${this.t('pasos repetidos', 'repeated steps')}</span>`}`,
+        >${this.definition.metrics(this)}`,
     );
   }
   // Paint the current engine snapshot. Animation and DOM state cannot commit work.
@@ -1667,51 +936,7 @@ class QueueStories extends HTMLElement {
         failed: '×',
       }[job.status];
     }
-    if (this.level === 1) {
-      this.q('[data-process]').className =
-        `qs-process ${this.config.storage === 'ram' ? 'is-ram' : 'is-durable'}`;
-      this.q('[data-boundary]').textContent =
-        this.config.storage === 'ram'
-          ? this.t(
-              'MISMO PROCESO · comparten la caída',
-              'SAME PROCESS · shared fate',
-            )
-          : this.t(
-              'BDD INDEPENDIENTE · sobrevive al worker',
-              'INDEPENDENT DB · survives worker',
-            );
-      this.replace(
-        '[data-store-figure]',
-        labFigure(this.config.storage === 'ram' ? 'ram' : 'db'),
-      );
-      this.q<HTMLSelectElement>('[data-setting=storage]').value =
-        this.config.storage;
-      this.q<HTMLSelectElement>('[data-setting=protect]').value = this.config
-        .protectLocalRecord
-        ? 'on'
-        : 'off';
-      this.q('[data-storage-note]').textContent =
-        this.config.storage === 'ram'
-          ? this.t(
-              'Pendientes dentro del worker.',
-              'Pending work inside the worker.',
-            )
-          : this.t(
-              'Los pendientes sobreviven al worker.',
-              'Pending work survives the worker.',
-            );
-      this.q('[data-protection-note]').textContent = this.config
-        .protectLocalRecord
-        ? this.t('Conserva una sola fila por ID.', 'Keep one row per ID.')
-        : this.t(
-            'Cada intento puede crear otra fila.',
-            'Each attempt can create another row.',
-          );
-    } else {
-      for (let i = 0; i < this.config.steps.length; i++)
-        this.q<HTMLInputElement>(`[data-setting="remember-${i}"]`).checked =
-          this.config.steps[i]!.remember;
-    }
+    this.definition.paintSystem(this);
     this.q('[data-active-job]').classList.toggle(
       'is-executing',
       j.status === 'working' && s.active === shown,
@@ -1751,33 +976,17 @@ class QueueStories extends HTMLElement {
               : active
                 ? '▶'
                 : '○';
-      this.q(`[data-step-state="${i}"]`).textContent =
-        this.level === 1
-          ? active
-            ? `▶ ID ${String(shown + 1).padStart(2, '0')} · ${this.job(shown)}`
-            : `${this.resultLabel(i, st.effects)}${st.skipped ? ' · ' + st.skipped + ' ↷' : ''}`
-          : restarting
-            ? this.t('↻ Reiniciando · volvemos al primer paso del mismo pago', '↻ Restarting · back to the first step of the same payment')
-          : uncertain
-            ? this.t(`? Paso ${i + 1} sin confirmar · timeout tras solicitar el envío`, `? Step ${i + 1} unconfirmed · timeout after requesting the send`)
-          : failed
-            ? this.t(
-                `× Paso ${i + 1} falló · no llegó a completarse`,
-                `× Step ${i + 1} failed · did not complete`,
-              )
-          : active
-            ? s.cursor === 'save'
-              ? this.t(
-                  '✓ Acción hecha · guardando avance',
-                  '✓ Action done · saving progress',
-                )
-              : this.t('▶ Ejecutando ahora', '▶ Running now')
-            : st.executions === 0
-              ? this.t('Pendiente', 'Pending')
-              : `${st.executions} ${this.t(st.executions === 1 ? 'intento' : 'intentos', st.executions === 1 ? 'attempt' : 'attempts')} · ${this.resultLabel(i, st.effects)}${st.checkpoint ? ' · ✓ ' + this.t('guardado', 'saved') : ''}${st.skipped ? ' · ' + st.skipped + ' ↷' : ''}`;
+      this.q(`[data-step-state="${i}"]`).textContent = this.definition.stepState(this, i, {
+        progress: st,
+        shown,
+        active,
+        restarting,
+        uncertain,
+        failed,
+      });
     }
     this.renderActor();
-    const [title, text] = this.feedback();
+    const [title, text] = this.definition.feedback(this);
     this.replace(
       '[data-feedback]',
       /* HTML */ `<strong>${esc(title)}</strong>
@@ -1816,5 +1025,12 @@ class QueueStories extends HTMLElement {
     this.q('[data-actor-caption]').textContent = `${!this.playing && !this.retryStage && this.state.phase === 'running' ? this.t('En pausa · ', 'Paused · ') : ''}${caption[frame.state]}`;
   }
 }
-if (!customElements.get('queue-stories-game'))
-  customElements.define('queue-stories-game', QueueStories);
+export function definePaymentLab(definition: PaymentLabDefinition) {
+  if (customElements.get('queue-stories-game')) return;
+  customElements.define(
+    'queue-stories-game',
+    class extends PaymentLab {
+      readonly definition = definition;
+    },
+  );
+}
