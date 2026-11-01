@@ -29,6 +29,7 @@ const skillStations = findSkillAreas(locale).map((area) => ({
   label: area.title,
   items: [area.summary],
   tags: area.technologies,
+  asideTag: area.asideTag,
   pose: area.pose,
 }));
 ---

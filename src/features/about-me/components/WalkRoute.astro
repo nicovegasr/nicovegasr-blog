@@ -3,6 +3,7 @@ export type WalkRouteStation = {
   title: string;
   items: readonly string[];
   tags?: readonly string[];
+  asideTag?: string | undefined;
   label?: string;
   pose?: string;
 };
@@ -50,6 +51,7 @@ const tickRatio = (index: number): number =>
                   {station.tags.map((tag) => (
                     <li>{tag}</li>
                   ))}
+                  {station.asideTag !== undefined && <li class="aside-tag">{station.asideTag}</li>}
                 </ul>
               )
             }
@@ -142,6 +144,11 @@ const tickRatio = (index: number): number =>
     border-radius: var(--radius-small);
     font-size: var(--font-size-small);
     line-height: 1.4;
+  }
+
+  .tags .aside-tag {
+    border-style: dashed;
+    color: var(--color-text-soft);
   }
 
   .ground {

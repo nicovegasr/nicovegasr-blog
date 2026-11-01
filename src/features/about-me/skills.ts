@@ -4,6 +4,7 @@ export type SkillArea = {
   readonly title: string;
   readonly summary: string;
   readonly technologies: readonly string[];
+  readonly asideTag?: string;
   readonly pose: string;
 };
 
@@ -28,6 +29,7 @@ const skillAreasByLocale: Record<Locale, readonly SkillArea[]> = {
       summary:
         'Construyo interfaces de principio a fin: manejo del estado, caché de peticiones, rutas protegidas y paginación.',
       technologies: technologies.frontend,
+      asideTag: 'UX/UI… ya se me complica',
       pose: 'presenting',
     },
     {
@@ -65,6 +67,7 @@ const skillAreasByLocale: Record<Locale, readonly SkillArea[]> = {
       summary:
         'I build interfaces end to end: state management, request caching, protected routes and pagination.',
       technologies: technologies.frontend,
+      asideTag: "UX/UI… that's where it gets hard",
       pose: 'presenting',
     },
     {
