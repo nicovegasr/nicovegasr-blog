@@ -98,6 +98,8 @@ const tickRatio = (index: number): number =>
   }
 
   .station-title {
+    /* Offset the whole heading so wrapped highlight fragments stay aligned in WebKit. */
+    margin-inline-start: -0.08em;
     letter-spacing: -0.03em;
     line-height: 1.05;
   }
@@ -114,7 +116,6 @@ const tickRatio = (index: number): number =>
 
   .station-name {
     padding-inline: 0.08em;
-    margin-inline-start: -0.08em;
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
   }
