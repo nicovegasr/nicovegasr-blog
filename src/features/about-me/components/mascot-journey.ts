@@ -157,6 +157,7 @@ const trackMascotJourney = () => {
     });
 
     mascot.style.transform = `translate(${translateX}px, ${translateY}px)`;
+    mascot.classList.add('is-placed');
 
     const threadY = y - walkway.getBoundingClientRect().top - threadTop;
     thread.style.setProperty('--thread-progress', String(threadProgress(threadY, threadHeight)));

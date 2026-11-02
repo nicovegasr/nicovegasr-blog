@@ -280,7 +280,13 @@ const skillStations = findSkillAreas(locale).map((area) => ({
       width: var(--walker-size);
       height: var(--walker-size);
       pointer-events: none;
+      visibility: hidden;
       will-change: transform;
+    }
+
+    /* Oculta hasta su primer transform: sin él se pintaría en la esquina superior izquierda. */
+    :global(.js) .page-walker.is-placed {
+      visibility: visible;
     }
 
     /* El hilo baja por la izquierda: el título se aparta como los capítulos. */
