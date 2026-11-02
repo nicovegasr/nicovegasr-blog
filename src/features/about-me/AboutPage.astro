@@ -270,6 +270,11 @@ const skillStations = findSkillAreas(locale).map((area) => ({
       transform-origin: top;
     }
 
+    /* The elastic bounce moves the page but not the fixed mascot, which would leave its line. */
+    :global(html:has([data-walkway])) {
+      overscroll-behavior-y: none;
+    }
+
     :global(.js) .page-walker {
       --walker-size: clamp(3.75rem, 15vh, 7.5rem);
       position: fixed;
