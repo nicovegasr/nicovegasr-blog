@@ -1,6 +1,7 @@
 ---
 import type { Locale } from '@/i18n/locale';
 import BatchMetric from './BatchMetric.astro';
+import CacheMetric from './CacheMetric.astro';
 export type WalkRouteStation = {
   title: string;
   items: readonly string[];
@@ -8,7 +9,7 @@ export type WalkRouteStation = {
   asideTag?: string | undefined;
   label?: string;
   pose?: string;
-  metric?: 'batch-processing' | undefined;
+  metric?: 'batch-processing' | 'response-cache' | undefined;
 };
 
 interface Props {
@@ -60,6 +61,7 @@ const tickRatio = (index: number): number =>
               )
             }
             {station.metric === 'batch-processing' && <BatchMetric locale={locale} />}
+            {station.metric === 'response-cache' && <CacheMetric locale={locale} />}
           </li>
         ))
       }
