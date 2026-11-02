@@ -1,5 +1,22 @@
 # Interactive worker sprites
 
+## Backend tool variant
+
+`age-2026-backend.webp` is a transparent 1536 × 1024, 3 × 2 variant of
+`age-2026.webp`. The built-in ImageGen tool added a small mechanic's wrench
+directly to each pose, keeping the existing character, glasses, hair, cell
+layout and foot registration. The original atlas remains unchanged.
+
+The About page uses this walking/standing atlas only in the Backend station;
+other skills use the usual 2026 atlas. The variant loads near the skills route,
+and decoded atlas switches share the existing stale-request guard.
+
+Generation brief: preserve all six source cells and character proportions;
+integrate one grey open-ended wrench into each hand pose, with real transparent
+alpha and no extra costume, background, captions or cell boundaries.
+
+## Base atlases
+
 `worker-walk-atlas.webp` is a 1536 × 1024 transparent, 3-column × 2-row atlas.
 It was created with the built-in ImageGen tool using
 the mascot atlas from the private studio repository as the character identity reference.

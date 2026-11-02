@@ -6,6 +6,7 @@ import laptopAtlas from '@/shared/mascot/age-2023.webp?url';
 import tieAtlas from '@/shared/mascot/age-2024.webp?url';
 import matureAtlas from '@/shared/mascot/age-2026.webp?url';
 import matureReactionsAtlas from '@/shared/mascot/age-2026-reactions.webp?url';
+import backendAtlas from '@/shared/mascot/age-2026-backend.webp?url';
 
 const { class: className, ...attributes } = Astro.props;
 const atlases = {
@@ -14,6 +15,7 @@ const atlases = {
   2023: { walking: laptopAtlas, reactions: reactionsAtlas },
   2024: { walking: tieAtlas, reactions: reactionsAtlas },
   2026: { walking: matureAtlas, reactions: matureReactionsAtlas },
+  backend: { walking: backendAtlas, reactions: matureReactionsAtlas },
 };
 const initialAtlasUrls = [walkingAtlas, reactionsAtlas];
 ---

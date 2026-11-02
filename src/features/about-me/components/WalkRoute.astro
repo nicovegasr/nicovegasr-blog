@@ -1,4 +1,6 @@
 ---
+import type { Locale } from '@/i18n/locale';
+import BatchMetric from './BatchMetric.astro';
 export type WalkRouteStation = {
   title: string;
   items: readonly string[];
@@ -6,23 +8,25 @@ export type WalkRouteStation = {
   asideTag?: string | undefined;
   label?: string;
   pose?: string;
+  metric?: 'batch-processing' | undefined;
 };
 
 interface Props {
+  locale: Locale;
   title: string;
   stations: readonly WalkRouteStation[];
   direction: 'left' | 'right';
   titleSize: 'large' | 'medium';
 }
 
-const { title, stations, direction, titleSize } = Astro.props;
+const { locale, title, stations, direction, titleSize } = Astro.props;
 const lastIndex = stations.length - 1;
 const tickRatio = (index: number): number =>
   direction === 'right' ? index / lastIndex : 1 - index / lastIndex;
 ---
 
 <section
-  class:list={['route', `route--${direction}`, `route--${titleSize}`]}
+  class:list={['route', `route--${direction}`, `route--${titleSize}`, { 'route--with-metric': stations.some((station) => station.metric) }]}
   data-route
   data-direction={direction}
   style={`--route-stations: ${stations.length};`}
@@ -55,6 +59,7 @@ const tickRatio = (index: number): number =>
                 </ul>
               )
             }
+            {station.metric === 'batch-processing' && <BatchMetric locale={locale} />}
           </li>
         ))
       }
@@ -198,6 +203,10 @@ const tickRatio = (index: number): number =>
       padding-bottom: calc(12svh + var(--walker-size) * 0.86);
     }
 
+    :global(.js) .route--with-metric .stage {
+      padding-bottom: calc(12svh + var(--space-6));
+    }
+
     :global(.js) .route-title {
       margin-inline-start: var(--thread-indent);
       font-size: var(--font-size-heading-3);
@@ -333,5 +342,15 @@ const tickRatio = (index: number): number =>
         margin-top: var(--space-3);
       }
     }
+  }
+
+  @media (prefers-reduced-motion: no-preference) and (min-height: 34rem) and (max-height: 38rem) and (max-width: 48rem) {
+    :global(.js) .route--with-metric .stage { padding-top: calc(var(--space-16) + var(--space-2)); }
+    :global(.js) .route--with-metric .route-title { font-size: var(--font-size-lead); }
+    :global(.js) .route--with-metric .stations { margin-top: var(--space-2); }
+    :global(.js) .route--with-metric .station-title { font-size: var(--font-size-heading-2); }
+    :global(.js) .route--with-metric .items { margin-top: var(--space-2); font-size: var(--font-size-small); line-height: 1.35; }
+    :global(.js) .route--with-metric .tags { margin-top: var(--space-2); }
+    :global(.js) .route--with-metric .tags li { padding: 0.0625rem 0.375rem; font-size: 0.6875rem; }
   }
 </style>

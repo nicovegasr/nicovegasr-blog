@@ -31,6 +31,7 @@ const skillStations = findSkillAreas(locale).map((area) => ({
   tags: area.technologies,
   asideTag: area.asideTag,
   pose: area.pose,
+  metric: area.metric,
 }));
 ---
 
@@ -76,6 +77,7 @@ const skillStations = findSkillAreas(locale).map((area) => ({
     <Mascot class="page-walker" data-page-walker />
 
     <WalkRoute
+      locale={locale}
       title={translate('about.contributionsTitle')}
       stations={contributionStations}
       direction="left"
@@ -88,6 +90,7 @@ const skillStations = findSkillAreas(locale).map((area) => ({
     </section>
 
     <WalkRoute
+      locale={locale}
       title={translate('about.skillsTitle')}
       stations={skillStations}
       direction="right"

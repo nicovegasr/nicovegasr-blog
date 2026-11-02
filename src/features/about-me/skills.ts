@@ -6,6 +6,7 @@ export type SkillArea = {
   readonly technologies: readonly string[];
   readonly asideTag?: string;
   readonly pose: string;
+  readonly metric?: 'batch-processing';
 };
 
 const technologies = {
@@ -19,6 +20,7 @@ const skillAreasByLocale: Record<Locale, readonly SkillArea[]> = {
   es: [
     {
       title: 'Backend',
+      metric: 'batch-processing',
       summary:
         'Más allá del CRUD: alta concurrencia, sistemas asíncronos, procesamiento de datos con jobs programados, autenticación y autorización, con gestión de fallos desde el diseño.',
       technologies: ['Java', 'Spring', 'Spring Batch', 'Python', 'Node', '.NET', 'C++', 'RabbitMQ'],
@@ -57,6 +59,7 @@ const skillAreasByLocale: Record<Locale, readonly SkillArea[]> = {
   en: [
     {
       title: 'Backend',
+      metric: 'batch-processing',
       summary:
         'Beyond CRUD: high concurrency, asynchronous systems, data processing with scheduled jobs, authentication and authorization, with failure handling designed in.',
       technologies: ['Java', 'Spring', 'Spring Batch', 'Python', 'Node', '.NET', 'C++', 'RabbitMQ'],

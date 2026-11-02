@@ -3,7 +3,7 @@ type AtlasPair = { walking: string; reactions: string };
 export const createMascotAtlases = (mascot: HTMLElement, signal: AbortSignal) => {
   const atlases: Record<string, AtlasPair> = JSON.parse(mascot.dataset.mascotAtlases!);
   const images = new Map<string, Promise<void>>();
-  let requestedAge = mascot.dataset.mascotAge!;
+  let requestedKey = mascot.dataset.mascotAge!;
 
   const loadImage = (url: string): Promise<void> => {
     const existing = images.get(url);
@@ -25,18 +25,20 @@ export const createMascotAtlases = (mascot: HTMLElement, signal: AbortSignal) =>
     preload: (age: string) => {
       void load(age).catch(() => undefined);
     },
-    show: (age: string) => {
-      if (requestedAge === age) return;
-      requestedAge = age;
-      void load(age).then(() => {
-        if (signal.aborted || requestedAge !== age) return;
-        const atlas = pairFor(age);
+    show: (age: string, role?: 'backend') => {
+      const key = role ?? age;
+      if (requestedKey === key) return;
+      requestedKey = key;
+      void load(key).then(() => {
+        if (signal.aborted || requestedKey !== key) return;
+        const atlas = pairFor(key);
         mascot.style.setProperty('--walking-atlas', `url(${atlas.walking})`);
         mascot.style.setProperty('--reactions-atlas', `url(${atlas.reactions})`);
         mascot.dataset.mascotAge = age;
+        mascot.dataset.mascotRole = role ?? '';
       }).catch(() => {
         // Keep the currently decoded character if the next atlas cannot load.
-        if (requestedAge === age) requestedAge = mascot.dataset.mascotAge!;
+        if (requestedKey === key) requestedKey = mascot.dataset.mascotRole || mascot.dataset.mascotAge!;
       });
     },
   };
