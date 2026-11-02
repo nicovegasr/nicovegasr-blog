@@ -444,7 +444,7 @@ class QueueScaling extends HTMLElement {
       }
       packet.dataset.status = job.status;
       packet.textContent = `#${String(job.id).padStart(2, '0')}${job.worker !== null ? ` · W${job.worker}` : ''}`;
-      packet.title = `${this.names.jobs[job.id - 1]!} · ${job.status === 'done' ? this.copy.completeLabel : (this.names.steps[job.step]! ?? '')}`;
+      packet.title = `${this.names.jobs[job.id - 1]!} · ${job.status === 'done' ? this.copy.completeLabel : (this.names.steps[job.step] ?? '')}`;
       packet.setAttribute('aria-label', packet.title);
       const progress =
         job.status === 'running'

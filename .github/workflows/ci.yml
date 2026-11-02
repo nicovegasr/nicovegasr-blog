@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   verify:
-    name: Typecheck, unit tests and build
+    name: Lint, typecheck, unit tests and build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,6 +20,7 @@ jobs:
           node-version-file: .node-version
           cache: npm
       - run: npm ci
+      - run: npm run lint
       - run: npm run typecheck
       - run: npm run test:run
       - run: npm run build

@@ -61,6 +61,12 @@ export const BASE_CAPACITIES: Four<number> = [4, 3, 2, 5];
 const resourceCapacities = (config: ScalingConfig): Four<number> => config.capacities;
 
 export function createScaling(config = scalingDefaults()): ScalingState {
+  // Configurations also come back from session storage, where the static types do not hold.
+  const untrusted: {
+    capacities: readonly number[];
+    durations: readonly number[];
+    rateLimits: Record<HttpStep, number> | undefined;
+  } = config;
   if (
     !Number.isInteger(config.workers) ||
     config.workers < 1 ||
@@ -68,13 +74,13 @@ export function createScaling(config = scalingDefaults()): ScalingState {
     !Number.isInteger(config.concurrencyPerWorker) ||
     config.concurrencyPerWorker < 1 ||
     config.concurrencyPerWorker > MAXIMUM_CONCURRENCY_PER_WORKER ||
-    config.capacities.length !== 4 ||
-    config.durations.length !== 4 ||
+    untrusted.capacities.length !== 4 ||
+    untrusted.durations.length !== 4 ||
     config.capacities.some((capacity) => !Number.isInteger(capacity) || capacity < 1 || capacity > MAXIMUM_STEP_CAPACITY) ||
     config.durations.some(
       (ticks) => !Number.isInteger(ticks) || ticks < 1 || ticks > 120,
     ) ||
-    !config.rateLimits ||
+    !untrusted.rateLimits ||
     ([1, 3] as const).some((step) => !Number.isInteger(config.rateLimits[step]) || config.rateLimits[step] < 1 || config.rateLimits[step] > MAXIMUM_RATE_LIMIT)
   )
     throw new Error('Invalid scaling configuration');

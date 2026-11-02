@@ -3,7 +3,7 @@ import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 const { navigate } = vi.hoisted(() => ({ navigate: vi.fn() }));
 vi.mock('astro:transitions/client', () => ({ navigate }));
 
-const reader = (_key = 'es/docker', selected = 0) => ({
+const reader = (selected = 0) => ({
   links: ['/intro/#pill-reading', '/images/#pill-reading'].map((href, index) => ({
     href,
     hasAttribute: () => index === selected,
@@ -56,7 +56,7 @@ describe('reader keyboard navigation', () => {
   it('opens the previous pill with left, without wrapping at either endpoint', () => {
     expect(pressKey('ArrowLeft').defaultPrevented).toBe(false);
     expect(navigate).not.toHaveBeenCalled();
-    current = reader('es/docker', 1);
+    current = reader(1);
     expect(pressKey('ArrowRight').defaultPrevented).toBe(false);
     expect(navigate).not.toHaveBeenCalled();
     pressKey('ArrowLeft');
@@ -66,7 +66,7 @@ describe('reader keyboard navigation', () => {
   });
 
   it('continues into the next published series at the last pill', () => {
-    current = reader('es/docker', 1);
+    current = reader(1);
     const continuation = { href: '/es/pildoras/fundamentos/api/#pill-reading' };
     current.querySelector.mockReturnValue(continuation);
     expect(pressKey('ArrowRight').defaultPrevented).toBe(true);

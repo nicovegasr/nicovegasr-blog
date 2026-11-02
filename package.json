@@ -9,6 +9,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "typecheck": "astro check && tsc --noEmit",
+    "lint": "eslint . && node scripts/check-css-file-length.mjs",
     "test": "vitest",
     "test:run": "vitest run",
     "test:e2e": "playwright test"
@@ -24,7 +25,13 @@
   "devDependencies": {
     "@astrojs/check": "0.9.10",
     "@playwright/test": "1.64.1",
+    "eslint": "10.14.0",
+    "eslint-plugin-astro": "3.2.1",
     "typescript": "5.9.3",
+    "typescript-eslint": "8.72.1",
     "vitest": "4.1.12"
+  },
+  "overrides": {
+    "minimatch": "11.0.4"
   }
 }

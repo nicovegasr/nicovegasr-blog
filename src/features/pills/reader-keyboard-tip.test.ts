@@ -63,7 +63,7 @@ describe('reader keyboard tip', () => {
     changePage();
     expect(tip.hidden).toBe(true);
     await start(true);
-    expect(tip?.hidden).toBe(true);
+    expect(tip.hidden).toBe(true);
   });
 
   it('keeps the same countdown across chapter changes', async () => {

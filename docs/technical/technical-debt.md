@@ -6,6 +6,8 @@ Known issues and what has already been resolved. Fix an item when its area is ne
 
 | Priority | Item | Where | Next step |
 | --- | --- | --- | --- |
+| 🟠 Medium | Five files exceed the 500-line limit: both lab controllers, `PillReader.astro`, `scaling.css` and `outcome-scene.css` | [eslint.config.js](../../eslint.config.js), [check-css-file-length.mjs](../../scripts/check-css-file-length.mjs) | Split each file and remove it from its exception list |
+| ⚪ Low | `minimatch` is forced to 11.0.4 because ESLint still asks for an affected version (GHSA-g3hv-75wg-m249) | `overrides` in [package.json](../../package.json) | Remove the override when ESLint accepts a fixed version and `npm audit` stays clean |
 | ⚪ Low | Labs 1 and 2 share one stylesheet, with `data-level` selectors for lab 1 | [shared/stories](../../src/features/async-chaos-lab/shared/stories) | Move each lab's rules to its folder, checking the cascade page by page |
 
 ## Accepted
@@ -14,7 +16,6 @@ Known issues and what has already been resolved. Fix an item when its area is ne
 | --- | --- |
 | The header needs at least 344px, so it overflows on narrower screens | Those widths do not justify the work |
 | `--walk-line-inset` is set by JavaScript, which shifts the home layout slightly on load | Home CLS is well below the 0.1 threshold: at most 0.0225 locally (390×844) and 0.0054 in production (Lighthouse, mobile, 412×823). Deriving it in CSS would have to duplicate the centered gutter and the mascot size |
-| The lab controllers are still long (about 860 and 600 lines) | They now hold only state, events and painting; splitting them further would scatter a single flow |
 | State-dependent lab text uses `inLocale` in `narration.ts` and `guide.ts` | Those files are the catalogue for text that depends on the simulation state |
 | Existing source comments mix Spanish and English | New comments are written in English; existing ones change only when their code does |
 

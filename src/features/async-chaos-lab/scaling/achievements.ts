@@ -35,10 +35,9 @@ export const scalingAchievements: {
 export function eligibleAchievements(state: ScalingState): ScalingAchievementId[] {
   if (state.phase !== 'complete') return [];
   const verdict = scalingVerdict(state);
-  const completed = state.phase === 'complete';
   const conditions: Record<ScalingAchievementId, boolean> = {
     'pods-only': state.config.workers > 1 && state.config.concurrencyPerWorker === 1 && state.config.capacities.every((capacity, index) => capacity === BASE_CAPACITIES[index]) && ([1, 3] as const).every((step) => state.config.rateLimits[step] === BASE_RATE_LIMITS[step]),
-    'on-time': completed && verdict.fast && verdict.safe,
+    'on-time': verdict.fast && verdict.safe,
     'minimum-team': verdict.won && state.config.workers === minimumWorkers(state.config),
   };
   return scalingAchievements.filter((achievement) => conditions[achievement.id]).map((achievement) => achievement.id);
