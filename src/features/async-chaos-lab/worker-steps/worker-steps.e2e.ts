@@ -12,7 +12,7 @@ test.describe('Level 2 · the worker', () => {
     const stageReserved = await page.evaluate(() => {
       const stage = document.querySelector('[data-worker-journey]')!.getBoundingClientRect();
       const steps = document.querySelector('[data-steps]')!.getBoundingClientRect();
-      const worker = document.querySelector('.qs-worker-interior')!.getBoundingClientRect();
+      const worker = document.querySelector('.lab-worker-interior')!.getBoundingClientRect();
       return stage.bottom <= steps.top && stage.left >= worker.left && stage.right <= worker.right;
     });
     expect(stageReserved, 'the character has a reserved stage above the step controls').toBe(true);
@@ -21,9 +21,9 @@ test.describe('Level 2 · the worker', () => {
     await expect(page.locator('label').filter({ has: page.locator('[data-setting=remember-3]') })).toContainText('Guardar avance al recibir confirmación');
     await captureForReview(page, 'worker-initial');
 
-    const chainHeight = () => page.locator('.qs-worker-interior').evaluate((chain) => chain.getBoundingClientRect().height);
+    const chainHeight = () => page.locator('.lab-worker-interior').evaluate((chain) => chain.getBoundingClientRect().height);
     const heightBefore = await chainHeight();
-    await page.locator('button[popovertarget="qs-step-options-3"]:not([popovertargetaction])').click();
+    await page.locator('button[popovertarget="lab-step-options-3"]:not([popovertargetaction])').click();
     expect(await chainHeight(), 'opening a step configuration does not resize the chain').toBe(heightBefore);
     await captureForReview(page, 'worker-step-editor');
     await lab.stepEditor(3).locator('[popovertargetaction=hide]').click();
@@ -127,7 +127,7 @@ test.describe('Level 2 · the worker', () => {
     await lab.open('es', 2);
     const hostile = '<img src=x onerror="window.storyXss=1">';
     const injected = () => page.evaluate(() =>
-      (window as Window & { storyXss?: number }).storyXss !== undefined || !!document.querySelector('queue-stories-game img'));
+      (window as Window & { storyXss?: number }).storyXss !== undefined || !!document.querySelector('payment-lab img'));
 
     await lab.action('personalize');
     for (const label of ['step-1', 'job-0', 'worker']) await lab.rename(label, hostile);

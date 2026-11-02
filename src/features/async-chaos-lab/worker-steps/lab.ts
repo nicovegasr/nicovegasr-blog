@@ -50,7 +50,7 @@ export const workerStepsLab: PaymentLabDefinition = {
   stepState(lab, index, { progress: progress, active, restarting, uncertain, failed }) {
     const state = lab.state;
     return restarting
-      ? workerStepsCopy(lab.es).restartingBackToTheFirst
+      ? workerStepsCopy(lab.es).restartingBackToFirstStep
   : uncertain
     ? workerStepsCopy(lab.es).stepUnconfirmedTimeoutAfterRequesting(index + 1)
   : failed
@@ -80,7 +80,7 @@ export const workerStepsLab: PaymentLabDefinition = {
     if (step && group === 'remember') {
       step.remember = (input as HTMLInputElement).checked;
       if (lab.guide !== 'off') {
-        if (lab.config.steps.every((state) => state.remember))
+        if (lab.config.steps.every((step) => step.remember))
           lab.guide = 'efficient';
         else if (lab.config.steps[1]?.remember && lab.guide !== 'optimize')
           lab.guide = 'safe';
@@ -99,7 +99,7 @@ export const workerStepsLab: PaymentLabDefinition = {
     ) {
       const expanded = [
         ...lab.querySelectorAll<HTMLElement>(
-          '.qs-step-editor',
+          '.lab-step-editor',
         ),
       ].map((panel) => panel.matches(':popover-open'));
       step.kind = input.value as ActionKind;
@@ -107,7 +107,7 @@ export const workerStepsLab: PaymentLabDefinition = {
       lab.buildSteps();
       [
         ...lab.querySelectorAll<HTMLElement>(
-          '.qs-step-editor',
+          '.lab-step-editor',
         ),
       ].forEach((panel, index) => { if (expanded[index]) panel.showPopover(); });
       lab.element<HTMLSelectElement>(`[data-setting="kind-${stepIndex}"]`).focus({
@@ -164,14 +164,14 @@ export const workerStepsLab: PaymentLabDefinition = {
   interruptedEvidence(lab) {
     const state = lab.state,
       job = state.jobs[Math.max(0, state.active)]!;
-      return /* HTML */ `<div class="qs-action-evidence">
+      return /* HTML */ `<div class="lab-action-evidence">
           ${job.steps
             .map(
               (progress, index) =>
                 /* HTML */ `<article
                   class="${index === state.step && state.incident === 'email-uncertain' ? 'is-uncertain' : progress.effects ? 'is-finished' : index === state.step ? 'was-interrupted' : ''}"
                 >
-                  <span class="qs-evidence-step"
+                  <span class="lab-evidence-step"
                     >${String(index + 1).padStart(2, '0')}
                     <b>${index === state.step && state.incident === 'email-uncertain' ? '?' : progress.effects ? '✓' : index === state.step ? '×' : '○'}</b></span
                   ><strong>${escapeHtml(lab.step(index))}</strong
@@ -180,7 +180,7 @@ export const workerStepsLab: PaymentLabDefinition = {
             )
             .join('')}
         </div>
-        <p class="qs-evidence-caption">
+        <p class="lab-evidence-caption">
           ${escapeHtml(lab.job(job.id - 1))} · ID ${String(job.id).padStart(2, '0')} ·
           ${workerStepsCopy(lab.es).whatAlreadyHappenedStillExists}
         </p>`;

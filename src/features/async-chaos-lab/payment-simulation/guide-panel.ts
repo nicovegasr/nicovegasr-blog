@@ -21,29 +21,29 @@ export function guidePanel(lab: PaymentLab, beat: GuideBeat) {
       lab.copy.changeTheDesign,
     );
   const optional = lab.definition.guideOptionalAction(lab);
-  return /* HTML */ `<header class="qs-guide-header">
+  return /* HTML */ `<header class="lab-guide-header">
       <span
         >${lab.copy.guidedWalkthroughHeading}
-        <span class="qs-guide-chapter">${beat.chapter}/4</span></span
+        <span class="lab-guide-chapter">${beat.chapter}/4</span></span
       ><button
         type="button"
         data-action="guide-close"
-        title="${lab.state.phase === 'won' ? lab.copy.leaveAndKeepTheResult : lab.copy.leaveAndRestoreMyPrevious}"
+        title="${lab.state.phase === 'won' ? lab.copy.leaveAndKeepTheResult : lab.copy.leaveAndRestorePreviousTrial}"
       >
         ${lab.copy.leaveWalkthrough} ×
       </button>
     </header>
-    <div class="qs-guide-body">
-      <div class="qs-guide-story">
+    <div class="lab-guide-body">
+      <div class="lab-guide-story">
         <h2>${escapeHtml(beat.title)}</h2>
         <p>${escapeHtml(beat.story)}</p>
       </div>
-      <div class="qs-guide-next">
-        <span class="qs-eyebrow">${lab.copy.now}</span>
-        <p id="qs-guide-task" role="status" aria-live="polite">
+      <div class="lab-guide-next">
+        <span class="lab-eyebrow">${lab.copy.now}</span>
+        <p id="lab-guide-task" role="status" aria-live="polite">
           ${escapeHtml(beat.task)}
         </p>
-        ${action || optional ? /* HTML */ `<div class="qs-guide-actions">${action}${optional}</div>` : ''}
+        ${action || optional ? /* HTML */ `<div class="lab-guide-actions">${action}${optional}</div>` : ''}
       </div>
     </div>`;
 }

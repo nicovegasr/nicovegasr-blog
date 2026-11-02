@@ -6,31 +6,31 @@ import { escapeHtml } from '../shared/text';
 import { workerStepsCopy } from './copy';
 
 export function workerStepsDiagram(lab: PaymentLab) {
-  return /* HTML */ `<div class="qs-ready-queue">
+  return /* HTML */ `<div class="lab-ready-queue">
       <span
         >✓
-        ${workerStepsCopy(lab.es).paymentsInIndependentDbrecovery}</span
+        ${workerStepsCopy(lab.es).paymentsInIndependentDatabaseRecovery}</span
       >
-      <div class="qs-extra-names">
+      <div class="lab-extra-names">
         ${lab.editor('api', lab.labels.api, workerStepsCopy(lab.es).intakeName)}${lab.editor('storage', lab.labels.storage, workerStepsCopy(lab.es).storageName)}
       </div>
     </div>
-    <div class="qs-payments-header">
-      <div class="qs-job-strip">${lab.jobRows()}</div>
+    <div class="lab-payments-header">
+      <div class="lab-job-strip">${lab.jobRows()}</div>
       ${lab.namingControl()}
     </div>
-    <section class="qs-worker-interior">
+    <section class="lab-worker-interior">
       <header>
         ${labFigure('worker')}
         <div>
-          <span class="qs-eyebrow"
-            >${workerStepsCopy(lab.es).insideTheworker}</span
+          <span class="lab-eyebrow"
+            >${workerStepsCopy(lab.es).insideTheWorker}</span
           >${lab.editor('worker', lab.labels.worker, workerStepsCopy(lab.es).workerName)}
         </div>
-        <div class="qs-active-job" data-active-job></div>
+        <div class="lab-active-job" data-active-job></div>
       </header>
       ${lab.workerJourney()}
-      <div class="qs-worker-steps" data-steps></div>
+      <div class="lab-worker-steps" data-steps></div>
     </section>`;
 }
 
@@ -73,10 +73,10 @@ function kindLabel(lab: PaymentLab, kind: ActionKind) {
 }
 
 export const stepNature = (lab: PaymentLab, step: StepConfig) =>
-  /* HTML */ `<p class="qs-step-nature ${isExternal(step.kind) ? 'has-external' : ''}">${actionNature(lab, step.kind)}</p>`;
+  /* HTML */ `<p class="lab-step-nature ${isExternal(step.kind) ? 'has-external' : ''}">${actionNature(lab, step.kind)}</p>`;
 
 export const stepOptions = (lab: PaymentLab, step: StepConfig, index: number) =>
-  /* HTML */ `<div class="qs-step-options">
+  /* HTML */ `<div class="lab-step-options">
     <label
       ><input
         type="checkbox"
@@ -85,28 +85,28 @@ export const stepOptions = (lab: PaymentLab, step: StepConfig, index: number) =>
       />
       ${workerStepsCopy(lab.es).saveProgressAfterConfirmation}</label
     >
-    <button type="button" class="qs-step-configure" popovertarget="qs-step-options-${index}">${workerStepsCopy(lab.es).configureStep} ↗</button>
-    <div class="qs-step-editor" id="qs-step-options-${index}" popover="auto" data-step-editor="${index}">
-      <header><strong>${escapeHtml(lab.step(index))}</strong><button type="button" popovertarget="qs-step-options-${index}" popovertargetaction="hide" aria-label="${workerStepsCopy(lab.es).closeOptions}">×</button></header>
-      <small class="qs-step-tradeoff"
-        >${isSafeToRepeat(step.kind) ? workerStepsCopy(lab.es).optionalHereSavesRepeatedWork : workerStepsCopy(lab.es).avoidsRepeatingItIfIts}</small
-      ><label class="qs-kind-label"
-        >${workerStepsCopy(lab.es).thisStepDoes}<select
+    <button type="button" class="lab-step-configure" popovertarget="lab-step-options-${index}">${workerStepsCopy(lab.es).configureStep} ↗</button>
+    <div class="lab-step-editor" id="lab-step-options-${index}" popover="auto" data-step-editor="${index}">
+      <header><strong>${escapeHtml(lab.step(index))}</strong><button type="button" popovertarget="lab-step-options-${index}" popovertargetaction="hide" aria-label="${workerStepsCopy(lab.es).closeOptions}">×</button></header>
+      <small class="lab-step-tradeoff"
+        >${isSafeToRepeat(step.kind) ? workerStepsCopy(lab.es).optionalHereSavesRepeatedWork : workerStepsCopy(lab.es).avoidsRepeatingItIfMarkerSaved}</small
+      ><label class="lab-kind-label"
+        >${workerStepsCopy(lab.es).thisStepDoesPlaceholder}<select
           data-setting="kind-${index}"
         >
           ${(['check', 'set-state', 'append', 'external', 'notify'] as ActionKind[]).map((kind) => /* HTML */ `<option value="${kind}" ${step.kind === kind ? 'selected' : ''}>${kindLabel(lab, kind)}</option>`).join('')}
         </select></label
       >${
         isExternal(step.kind)
-          ? /* HTML */ `<p>${workerStepsCopy(lab.es).letsTheWorkerSkipThis}</p>`
+          ? /* HTML */ `<p>${workerStepsCopy(lab.es).letsTheWorkerSkipThisStep}</p>`
           : step.kind === 'append'
             ? /* HTML */ `<p>
-                ${workerStepsCopy(lab.es).itIsLocalButAdding}
+                ${workerStepsCopy(lab.es).localButAddingRowChangesResult}
               </p>`
             : /* HTML */ `<p>
-                ${workerStepsCopy(lab.es).thisParticularActionIsSafe}
+                ${workerStepsCopy(lab.es).thisActionIsSafeToRepeat}
               </p>`
       }
     </div>
-    ${isExternal(step.kind) ? /* HTML */ `<label class="qs-provider-option"><input type="checkbox" data-setting="provider-${index}" aria-describedby="qs-provider-hint-${index}" ${step.providerDeduplication ? 'checked' : ''} /><span>${workerStepsCopy(lab.es).deduplicateAtTheServiceBy}<small class="qs-provider-hint" id="qs-provider-hint-${index}">${workerStepsCopy(lab.es).coversTimeoutAtService}</small></span></label>` : ''}
+    ${isExternal(step.kind) ? /* HTML */ `<label class="lab-provider-option"><input type="checkbox" data-setting="provider-${index}" aria-describedby="lab-provider-hint-${index}" ${step.providerDeduplication ? 'checked' : ''} /><span>${workerStepsCopy(lab.es).deduplicateAtTheServiceByKey}<small class="lab-provider-hint" id="lab-provider-hint-${index}">${workerStepsCopy(lab.es).coversTimeoutAtService}</small></span></label>` : ''}
   </div>`;

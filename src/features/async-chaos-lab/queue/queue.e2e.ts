@@ -22,16 +22,16 @@ test.describe('Level 1 · the queue', () => {
     await expect(page.locator('[data-label=worker]')).toHaveCSS('display', 'none');
     await expect(lab.game.locator('table')).toHaveCount(0);
     await expect(page.locator('[data-job-row]')).toHaveCount(3);
-    for (const removed of ['.qs-reference', '.qs-footer-actions', '[data-setting=gap]'])
+    for (const removed of ['.lab-reference', '.lab-footer-actions', '[data-setting=gap]'])
       await expect(page.locator(removed)).toHaveCount(0);
 
     await expectFullyInViewport(lab.dock, 'the transport is visible from the start');
     await expect(lab.dock.locator('[data-action=personalize]')).toHaveCount(0);
     const namesAboveApi = await page.evaluate(() =>
       document.querySelector('[data-action=personalize]')!.getBoundingClientRect().bottom <=
-      document.querySelector('.qs-api')!.getBoundingClientRect().top);
+      document.querySelector('.lab-api')!.getBoundingClientRect().top);
     expect(namesAboveApi, 'names sit above the API').toBe(true);
-    const diagramFits = await page.evaluate(() => document.querySelector('.qs-diagram')!.getBoundingClientRect().bottom <= innerHeight);
+    const diagramFits = await page.evaluate(() => document.querySelector('.lab-diagram')!.getBoundingClientRect().bottom <= innerHeight);
     expect(diagramFits, 'the core diagram fits a desktop screen').toBe(true);
     await captureForReview(page, 'queue-initial');
   });
@@ -45,9 +45,9 @@ test.describe('Level 1 · the queue', () => {
 
     await expect(lab.game.locator('[data-action=play]')).toContainText('Continuar');
     await expect(page.locator('[data-step-state]').first()).toContainText('ID 01');
-    await expect(page.locator('.qs-job.is-working'), 'the current payment is highlighted').not.toHaveCount(0);
-    await expect(page.locator('.qs-step.is-active')).not.toHaveCount(0);
-    await expect(page.locator('.qs-active-job.is-executing')).not.toHaveCount(0);
+    await expect(page.locator('.lab-job.is-working'), 'the current payment is highlighted').not.toHaveCount(0);
+    await expect(page.locator('.lab-step.is-active')).not.toHaveCount(0);
+    await expect(page.locator('.lab-active-job.is-executing')).not.toHaveCount(0);
     await captureForReview(page, 'queue-executing');
 
     const paused = await lab.progress();
@@ -94,8 +94,8 @@ test.describe('Level 1 · the queue', () => {
       await expect(lab.feedback).toContainText('PERDISTE LOS DATOS');
       await expect(lab.dialog).toContainText('GAME LOSS');
       await expect(lab.dialog).toContainText('TU COMPAÑERO DE GUARDIA');
-      await expect(page.locator('.qs-array .qs-job.is-lost')).toHaveCount(2);
-      await expect(page.locator('#qs-outcome-text'), 'the caller reports a customer problem, not the diagnosis').not.toContainText(/RAM|worker|persist/);
+      await expect(page.locator('.lab-array .lab-job.is-lost')).toHaveCount(2);
+      await expect(page.locator('#lab-outcome-text'), 'the caller reports a customer problem, not the diagnosis').not.toContainText(/RAM|worker|persist/);
       await captureForReview(page, 'queue-ram-loss');
     });
 
@@ -120,7 +120,7 @@ test.describe('Level 1 · the queue', () => {
       await expect(lab.feedback).toContainText('confirmación');
       expect(await lab.runToStop()).toBe('duplicate');
       await expect(page.locator('[data-job-status]').nth(2)).toContainText('DUPLICADO');
-      await expect(page.locator('.qs-step.is-active'), 'a failed run is not still processing').toHaveCount(0);
+      await expect(page.locator('.lab-step.is-active'), 'a failed run is not still processing').toHaveCount(0);
     });
 
     await test.step('checking the ID wins and finishing keeps the working system', async () => {
@@ -183,7 +183,7 @@ test.describe('Level 1 · the queue', () => {
       const lab = new StoriesLab(page);
       await lab.open('es', 1);
       await lab.runToStop();
-      await expect(page.locator('.qs-ticket.is-lost').first()).toHaveCSS('animation-name', 'none');
+      await expect(page.locator('.lab-ticket.is-lost').first()).toHaveCSS('animation-name', 'none');
       expect(await page.evaluate(() => !!document.activeElement?.closest('dialog[open]')), 'the outcome owns keyboard focus').toBe(true);
       await page.keyboard.press('Escape');
       await expect(lab.dialog).toHaveJSProperty('open', false);
@@ -227,7 +227,7 @@ test.describe('Levels 1 and 2 · presentation', () => {
         await lab.action('guide');
         const guideReadable = await page.evaluate(() => {
           const guide = document.querySelector('[data-guide]')!.getBoundingClientRect();
-          const dock = document.querySelector('.qs-dock')!.getBoundingClientRect();
+          const dock = document.querySelector('.lab-dock')!.getBoundingClientRect();
           return guide.top >= 0 && guide.bottom <= dock.top;
         });
         expect(guideReadable, 'the current step is readable without the transport covering it').toBe(true);

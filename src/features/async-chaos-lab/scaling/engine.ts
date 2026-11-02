@@ -2,14 +2,19 @@
 export const TICK_SECONDS = 0.5;
 export const PAYMENT_COUNT = 24;
 export const AVAILABLE_WORKERS = 8;
-export const MAX_CONCURRENCY_PER_WORKER = 8;
+export const MAXIMUM_CONCURRENCY_PER_WORKER = 8;
+export const MAXIMUM_STEP_CAPACITY = 8;
+export const MAXIMUM_RATE_LIMIT = 8;
+export const TICK_MILLISECONDS = 120;
+export const WORKER_TEMPO_MILLISECONDS = 1000;
+export const PLAYBACK_SPEEDS = [1, 2, 4] as const;
 export const TARGET_SECONDS = 25;
 export const TARGET_COST = 120;
 export type Four<T> = [T, T, T, T];
 export type HttpStep = 1 | 3;
 export const isHttpStep = (step: number): step is HttpStep => step === 1 || step === 3;
 export const BASE_RATE_LIMITS: Record<HttpStep, number> = { 1: 2, 3: 2 };
-export const RATE_WINDOW_TICKS = 1 / TICK_SECONDS;
+const RATE_WINDOW_TICKS = 1 / TICK_SECONDS;
 export type ScalingConfig = {
   workers: number;
   concurrencyPerWorker: number; // payments a worker can hold at once
@@ -53,7 +58,7 @@ export const scalingDefaults = (): ScalingConfig => ({
   rateLimits: { ...BASE_RATE_LIMITS },
 });
 export const BASE_CAPACITIES: Four<number> = [4, 3, 2, 5];
-export const resourceCapacities = (config: ScalingConfig): Four<number> => config.capacities;
+const resourceCapacities = (config: ScalingConfig): Four<number> => config.capacities;
 
 export function createScaling(config = scalingDefaults()): ScalingState {
   if (
@@ -62,15 +67,15 @@ export function createScaling(config = scalingDefaults()): ScalingState {
     config.workers > 24 ||
     !Number.isInteger(config.concurrencyPerWorker) ||
     config.concurrencyPerWorker < 1 ||
-    config.concurrencyPerWorker > MAX_CONCURRENCY_PER_WORKER ||
+    config.concurrencyPerWorker > MAXIMUM_CONCURRENCY_PER_WORKER ||
     config.capacities.length !== 4 ||
     config.durations.length !== 4 ||
-    config.capacities.some((capacity) => !Number.isInteger(capacity) || capacity < 1 || capacity > 8) ||
+    config.capacities.some((capacity) => !Number.isInteger(capacity) || capacity < 1 || capacity > MAXIMUM_STEP_CAPACITY) ||
     config.durations.some(
       (ticks) => !Number.isInteger(ticks) || ticks < 1 || ticks > 120,
     ) ||
     !config.rateLimits ||
-    ([1, 3] as const).some((step) => !Number.isInteger(config.rateLimits[step]) || config.rateLimits[step] < 1 || config.rateLimits[step] > 8)
+    ([1, 3] as const).some((step) => !Number.isInteger(config.rateLimits[step]) || config.rateLimits[step] < 1 || config.rateLimits[step] > MAXIMUM_RATE_LIMIT)
   )
     throw new Error('Invalid scaling configuration');
   return {
@@ -127,7 +132,7 @@ function schedule(state: ScalingState) {
     ).length;
     const waiting = state.jobs
       .filter((job) => job.step === step && job.status === 'waiting')
-      .sort((job, clickedButton) => job.waitingSince - clickedButton.waitingSince || job.id - clickedButton.id);
+      .sort((job, otherJob) => job.waitingSince - otherJob.waitingSince || job.id - otherJob.id);
     for (const job of waiting) {
       // Explicit per-resource admission: the worker retains its payment and
       // waits locally before sending a call. Async I/O alone does not do this.

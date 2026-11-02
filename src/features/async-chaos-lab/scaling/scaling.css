@@ -1,49 +1,49 @@
 /* Feature-local geometry and signals; typography and surfaces belong to the blog. */
-body:has(queue-scaling-game) main {
+body:has(scaling-lab) main {
   padding-top: var(--space-6);
 }
-queue-scaling-game {
-  --sc-blue: #5278b0;
-  --sc-green: #35825c;
-  --sc-amber: #ac7724;
-  --sc-coral: #c65a56;
-  --qs-wash: var(--sc-wash);
-  --sc-wash: color-mix(in srgb, var(--color-rule) 24%, var(--color-paper));
+scaling-lab {
+  --scaling-blue: #5278b0;
+  --scaling-green: #35825c;
+  --scaling-amber: #ac7724;
+  --scaling-coral: #c65a56;
+  --lab-wash: var(--scaling-wash);
+  --scaling-wash: color-mix(in srgb, var(--color-rule) 24%, var(--color-paper));
   display: block;
   font-size: var(--font-size-small);
   line-height: 1.45;
 }
-:root[data-theme='dark'] queue-scaling-game {
-  --sc-green: #78c69a;
-  --sc-amber: #e5b65f;
-  --sc-coral: #f28b83;
-  --sc-blue: #91b6ed;
+:root[data-theme='dark'] scaling-lab {
+  --scaling-green: #78c69a;
+  --scaling-amber: #e5b65f;
+  --scaling-coral: #f28b83;
+  --scaling-blue: #91b6ed;
 }
-queue-scaling-game :is(button, input) {
+scaling-lab :is(button, input) {
   font: inherit;
   color: inherit;
 }
-queue-scaling-game button {
+scaling-lab button {
   cursor: pointer;
 }
-queue-scaling-game button:disabled {
+scaling-lab button:disabled {
   cursor: default;
   opacity: 0.4;
 }
-queue-scaling-game :focus-visible {
-  outline: 3px solid var(--sc-blue);
+scaling-lab :focus-visible {
+  outline: 3px solid var(--scaling-blue);
   outline-offset: 3px;
 }
-queue-scaling-game [hidden] {
+scaling-lab [hidden] {
   display: none !important;
 }
-queue-scaling-game .sc-mission {
+scaling-lab .scaling-mission {
   display: flex;
   align-items: center;
   gap: 0.65rem;
   margin: 0.75rem 0 0.7rem;
 }
-queue-scaling-game .sc-mission-mark {
+scaling-lab .scaling-mission-mark {
   display: grid;
   place-items: center;
   width: 35px;
@@ -54,32 +54,32 @@ queue-scaling-game .sc-mission-mark {
   font: 600 1.4rem/1 var(--font-family-display);
   flex-shrink: 0;
 }
-queue-scaling-game .sc-mission p {
+scaling-lab .scaling-mission p {
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
   margin: 0;
 }
-queue-scaling-game .sc-mission strong {
+scaling-lab .scaling-mission strong {
   font: 600 0.92rem/1.3 var(--font-family-display);
 }
-queue-scaling-game .sc-mission p > span {
+scaling-lab .scaling-mission p > span {
   color: var(--color-text-soft);
   font-size: 0.68rem;
 }
-queue-scaling-game .sc-board {
+scaling-lab .scaling-board {
   display: grid;
   grid-template-columns: 160px minmax(0, 1fr);
   gap: 1.7rem;
   position: relative;
 }
-queue-scaling-game .sc-intake {
+scaling-lab .scaling-intake {
   display: flex;
   flex-direction: column;
   min-width: 0;
   gap: 0.65rem;
 }
-queue-scaling-game .sc-edit-names {
+scaling-lab .scaling-edit-names {
   color: var(--color-text-soft);
   background: none;
   padding: 0;
@@ -88,7 +88,7 @@ queue-scaling-game .sc-edit-names {
   align-self: flex-start;
   min-height: 25px;
 }
-queue-scaling-game .sc-api {
+scaling-lab .scaling-api {
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -98,17 +98,17 @@ queue-scaling-game .sc-api {
   border-radius: var(--radius-medium);
   background: var(--color-paper);
 }
-queue-scaling-game .sc-api .qs-figure {
+scaling-lab .scaling-api .lab-figure {
   width: 23px;
   height: 23px;
-  color: var(--sc-blue);
+  color: var(--scaling-blue);
 }
-queue-scaling-game .sc-api > strong {
+scaling-lab .scaling-api > strong {
   font: 600 0.7rem/1.3 var(--font-family-display);
   overflow-wrap: anywhere;
   flex: 1;
 }
-queue-scaling-game .sc-202 {
+scaling-lab .scaling-202 {
   font: 500 1.45rem/1 var(--font-family-display);
   display: flex;
   width: 100%;
@@ -116,121 +116,121 @@ queue-scaling-game .sc-202 {
   gap: 0.65rem;
   padding-top: 0.15rem;
 }
-queue-scaling-game .sc-202 small {
+scaling-lab .scaling-202 small {
   color: var(--color-text-soft);
   font: 0.58rem/1.3 var(--font-family-mono);
 }
-queue-scaling-game .sc-queue {
+scaling-lab .scaling-queue {
   border: 1px solid var(--color-rule);
   border-radius: var(--radius-medium);
-  background: var(--sc-wash);
+  background: var(--scaling-wash);
   padding: 0.65rem;
   flex: 1;
   position: relative;
 }
-queue-scaling-game .sc-queue header {
+scaling-lab .scaling-queue header {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 0.35rem;
   margin-bottom: 0.5rem;
 }
-queue-scaling-game .sc-queue header strong {
+scaling-lab .scaling-queue header strong {
   font: 600 0.7rem/1.3 var(--font-family-display);
   overflow-wrap: anywhere;
 }
-queue-scaling-game .sc-queue header > span {
+scaling-lab .scaling-queue header > span {
   font: 0.65rem/1 var(--font-family-mono);
   color: var(--color-text-soft);
 }
-queue-scaling-game .sc-queue-jobs {
+scaling-lab .scaling-queue-jobs {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   align-content: start;
   gap: 0.22rem;
   min-height: 132px;
 }
-queue-scaling-game .sc-queue > p {
+scaling-lab .scaling-queue > p {
   font-size: 0.48rem;
   color: var(--color-text-soft);
   margin: 0.5rem 0 0;
 }
-queue-scaling-game .sc-queue > p > span {
-  color: var(--sc-green);
+scaling-lab .scaling-queue > p > span {
+  color: var(--scaling-green);
 }
-queue-scaling-game .sc-machine {
+scaling-lab .scaling-machine {
   min-width: 0;
   display: flex;
   flex-direction: column;
 }
-queue-scaling-game .sc-team {
+scaling-lab .scaling-team {
   border: 1px solid var(--color-rule);
   border-radius: var(--radius-medium);
   padding: 0.65rem 0.75rem;
-  background: var(--sc-wash);
+  background: var(--scaling-wash);
   margin-bottom: 0.55rem;
 }
-queue-scaling-game .sc-team-heading {
+scaling-lab .scaling-team-heading {
   display: flex;
   flex-wrap: wrap;
   gap: 0.6rem;
   align-items: center;
 }
-queue-scaling-game .sc-team-heading > .qs-figure {
+scaling-lab .scaling-team-heading > .lab-figure {
   width: 30px;
   height: 30px;
-  color: var(--sc-blue);
+  color: var(--scaling-blue);
   flex-shrink: 0;
 }
-queue-scaling-game .sc-team-heading > div:not(.sc-hire) {
+scaling-lab .scaling-team-heading > div:not(.scaling-hire) {
   min-width: 0;
 }
-queue-scaling-game .sc-team-heading small {
+scaling-lab .scaling-team-heading small {
   display: block;
   color: var(--color-text-soft);
   font: 0.48rem/1.3 var(--font-family-mono);
   letter-spacing: 0.04em;
 }
-queue-scaling-game .sc-team-heading strong {
+scaling-lab .scaling-team-heading strong {
   display: block;
   font: 600 0.83rem/1.4 var(--font-family-display);
   overflow-wrap: anywhere;
 }
-queue-scaling-game .sc-hire {
+scaling-lab .scaling-hire {
   display: flex;
   align-items: center;
   gap: 0.35rem;
   margin-left: auto;
   flex-shrink: 0;
 }
-queue-scaling-game .sc-hire > span {
+scaling-lab .scaling-hire > span {
   max-width: 6.5rem;
   color: var(--color-text-soft);
   font: 0.55rem/1.25 var(--font-family-mono);
   text-align: right;
 }
-queue-scaling-game .sc-hire button {
+scaling-lab .scaling-hire button {
   width: 31px;
   height: 30px;
-  border: 1px solid var(--sc-blue);
-  color: var(--sc-blue);
-  background: color-mix(in srgb, var(--sc-blue) 8%, var(--color-paper));
+  border: 1px solid var(--scaling-blue);
+  color: var(--scaling-blue);
+  background: color-mix(in srgb, var(--scaling-blue) 8%, var(--color-paper));
   border-radius: var(--radius-small);
   font-weight: 600;
 }
-queue-scaling-game .sc-hire output {
+scaling-lab .scaling-hire output {
   min-width: 1.3rem;
   text-align: center;
   font: 600 1.25rem/1 var(--font-family-display);
 }
-queue-scaling-game .sc-worker-rack {
+scaling-lab .scaling-worker-rack {
   display: flex;
   gap: 0.4rem;
   flex-wrap: wrap;
   margin-top: 0.4rem;
   min-height: 21px;
 }
-queue-scaling-game .sc-worker {
+scaling-lab .scaling-worker {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -245,20 +245,20 @@ queue-scaling-game .sc-worker {
   color: var(--color-text-soft);
   font: 0.55rem/1.3 var(--font-family-mono);
   min-width: 0;
-  animation: sc-worker-arrive 240ms ease-out both;
+  animation: scaling-worker-arrive 240ms ease-out both;
 }
-queue-scaling-game .sc-worker-name {
+scaling-lab .scaling-worker-name {
   font-weight: 600;
   color: var(--color-ink);
 }
-queue-scaling-game .sc-worker-character {
+scaling-lab .scaling-worker-character {
   position: relative;
   display: block;
   width: 64px;
   height: 64px;
   pointer-events: none;
 }
-queue-scaling-game .sc-worker-sprite {
+scaling-lab .scaling-worker-sprite {
   position: absolute;
   inset: 0;
   background-size: 300% 200%;
@@ -266,73 +266,73 @@ queue-scaling-game .sc-worker-sprite {
   background-position: 0 100%;
   transform-origin: 50% 85%;
 }
-queue-scaling-game .sc-worker-signal {
+scaling-lab .scaling-worker-signal {
   position: absolute;
   top: 0;
   right: -2px;
   color: inherit;
   font: 600 0.95rem/1 var(--font-family-display);
 }
-queue-scaling-game .sc-worker > b { white-space: nowrap; }
-queue-scaling-game .sc-worker [data-worker-status] {
+scaling-lab .scaling-worker > b { white-space: nowrap; }
+scaling-lab .scaling-worker [data-worker-status] {
   font: 0.5rem/1.3 var(--font-family-display);
   min-height: 2.6em;
   max-width: 100%;
   overflow-wrap: anywhere;
 }
-queue-scaling-game .sc-worker[data-pose='done'] {
-  color: var(--sc-green);
-  border-color: var(--sc-green);
+scaling-lab .scaling-worker[data-pose='done'] {
+  color: var(--scaling-green);
+  border-color: var(--scaling-green);
 }
-queue-scaling-game.is-playing .sc-worker[data-pose='working'] .sc-worker-signal {
-  animation: sc-worker-gear var(--sc-worker-tempo, 1000ms) linear infinite;
+scaling-lab.is-playing .scaling-worker[data-pose='working'] .scaling-worker-signal {
+  animation: scaling-worker-gear var(--scaling-worker-tempo, 1000ms) linear infinite;
 }
-queue-scaling-game.is-playing .sc-worker[data-pose^='waiting'] .sc-worker-signal {
-  animation: sc-worker-clock var(--sc-worker-tempo, 1000ms) steps(4, end) infinite;
+scaling-lab.is-playing .scaling-worker[data-pose^='waiting'] .scaling-worker-signal {
+  animation: scaling-worker-clock var(--scaling-worker-tempo, 1000ms) steps(4, end) infinite;
 }
-@keyframes sc-worker-arrive {
+@keyframes scaling-worker-arrive {
   from { opacity: 0; transform: translateY(5px); }
   to { opacity: 1; transform: none; }
 }
-@keyframes sc-worker-gear { to { transform: rotate(360deg); } }
-@keyframes sc-worker-clock { to { transform: rotate(360deg); } }
+@keyframes scaling-worker-gear { to { transform: rotate(360deg); } }
+@keyframes scaling-worker-clock { to { transform: rotate(360deg); } }
 @media (max-width: 580px) {
-  queue-scaling-game .sc-worker { width: 72px; flex-basis: 72px; }
-  queue-scaling-game .sc-worker-rack { gap: 0.3rem; }
+  scaling-lab .scaling-worker { width: 72px; flex-basis: 72px; }
+  scaling-lab .scaling-worker-rack { gap: 0.3rem; }
 }
 @media (prefers-reduced-motion: reduce) {
-  queue-scaling-game .sc-worker,
-  queue-scaling-game .sc-worker-signal { animation: none !important; }
+  scaling-lab .scaling-worker,
+  scaling-lab .scaling-worker-signal { animation: none !important; }
 }
-queue-scaling-game .sc-worker.is-busy {
-  color: var(--sc-green);
-  border-color: var(--sc-green);
-  background: color-mix(in srgb, var(--sc-green) 9%, var(--color-paper));
+scaling-lab .scaling-worker.is-busy {
+  color: var(--scaling-green);
+  border-color: var(--scaling-green);
+  background: color-mix(in srgb, var(--scaling-green) 9%, var(--color-paper));
 }
-queue-scaling-game .sc-worker.is-waiting {
-  color: var(--sc-amber);
-  border-color: var(--sc-amber);
-  background: color-mix(in srgb, var(--sc-amber) 8%, var(--color-paper));
+scaling-lab .scaling-worker.is-waiting {
+  color: var(--scaling-amber);
+  border-color: var(--scaling-amber);
+  background: color-mix(in srgb, var(--scaling-amber) 8%, var(--color-paper));
 }
-queue-scaling-game .sc-worker[data-pose='paused'] {
+scaling-lab .scaling-worker[data-pose='paused'] {
   color: var(--color-text-soft);
   border-color: var(--color-rule);
   background: var(--color-paper);
 }
-queue-scaling-game .sc-worker[data-pose='rejected'],
-queue-scaling-game .sc-job[data-status='rejected'] {
-  color: var(--sc-coral);
-  border-color: var(--sc-coral);
-  background: color-mix(in srgb, var(--sc-coral) 8%, var(--color-paper));
+scaling-lab .scaling-worker[data-pose='rejected'],
+scaling-lab .scaling-job[data-status='rejected'] {
+  color: var(--scaling-coral);
+  border-color: var(--scaling-coral);
+  background: color-mix(in srgb, var(--scaling-coral) 8%, var(--color-paper));
 }
-queue-scaling-game .sc-job[data-status='rejected'] { border-style: dashed; }
-queue-scaling-game .sc-flow {
+scaling-lab .scaling-job[data-status='rejected'] { border-style: dashed; }
+scaling-lab .scaling-flow {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.7rem;
   flex: 1;
 }
-queue-scaling-game .sc-step {
+scaling-lab .scaling-step {
   border: 1px solid var(--color-rule);
   border-radius: var(--radius-medium);
   min-width: 0;
@@ -343,19 +343,19 @@ queue-scaling-game .sc-step {
     border-color 0.2s,
     box-shadow 0.2s;
 }
-queue-scaling-game .sc-step.is-working {
-  border-color: var(--sc-green);
-  box-shadow: inset 0 3px 0 var(--sc-green);
+scaling-lab .scaling-step.is-working {
+  border-color: var(--scaling-green);
+  box-shadow: inset 0 3px 0 var(--scaling-green);
 }
-queue-scaling-game .sc-step.is-congested {
-  box-shadow: inset 0 3px 0 var(--sc-amber);
-  border-color: var(--sc-amber);
+scaling-lab .scaling-step.is-congested {
+  box-shadow: inset 0 3px 0 var(--scaling-amber);
+  border-color: var(--scaling-amber);
 }
-queue-scaling-game .sc-step.is-rejected {
-  border-color: var(--sc-coral);
-  box-shadow: inset 0 3px 0 var(--sc-coral);
+scaling-lab .scaling-step.is-rejected {
+  border-color: var(--scaling-coral);
+  box-shadow: inset 0 3px 0 var(--scaling-coral);
 }
-queue-scaling-game .sc-step-heading {
+scaling-lab .scaling-step-heading {
   display: block;
   width: 100%;
   background: none;
@@ -363,42 +363,42 @@ queue-scaling-game .sc-step-heading {
   text-align: left;
   padding: 0;
 }
-queue-scaling-game .sc-step-heading > small {
+scaling-lab .scaling-step-heading > small {
   display: flex;
   justify-content: space-between;
   gap: 0.3rem;
   font: 0.48rem/1.3 var(--font-family-mono);
   color: var(--color-text-soft);
 }
-queue-scaling-game .sc-step-heading > strong {
+scaling-lab .scaling-step-heading > strong {
   display: block;
   margin-top: 0.4rem;
   font: 600 0.8rem/1.15 var(--font-family-display);
   min-height: 1.1rem;
   overflow-wrap: anywhere;
 }
-queue-scaling-game .sc-resource {
+scaling-lab .scaling-resource {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0.35rem 0;
   margin-top: 0.35rem;
-  border-bottom: 4px solid var(--sc-wash);
+  border-bottom: 4px solid var(--scaling-wash);
   position: relative;
   font: 0.5rem/1.3 var(--font-family-mono);
   color: var(--color-text-soft);
 }
-queue-scaling-game .sc-resource::after {
+scaling-lab .scaling-resource::after {
   content: '';
   position: absolute;
   bottom: -4px;
   left: 0;
   width: var(--load, 0%);
   height: 4px;
-  background: var(--sc-green);
+  background: var(--scaling-green);
   transition: width 0.15s;
 }
-queue-scaling-game .sc-slots {
+scaling-lab .scaling-slots {
   display: flex;
   flex-wrap: wrap;
   gap: 0.2rem;
@@ -406,18 +406,18 @@ queue-scaling-game .sc-slots {
   min-height: 48px;
   padding-top: 0.3rem;
 }
-queue-scaling-game .sc-wait {
+scaling-lab .scaling-wait {
   border-top: 1px dashed var(--color-rule);
   padding-top: 0.3rem;
   margin-top: 0.3rem;
   height: 48px;
 }
-queue-scaling-game .sc-wait > small {
+scaling-lab .scaling-wait > small {
   display: block;
   font: 0.46rem/1.3 var(--font-family-mono);
   color: var(--color-text-soft);
 }
-queue-scaling-game .sc-wait > div {
+scaling-lab .scaling-wait > div {
   display: flex;
   gap: 0.18rem;
   flex-wrap: wrap;
@@ -425,12 +425,12 @@ queue-scaling-game .sc-wait > div {
   max-height: 32px;
   overflow-y: auto;
 }
-queue-scaling-game .sc-wait .sc-job {
+scaling-lab .scaling-wait .scaling-job {
   min-width: 21px;
   height: 15px;
   font-size: 0.42rem;
 }
-queue-scaling-game .sc-job {
+scaling-lab .scaling-job {
   position: relative;
   border: 1px solid var(--color-rule);
   background: var(--color-paper);
@@ -441,39 +441,39 @@ queue-scaling-game .sc-job {
   font: 0.55rem/1 var(--font-family-mono);
   overflow: visible;
 }
-queue-scaling-game .sc-job[data-status='running'] {
-  border-color: var(--sc-green);
-  color: var(--sc-green);
+scaling-lab .scaling-job[data-status='running'] {
+  border-color: var(--scaling-green);
+  color: var(--scaling-green);
   background: linear-gradient(
     90deg,
-    color-mix(in srgb, var(--sc-green) 23%, var(--color-paper)) var(--progress),
-    color-mix(in srgb, var(--sc-green) 6%, var(--color-paper)) var(--progress)
+    color-mix(in srgb, var(--scaling-green) 23%, var(--color-paper)) var(--progress),
+    color-mix(in srgb, var(--scaling-green) 6%, var(--color-paper)) var(--progress)
   );
   font-weight: 600;
 }
-queue-scaling-game .sc-job[data-status='waiting'] {
-  border-color: var(--sc-amber);
-  color: var(--sc-amber);
-  background: color-mix(in srgb, var(--sc-amber) 9%, var(--color-paper));
+scaling-lab .scaling-job[data-status='waiting'] {
+  border-color: var(--scaling-amber);
+  color: var(--scaling-amber);
+  background: color-mix(in srgb, var(--scaling-amber) 9%, var(--color-paper));
 }
 
-queue-scaling-game .sc-job[data-status='done'] {
+scaling-lab .scaling-job[data-status='done'] {
   border-color: transparent;
-  background: color-mix(in srgb, var(--sc-green) 10%, var(--color-paper));
-  color: var(--sc-green);
+  background: color-mix(in srgb, var(--scaling-green) 10%, var(--color-paper));
+  color: var(--scaling-green);
 }
-queue-scaling-game .sc-step-controls {
+scaling-lab .scaling-step-controls {
   border-top: 1px solid var(--color-rule);
   margin-top: 0.5rem;
   padding-top: 0.4rem;
 }
-queue-scaling-game .sc-step-controls > small {
+scaling-lab .scaling-step-controls > small {
   display: block;
   font-size: 0.45rem;
   color: var(--color-text-soft);
   margin-top: 0.4rem;
 }
-queue-scaling-game .sc-delivered {
+scaling-lab .scaling-delivered {
   display: flex;
   align-items: center;
   gap: 0.6rem;
@@ -482,55 +482,55 @@ queue-scaling-game .sc-delivered {
   border-top: 1px solid var(--color-rule);
   min-height: 23px;
 }
-queue-scaling-game .sc-delivered > span {
+scaling-lab .scaling-delivered > span {
   font: 0.5rem/1.3 var(--font-family-mono);
-  color: var(--sc-green);
+  color: var(--scaling-green);
   white-space: nowrap;
 }
-queue-scaling-game .sc-delivered > div {
+scaling-lab .scaling-delivered > div {
   display: flex;
   flex-wrap: wrap;
   gap: 0.15rem;
   flex: 1;
 }
-queue-scaling-game .sc-delivered .sc-job {
+scaling-lab .scaling-delivered .scaling-job {
   min-width: 18px;
   height: 16px;
   font-size: 0.4rem;
   padding: 0;
 }
-queue-scaling-game .sc-delivered > b {
+scaling-lab .scaling-delivered > b {
   font: 500 0.7rem/1.3 var(--font-family-mono);
 }
-queue-scaling-game .sc-radio {
+scaling-lab .scaling-radio {
   display: flex;
   align-items: center;
   gap: 0.7rem;
   min-height: 44px;
-  background: color-mix(in srgb, var(--sc-blue) 5%, var(--color-paper));
-  border-left: 3px solid var(--sc-blue);
+  background: color-mix(in srgb, var(--scaling-blue) 5%, var(--color-paper));
+  border-left: 3px solid var(--scaling-blue);
   padding: 0.45rem 0.8rem;
   margin-top: 0.4rem;
   border-radius: 0 var(--radius-small) var(--radius-small) 0;
 }
-queue-scaling-game .sc-radio .qs-figure {
+scaling-lab .scaling-radio .lab-figure {
   width: 25px;
   height: 25px;
-  color: var(--sc-blue);
+  color: var(--scaling-blue);
   flex-shrink: 0;
 }
-queue-scaling-game .sc-radio small {
+scaling-lab .scaling-radio small {
   display: block;
-  color: var(--sc-blue);
+  color: var(--scaling-blue);
   font: 0.45rem/1.2 var(--font-family-mono);
   letter-spacing: 0.04em;
 }
-queue-scaling-game .sc-radio p {
+scaling-lab .scaling-radio p {
   font-size: 0.65rem;
   line-height: 1.5;
   margin: 0.2rem 0 0;
 }
-queue-scaling-game .sc-dock {
+scaling-lab .scaling-dock {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -544,19 +544,19 @@ queue-scaling-game .sc-dock {
   z-index: 8;
   border-bottom: 1px solid var(--color-rule);
 }
-queue-scaling-game .sc-playback {
+scaling-lab .scaling-playback {
   display: flex;
   align-items: center;
   gap: 0.35rem;
 }
-queue-scaling-game .sc-dock button {
+scaling-lab .scaling-dock button {
   border: 0;
   background: none;
   padding: 0.4rem;
   min-height: 36px;
   font-size: 0.7rem;
 }
-queue-scaling-game button.sc-primary {
+scaling-lab button.scaling-primary {
   border: 0;
   border-radius: var(--radius-small);
   background: var(--color-ink);
@@ -564,49 +564,49 @@ queue-scaling-game button.sc-primary {
   padding: 0.6rem 0.8rem;
   font: 500 0.8rem/1.4 var(--font-family-display);
 }
-queue-scaling-game .sc-speeds {
+scaling-lab .scaling-speeds {
   display: flex;
   border: 1px solid var(--color-rule);
   border-radius: var(--radius-small);
   padding: 2px;
 }
-queue-scaling-game .sc-speeds button {
+scaling-lab .scaling-speeds button {
   font: 0.55rem/1 var(--font-family-mono);
   min-height: 25px;
   padding: 0.25rem 0.3rem;
   border-radius: 3px;
 }
-queue-scaling-game .sc-speeds button[aria-pressed='true'] {
+scaling-lab .scaling-speeds button[aria-pressed='true'] {
   background: var(--color-ink);
   color: var(--color-paper);
 }
-queue-scaling-game .sc-clock {
+scaling-lab .scaling-clock {
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
 }
-queue-scaling-game .sc-clock strong {
+scaling-lab .scaling-clock strong {
   font: 500 1.3rem/1 var(--font-family-display);
   font-variant-numeric: tabular-nums;
   min-width: 4ch;
 }
-queue-scaling-game .sc-clock span {
+scaling-lab .scaling-clock span {
   color: var(--color-text-soft);
   font: 0.5rem/1 var(--font-family-mono);
 }
-queue-scaling-game .sc-dock-metrics {
+scaling-lab .scaling-dock-metrics {
   display: flex;
   align-items: center;
   gap: 0.65rem;
   font: 0.5rem/1.3 var(--font-family-mono);
   color: var(--color-text-soft);
 }
-queue-scaling-game .sc-dock-metrics button {
+scaling-lab .scaling-dock-metrics button {
   font: inherit;
   text-decoration: underline dotted;
   text-underline-offset: 0.2em;
 }
-queue-scaling-game .sc-trial-bar {
+scaling-lab .scaling-trial-bar {
   display: flex;
   align-items: baseline;
   gap: 0.65rem;
@@ -614,37 +614,37 @@ queue-scaling-game .sc-trial-bar {
   color: var(--color-text-soft);
   font-size: 0.55rem;
 }
-queue-scaling-game .sc-trial-bar > span {
+scaling-lab .scaling-trial-bar > span {
   white-space: nowrap;
 }
-queue-scaling-game .sc-trial-bar > div {
+scaling-lab .scaling-trial-bar > div {
   display: flex;
   align-items: baseline;
   flex-wrap: wrap;
   flex: 1;
   gap: 0.45rem;
 }
-queue-scaling-game .sc-trial-bar button {
+scaling-lab .scaling-trial-bar button {
   white-space: nowrap;
   font-size: 0.55rem;
   border: 0;
   background: none;
   padding: 0.2rem 0;
 }
-queue-scaling-game .sc-trial {
+scaling-lab .scaling-trial {
   font: 0.5rem/1.3 var(--font-family-mono);
   border: 1px solid var(--color-rule);
   border-radius: 4px;
   padding: 0.3rem 0.4rem;
 }
-queue-scaling-game .sc-trial small {
+scaling-lab .scaling-trial small {
   font-size: inherit;
 }
-queue-scaling-game .sc-trial.is-won {
-  color: var(--sc-green);
-  border-color: color-mix(in srgb, var(--sc-green) 30%, var(--color-rule));
+scaling-lab .scaling-trial.is-won {
+  color: var(--scaling-green);
+  border-color: color-mix(in srgb, var(--scaling-green) 30%, var(--color-rule));
 }
-queue-scaling-game .sc-dialog {
+scaling-lab .scaling-dialog {
   inset: 0;
   margin: auto;
   width: min(660px, calc(100vw - 2rem));
@@ -658,59 +658,59 @@ queue-scaling-game .sc-dialog {
   overflow-y: auto;
   box-shadow: 0 24px 100px rgb(0 0 0 / 0.22);
 }
-queue-scaling-game .sc-dialog::backdrop {
+scaling-lab .scaling-dialog::backdrop {
   background: rgb(10 10 10 / 0.6);
   backdrop-filter: blur(3px);
 }
-queue-scaling-game .sc-dialog > header {
+scaling-lab .scaling-dialog > header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1.25rem;
 }
-queue-scaling-game .sc-dialog > header > span {
+scaling-lab .scaling-dialog > header > span {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--sc-blue);
+  color: var(--scaling-blue);
   font: 0.5rem/1.3 var(--font-family-mono);
   letter-spacing: 0.04em;
 }
-queue-scaling-game .sc-dialog .qs-figure {
+scaling-lab .scaling-dialog .lab-figure {
   width: 23px;
   height: 23px;
 }
-queue-scaling-game .sc-dialog header > button {
+scaling-lab .scaling-dialog header > button {
   background: none;
   border: 0;
   padding: 0.25rem;
   font-size: 1.3rem;
 }
-queue-scaling-game .sc-dialog h2 {
+scaling-lab .scaling-dialog h2 {
   font: 500 clamp(1.8rem, 4vw, 2.65rem)/1.05 var(--font-family-display);
   letter-spacing: -0.05em;
   max-width: 21ch;
   margin: 0 0 1rem;
   text-wrap: balance;
 }
-queue-scaling-game .sc-dialog p {
+scaling-lab .scaling-dialog p {
   font-size: 0.85rem;
   line-height: 1.7;
   margin: 0.8rem 0 0;
 }
-queue-scaling-game .sc-dialog p.sc-call-hint {
+scaling-lab .scaling-dialog p.scaling-call-hint {
   color: var(--color-text-soft);
   font-size: 0.73rem;
 }
-queue-scaling-game .sc-dialog footer {
+scaling-lab .scaling-dialog footer {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 1rem;
   margin-top: 1.5rem;
 }
-queue-scaling-game .sc-dialog footer button:not(.sc-primary) {
+scaling-lab .scaling-dialog footer button:not(.scaling-primary) {
   background: none;
   border: 0;
   padding: 0.4rem 0;
@@ -719,18 +719,18 @@ queue-scaling-game .sc-dialog footer button:not(.sc-primary) {
   text-decoration: underline;
   text-underline-offset: 0.3em;
 }
-queue-scaling-game .sc-dialog[data-tone='win'] .sc-primary {
+scaling-lab .scaling-dialog[data-tone='win'] .scaling-primary {
   background: var(--color-accent);
   color: var(--color-accent-ink);
 }
-queue-scaling-game .sc-dialog p.sc-result-label {
-  color: var(--sc-blue);
+scaling-lab .scaling-dialog p.scaling-result-label {
+  color: var(--scaling-blue);
   font: 0.55rem/1.4 var(--font-family-mono);
 }
-queue-scaling-game .sc-dialog[data-tone='win'] .sc-result-label {
-  color: var(--sc-green);
+scaling-lab .scaling-dialog[data-tone='win'] .scaling-result-label {
+  color: var(--scaling-green);
 }
-queue-scaling-game .sc-before-after {
+scaling-lab .scaling-before-after {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -738,49 +738,49 @@ queue-scaling-game .sc-before-after {
   padding: 1rem 0;
   border-bottom: 1px solid var(--color-rule);
 }
-queue-scaling-game .sc-before-after > div {
+scaling-lab .scaling-before-after > div {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
 }
-queue-scaling-game .sc-before-after small {
+scaling-lab .scaling-before-after small {
   font: 0.5rem/1.4 var(--font-family-mono);
   color: var(--color-text-soft);
 }
-queue-scaling-game .sc-before-after strong {
+scaling-lab .scaling-before-after strong {
   font: 500 2.6rem/1.1 var(--font-family-display);
   letter-spacing: -0.05em;
 }
-queue-scaling-game .sc-before-after span {
+scaling-lab .scaling-before-after span {
   font: 0.65rem/1.4 var(--font-family-mono);
 }
-queue-scaling-game .sc-checks {
+scaling-lab .scaling-checks {
   display: flex;
   flex-wrap: wrap;
   gap: 0.8rem;
   margin-top: 0.85rem;
   font: 0.7rem/1.3 var(--font-family-mono);
 }
-queue-scaling-game .sc-checks [data-ok='true'] {
-  color: var(--sc-green);
+scaling-lab .scaling-checks [data-ok='true'] {
+  color: var(--scaling-green);
 }
-queue-scaling-game .sc-checks [data-ok='false'] {
-  color: var(--sc-coral);
+scaling-lab .scaling-checks [data-ok='false'] {
+  color: var(--scaling-coral);
 }
-queue-scaling-game .sc-name-fields {
+scaling-lab .scaling-name-fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.6rem;
   margin-top: 1rem;
 }
-queue-scaling-game .sc-name-fields label {
+scaling-lab .scaling-name-fields label {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
   font-size: 0.65rem;
   color: var(--color-text-soft);
 }
-queue-scaling-game .sc-name-fields input {
+scaling-lab .scaling-name-fields input {
   padding: 0.4rem;
   width: 100%;
   border: 1px solid var(--color-rule);
@@ -788,30 +788,30 @@ queue-scaling-game .sc-name-fields input {
   color: var(--color-ink);
   background: var(--color-paper);
 }
-queue-scaling-game .sc-name-fields details {
+scaling-lab .scaling-name-fields details {
   grid-column: 1/-1;
 }
-queue-scaling-game .sc-name-fields details label {
+scaling-lab .scaling-name-fields details label {
   margin-top: 0.5rem;
 }
-queue-scaling-game .sc-name-fields summary {
+scaling-lab .scaling-name-fields summary {
   cursor: pointer;
   font-size: 0.7rem;
 }
-queue-scaling-game .sc-comparison {
+scaling-lab .scaling-comparison {
   overflow-x: auto;
 }
-queue-scaling-game .sc-comparison table {
+scaling-lab .scaling-comparison table {
   width: 100%;
   border-collapse: collapse;
   font: 0.65rem/1.5 var(--font-family-mono);
 }
-queue-scaling-game .sc-comparison :is(th, td) {
+scaling-lab .scaling-comparison :is(th, td) {
   text-align: left;
   padding: 0.5rem 0.4rem;
   border-bottom: 1px solid var(--color-rule);
 }
-queue-scaling-game .sc-comparison td button {
+scaling-lab .scaling-comparison td button {
   border: 0;
   background: none;
   padding: 0.25rem 0;
@@ -819,20 +819,20 @@ queue-scaling-game .sc-comparison td button {
   text-decoration: underline;
   text-underline-offset: 0.2em;
 }
-queue-scaling-game .sc-trial-config {
+scaling-lab .scaling-trial-config {
   display: block;
   margin-top: 0.2rem;
   color: var(--color-text-soft);
   font-size: 0.5rem;
 }
 @media (prefers-reduced-motion: no-preference) {
-  queue-scaling-game .sc-dialog[open] {
-    animation: sc-call-in 0.25s ease-out;
+  scaling-lab .scaling-dialog[open] {
+    animation: scaling-call-in 0.25s ease-out;
   }
-  queue-scaling-game.is-playing .sc-job[data-status='running'] {
-    animation: sc-working 1.2s ease-in-out infinite;
+  scaling-lab.is-playing .scaling-job[data-status='running'] {
+    animation: scaling-working 1.2s ease-in-out infinite;
   }
-  @keyframes sc-call-in {
+  @keyframes scaling-call-in {
     from {
       opacity: 0;
       transform: translateY(10px);
@@ -842,99 +842,99 @@ queue-scaling-game .sc-trial-config {
       transform: translateY(0);
     }
   }
-  @keyframes sc-working {
+  @keyframes scaling-working {
     50% {
-      box-shadow: 0 0 0 2px color-mix(in srgb, var(--sc-green) 20%, transparent);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--scaling-green) 20%, transparent);
     }
   }
 }
 @media (max-width: 950px) {
-  queue-scaling-game .sc-board {
+  scaling-lab .scaling-board {
     grid-template-columns: 135px minmax(0, 1fr);
     gap: 1.2rem;
   }
-  queue-scaling-game .sc-flow {
+  scaling-lab .scaling-flow {
     gap: 0.4rem;
   }
-  queue-scaling-game .sc-step {
+  scaling-lab .scaling-step {
     padding: 0.45rem;
   }
-  queue-scaling-game .sc-step-heading > strong {
+  scaling-lab .scaling-step-heading > strong {
     font-size: 0.7rem;
   }
-  queue-scaling-game .sc-dock-metrics {
+  scaling-lab .scaling-dock-metrics {
     gap: 0.4rem;
   }
   }
 @media (max-width: 700px) {
-  queue-scaling-game {
+  scaling-lab {
     padding-bottom: 100px;
   }
-  queue-scaling-game .sc-board {
+  scaling-lab .scaling-board {
     grid-template-columns: 1fr;
     gap: 0.7rem;
   }
-  queue-scaling-game .sc-intake {
+  scaling-lab .scaling-intake {
     display: grid;
     grid-template-columns: 100px 1fr;
     gap: 0.5rem;
   }
-  queue-scaling-game .sc-edit-names {
+  scaling-lab .scaling-edit-names {
     grid-column: 1/-1;
     justify-self: start;
   }
-  queue-scaling-game .sc-api {
+  scaling-lab .scaling-api {
     align-self: stretch;
     align-content: center;
   }
-  queue-scaling-game .sc-api > strong {
+  scaling-lab .scaling-api > strong {
     flex-basis: 100%;
   }
-  queue-scaling-game .sc-202 {
+  scaling-lab .scaling-202 {
     flex-wrap: wrap;
     gap: 0.25rem;
   }
-  queue-scaling-game .sc-queue {
+  scaling-lab .scaling-queue {
     padding: 0.5rem;
   }
-    queue-scaling-game .sc-queue-jobs {
+    scaling-lab .scaling-queue-jobs {
     grid-template-columns: repeat(8, minmax(0, 1fr));
     min-height: 65px;
   }
-  queue-scaling-game .sc-queue > p {
+  scaling-lab .scaling-queue > p {
     display: none;
   }
-  queue-scaling-game .sc-machine {
+  scaling-lab .scaling-machine {
     gap: 0;
   }
-  queue-scaling-game .sc-team {
+  scaling-lab .scaling-team {
     padding: 0.6rem;
     margin-bottom: 0.6rem;
   }
-  queue-scaling-game .sc-flow {
+  scaling-lab .scaling-flow {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.5rem;
   }
-    queue-scaling-game .sc-step {
+    scaling-lab .scaling-step {
     padding: 0.6rem;
   }
-  queue-scaling-game .sc-step-heading > strong {
+  scaling-lab .scaling-step-heading > strong {
     min-height: 0;
     font-size: 0.85rem;
   }
-    queue-scaling-game .sc-slots {
+    scaling-lab .scaling-slots {
     min-height: 30px;
   }
-  queue-scaling-game .sc-wait {
+  scaling-lab .scaling-wait {
     min-height: 32px;
   }
-  queue-scaling-game .sc-step-controls {
+  scaling-lab .scaling-step-controls {
     display: flex;
     flex-wrap: wrap;
     gap: 0.4rem;
     justify-content: space-between;
   }
-  queue-scaling-game .sc-dock {
+  scaling-lab .scaling-dock {
     position: fixed;
     left: var(--space-6);
     right: var(--space-6);
@@ -946,40 +946,40 @@ queue-scaling-game .sc-trial-config {
       color-mix(in srgb, var(--color-paper) 85%, transparent);
     gap: 0.5rem;
   }
-  queue-scaling-game .sc-dock-metrics {
+  scaling-lab .scaling-dock-metrics {
     width: 100%;
     justify-content: space-between;
   }
-        queue-scaling-game .sc-trial-bar > span {
+        scaling-lab .scaling-trial-bar > span {
     display: none;
   }
-  queue-scaling-game .sc-radio {
+  scaling-lab .scaling-radio {
     margin-top: 0.65rem;
     min-height: 70px;
   }
-  queue-scaling-game .sc-dialog {
+  scaling-lab .scaling-dialog {
     padding: 1.2rem;
   }
-  queue-scaling-game .sc-before-after strong {
+  scaling-lab .scaling-before-after strong {
     font-size: 2rem;
   }
-  queue-scaling-game .sc-before-after span {
+  scaling-lab .scaling-before-after span {
     font-size: 0.5rem;
   }
-  queue-scaling-game .sc-name-fields {
+  scaling-lab .scaling-name-fields {
     grid-template-columns: 1fr;
   }
 }
 
 /* Keep admission decisions on the diagram, with the consequence in plain sight. */
-queue-scaling-game .sc-radio [data-radio] > button {
+scaling-lab .scaling-radio [data-radio] > button {
   border: 0;
   background: none;
   color: inherit;
   margin-left: 0.6rem;
   font-size: 0.8rem;
 }
-queue-scaling-game .sc-job {
+scaling-lab .scaling-job {
   white-space: nowrap;
 }
 
@@ -987,54 +987,54 @@ queue-scaling-game .sc-job {
 
 
 
-queue-scaling-game .sc-first-result { grid-template-columns: 1fr; }
-queue-scaling-game .sc-first-trial { color: var(--color-text-soft); font-size: 0.75rem; }
+scaling-lab .scaling-first-result { grid-template-columns: 1fr; }
+scaling-lab .scaling-first-trial { color: var(--color-text-soft); font-size: 0.75rem; }
 
 
-queue-scaling-game * { box-sizing: border-box; }
+scaling-lab * { box-sizing: border-box; }
 
-queue-scaling-game .sc-step-controls { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; font-size: 0.65rem; }
-queue-scaling-game .sc-capacity-control { display: flex; align-items: center; gap: 0.25rem; }
-queue-scaling-game .sc-capacity-control button { width: 28px; height: 28px; padding: 0; border: 1px solid var(--sc-blue); border-radius: 4px; color: var(--sc-blue); background: var(--sc-wash); }
-queue-scaling-game .sc-capacity-control output { min-width: 1.2rem; font-weight: 600; text-align: center; }
-queue-scaling-game .sc-capacity-cost { display: block; min-height: 1em; margin-top: 0.3rem; color: var(--color-text-soft); font-size: 0.5rem; }
-queue-scaling-game .sc-rate-controls {
+scaling-lab .scaling-step-controls { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; font-size: 0.65rem; }
+scaling-lab .scaling-capacity-control { display: flex; align-items: center; gap: 0.25rem; }
+scaling-lab .scaling-capacity-control button { width: 28px; height: 28px; padding: 0; border: 1px solid var(--scaling-blue); border-radius: 4px; color: var(--scaling-blue); background: var(--scaling-wash); }
+scaling-lab .scaling-capacity-control output { min-width: 1.2rem; font-weight: 600; text-align: center; }
+scaling-lab .scaling-capacity-cost { display: block; min-height: 1em; margin-top: 0.3rem; color: var(--color-text-soft); font-size: 0.5rem; }
+scaling-lab .scaling-rate-controls {
   border-top: 1px dashed var(--color-rule);
   margin-top: 0.45rem;
   padding-top: 0.45rem;
 }
-queue-scaling-game .sc-rate-usage {
+scaling-lab .scaling-rate-usage {
   display: block;
   margin-top: 0.3rem;
   color: var(--color-text-soft);
   font: 0.5rem/1.4 var(--font-family-mono);
 }
-queue-scaling-game .sc-step.is-rejected .sc-rate-usage { color: var(--sc-coral); }
-queue-scaling-game .sc-rate-evidence strong {
+scaling-lab .scaling-step.is-rejected .scaling-rate-usage { color: var(--scaling-coral); }
+scaling-lab .scaling-rate-evidence strong {
   display: block;
   font: 600 2.4rem/1 var(--font-family-display);
 }
-queue-scaling-game .sc-rate-evidence p {
+scaling-lab .scaling-rate-evidence p {
   font: 0.7rem/1.5 var(--font-family-mono);
   margin-top: 0.8rem;
 }
-queue-scaling-game .sc-rejected-result {
+scaling-lab .scaling-rejected-result {
   display: block;
-  color: var(--sc-coral);
+  color: var(--scaling-coral);
   margin-top: 0.2rem;
 }
 
 /* Share the existing award vocabulary without adding another board panel. */
-queue-scaling-game .sc-dialog {
-  --qs-wash: var(--sc-wash);
-  --qs-scene-rule: var(--color-rule);
-  --qs-scene-soft: var(--color-text-soft);
+scaling-lab .scaling-dialog {
+  --lab-wash: var(--scaling-wash);
+  --lab-scene-rule: var(--color-rule);
+  --lab-scene-soft: var(--color-text-soft);
 }
-queue-scaling-game .sc-result-awards {
+scaling-lab .scaling-result-awards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
   gap: 0 1rem;
 }
 
-queue-scaling-game .sc-result-awards .qs-earned { margin-top: 1rem; gap: 0.5rem; }
-queue-scaling-game .sc-result-awards .qs-earned p { font-size: 0.65rem; line-height: 1.5; }
+scaling-lab .scaling-result-awards .lab-earned { margin-top: 1rem; gap: 0.5rem; }
+scaling-lab .scaling-result-awards .lab-earned p { font-size: 0.65rem; line-height: 1.5; }

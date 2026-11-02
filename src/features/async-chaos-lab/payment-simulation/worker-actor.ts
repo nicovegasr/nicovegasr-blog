@@ -35,13 +35,13 @@ const poses: Record<ActorState, number> = {
 };
 
 export function actorMarkup() {
-  return `<div class="qs-actor" data-worker-actor data-state="idle" aria-hidden="true">
-    <span class="qs-actor-shadow"></span>
-    <span class="qs-actor-body">
-      <span class="qs-actor-sprite" style="background-image:url('${walkingAtlas}')"></span>
+  return `<div class="lab-actor" data-worker-actor data-state="idle" aria-hidden="true">
+    <span class="lab-actor-shadow"></span>
+    <span class="lab-actor-body">
+      <span class="lab-actor-sprite" style="background-image:url('${walkingAtlas}')"></span>
     </span>
-    <span class="qs-actor-token" data-actor-token></span>
-    <span class="qs-actor-reaction" data-actor-reaction></span>
+    <span class="lab-actor-token" data-actor-token></span>
+    <span class="lab-actor-reaction" data-actor-reaction></span>
   </div>`;
 }
 
@@ -56,15 +56,15 @@ export class WorkerActor {
   constructor(private node: HTMLElement, private steps: number) {}
 
   render(frame: WorkerFrame, speed: number, playing: boolean, reduced: boolean) {
-    const sprite = this.node.querySelector<HTMLElement>('.qs-actor-sprite')!;
-    const body = this.node.querySelector<HTMLElement>('.qs-actor-body')!;
+    const sprite = this.node.querySelector<HTMLElement>('.lab-actor-sprite')!;
+    const body = this.node.querySelector<HTMLElement>('.lab-actor-body')!;
     const moving = this.step !== undefined && this.step !== frame.step;
     const changed = moving || this.state !== frame.state;
     this.node.dataset.state = frame.state;
     this.node.dataset.paused = String(!playing);
     this.node.style.left = `${((frame.step + 0.5) / this.steps) * 100}%`;
     const duration = frame.state === 'returning' ? 850 : Math.max(90, 430 / speed);
-    this.node.style.setProperty('--qs-actor-travel', `${reduced ? 0 : duration}ms`);
+    this.node.style.setProperty('--lab-actor-travel', `${reduced ? 0 : duration}ms`);
     const pose = poses[frame.state];
     const setPose = (index: number) => {
       sprite.style.backgroundImage = `url('${['done', 'duplicate'].includes(frame.state) ? atlas : walkingAtlas}')`;

@@ -1,5 +1,7 @@
 import {
   JOB_COUNT,
+  PLAYBACK_SPEEDS,
+  TICK_MILLISECONDS,
   advance,
   continueAfterIncident,
   initialState,
@@ -81,31 +83,31 @@ export abstract class PaymentLab extends HTMLElement {
     this.unlocked = restoreAchievements();
     this.syncStorageName();
     this.innerHTML = /* HTML */ ` <aside
-        class="qs-feedback"
+        class="lab-feedback"
         data-feedback
         role="status"
         aria-live="polite"
       ></aside>
-      <div class="qs-stage">
-        <div class="qs-system">
+      <div class="lab-stage">
+        <div class="lab-system">
           ${this.definition.diagram(this)}
         </div>
         <aside
-          class="qs-tutorial"
-          id="qs-guide"
+          class="lab-tutorial"
+          id="lab-guide"
           data-guide
           tabindex="-1"
           aria-label="${this.copy.guidedWalkthrough}"
         ></aside>
       </div>
       <div
-        class="qs-dock"
+        class="lab-dock"
         aria-label="${this.copy.simulationControls}"
       >
-        <div class="qs-transport">
+        <div class="lab-transport">
           ${button('play', this.copy.start)}<button
             type="button"
-            class="qs-dock-icon"
+            class="lab-dock-icon"
             data-action="reset"
             aria-label="${this.copy.resetWalkthrough}"
             title="${this.copy.reset}"
@@ -113,38 +115,38 @@ export abstract class PaymentLab extends HTMLElement {
             <span aria-hidden="true">↺</span>
           </button>
         </div>
-        <div class="qs-speeds" role="group" aria-label="${this.copy.playbackSpeed}">
-          ${[1, 2, 3, 4].map((speed) => button(`speed:${speed}`, `×${speed}`).replace('<button ', `<button aria-pressed="${speed === this.speed}" `)).join('')}
+        <div class="lab-speeds" role="group" aria-label="${this.copy.playbackSpeed}">
+          ${PLAYBACK_SPEEDS.map((speed) => button(`speed:${speed}`, `×${speed}`).replace('<button ', `<button aria-pressed="${speed === this.speed}" `)).join('')}
         </div>
         <div
-          class="qs-progress"
+          class="lab-progress"
           aria-label="${this.copy.completedPayments}"
         >
-          <div class="qs-progress-dots" aria-hidden="true">
+          <div class="lab-progress-dots" aria-hidden="true">
             ${Array.from({ length: JOB_COUNT }, (_, index) => /* HTML */ `<span data-progress="${index}"></span>`).join('')}
           </div>
-          <span class="qs-score" data-score>0/${JOB_COUNT}</span>
+          <span class="lab-score" data-score>0/${JOB_COUNT}</span>
         </div>
-        <div class="qs-tools">
+        <div class="lab-tools">
           <button
             type="button"
             data-action="guide"
             aria-label="${this.copy.openTutorial}"
             title="${this.copy.tutorial}"
           >
-            <span class="qs-tool-symbol" aria-hidden="true">?</span
-            ><span class="qs-tool-label" data-tutorial-label
+            <span class="lab-tool-symbol" aria-hidden="true">?</span
+            ><span class="lab-tool-label" data-tutorial-label
               >${this.copy.tutorial}</span
             >
           </button>
         </div>
       </div>
       <div
-        class="qs-result-metrics"
+        class="lab-result-metrics"
         data-results
         aria-label="${this.copy.trialMetrics}"
       ></div>
-      <details class="qs-achievements">
+      <details class="lab-achievements">
         <summary data-achievement-summary></summary>
         <p>
           ${this.copy.achievementsForThisBrowserSession}
@@ -152,16 +154,16 @@ export abstract class PaymentLab extends HTMLElement {
         <div data-achievements></div>
       </details>
       <aside
-        class="qs-toast"
+        class="lab-toast"
         data-toast
         role="status"
         aria-live="polite"
       ></aside>
       <dialog
-        class="qs-outcome"
+        class="lab-outcome"
         data-outcome
-        aria-labelledby="qs-outcome-title"
-        aria-describedby="qs-outcome-text"
+        aria-labelledby="lab-outcome-title"
+        aria-describedby="lab-outcome-text"
       ></dialog>`;
     this.addEventListener('click', this.onClick);
     this.addEventListener('change', this.onChange);
@@ -182,10 +184,10 @@ export abstract class PaymentLab extends HTMLElement {
   }
   // Diagram templates. These methods render data and never advance the engine.
   editor(key: string, value: string, label: string) {
-    return /* HTML */ `<span class="qs-editable"
+    return /* HTML */ `<span class="lab-editable"
       ><strong data-display-label="${key}">${escapeHtml(value)}</strong
       ><input
-        class="qs-name"
+        class="lab-name"
         type="text"
         data-label="${key}"
         value="${escapeHtml(value)}"
@@ -198,50 +200,50 @@ export abstract class PaymentLab extends HTMLElement {
     return this.labels.jobs
       .map(
         (value, index) =>
-          /* HTML */ `<div class="qs-job" data-job-row="${index}">
+          /* HTML */ `<div class="lab-job" data-job-row="${index}">
             ${button('inspect:' + index, String(index + 1).padStart(2, '0'))}
             <div>
               ${this.editor('job-' + index, value, this.copy.paymentName + ' ' + (index + 1))}<small
                 data-job-status="${index}"
               ></small>
             </div>
-            <span class="qs-job-icon" data-job-icon="${index}">○</span>
+            <span class="lab-job-icon" data-job-icon="${index}">○</span>
           </div>`,
       )
       .join('');
   }
   namingControl() {
-    return /* HTML */ `<div class="qs-edit-controls">
+    return /* HTML */ `<div class="lab-edit-controls">
       <button
         type="button"
-        class="qs-rename-button"
+        class="lab-rename-button"
         data-action="personalize"
         aria-label="${this.copy.editNames}"
         title="${this.copy.editNames}"
       >
-        <span class="qs-tool-symbol" aria-hidden="true">✎</span
-        ><span class="qs-rename-label" data-personalize-label
+        <span class="lab-tool-symbol" aria-hidden="true">✎</span
+        ><span class="lab-rename-label" data-personalize-label
           >${this.copy.names}</span
         >
       </button>
     </div>`;
   }
   workerJourney() {
-    return /* HTML */ `<div class="qs-worker-journey" data-worker-journey>
-      <div class="qs-actor-track">
-        <div class="qs-actor-stations" aria-hidden="true">${this.config.steps.map((_, index) => `<span data-actor-station="${index}">${String(index + 1).padStart(2, '0')}</span>`).join('')}</div>
+    return /* HTML */ `<div class="lab-worker-journey" data-worker-journey>
+      <div class="lab-actor-track">
+        <div class="lab-actor-stations" aria-hidden="true">${this.config.steps.map((_, index) => `<span data-actor-station="${index}">${String(index + 1).padStart(2, '0')}</span>`).join('')}</div>
         ${actorMarkup()}
       </div>
-      <p class="qs-actor-caption" data-actor-caption></p>
+      <p class="lab-actor-caption" data-actor-caption></p>
     </div>`;
   }
   buildSteps() {
     this.element('[data-steps]').innerHTML = this.config.steps
       .map(
         (step, index) =>
-          /* HTML */ `<article class="qs-step" data-step-card="${index}">
-            <div class="qs-step-heading">
-              <span class="qs-step-number"
+          /* HTML */ `<article class="lab-step" data-step-card="${index}">
+            <div class="lab-step-heading">
+              <span class="lab-step-number"
                 >${String(index + 1).padStart(2, '0')}</span
               >${this.editor('step-' + index, this.step(index), this.copy.stepName + ' ' + (index + 1))}<span
                 data-step-icon="${index}"
@@ -249,7 +251,7 @@ export abstract class PaymentLab extends HTMLElement {
               >
             </div>
             ${this.definition.stepDescription(this, step, index)}
-            <p class="qs-step-state" data-step-state="${index}"></p>
+            <p class="lab-step-state" data-step-state="${index}"></p>
             ${this.definition.stepOptions(this, step, index)}
           </article>`,
       )
@@ -297,7 +299,7 @@ export abstract class PaymentLab extends HTMLElement {
       block: 'center',
       behavior: 'smooth',
     });
-    this.element<HTMLButtonElement>('.qs-dock [data-action=play]').focus({
+    this.element<HTMLButtonElement>('.lab-dock [data-action=play]').focus({
       preventScroll: true,
     });
     // Let the player locate the interrupted step before showing the restart.
@@ -333,7 +335,7 @@ export abstract class PaymentLab extends HTMLElement {
       this.state = advance(this.state, this.definition.rules);
       if (this.state.phase !== 'running') this.stop();
       this.update();
-    }, 650 / this.speed);
+    }, TICK_MILLISECONDS / this.speed);
   }
   private reset() {
     this.closeOutcome();
@@ -358,7 +360,7 @@ export abstract class PaymentLab extends HTMLElement {
     this.syncStorageName();
     this.buildSteps();
     this.reset();
-    this.element<HTMLButtonElement>('.qs-dock [data-action=play]').focus({
+    this.element<HTMLButtonElement>('.lab-dock [data-action=play]').focus({
       preventScroll: true,
     });
   }
@@ -401,7 +403,7 @@ export abstract class PaymentLab extends HTMLElement {
       if (this.playing || this.retryStage) this.stop();
       else this.start();
     }
-    if (action === 'speed' && [1, 2, 3, 4].includes(Number(value))) {
+    if (action === 'speed' && PLAYBACK_SPEEDS.some((speed) => speed === Number(value))) {
       this.speed = Number(value);
       this.schedulePlayback();
     }
@@ -521,7 +523,7 @@ export abstract class PaymentLab extends HTMLElement {
       const node = this.querySelector<HTMLElement>(this.guideTarget);
       node?.closest<HTMLElement>('[popover]')?.showPopover();
       node?.setAttribute('data-guide-focus', 'true');
-      node?.setAttribute('aria-describedby', 'qs-guide-task');
+      node?.setAttribute('aria-describedby', 'lab-guide-task');
     }
     const changed = this.replace('[data-guide]', guidePanel(this, beat));
     if (changed) this.revealGuide(false);
@@ -617,11 +619,11 @@ export abstract class PaymentLab extends HTMLElement {
     this.replace(
       '[data-toast]',
       this.notices.length
-        ? /* HTML */ `<span class="qs-eyebrow"
+        ? /* HTML */ `<span class="lab-eyebrow"
               >✦ ${this.copy.achievementUnlockedToast}</span
             >${this.notices
               .map((id) => {
-                const achievement = achievements.find((first) => first.id === id)!;
+                const achievement = achievements.find((candidate) => candidate.id === id)!;
                 return /* HTML */ `<strong
                     >${escapeHtml((this.es ? achievement.es : achievement.en)[0])}</strong
                   ><small>${escapeHtml((this.es ? achievement.es : achievement.en)[1])}</small>`;
@@ -680,8 +682,8 @@ export abstract class PaymentLab extends HTMLElement {
       counts = totals(state);
     this.dataset.phase = state.phase;
     this.dataset.retryStage = this.retryStage ?? '';
-    this.style.setProperty('--qs-tick-duration', `${650 / this.speed}ms`);
-    for (const speed of [1, 2, 3, 4])
+    this.style.setProperty('--lab-tick-duration', `${TICK_MILLISECONDS / this.speed}ms`);
+    for (const speed of PLAYBACK_SPEEDS)
       this.element(`[data-action="speed:${speed}"]`).setAttribute('aria-pressed', String(speed === this.speed));
     this.classList.toggle('is-playing', this.playing || !!this.retryStage);
     this.classList.toggle('is-guided', this.guide !== 'off');
@@ -749,7 +751,7 @@ export abstract class PaymentLab extends HTMLElement {
       const index = job.id - 1;
       this.element(`[data-progress="${index}"]`).className = `is-${job.status}`;
       this.element(`[data-job-row="${index}"]`).className =
-        `qs-job is-${job.status}${this.inspected === index ? ' is-inspected' : ''}`;
+        `lab-job is-${job.status}${this.inspected === index ? ' is-inspected' : ''}`;
       this.element(`[data-job-status="${index}"]`).textContent = this.status(job.status);
       this.element(`[data-job-icon="${index}"]`).textContent = {
         pending: '○',
@@ -794,7 +796,7 @@ export abstract class PaymentLab extends HTMLElement {
           state.step === index &&
           ['execute', 'save'].includes(state.cursor);
       this.element(`[data-step-card="${index}"]`).className =
-        `qs-step ${active ? 'is-active' : ''} ${failed ? 'is-failed' : ''} ${uncertain ? 'is-uncertain' : ''} ${retryOrigin ? 'is-retry-origin' : ''} ${restarting ? 'is-restarting' : ''} ${progress.effects > 1 ? 'has-duplicate' : ''}`;
+        `lab-step ${active ? 'is-active' : ''} ${failed ? 'is-failed' : ''} ${uncertain ? 'is-uncertain' : ''} ${retryOrigin ? 'is-retry-origin' : ''} ${restarting ? 'is-restarting' : ''} ${progress.effects > 1 ? 'has-duplicate' : ''}`;
       this.element(`[data-step-icon="${index}"]`).textContent =
         restarting
           ? '↻'
@@ -831,25 +833,25 @@ export abstract class PaymentLab extends HTMLElement {
       station.classList.toggle('is-finished', progress.effects > 0 && !(frame.state === 'uncertain' && index === frame.step));
     }
     const caption: Record<typeof frame.state, string> = {
-      idle: this.copy.workerReadyWaitingForA,
-      working: this.copy.symbol(frame.step + 1, this.step(frame.step)),
+      idle: this.copy.workerReadyWaitingForPayment,
+      working: this.copy.numberedStep(frame.step + 1, this.step(frame.step)),
       saving: this.copy.savingThisStepsCheckpoint,
       skipping: this.copy.stepSavedSkippingIt(frame.step + 1),
-      dead: this.copy.workerCrashedEarlierEffectsStill,
+      dead: this.copy.workerCrashedEarlierEffectsRemain,
       uncertain: this.copy.stillAliveWaitingForConfirmation,
-      duplicate: this.copy.againTheSameIdproduced,
+      duplicate: this.copy.sameIdProducedTwoEffects,
       returning: ['activation-failed', 'worker-retry'].includes(this.state.incident)
-        ? this.copy.newWorkerSamePaymentBack
-        : this.copy.sameWorkerSamePaymentBack,
+        ? this.copy.newWorkerSamePaymentBackToStart
+        : this.copy.sameWorkerSamePaymentBackToStart,
       done: this.copy.paymentCompleteWorkDelivered,
     };
     this.element('[data-actor-caption]').textContent = `${!this.playing && !this.retryStage && this.state.phase === 'running' ? this.copy.paused : ''}${caption[frame.state]}`;
   }
 }
 export function definePaymentLab(definition: PaymentLabDefinition) {
-  if (customElements.get('queue-stories-game')) return;
+  if (customElements.get('payment-lab')) return;
   customElements.define(
-    'queue-stories-game',
+    'payment-lab',
     class extends PaymentLab {
       readonly definition = definition;
     },

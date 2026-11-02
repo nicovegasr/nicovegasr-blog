@@ -1,14 +1,14 @@
 /* Naming belongs to the component, outside the simulation transport. */
-queue-stories-game .qs-api-stack {
+payment-lab .lab-api-stack {
   min-width: 0;
   align-self: center;
 }
-queue-stories-game .qs-edit-controls {
+payment-lab .lab-edit-controls {
   display: flex;
   justify-content: flex-start;
   margin: 0 0 0.35rem;
 }
-queue-stories-game .qs-edit-controls .qs-rename-button {
+payment-lab .lab-edit-controls .lab-rename-button {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
@@ -19,36 +19,36 @@ queue-stories-game .qs-edit-controls .qs-rename-button {
   background: none;
   color: var(--color-text-soft);
 }
-queue-stories-game .qs-edit-controls .qs-rename-button:hover {
+payment-lab .lab-edit-controls .lab-rename-button:hover {
   color: var(--color-ink);
   background: none;
   text-decoration: underline;
   text-underline-offset: 0.2em;
 }
-queue-stories-game .qs-payments-header {
+payment-lab .lab-payments-header {
   display: flex;
   align-items: center;
   gap: 0.75rem;
 }
-queue-stories-game .qs-payments-header .qs-job-strip {
+payment-lab .lab-payments-header .lab-job-strip {
   flex: 1;
   min-width: 0;
 }
-queue-stories-game .qs-payments-header .qs-edit-controls {
+payment-lab .lab-payments-header .lab-edit-controls {
   margin: 0;
   flex-shrink: 0;
 }
 @media (max-width: 580px) {
-  queue-stories-game .qs-payments-header {
+  payment-lab .lab-payments-header {
     align-items: flex-start;
     flex-direction: column;
     gap: 0;
   }
-  queue-stories-game .qs-payments-header .qs-edit-controls {
+  payment-lab .lab-payments-header .lab-edit-controls {
     order: -1;
     align-self: flex-end;
   }
-  queue-stories-game .qs-payments-header .qs-job-strip {
+  payment-lab .lab-payments-header .lab-job-strip {
     width: 100%;
   }
 }

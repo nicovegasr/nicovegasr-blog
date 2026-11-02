@@ -1,6 +1,7 @@
 import { test as base, expect } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
 import type { Locale } from '@/i18n/locale';
+import { TICK_MILLISECONDS } from '../payment-simulation/engine';
 
 export { expect };
 
@@ -9,12 +10,12 @@ export type LabSlug = 'async-chaos-lab' | 'worker-steps' | 'scaling';
 export const labUrl = (locale: Locale, slug: LabSlug) =>
   `/${locale}/${locale === 'es' ? 'laboratorios' : 'labs'}/${slug}/`;
 
-// Every lab advances its deterministic engine on a setInterval of at most 650 ms.
+// Every lab advances its deterministic engine on a setInterval of at most one payment-lab tick.
 // Shortening only those intervals speeds up playback without changing results.
 const fastSimulationClock = `{
   const nativeSetInterval = window.setInterval;
   window.setInterval = (callback, milliseconds, ...rest) =>
-    nativeSetInterval(callback, milliseconds <= 650 ? (window.simulationIntervalMilliseconds ?? 8) : milliseconds, ...rest);
+    nativeSetInterval(callback, milliseconds <= ${TICK_MILLISECONDS} ? (window.simulationIntervalMilliseconds ?? 8) : milliseconds, ...rest);
 }`;
 
 const blockedSessionStorage = `Object.defineProperty(window, 'sessionStorage', {

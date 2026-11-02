@@ -1,7 +1,7 @@
 /* Keep native select interaction, with an inset chevron independent of the OS. */
-queue-stories-game .qs-node-setting { position: relative; }
-queue-stories-game .qs-node-setting select { appearance: none; padding-right: 2.25rem; }
-queue-stories-game .qs-node-setting::after {
+payment-lab .lab-node-setting { position: relative; }
+payment-lab .lab-node-setting select { appearance: none; padding-right: 2.25rem; }
+payment-lab .lab-node-setting::after {
   content: '';
   position: absolute;
   right: 1rem;
@@ -14,70 +14,70 @@ queue-stories-game .qs-node-setting::after {
   pointer-events: none;
 }
 @media (forced-colors: active) {
-  queue-stories-game .qs-node-setting select { appearance: auto; }
-  queue-stories-game .qs-node-setting::after { display: none; }
+  payment-lab .lab-node-setting select { appearance: auto; }
+  payment-lab .lab-node-setting::after { display: none; }
 }
 
-queue-stories-game .qs-worker-interior .qs-step-options > .qs-provider-option {
+payment-lab .lab-worker-interior .lab-step-options > .lab-provider-option {
   flex-basis: 100%;
   align-items: flex-start;
 }
-queue-stories-game .qs-provider-option > input {
+payment-lab .lab-provider-option > input {
   flex-shrink: 0;
   margin-top: 0.15rem;
 }
-queue-stories-game .qs-provider-hint {
+payment-lab .lab-provider-hint {
   display: block;
   margin-top: 0.15rem;
   color: var(--color-text-soft);
   font: 0.65rem/1.4 var(--font-family-body);
 }
 
-queue-stories-game .qs-step.is-failed {
-  border-color: var(--qs-fault);
-  border-left-color: var(--qs-fault);
-  background: color-mix(in srgb, var(--qs-fault) 8%, var(--color-paper));
+payment-lab .lab-step.is-failed {
+  border-color: var(--lab-fault);
+  border-left-color: var(--lab-fault);
+  background: color-mix(in srgb, var(--lab-fault) 8%, var(--color-paper));
 }
-queue-stories-game .qs-step.is-failed .qs-step-heading,
-queue-stories-game .qs-step.is-failed .qs-step-state {
-  color: var(--qs-fault);
+payment-lab .lab-step.is-failed .lab-step-heading,
+payment-lab .lab-step.is-failed .lab-step-state {
+  color: var(--lab-fault);
 }
-queue-stories-game .qs-step.is-failed .qs-step-number {
-  border-color: var(--qs-fault);
+payment-lab .lab-step.is-failed .lab-step-number {
+  border-color: var(--lab-fault);
 }
 
-queue-stories-game .qs-step.is-uncertain,
-queue-stories-game .qs-step.is-restarting {
-  border-color: var(--qs-compute);
-  background: color-mix(in srgb, var(--qs-compute) 9%, var(--color-paper));
+payment-lab .lab-step.is-uncertain,
+payment-lab .lab-step.is-restarting {
+  border-color: var(--lab-compute);
+  background: color-mix(in srgb, var(--lab-compute) 9%, var(--color-paper));
 }
-queue-stories-game .qs-step.is-uncertain .qs-step-state,
-queue-stories-game .qs-step.is-uncertain [data-step-icon],
-queue-stories-game .qs-step.is-restarting .qs-step-state {
-  color: var(--qs-compute);
+payment-lab .lab-step.is-uncertain .lab-step-state,
+payment-lab .lab-step.is-uncertain [data-step-icon],
+payment-lab .lab-step.is-restarting .lab-step-state {
+  color: var(--lab-compute);
   font-weight: 600;
 }
-queue-stories-game .qs-step.is-retry-origin {
-  --qs-retry-color: var(--qs-fault);
-  animation: qs-reveal-incident 1.3s ease-out both;
+payment-lab .lab-step.is-retry-origin {
+  --lab-retry-color: var(--lab-fault);
+  animation: lab-reveal-incident 1.3s ease-out both;
 }
-queue-stories-game .qs-step.is-uncertain.is-retry-origin {
-  --qs-retry-color: var(--qs-compute);
+payment-lab .lab-step.is-uncertain.is-retry-origin {
+  --lab-retry-color: var(--lab-compute);
 }
-queue-stories-game .qs-step.is-restarting {
-  animation: qs-restart-step 0.85s ease-out both;
+payment-lab .lab-step.is-restarting {
+  animation: lab-restart-step 0.85s ease-out both;
 }
-@keyframes qs-reveal-incident {
-  0%, 60% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--qs-retry-color) 35%, transparent); }
+@keyframes lab-reveal-incident {
+  0%, 60% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--lab-retry-color) 35%, transparent); }
   35%, 100% { box-shadow: 0 0 0 0 transparent; }
 }
-@keyframes qs-restart-step {
-  from { box-shadow: inset 0 0 0 3px var(--qs-compute); }
+@keyframes lab-restart-step {
+  from { box-shadow: inset 0 0 0 3px var(--lab-compute); }
   to { box-shadow: inset 0 0 0 0 transparent; }
 }
 @media (prefers-reduced-motion: reduce) {
-  queue-stories-game .qs-step.is-retry-origin,
-  queue-stories-game .qs-step.is-restarting {
+  payment-lab .lab-step.is-retry-origin,
+  payment-lab .lab-step.is-restarting {
     animation: none;
   }
 }

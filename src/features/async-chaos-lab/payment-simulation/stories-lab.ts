@@ -13,11 +13,11 @@ export class StoriesLab {
   readonly dock: Locator;
 
   constructor(readonly page: Page) {
-    this.game = page.locator('queue-stories-game');
+    this.game = page.locator('payment-lab');
     this.dialog = this.game.locator('dialog');
     this.feedback = page.locator('[data-feedback]');
     this.guide = page.locator('[data-guide]');
-    this.dock = page.locator('.qs-dock');
+    this.dock = page.locator('.lab-dock');
   }
 
   /** Every level opens with an on-call introduction that leaves the system editable. */
@@ -49,7 +49,7 @@ export class StoriesLab {
   async untilStop(): Promise<StopPhase> {
     const handle = await this.page.waitForFunction(
       () => {
-        const game = document.querySelector<HTMLElement>('queue-stories-game')!;
+        const game = document.querySelector<HTMLElement>('payment-lab')!;
         const { phase, retryStage, outcomePending } = game.dataset;
         return !retryStage && !outcomePending && ['incident', 'won', 'lost', 'duplicate'].includes(phase!) && phase;
       },
@@ -79,7 +79,7 @@ export class StoriesLab {
     const select = this.game.locator(`[data-setting="${setting}"]`);
     const step = setting.startsWith('kind-') ? setting.split('-')[1] : undefined;
     if (step !== undefined && !(await this.stepEditor(step).evaluate((editor) => editor.matches(':popover-open'))))
-      await this.page.locator(`button[popovertarget="qs-step-options-${step}"]:not([popovertargetaction])`).click();
+      await this.page.locator(`button[popovertarget="lab-step-options-${step}"]:not([popovertargetaction])`).click();
     await select.selectOption(value);
     if (step !== undefined)
       await expect(select, 'changing an action keeps keyboard focus on that choice').toBeFocused();
@@ -87,7 +87,7 @@ export class StoriesLab {
 
   /** Toggles a checkpoint or provider option, closing any step editor that would cover it. */
   async toggle(setting: string) {
-    const openEditor = this.page.locator('.qs-step-editor:popover-open');
+    const openEditor = this.page.locator('.lab-step-editor:popover-open');
     if (await openEditor.count()) await openEditor.locator('[popovertargetaction=hide]').click();
     await this.game.locator(`[data-setting="${setting}"]`).click();
   }
@@ -114,11 +114,11 @@ export class StoriesLab {
     const layout = await this.page.evaluate(() => {
       const box = (selector: string) => document.querySelector(selector)!.getBoundingClientRect();
       return {
-        system: box('.qs-system'),
+        system: box('.lab-system'),
         guide: box('[data-guide]'),
-        dock: box('.qs-dock'),
+        dock: box('.lab-dock'),
         siteHeader: box('body > header, header').bottom,
-        font: parseFloat(getComputedStyle(document.querySelector('.qs-guide-story p')!).fontSize),
+        font: parseFloat(getComputedStyle(document.querySelector('.lab-guide-story p')!).fontSize),
       };
     });
     expect(layout.system.width, 'the walkthrough keeps the diagram full width').toBe(fullSystemWidth);
@@ -130,6 +130,6 @@ export class StoriesLab {
   }
 
   async systemWidth() {
-    return this.page.locator('.qs-system').evaluate((system) => system.getBoundingClientRect().width);
+    return this.page.locator('.lab-system').evaluate((system) => system.getBoundingClientRect().width);
   }
 }

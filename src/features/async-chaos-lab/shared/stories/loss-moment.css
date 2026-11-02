@@ -1,31 +1,31 @@
 /* A loss should read as the moment of the experiment, not a small status label. */
-:is(queue-stories-game, queue-scaling-game) .qs-outcome[data-tone='loss'] {
+:is(payment-lab, scaling-lab) .lab-outcome[data-tone='loss'] {
   width: min(880px, calc(100vw - 2rem));
 }
-:is(queue-stories-game, queue-scaling-game) .qs-outcome[data-tone='loss'] .qs-outcome-kicker {
+:is(payment-lab, scaling-lab) .lab-outcome[data-tone='loss'] .lab-outcome-kicker {
   color: #ff8179;
   font-size: clamp(1rem, 2.2vw, 1.35rem);
   font-weight: 700;
   letter-spacing: 0.09em;
   margin-bottom: 1.25rem;
 }
-:is(queue-stories-game, queue-scaling-game) .qs-outcome[data-tone='loss'] .qs-outcome-kicker > span {
+:is(payment-lab, scaling-lab) .lab-outcome[data-tone='loss'] .lab-outcome-kicker > span {
   color: #ff8179;
   font-size: 1.5em;
 }
-:is(queue-stories-game, queue-scaling-game) .qs-outcome[data-tone='loss'] h2 {
+:is(payment-lab, scaling-lab) .lab-outcome[data-tone='loss'] h2 {
   font-size: clamp(2.6rem, 6vw, 4.25rem);
   max-width: 17ch;
 }
 @media (max-width: 700px) {
-  :is(queue-stories-game, queue-scaling-game) .qs-outcome[data-tone='loss'] {
+  :is(payment-lab, scaling-lab) .lab-outcome[data-tone='loss'] {
     width: calc(100vw - 1rem);
     max-height: calc(100dvh - 1rem);
   }
-  :is(queue-stories-game, queue-scaling-game) .qs-outcome[data-tone='loss'] .qs-outcome-kicker {
+  :is(payment-lab, scaling-lab) .lab-outcome[data-tone='loss'] .lab-outcome-kicker {
     font-size: clamp(0.9rem, 4vw, 1.1rem);
   }
-  :is(queue-stories-game, queue-scaling-game) .qs-outcome[data-tone='loss'] h2 {
+  :is(payment-lab, scaling-lab) .lab-outcome[data-tone='loss'] h2 {
     font-size: clamp(2.25rem, 10vw, 3.2rem);
   }
 }

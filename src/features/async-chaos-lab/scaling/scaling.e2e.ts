@@ -11,7 +11,7 @@ class ScalingLab {
   readonly earnedAwards: Locator;
 
   constructor(readonly page: Page) {
-    this.game = page.locator('queue-scaling-game');
+    this.game = page.locator('scaling-lab');
     this.dialog = this.game.locator('dialog');
     this.earnedAwards = page.locator('[data-earned]');
   }
@@ -28,7 +28,7 @@ class ScalingLab {
 
   async close() {
     if (!(await this.dialog.evaluate((dialog: HTMLDialogElement) => dialog.open))) return;
-    const isOutcome = await this.dialog.evaluate((dialog) => dialog.classList.contains('qs-outcome'));
+    const isOutcome = await this.dialog.evaluate((dialog) => dialog.classList.contains('lab-outcome'));
     await this.action(isOutcome ? 'close' : 'modal-primary');
     await expect(this.dialog).toHaveJSProperty('open', false);
   }
@@ -63,17 +63,17 @@ test.describe('Level 3 · scaling', () => {
     await lab.close();
     await lab.expectPhase('ready');
 
-    await page.locator('.qs-achievements summary').click();
+    await page.locator('.lab-achievements summary').click();
     await expect(page.locator('[data-achievement]')).toHaveCount(3);
     await expect(page.locator('[data-achievement].is-unlocked')).toHaveCount(0);
-    await page.locator('.qs-achievements summary').click();
+    await page.locator('.lab-achievements summary').click();
     await expect(page.locator('[data-limit], [data-admission], [data-protect], [data-inspector], [data-action^=crash]'), 'no separate admission fields or manual failures').toHaveCount(0);
-    await expect(page.locator('.sc-step [data-resource-size]'), 'one concurrency control per step').toHaveCount(4);
-    await expect(page.locator('.sc-step [data-rate-limit]'), 'an HTTP quota only on the two HTTP steps').toHaveCount(2);
+    await expect(page.locator('.scaling-step [data-resource-size]'), 'one concurrency control per step').toHaveCount(4);
+    await expect(page.locator('.scaling-step [data-rate-limit]'), 'an HTTP quota only on the two HTTP steps').toHaveCount(2);
     await expect(page.locator('[data-concurrency]'), 'a worker starts with one payment at a time').toHaveText('1');
     await expect(page.locator('[data-action=concurrency-less]')).toBeDisabled();
-    expect(await page.locator('.sc-step').first().evaluate((step) => getComputedStyle(step, '::after').content), 'no arrows between steps').toBe('none');
-    expect(await page.locator('.sc-queue').evaluate((queue) => getComputedStyle(queue, '::after').content), 'no queue arrow').toBe('none');
+    expect(await page.locator('.scaling-step').first().evaluate((step) => getComputedStyle(step, '::after').content), 'no arrows between steps').toBe('none');
+    expect(await page.locator('.scaling-queue').evaluate((queue) => getComputedStyle(queue, '::after').content), 'no queue arrow').toBe('none');
   });
 
   test('pausing and changing speed never move the simulated clock', async ({ page }) => {
@@ -210,7 +210,7 @@ test.describe('Level 3 · scaling', () => {
 
     await test.step('every achievement is unlocked in the catalogue', async () => {
       await expectNoHorizontalOverflow(page);
-      await page.locator('.qs-achievements summary').click();
+      await page.locator('.lab-achievements summary').click();
       await expect(page.locator('[data-achievement].is-unlocked')).toHaveCount(3);
       await captureForReview(page, 'scaling-achievement-catalogue');
     });
@@ -301,7 +301,7 @@ test.describe('Level 3 · scaling', () => {
     await lab.action('job:1');
     await expect(page.locator('[data-radio]')).toContainText('Pedido de Ana');
     const injected = await page.evaluate(() =>
-      (window as Window & { scalingXss?: number }).scalingXss !== undefined || !!document.querySelector('queue-scaling-game img'));
+      (window as Window & { scalingXss?: number }).scalingXss !== undefined || !!document.querySelector('scaling-lab img'));
     expect(injected).toBe(false);
 
     await lab.open();
@@ -347,7 +347,7 @@ test.describe('Level 3 · scaling', () => {
       await lab.open();
       await lab.close();
       await expectNoHorizontalOverflow(page);
-      await expectFullyInViewport(page.locator('.sc-dock'), 'the transport is visible on a phone');
+      await expectFullyInViewport(page.locator('.scaling-dock'), 'the transport is visible on a phone');
       await captureForReview(page, 'scaling-mobile');
 
       await lab.action('more', 3);

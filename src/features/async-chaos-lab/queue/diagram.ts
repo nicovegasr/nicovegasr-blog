@@ -3,11 +3,11 @@ import { labFigure } from '../shared/figures';
 import { queueCopy } from './copy';
 
 export function queueDiagram(lab: PaymentLab) {
-  return /* HTML */ `<div class="qs-diagram">
-    <div class="qs-api-stack">
+  return /* HTML */ `<div class="lab-diagram">
+    <div class="lab-api-stack">
       ${lab.namingControl()}
-      <section class="qs-api">
-        ${labFigure('api')}<span class="qs-eyebrow">API</span
+      <section class="lab-api">
+        ${labFigure('api')}<span class="lab-eyebrow">API</span
         >${lab.editor('api', lab.labels.api, queueCopy(lab.es).intakeName)}<strong
           >202</strong
         >
@@ -16,22 +16,22 @@ export function queueDiagram(lab: PaymentLab) {
         </p>
       </section>
     </div>
-    <span class="qs-arrow" aria-hidden="true">→</span>
-    <div class="qs-process" data-process>
-      <span class="qs-boundary" data-boundary></span>
-      <section class="qs-store">
-        <div class="qs-node-heading">
+    <span class="lab-arrow" aria-hidden="true">→</span>
+    <div class="lab-process" data-process>
+      <span class="lab-boundary" data-boundary></span>
+      <section class="lab-store">
+        <div class="lab-node-heading">
           <span data-store-figure
             >${labFigure(lab.config.storage === 'ram' ? 'ram' : 'db')}</span
           >
           <div>
-            <span class="qs-eyebrow"
+            <span class="lab-eyebrow"
               >${queueCopy(lab.es).pendingPayments}</span
             >${lab.editor('storage', lab.labels.storage, queueCopy(lab.es).storageName)}
           </div>
         </div>
-        <label class="qs-node-setting"
-          ><span class="qs-setting-title"
+        <label class="lab-node-setting"
+          ><span class="lab-setting-title"
             >${queueCopy(lab.es).whereTheyWait}</span
           ><select data-setting="storage">
             <option value="ram">
@@ -40,20 +40,20 @@ export function queueDiagram(lab: PaymentLab) {
             <option value="db">${queueCopy(lab.es).database}</option>
           </select></label
         >
-        <p class="qs-choice-note" data-storage-note></p>
-        <div class="qs-array">${lab.jobRows()}</div>
+        <p class="lab-choice-note" data-storage-note></p>
+        <div class="lab-array">${lab.jobRows()}</div>
       </section>
-      <span class="qs-arrow" aria-hidden="true">→</span>
-      <section class="qs-worker">
-        <div class="qs-node-heading">
+      <span class="lab-arrow" aria-hidden="true">→</span>
+      <section class="lab-worker">
+        <div class="lab-node-heading">
           ${labFigure('worker')}
           <div>
-            <span class="qs-eyebrow">WORKER</span
+            <span class="lab-eyebrow">WORKER</span
             >${lab.editor('worker', lab.labels.worker, queueCopy(lab.es).workerName)}
           </div>
         </div>
-        <label class="qs-node-setting"
-          ><span class="qs-setting-title"
+        <label class="lab-node-setting"
+          ><span class="lab-setting-title"
             >${queueCopy(lab.es).ifThePaymentReturns}</span
           ><select data-setting="protect">
             <option value="off">
@@ -64,10 +64,10 @@ export function queueDiagram(lab: PaymentLab) {
             </option>
           </select></label
         >
-        <p class="qs-choice-note" data-protection-note></p>
-        <div class="qs-active-job" data-active-job></div>
+        <p class="lab-choice-note" data-protection-note></p>
+        <div class="lab-active-job" data-active-job></div>
         ${lab.workerJourney()}
-        <div class="qs-worker-steps" data-steps></div>
+        <div class="lab-worker-steps" data-steps></div>
       </section>
     </div>
   </div>`;

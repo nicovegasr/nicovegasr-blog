@@ -42,7 +42,7 @@ export const queueLab: PaymentLabDefinition = {
   firstGuideStage: 'ram',
   diagram: queueDiagram,
   stepDescription: (lab, step) =>
-    /* HTML */ `<p class="qs-step-contract">${step.kind === 'append' ? queueCopy(lab.es).only1RecordPerId : queueCopy(lab.es).safeToRepeat}</p>`,
+    /* HTML */ `<p class="lab-step-contract">${step.kind === 'append' ? queueCopy(lab.es).onlyOneRecordPerId : queueCopy(lab.es).safeToRepeat}</p>`,
   stepOptions: () => '',
   stepState: (lab, index, { progress, shown, active }) =>
     active
@@ -74,11 +74,11 @@ export const queueLab: PaymentLabDefinition = {
   },
   paintSystem(lab) {
     lab.element('[data-process]').className =
-      `qs-process ${lab.config.storage === 'ram' ? 'is-ram' : 'is-durable'}`;
+      `lab-process ${lab.config.storage === 'ram' ? 'is-ram' : 'is-durable'}`;
     lab.element('[data-boundary]').textContent =
       lab.config.storage === 'ram'
-        ? queueCopy(lab.es).sameProcesssharedFate
-        : queueCopy(lab.es).independentDbsurvivesWorker;
+        ? queueCopy(lab.es).sameProcessSharedFate
+        : queueCopy(lab.es).independentDatabaseSurvivesWorker;
     lab.replace(
       '[data-store-figure]',
       labFigure(lab.config.storage === 'ram' ? 'ram' : 'db'),
@@ -96,7 +96,7 @@ export const queueLab: PaymentLabDefinition = {
     lab.element('[data-protection-note]').textContent = lab.config
       .protectLocalRecord
       ? queueCopy(lab.es).keepOneRowPerId
-      : queueCopy(lab.es).eachAttemptCanCreateAnother;
+      : queueCopy(lab.es).eachAttemptCanCreateAnotherRow;
   },
   metrics(lab) {
     const state = lab.state,
@@ -128,7 +128,7 @@ export const queueLab: PaymentLabDefinition = {
   duplicateTitle: (lab) => queueCopy(lab.es).onePaymentTwoRecords,
   wonCaption: (lab) => {
     const counts = totals(lab.state);
-    return queueCopy(lab.es).attempts3RecordsOnePer(counts.attempts);
+    return queueCopy(lab.es).attemptsThreeRecordsOnePerId(counts.attempts);
   },
   duplicateFooters: (lab) => [
     queueCopy(lab.es).firstRecord,
@@ -137,7 +137,7 @@ export const queueLab: PaymentLabDefinition = {
   interruptedEvidence(lab) {
     const state = lab.state,
       job = state.jobs[Math.max(0, state.active)]!;
-    return /* HTML */ `<div class="qs-ack-evidence">
+    return /* HTML */ `<div class="lab-ack-evidence">
       <div>
         <span>${queueCopy(lab.es).paymentId}</span
         ><strong
@@ -151,7 +151,7 @@ export const queueLab: PaymentLabDefinition = {
         >
       </div>
       <div>
-        <span>${queueCopy(lab.es).inThedatabase}</span
+        <span>${queueCopy(lab.es).inTheDatabase}</span
         ><strong
           >↻
           ${queueCopy(lab.es).availableToRetry}</strong

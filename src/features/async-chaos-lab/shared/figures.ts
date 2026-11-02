@@ -6,7 +6,7 @@ export function labFigure(kind: 'api' | 'ram' | 'db' | 'worker' | 'phone') {
     ram: '<rect x="11" y="11" width="26" height="26" rx="3"/><path d="M17 18h14v12H17zM17 6v5m7-5v5m7-5v5M17 37v5m7-5v5m7-5v5M6 17h5m-5 7h5m-5 7h5m26-14h5m-5 7h5m-5 7h5"/>',
     db: '<ellipse cx="24" cy="10" rx="15" ry="6"/><path d="M9 10v26c0 8 30 8 30 0V10M9 22c0 8 30 8 30 0M9 35c0 8 30 8 30 0"/>',
     worker:
-      '<rect x="8" y="9" width="32" height="14" rx="3"/><rect x="8" y="26" width="32" height="14" rx="3"/><path d="M14 16h10m-10 17h10"/><circle class="qs-led" cx="33" cy="16" r="1.5"/><circle class="qs-led" cx="33" cy="33" r="1.5"/>',
+      '<rect x="8" y="9" width="32" height="14" rx="3"/><rect x="8" y="26" width="32" height="14" rx="3"/><path d="M14 16h10m-10 17h10"/><circle class="lab-led" cx="33" cy="16" r="1.5"/><circle class="lab-led" cx="33" cy="33" r="1.5"/>',
   };
-  return `<svg class="qs-figure qs-figure-${kind}" viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[kind]}</svg>`;
+  return `<svg class="lab-figure lab-figure-${kind}" viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[kind]}</svg>`;
 }

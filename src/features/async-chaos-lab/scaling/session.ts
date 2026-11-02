@@ -22,7 +22,7 @@ export type Trial = {
   won: boolean;
 };
 
-const MAX_RESTORED_TRIALS = 8;
+export const MAXIMUM_RESTORED_TRIALS = 8;
 const achievementsKey = 'async-scaling-achievements-v1';
 const sessionKey = (es: boolean) => `async-scaling-v7-${es ? 'es' : 'en'}`;
 const previousSessionKey = (es: boolean) => `async-scaling-v6-${es ? 'es' : 'en'}`;
@@ -74,7 +74,7 @@ export function restoreSession(defaults: Names, es: boolean): { names: Names; hi
     }
     if (current && Array.isArray(saved.history))
       history = saved.history
-        .slice(-MAX_RESTORED_TRIALS)
+        .slice(-MAXIMUM_RESTORED_TRIALS)
         .filter(isRestorableTrial)
         .map(withCurrentVerdict);
   } catch {

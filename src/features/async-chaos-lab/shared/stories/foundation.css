@@ -1,30 +1,30 @@
 /* Feature-local lab styles, using the blog's existing palette and type. */
-.js :is(queue-stories-game, queue-scaling-game) {
+.js :is(payment-lab, scaling-lab) {
   min-height: 100svh;
 }
 
-body:has(queue-stories-game) main {
+body:has(payment-lab) main {
   padding-top: var(--space-6);
 }
-queue-stories-game {
+payment-lab {
   display: block;
   font-size: var(--font-size-small);
-  --qs-wash: color-mix(in srgb, var(--color-rule) 28%, var(--color-paper));
+  --lab-wash: color-mix(in srgb, var(--color-rule) 28%, var(--color-paper));
 }
-queue-stories-game * {
+payment-lab * {
   box-sizing: border-box;
 }
-queue-stories-game h2 {
+payment-lab h2 {
   font: 600 1.2rem/1.2 var(--font-family-display);
   margin: 0 0 0.5rem;
   letter-spacing: -0.025em;
 }
-queue-stories-game p {
+payment-lab p {
   line-height: 1.5;
   margin: 0.4rem 0;
 }
-queue-stories-game button,
-queue-stories-game select {
+payment-lab button,
+payment-lab select {
   font: 500 0.85rem/1.4 var(--font-family-display);
   padding: 0.5rem 0.65rem;
   border: 1px solid var(--color-ink);
@@ -34,35 +34,35 @@ queue-stories-game select {
   cursor: pointer;
   max-width: 100%;
 }
-queue-stories-game button:hover:not(:disabled) {
+payment-lab button:hover:not(:disabled) {
   background: var(--color-accent);
   color: var(--color-accent-ink);
 }
-queue-stories-game :focus-visible {
+payment-lab :focus-visible {
   outline: 3px solid var(--color-ink);
   outline-offset: 3px;
 }
 /* Keep focused/scrolled controls clear of the site header and sticky transport. */
-queue-stories-game :is(button, input, select, summary) {
+payment-lab :is(button, input, select, summary) {
   scroll-margin-block: 110px 100px;
 }
-queue-stories-game input[type='checkbox'] {
+payment-lab input[type='checkbox'] {
   width: 18px;
   height: 18px;
   accent-color: var(--color-ink);
   flex-shrink: 0;
 }
-queue-stories-game .qs-editable {
+payment-lab .lab-editable {
   display: block;
   min-width: 0;
   overflow-wrap: anywhere;
 }
-queue-stories-game .qs-editable > strong {
+payment-lab .lab-editable > strong {
   display: block;
   font: 600 0.95rem/1.3 var(--font-family-display);
   letter-spacing: -0.025em;
 }
-queue-stories-game .qs-name {
+payment-lab .lab-name {
   display: none;
   width: 100%;
   min-width: 0;
@@ -73,26 +73,26 @@ queue-stories-game .qs-name {
   color: var(--color-ink);
   padding: 0.35rem;
 }
-queue-stories-game.is-personalizing .qs-name {
+payment-lab.is-personalizing .lab-name {
   display: block;
 }
-queue-stories-game.is-personalizing [data-display-label] {
+payment-lab.is-personalizing [data-display-label] {
   display: none;
 }
-queue-stories-game .qs-eyebrow {
+payment-lab .lab-eyebrow {
   font: 0.65rem/1.4 var(--font-family-mono);
   letter-spacing: 0.06em;
   color: var(--color-text-soft);
 }
-queue-stories-game .qs-transport,
-queue-stories-game .qs-tools {
+payment-lab .lab-transport,
+payment-lab .lab-tools {
   display: flex;
   align-items: center;
 }
-queue-stories-game .qs-tools {
+payment-lab .lab-tools {
   margin-left: auto;
 }
-queue-stories-game [data-action='play'] {
+payment-lab [data-action='play'] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -107,25 +107,25 @@ queue-stories-game [data-action='play'] {
   font-weight: 500;
   white-space: nowrap;
 }
-queue-stories-game [data-action='play']::before {
+payment-lab [data-action='play']::before {
   content: '▶';
   font-size: 0.65em;
   color: var(--color-accent);
 }
-queue-stories-game.is-playing [data-action='play']::before {
+payment-lab.is-playing [data-action='play']::before {
   content: 'Ⅱ';
 }
-queue-stories-game[data-phase='incident'] [data-action='play']::before {
+payment-lab[data-phase='incident'] [data-action='play']::before {
   content: '↻';
   font-size: 0.95em;
 }
-queue-stories-game [data-action='play']:hover {
+payment-lab [data-action='play']:hover {
   background: color-mix(in srgb, var(--color-ink) 85%, var(--color-paper));
   color: var(--color-paper);
 }
-queue-stories-game .qs-transport [data-action='reset'],
-queue-stories-game .qs-tools button,
-queue-stories-game [data-action='guide-close'] {
+payment-lab .lab-transport [data-action='reset'],
+payment-lab .lab-tools button,
+payment-lab [data-action='guide-close'] {
   padding: 0.5rem 0;
   min-height: 40px;
   border: 0;
@@ -134,48 +134,48 @@ queue-stories-game [data-action='guide-close'] {
   font-size: 0.75rem;
   border-radius: 0;
 }
-queue-stories-game .qs-transport [data-action='reset']:hover,
-queue-stories-game .qs-tools button:hover,
-queue-stories-game [data-action='guide-close']:hover {
+payment-lab .lab-transport [data-action='reset']:hover,
+payment-lab .lab-tools button:hover,
+payment-lab [data-action='guide-close']:hover {
   color: var(--color-ink);
   background: none;
   text-decoration: underline;
   text-underline-offset: 0.3em;
 }
-queue-stories-game .qs-score {
+payment-lab .lab-score {
   color: var(--color-text-soft);
   white-space: nowrap;
   padding-left: 1rem;
   border-left: 1px solid var(--color-rule);
 }
 
-queue-stories-game .qs-feedback {
+payment-lab .lab-feedback {
   padding: 0.65rem 0;
   margin: 0.5rem 0;
   color: var(--color-text-soft);
   border-bottom: 1px solid var(--color-rule);
 }
-queue-stories-game .qs-feedback strong {
+payment-lab .lab-feedback strong {
   font: 500 0.85rem/1.4 var(--font-family-display);
   color: var(--color-ink);
 }
-queue-stories-game .qs-feedback p {
+payment-lab .lab-feedback p {
   font-size: 0.75rem;
   max-width: 110ch;
   margin-bottom: 0;
 }
-queue-stories-game[data-phase='lost'] .qs-feedback,
-queue-stories-game[data-phase='duplicate'] .qs-feedback {
+payment-lab[data-phase='lost'] .lab-feedback,
+payment-lab[data-phase='duplicate'] .lab-feedback {
   border-left: 2px solid var(--color-ink);
   padding-left: 0.75rem;
 }
-queue-stories-game .qs-diagram {
+payment-lab .lab-diagram {
   display: grid;
   grid-template-columns: minmax(110px, 0.5fr) 20px minmax(0, 2.8fr);
   align-items: center;
   gap: 0.65rem;
 }
-queue-stories-game .qs-api {
+payment-lab .lab-api {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -184,19 +184,19 @@ queue-stories-game .qs-api {
   border: 2px solid var(--color-ink);
   border-radius: var(--radius-large) var(--radius-large) 0 0;
 }
-queue-stories-game .qs-api > strong {
+payment-lab .lab-api > strong {
   font: 600 2.75rem/1 var(--font-family-display);
   letter-spacing: -0.06em;
 }
-queue-stories-game .qs-api p {
+payment-lab .lab-api p {
   font-size: 0.75rem;
   margin: 0;
 }
-queue-stories-game .qs-arrow {
+payment-lab .lab-arrow {
   text-align: center;
   font: 600 1.5rem/1 var(--font-family-display);
 }
-queue-stories-game .qs-process {
+payment-lab .lab-process {
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 20px minmax(0, 1fr);
@@ -206,36 +206,36 @@ queue-stories-game .qs-process {
   border: 2px dashed var(--color-ink);
   border-radius: var(--radius-medium);
 }
-queue-stories-game .qs-process > .qs-arrow {
+payment-lab .lab-process > .lab-arrow {
   align-self: center;
 }
-queue-stories-game .qs-process.is-durable {
+payment-lab .lab-process.is-durable {
   border-color: var(--color-rule);
   border-style: solid;
 }
-queue-stories-game .qs-boundary {
+payment-lab .lab-boundary {
   position: absolute;
   left: 0.8rem;
   right: 0.8rem;
   font: 0.65rem/1.3 var(--font-family-mono);
   color: var(--color-text-soft);
 }
-queue-stories-game .qs-node-setting {
+payment-lab .lab-node-setting {
   display: flex;
   flex-direction: column;
   font: 0.7rem/1.4 var(--font-family-display);
 }
-queue-stories-game .qs-node-setting select {
+payment-lab .lab-node-setting select {
   width: 100%;
   font-size: 0.78rem;
   padding: 0.4rem 0.3rem;
 }
-queue-stories-game .qs-array {
-  background: var(--qs-wash);
+payment-lab .lab-array {
+  background: var(--lab-wash);
   display: flex;
   flex-direction: column;
 }
-queue-stories-game .qs-job {
+payment-lab .lab-job {
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -244,92 +244,92 @@ queue-stories-game .qs-job {
   background: var(--color-paper);
   min-width: 0;
 }
-queue-stories-game .qs-job > div {
+payment-lab .lab-job > div {
   flex: 1;
   min-width: 0;
 }
-queue-stories-game .qs-job > button {
+payment-lab .lab-job > button {
   padding: 0.2rem;
   font: 0.65rem/1.4 var(--font-family-mono);
   border: 0;
   background: var(--color-rule);
 }
-queue-stories-game .qs-job .qs-editable > strong {
+payment-lab .lab-job .lab-editable > strong {
   font-size: 0.8rem;
 }
-queue-stories-game .qs-job small {
+payment-lab .lab-job small {
   display: block;
   font: 0.6rem/1.4 var(--font-family-mono);
   color: var(--color-text-soft);
 }
-queue-stories-game .qs-job-icon {
+payment-lab .lab-job-icon {
   font: 600 1rem/1 var(--font-family-display);
 }
-queue-stories-game .qs-job.is-working {
+payment-lab .lab-job.is-working {
   outline: 2px solid var(--color-ink);
 }
-queue-stories-game .qs-job.is-retrying {
+payment-lab .lab-job.is-retrying {
   border: 2px dashed var(--color-ink);
 }
-queue-stories-game .qs-job.is-done {
+payment-lab .lab-job.is-done {
   opacity: 0.65;
 }
-queue-stories-game .qs-job.is-lost {
+payment-lab .lab-job.is-lost {
   border-style: dashed;
   opacity: 0.55;
 }
-queue-stories-game .qs-job.is-lost .qs-editable {
+payment-lab .lab-job.is-lost .lab-editable {
   text-decoration: line-through;
 }
-queue-stories-game .qs-job.is-inspected {
+payment-lab .lab-job.is-inspected {
   outline: 2px solid var(--color-ink);
 }
-queue-stories-game .qs-active-job {
+payment-lab .lab-active-job {
   border: 1px solid var(--color-ink);
   font: 500 0.75rem/1.4 var(--font-family-display);
-  background: var(--qs-wash);
+  background: var(--lab-wash);
   overflow-wrap: anywhere;
 }
-queue-stories-game .qs-worker-steps {
+payment-lab .lab-worker-steps {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
 }
-queue-stories-game .qs-step {
+payment-lab .lab-step {
   border: 1px solid var(--color-rule);
   border-left: 4px solid var(--color-rule);
   padding: 0.6rem;
   min-width: 0;
   background: var(--color-paper);
 }
-queue-stories-game .qs-step.is-active {
+payment-lab .lab-step.is-active {
   border-color: var(--color-ink);
   border-left: 6px solid var(--color-accent);
 }
-queue-stories-game .qs-step.has-duplicate {
+payment-lab .lab-step.has-duplicate {
   border: 2px dashed var(--color-ink);
 }
-queue-stories-game .qs-step-heading {
+payment-lab .lab-step-heading {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   min-width: 0;
 }
-queue-stories-game .qs-step-heading > .qs-editable {
+payment-lab .lab-step-heading > .lab-editable {
   flex: 1;
   min-width: 0;
 }
-queue-stories-game .qs-step-number {
+payment-lab .lab-step-number {
   font: 500 0.65rem/1 var(--font-family-mono);
   border: 1px solid var(--color-ink);
   padding: 0.35rem;
 }
-queue-stories-game .qs-step-state {
+payment-lab .lab-step-state {
   font: 0.65rem/1.5 var(--font-family-mono);
   color: var(--color-text-soft);
   margin: 0.3rem 0 0;
 }
-queue-stories-game .qs-ready-queue {
+payment-lab .lab-ready-queue {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
@@ -337,42 +337,42 @@ queue-stories-game .qs-ready-queue {
   border: 1px solid var(--color-rule);
   font-size: 0.75rem;
 }
-queue-stories-game .qs-extra-names {
+payment-lab .lab-extra-names {
   display: none;
 }
-queue-stories-game.is-personalizing .qs-extra-names {
+payment-lab.is-personalizing .lab-extra-names {
   display: flex;
   gap: 0.5rem;
 }
-queue-stories-game .qs-job-strip {
+payment-lab .lab-job-strip {
   display: grid;
   gap: 0.5rem;
   margin-block: 0.6rem;
 }
-queue-stories-game .qs-worker-interior {
+payment-lab .lab-worker-interior {
   border: 2px solid var(--color-ink);
   border-radius: var(--radius-large);
-  background: var(--qs-wash);
+  background: var(--lab-wash);
 }
-queue-stories-game .qs-worker-interior > header {
+payment-lab .lab-worker-interior > header {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
-queue-stories-game .qs-worker-interior > header > div {
+payment-lab .lab-worker-interior > header > div {
   min-width: 0;
 }
-queue-stories-game .qs-worker-interior > header .qs-editable > strong {
+payment-lab .lab-worker-interior > header .lab-editable > strong {
   font-size: 1.2rem;
 }
-queue-stories-game .qs-worker-interior .qs-worker-steps {
+payment-lab .lab-worker-interior .lab-worker-steps {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
-queue-stories-game .qs-step-options {
+payment-lab .lab-step-options {
   margin-top: 0.6rem;
 }
-queue-stories-game .qs-step-options label {
+payment-lab .lab-step-options label {
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -380,65 +380,65 @@ queue-stories-game .qs-step-options label {
   font-size: 0.75rem;
   line-height: 1.4;
 }
-queue-stories-game .qs-step-options .qs-kind-label {
+payment-lab .lab-step-options .lab-kind-label {
   align-items: flex-start;
   flex-direction: column;
   margin-block: 0.6rem;
 }
-:is(queue-stories-game, queue-scaling-game) summary {
+:is(payment-lab, scaling-lab) summary {
   cursor: pointer;
   font-family: var(--font-family-display);
 }
-queue-stories-game .qs-result-metrics {
+payment-lab .lab-result-metrics {
   display: flex;
   flex-wrap: wrap;
   padding-block: 0.75rem;
   font: 0.65rem/1.5 var(--font-family-mono);
 }
-queue-stories-game .qs-result-metrics b {
+payment-lab .lab-result-metrics b {
   font: 600 1.25rem/1 var(--font-family-display);
   margin-right: 0.3rem;
 }
-:is(queue-stories-game, queue-scaling-game) .qs-achievements {
+:is(payment-lab, scaling-lab) .lab-achievements {
   border: 1px solid var(--color-rule);
   margin-block: 1rem;
 }
-:is(queue-stories-game, queue-scaling-game) .qs-achievements > p {
+:is(payment-lab, scaling-lab) .lab-achievements > p {
   font-size: 0.7rem;
   color: var(--color-text-soft);
 }
-:is(queue-stories-game, queue-scaling-game) [data-achievements] {
+:is(payment-lab, scaling-lab) [data-achievements] {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
   margin-top: 1rem;
 }
-:is(queue-stories-game, queue-scaling-game) [data-achievements] article {
+:is(payment-lab, scaling-lab) [data-achievements] article {
   display: flex;
   gap: 0.75rem;
   border: 1px dashed var(--color-rule);
   padding: 0.75rem;
   color: var(--color-text-soft);
 }
-:is(queue-stories-game, queue-scaling-game) [data-achievements] article.is-unlocked {
+:is(payment-lab, scaling-lab) [data-achievements] article.is-unlocked {
   border: 2px solid var(--color-ink);
   color: var(--color-ink);
-  background: var(--qs-wash);
+  background: var(--lab-wash);
 }
-:is(queue-stories-game, queue-scaling-game) [data-achievements] article > span {
+:is(payment-lab, scaling-lab) [data-achievements] article > span {
   font-size: 1.5rem;
 }
-:is(queue-stories-game, queue-scaling-game) [data-achievements] h3 {
+:is(payment-lab, scaling-lab) [data-achievements] h3 {
   font: 600 0.9rem/1.3 var(--font-family-display);
   margin: 0;
 }
-:is(queue-stories-game, queue-scaling-game) [data-achievements] p {
+:is(payment-lab, scaling-lab) [data-achievements] p {
   font-size: 0.75rem;
 }
-:is(queue-stories-game, queue-scaling-game) [data-achievements] small {
+:is(payment-lab, scaling-lab) [data-achievements] small {
   font-size: 0.65rem;
 }
-queue-stories-game .qs-toast:not(:empty) {
+payment-lab .lab-toast:not(:empty) {
   position: fixed;
   bottom: 1.2rem;
   right: 1.2rem;
@@ -449,7 +449,7 @@ queue-stories-game .qs-toast:not(:empty) {
   box-shadow: 4px 4px 0 var(--color-ink);
   background: var(--color-paper);
 }
-queue-stories-game .qs-toast strong {
+payment-lab .lab-toast strong {
   display: block;
   font: 600 1rem/1.3 var(--font-family-display);
   margin: 0.5rem 0;

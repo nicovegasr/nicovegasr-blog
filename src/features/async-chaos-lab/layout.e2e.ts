@@ -11,7 +11,7 @@ for (const viewport of [{ width: 360, height: 640 }, { width: 1280, height: 800 
       await page.addInitScript(() => {
         const original = customElements.define.bind(customElements);
         customElements.define = (name, constructor, options) => {
-          if (name !== 'queue-stories-game' && name !== 'queue-scaling-game') {
+          if (name !== 'payment-lab' && name !== 'scaling-lab') {
             return original(name, constructor, options);
           }
           const measure = () => ({

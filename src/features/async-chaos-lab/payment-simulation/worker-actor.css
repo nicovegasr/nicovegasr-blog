@@ -1,49 +1,49 @@
 /* One reserved stage keeps the character away from real controls and evidence. */
-queue-stories-game .qs-worker-journey {
+payment-lab .lab-worker-journey {
   margin: 0.4rem 0 0.65rem;
   border: 1px solid var(--color-rule);
   border-radius: 8px;
   background: var(--color-paper);
   padding: 0.25rem 0.6rem 0.35rem;
 }
-queue-stories-game .qs-actor-track {
+payment-lab .lab-actor-track {
   height: 100px;
   position: relative;
   isolation: isolate;
 }
-queue-stories-game .qs-actor-stations {
+payment-lab .lab-actor-stations {
   position: absolute;
   inset: auto 0 0;
   display: flex;
   border-top: 1px solid var(--color-rule);
 }
-queue-stories-game .qs-actor-stations > span {
+payment-lab .lab-actor-stations > span {
   flex: 1;
   text-align: center;
   padding-top: 0.25rem;
   font: 0.6rem/1.3 var(--font-family-mono);
   color: var(--color-text-soft);
 }
-queue-stories-game .qs-actor-stations > span.is-current {
+payment-lab .lab-actor-stations > span.is-current {
   color: var(--color-ink);
-  border-top: 3px solid var(--qs-ok);
+  border-top: 3px solid var(--lab-ok);
   margin-top: -2px;
 }
-queue-stories-game .qs-actor-stations > span.is-finished {
-  color: var(--qs-ok);
+payment-lab .lab-actor-stations > span.is-finished {
+  color: var(--lab-ok);
   font-weight: 600;
 }
-queue-stories-game .qs-worker-journey[data-actor-state='idle'] .is-current { border-color: var(--color-rule); }
-queue-stories-game .qs-worker-journey[data-actor-state='dead'] .is-current { border-color: var(--qs-fault); }
-queue-stories-game .qs-worker-journey[data-actor-state='uncertain'] .is-current { border-color: var(--qs-compute); }
-queue-stories-game .qs-actor-caption {
+payment-lab .lab-worker-journey[data-actor-state='idle'] .is-current { border-color: var(--color-rule); }
+payment-lab .lab-worker-journey[data-actor-state='dead'] .is-current { border-color: var(--lab-fault); }
+payment-lab .lab-worker-journey[data-actor-state='uncertain'] .is-current { border-color: var(--lab-compute); }
+payment-lab .lab-actor-caption {
   margin: 0.3rem 0 0;
   min-height: 1.4em;
   font: 0.65rem/1.4 var(--font-family-mono);
   text-align: center;
   color: var(--color-text-soft);
 }
-queue-stories-game .qs-actor {
+payment-lab .lab-actor {
   position: absolute;
   top: 0;
   width: 84px;
@@ -51,28 +51,28 @@ queue-stories-game .qs-actor {
   margin-left: -42px;
   left: 12.5%;
   pointer-events: none;
-  transition: left var(--qs-actor-travel, 430ms) cubic-bezier(0.4, 0, 0.2, 1);
+  transition: left var(--lab-actor-travel, 430ms) cubic-bezier(0.4, 0, 0.2, 1);
 }
-queue-stories-game .qs-actor-body,
-queue-stories-game .qs-actor-sprite {
+payment-lab .lab-actor-body,
+payment-lab .lab-actor-sprite {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
 }
-queue-stories-game .qs-actor-body {
+payment-lab .lab-actor-body {
   transform-origin: 50% 80%;
   transition: transform 450ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-queue-stories-game .qs-actor-sprite {
+payment-lab .lab-actor-sprite {
   background-size: 300% 200%;
   background-repeat: no-repeat;
   background-position: 50% 0;
 }
-queue-stories-game .qs-actor[data-moving='true'][data-direction='left'] .qs-actor-sprite {
+payment-lab .lab-actor[data-moving='true'][data-direction='left'] .lab-actor-sprite {
   transform: scaleX(-1);
 }
-queue-stories-game .qs-actor-shadow {
+payment-lab .lab-actor-shadow {
   position: absolute;
   bottom: 5px;
   left: 25%;
@@ -81,10 +81,10 @@ queue-stories-game .qs-actor-shadow {
   background: color-mix(in srgb, var(--color-ink) 14%, transparent);
   border-radius: 50%;
 }
-queue-stories-game .qs-actor[data-state='dead'] .qs-actor-body {
-  animation: qs-worker-fall 350ms ease-in both;
+payment-lab .lab-actor[data-state='dead'] .lab-actor-body {
+  animation: lab-worker-fall 350ms ease-in both;
 }
-queue-stories-game .qs-actor-token {
+payment-lab .lab-actor-token {
   position: absolute;
   left: -8px;
   bottom: 4px;
@@ -96,30 +96,30 @@ queue-stories-game .qs-actor-token {
   padding: 0.2rem;
   transform: rotate(-8deg);
 }
-queue-stories-game .qs-actor-reaction {
+payment-lab .lab-actor-reaction {
   position: absolute;
   right: -1px;
   top: 3px;
   font: 600 1rem/1 var(--font-family-display);
-  color: var(--qs-compute);
+  color: var(--lab-compute);
 }
-queue-stories-game .qs-actor[data-state='duplicate'] .qs-actor-reaction { color: var(--qs-fault); }
-queue-stories-game .qs-actor:is([data-state='done'], [data-state='saving'], [data-state='skipping']) .qs-actor-reaction { color: var(--qs-ok); }
-queue-stories-game .qs-actor[data-state='returning'] .qs-actor-body {
-  animation: qs-worker-wake 280ms ease-out;
+payment-lab .lab-actor[data-state='duplicate'] .lab-actor-reaction { color: var(--lab-fault); }
+payment-lab .lab-actor:is([data-state='done'], [data-state='saving'], [data-state='skipping']) .lab-actor-reaction { color: var(--lab-ok); }
+payment-lab .lab-actor[data-state='returning'] .lab-actor-body {
+  animation: lab-worker-wake 280ms ease-out;
 }
-@keyframes qs-worker-wake {
+@keyframes lab-worker-wake {
   from { opacity: 0; transform: translateY(5px); }
   to { opacity: 1; transform: none; }
 }
-@keyframes qs-worker-fall {
+@keyframes lab-worker-fall {
   from { transform: translateY(-6px) rotate(-12deg); }
   to { transform: none; }
 }
 @media (max-width: 580px) {
-  queue-stories-game .qs-actor { width: 72px; height: 72px; margin-left: -36px; top: 10px; }
+  payment-lab .lab-actor { width: 72px; height: 72px; margin-left: -36px; top: 10px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  queue-stories-game .qs-actor,
-  queue-stories-game .qs-actor-body { transition: none; animation: none !important; }
+  payment-lab .lab-actor,
+  payment-lab .lab-actor-body { transition: none; animation: none !important; }
 }

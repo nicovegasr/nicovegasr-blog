@@ -27,8 +27,8 @@ export function rateLimitScene(
   return outcomeShell({
   es: es, trial: history.length, fatal: true,
   kicker: copy.trialStoppedHttp429,
-  title: copy.slotsWereFreeTheQuota,
-  evidence: `<div class="sc-rate-evidence"><strong>HTTP 429</strong><p>${escapeHtml(names.steps[step]!)} · ${escapeHtml(names.jobs[rejection.job - 1]!)}</p><p>${copy.requestsAcceptedInThis1(state.requestsInWindow[step], rejection.limit, metrics.steps[step]!.active.length, config.capacities[step])}</p></div>`,
+  title: copy.slotsWereFreeQuotaRanOut,
+  evidence: `<div class="scaling-rate-evidence"><strong>HTTP 429</strong><p>${escapeHtml(names.steps[step]!)} · ${escapeHtml(names.jobs[rejection.job - 1]!)}</p><p>${copy.requestsAcceptedInThisSecond(state.requestsInWindow[step], rejection.limit, metrics.steps[step]!.active.length, config.capacities[step])}</p></div>`,
   text: copy.theProviderRejectedThisRequest(rejection.limit, number(rejection.retryAfterSeconds, 1)),
   actions: button('close', copy.reviewMySystem, 'data-primary'),
   dismissAction: 'close', awards: '',
@@ -42,13 +42,13 @@ export function trialResult({ es, state, config, names, history, awards }: Resul
   const title = verdict.won
     ? copy.nowWeAreOnTime
     : !verdict.fast
-      ? copy.theyArrivedTheLastOnes
-      : copy.theyArrivedAtTooHigh;
+      ? copy.theyArrivedLastOnesWaitedTooLong
+      : copy.theyArrivedAtTooHighCost;
   const previous = history.slice(0, -1).findLast((trial) => trial.completed === PAYMENT_COUNT);
-  const currentResult = `<div><small>${copy.thisTrial} · ${teamLabel(config)}</small><strong>${number(metrics.seconds, 1)} s</strong><span>${number(metrics.throughput, 2)} ${copy.paymentsS} · ${number(metrics.cost)} u</span></div>`;
+  const currentResult = `<div><small>${copy.thisTrial} · ${teamLabel(config)}</small><strong>${number(metrics.seconds, 1)} s</strong><span>${number(metrics.throughput, 2)} ${copy.paymentsPerSecond} · ${number(metrics.cost)} u</span></div>`;
   const comparison = previous
-    ? `<div class="sc-before-after"><div><small>${copy.yourPrevioustrial} · ${teamLabel(previous.config)}</small><strong>${number(previous.seconds, 1)} s</strong><span>${number(previous.completed / previous.seconds, 2)} ${copy.paymentsS} · ${number(previous.cost)} u</span></div><span aria-hidden="true">→</span>${currentResult}</div>`
-    : `<div class="sc-before-after sc-first-result">${currentResult}</div><p class="sc-first-trial">${copy.thisIsYourFirstCompleted}</p>`;
+    ? `<div class="scaling-before-after"><div><small>${copy.yourPreviousTrial} · ${teamLabel(previous.config)}</small><strong>${number(previous.seconds, 1)} s</strong><span>${number(previous.completed / previous.seconds, 2)} ${copy.paymentsPerSecond} · ${number(previous.cost)} u</span></div><span aria-hidden="true">→</span>${currentResult}</div>`
+    : `<div class="scaling-before-after scaling-first-result">${currentResult}</div><p class="scaling-first-trial">${copy.thisIsYourFirstCompletedTrial}</p>`;
   const busiestWait = stepWithMostWaiting(state.waitTicks);
   const waitingWhere = busiestWait === null ? '' : copy.mostWaitingHappenedAt(names.steps[busiestWait]!);
   const flags = [
@@ -58,7 +58,7 @@ export function trialResult({ es, state, config, names, history, awards }: Resul
   ] as const;
   return {
     title,
-    body: `<p class="sc-result-label">${verdict.won ? copy.missionComplete : copy.trialCompleteAdjustSystem}</p>${comparison}<div class="sc-checks">${flags.map(([ok, label]) => `<span data-ok="${ok}">${ok ? '✓' : '×'} ${label}</span>`).join('')}</div><p>${copy.n24PaymentsNoDuplicateEffects(metrics.completed, number(metrics.waitingSeconds, 1), waitingWhere)}</p><p class="sc-call-hint">${verdict.won ? copy.workersAndServiceSlotsAre : copy.findWhereWaitingBuildsUp}</p>${awards}`,
+    body: `<p class="scaling-result-label">${verdict.won ? copy.missionComplete : copy.trialCompleteAdjustSystem}</p>${comparison}<div class="scaling-checks">${flags.map(([ok, label]) => `<span data-ok="${ok}">${ok ? '✓' : '×'} ${label}</span>`).join('')}</div><p>${copy.allPaymentsNoDuplicateEffects(metrics.completed, number(metrics.waitingSeconds, 1), waitingWhere)}</p><p class="scaling-call-hint">${verdict.won ? copy.workersAndServiceSlotsAreBalanced : copy.findWhereWaitingBuildsUp}</p>${awards}`,
     tone: verdict.won ? 'win' : 'review',
   } as const;
 }

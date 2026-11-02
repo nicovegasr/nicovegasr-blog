@@ -1,9 +1,9 @@
-export const escapeHtml = (state: string) =>
-  state.replace(
+export const escapeHtml = (text: string) =>
+  text.replace(
     /[&<>"']/g,
-    (config) =>
+    (character) =>
       ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[
-        config
+        character
       ]!,
   );
 export const cleanLabel = (value: unknown, fallback: string) =>

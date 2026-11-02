@@ -1,73 +1,73 @@
 /* Shared geometry keeps the system stable when entering or leaving the walkthrough. */
-queue-stories-game .qs-stage,
-queue-stories-game .qs-system {
+payment-lab .lab-stage,
+payment-lab .lab-system {
   min-width: 0;
 }
-queue-stories-game .qs-diagram {
+payment-lab .lab-diagram {
   margin-block: 0.75rem 0.5rem;
 }
-queue-stories-game .qs-process {
+payment-lab .lab-process {
   padding-top: 1.75rem;
   border-width: 1px;
 }
-queue-stories-game .qs-boundary {
+payment-lab .lab-boundary {
   font-size: 0.6rem;
   top: 0.45rem;
 }
-queue-stories-game .qs-node-heading {
+payment-lab .lab-node-heading {
   display: flex;
   align-items: center;
   gap: 0.55rem;
   min-height: 36px;
 }
-queue-stories-game .qs-node-heading > div {
+payment-lab .lab-node-heading > div {
   min-width: 0;
   flex: 1;
 }
-queue-stories-game .qs-node-heading .qs-figure {
+payment-lab .lab-node-heading .lab-figure {
   width: 29px;
   height: 29px;
 }
-queue-stories-game .qs-node-heading .qs-editable > strong {
+payment-lab .lab-node-heading .lab-editable > strong {
   font-size: 0.9rem;
   line-height: 1.3;
 }
-queue-stories-game .qs-node-heading .qs-eyebrow {
+payment-lab .lab-node-heading .lab-eyebrow {
   display: block;
   font-size: 0.55rem;
   margin-bottom: 0.15rem;
 }
-queue-stories-game .qs-node-setting {
+payment-lab .lab-node-setting {
   padding: 0;
   gap: 0.3rem;
   margin: 0.6rem 0 0.2rem;
 }
-queue-stories-game .qs-setting-title {
+payment-lab .lab-setting-title {
   font-size: 0.72rem;
 }
-queue-stories-game .qs-choice-note {
+payment-lab .lab-choice-note {
   min-height: 1.4em;
   font: 0.65rem/1.4 var(--font-family-body);
   margin: 0.2rem 0 0.5rem;
   max-width: none;
 }
-queue-stories-game .qs-array {
+payment-lab .lab-array {
   border: 1px solid var(--color-rule);
-  border-top: 3px solid var(--qs-storage);
+  border-top: 3px solid var(--lab-storage);
   border-radius: 5px;
   padding: 0.3rem;
   gap: 0.25rem;
 }
-queue-stories-game .qs-array .qs-job {
+payment-lab .lab-array .lab-job {
   padding: 0.35rem;
   border-color: transparent;
 }
-queue-stories-game .qs-job > button {
+payment-lab .lab-job > button {
   min-width: 26px;
   min-height: 26px;
   border-radius: 4px;
 }
-queue-stories-game .qs-active-job {
+payment-lab .lab-active-job {
   padding: 0.35rem 0.45rem;
   margin: 0.4rem 0;
   font-size: 0.72rem;
@@ -75,28 +75,28 @@ queue-stories-game .qs-active-job {
   border-radius: 5px;
   min-height: 30px;
 }
-queue-stories-game[data-level='1'] .qs-worker .qs-step {
+payment-lab[data-level='1'] .lab-worker .lab-step {
   padding: 0.4rem;
   border-top-width: 2px;
   border-radius: 5px;
 }
-queue-stories-game[data-level='1'] .qs-step-heading {
+payment-lab[data-level='1'] .lab-step-heading {
   gap: 0.25rem;
 }
-queue-stories-game[data-level='1'] .qs-step-heading > .qs-editable > strong {
+payment-lab[data-level='1'] .lab-step-heading > .lab-editable > strong {
   font-size: 0.78rem;
 }
-queue-stories-game[data-level='1'] .qs-step-contract {
+payment-lab[data-level='1'] .lab-step-contract {
   font: 0.65rem/1.4 var(--font-family-body);
   margin: 0.35rem 0;
   min-height: 2.8em;
 }
-queue-stories-game[data-level='1'] .qs-step-state {
+payment-lab[data-level='1'] .lab-step-state {
   font-size: 0.63rem;
 }
-queue-stories-game .qs-worker-interior .qs-step {
+payment-lab .lab-worker-interior .lab-step {
   border-radius: 5px;
 }
-queue-stories-game .qs-worker-interior > header .qs-active-job {
+payment-lab .lab-worker-interior > header .lab-active-job {
   margin: 0;
 }

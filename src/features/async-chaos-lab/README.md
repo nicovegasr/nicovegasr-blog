@@ -28,7 +28,7 @@ wrapper, navigation, visual language and native custom-element approach. See
 All three labs open with an on-call introduction. Dismissing it leaves the
 configuration editable and does not start processing. Lab 2's **Configure step**
 opens a native popover without changing the diagram's dimensions. All fatal
-outcomes share `shared/outcome-shell.ts` and the same `qs-outcome` styles.
+outcomes share `shared/outcome-shell.ts` and the same `lab-outcome` styles.
 
 In labs 1 and 2, use Start/Pause and explicitly retry when an incident interrupts processing.
 The shared transport offers ×1, ×2, ×3 and ×4 playback. Switching speed preserves

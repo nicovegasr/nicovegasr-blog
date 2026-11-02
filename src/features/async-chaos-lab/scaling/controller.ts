@@ -16,7 +16,12 @@ import {
   scalingVerdict,
   tickScaling,
   AVAILABLE_WORKERS,
-  MAX_CONCURRENCY_PER_WORKER,
+  MAXIMUM_CONCURRENCY_PER_WORKER,
+  MAXIMUM_RATE_LIMIT,
+  MAXIMUM_STEP_CAPACITY,
+  PLAYBACK_SPEEDS,
+  TICK_MILLISECONDS,
+  WORKER_TEMPO_MILLISECONDS,
 } from './engine';
 import type { ScalingConfig } from './engine';
 import { callCopy, scalingNames } from './content';
@@ -31,7 +36,7 @@ import reactionsAtlas from '@/shared/mascot/worker-reactions.webp?url';
 import { teamWorkerFrame } from './team-actors';
 import type { TeamPose } from './team-actors';
 import { button, isSpanishLab } from '../shared/lab-ui';
-import { restoreAchievements, restoreSession, saveAchievements, saveSession } from './session';
+import { MAXIMUM_RESTORED_TRIALS, restoreAchievements, restoreSession, saveAchievements, saveSession } from './session';
 import type { Trial } from './session';
 
 class QueueScaling extends HTMLElement {
@@ -65,7 +70,7 @@ class QueueScaling extends HTMLElement {
     this.packets = this.state.jobs.map((job) => {
       const packet = document.createElement('button');
       packet.type = 'button';
-      packet.className = 'sc-job';
+      packet.className = 'scaling-job';
       packet.dataset.action = `job:${job.id}`;
       packet.dataset.job = String(job.id);
       packet.textContent = `#${String(job.id).padStart(2, '0')}`;
@@ -96,9 +101,9 @@ class QueueScaling extends HTMLElement {
     saveAchievements(this.unlocked);
   }
   private renderNewAwards() {
-    return `<div class="sc-result-awards">${scalingAchievements.filter(({ id }) => this.newAwards.includes(id)).map((award) => {
+    return `<div class="scaling-result-awards">${scalingAchievements.filter(({ id }) => this.newAwards.includes(id)).map((award) => {
       const [title, description] = this.es ? award.es : award.en;
-      return `<div class="qs-earned" data-earned="${award.id}"><span aria-hidden="true">✦</span><div><small class="qs-award-label">${this.copy.achievementUnlocked}</small><strong>${escapeHtml(title)}</strong><p>${escapeHtml(description)}</p></div></div>`;
+      return `<div class="lab-earned" data-earned="${award.id}"><span aria-hidden="true">✦</span><div><small class="lab-award-label">${this.copy.achievementUnlocked}</small><strong>${escapeHtml(title)}</strong><p>${escapeHtml(description)}</p></div></div>`;
     }).join('')}</div>`;
   }
   private renderAchievements() {
@@ -123,7 +128,7 @@ class QueueScaling extends HTMLElement {
         ...this.names.steps,
         ...this.names.jobs,
       ]),
-    ].sort((achievement, clickedButton) => clickedButton.length - achievement.length);
+    ].sort((name, otherName) => otherName.length - name.length);
     const expression = new RegExp(
       `(${names.map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`,
       'g',
@@ -151,7 +156,7 @@ class QueueScaling extends HTMLElement {
     }
     this.state = playScaling(this.state);
     this.stopTimer();
-    this.timer = setInterval(() => this.advance(), 120 / this.speed);
+    this.timer = setInterval(() => this.advance(), TICK_MILLISECONDS / this.speed);
     this.render();
   }
   private advance() {
@@ -170,7 +175,7 @@ class QueueScaling extends HTMLElement {
         rateLimitedStep: this.state.rateLimit?.step ?? null,
         won: verdict.won,
       });
-      this.history = this.history.slice(-8);
+      this.history = this.history.slice(-MAXIMUM_RESTORED_TRIALS);
       saveSession(this.names, this.history, this.es);
       this.render();
       this.showResult();
@@ -219,7 +224,7 @@ class QueueScaling extends HTMLElement {
     if (action === 'concurrency-more' || action === 'concurrency-less')
       this.configure((config) => {
         config.concurrencyPerWorker = Math.min(
-          MAX_CONCURRENCY_PER_WORKER,
+          MAXIMUM_CONCURRENCY_PER_WORKER,
           Math.max(1, config.concurrencyPerWorker + (action === 'concurrency-more' ? 1 : -1)),
         );
       });
@@ -231,14 +236,14 @@ class QueueScaling extends HTMLElement {
     if (action === 'grow' || action === 'shrink') {
       const step = Number(value);
       this.configure((config) => {
-        config.capacities[step] = Math.max(1, Math.min(8,
+        config.capacities[step] = Math.max(1, Math.min(MAXIMUM_STEP_CAPACITY,
           config.capacities[step]! + (action === 'grow' ? 1 : -1)));
       });
     }
     if ((action === 'rate-more' || action === 'rate-less') && isHttpStep(Number(value))) {
       const step = Number(value) as 1 | 3;
       this.configure((config) => {
-        config.rateLimits[step] = Math.max(1, Math.min(8,
+        config.rateLimits[step] = Math.max(1, Math.min(MAXIMUM_RATE_LIMIT,
           config.rateLimits[step] + (action === 'rate-more' ? 1 : -1)));
       });
     }
@@ -287,7 +292,7 @@ class QueueScaling extends HTMLElement {
       metrics = scalingMetrics(state),
       playing = state.phase === 'running';
     this.dataset.phase = state.phase;
-    this.style.setProperty('--sc-worker-tempo', `${1000 / this.speed}ms`);
+    this.style.setProperty('--scaling-worker-tempo', `${WORKER_TEMPO_MILLISECONDS / this.speed}ms`);
     this.classList.toggle('is-playing', playing);
     this.querySelectorAll<HTMLElement>('[data-name]').forEach((node) => {
       node.textContent = this.name(node.dataset.name!);
@@ -298,7 +303,7 @@ class QueueScaling extends HTMLElement {
     this.element('[data-done]').textContent = `${metrics.completed}/${PAYMENT_COUNT}`;
     this.element('[data-time]').textContent = `${number(metrics.seconds, 1)} s`;
     this.element('[data-throughput]').textContent =
-      `${number(metrics.throughput, 2)} ${this.copy.paymentsS}`;
+      `${number(metrics.throughput, 2)} ${this.copy.paymentsPerSecond}`;
     this.element('[data-occupied]').textContent =
       `${metrics.occupied}/${this.config.workers} ${this.copy.busy}`;
     this.element('[data-waiting]').textContent =
@@ -324,8 +329,8 @@ class QueueScaling extends HTMLElement {
     this.element<HTMLButtonElement>('[data-action=concurrency-less]').disabled =
       playing || this.config.concurrencyPerWorker === 1;
     this.element<HTMLButtonElement>('[data-action=concurrency-more]').disabled =
-      playing || this.config.concurrencyPerWorker === MAX_CONCURRENCY_PER_WORKER;
-    for (const speed of [1, 2, 4])
+      playing || this.config.concurrencyPerWorker === MAXIMUM_CONCURRENCY_PER_WORKER;
+    for (const speed of PLAYBACK_SPEEDS)
       this.element(`[data-action="speed:${speed}"]`).setAttribute(
         'aria-pressed',
         String(this.speed === speed),
@@ -359,7 +364,7 @@ class QueueScaling extends HTMLElement {
       }[frame.pose];
       const reaction = frame.pose === 'done' || frame.pose === 'rejected',
         pose = frame.pose === 'rejected' ? 2 : frame.pose === 'done' ? 5 : frame.pose.startsWith('waiting') ? 4 : 3,
-        sprite = worker.querySelector<HTMLElement>('.sc-worker-sprite')!;
+        sprite = worker.querySelector<HTMLElement>('.scaling-worker-sprite')!;
       sprite.style.backgroundImage = `url('${reaction ? reactionsAtlas : walkingAtlas}')`;
       sprite.style.backgroundPosition = `${(pose % 3) * 50}% ${Math.floor(pose / 3) * 100}%`;
     });
@@ -376,33 +381,33 @@ class QueueScaling extends HTMLElement {
       this.element(`[data-capacity="${index}"]`).textContent =
         `${step.active.length}/${step.capacity} ${this.copy.inUse}`;
       this.element(`[data-status="${index}"]`).textContent = state.rateLimit?.step === index
-        ? this.copy.n429QuotaExhausted
+        ? this.copy.http429QuotaExhausted
         : state.phase === 'rate-limited'
         ? this.copy.trialStopped
         : step.waiting.length
         ? index === 0 && step.active.length < step.capacity
-          ? this.copy.eachWorkerValidatesOneAt
+          ? this.copy.eachWorkerValidatesOneAtATime
           : this.copy.fullWaitingLocally
         : step.active.length
         ? this.copy.working
         : this.copy.available;
-      this.element(`[data-wait-label="${index}"]`).textContent = `${step.waiting.length} ${index === 0 ? this.copy.waitingForCpuStatus : this.copy.waitingForSlotStatus}${step.rejected.length ? this.copy.n1Rejected429 : ''}`;
+      this.element(`[data-wait-label="${index}"]`).textContent = `${step.waiting.length} ${index === 0 ? this.copy.waitingForCpuStatus : this.copy.waitingForSlotStatus}${step.rejected.length ? this.copy.oneRejected429 : ''}`;
       this.element(`[data-resource-size="${index}"]`).textContent = String(step.capacity);
-      this.element<HTMLButtonElement>(`[data-action="grow:${index}"]`).disabled = playing || step.capacity === 8;
+      this.element<HTMLButtonElement>(`[data-action="grow:${index}"]`).disabled = playing || step.capacity === MAXIMUM_STEP_CAPACITY;
       this.element<HTMLButtonElement>(`[data-action="shrink:${index}"]`).disabled = playing || step.capacity === 1;
       const extra = Math.max(0, step.capacity - BASE_CAPACITIES[index]!);
       this.element(`[data-resource-cost="${index}"]`).textContent = extra
-        ? `+${extra} ${this.copy.capacityUnitsS}`
+        ? `+${extra} ${this.copy.capacityUnitsPerSecond}`
         : this.copy.includedCapacity;
       if (isHttpStep(index)) {
         const limit = this.config.rateLimits[index];
         this.element(`[data-rate-limit="${index}"]`).textContent = String(limit);
         this.element(`[data-rate-usage="${index}"]`).textContent = this.copy.requestsInThisWindow(state.requestsInWindow[index], limit);
-        this.element<HTMLButtonElement>(`[data-action="rate-more:${index}"]`).disabled = playing || limit === 8;
+        this.element<HTMLButtonElement>(`[data-action="rate-more:${index}"]`).disabled = playing || limit === MAXIMUM_RATE_LIMIT;
         this.element<HTMLButtonElement>(`[data-action="rate-less:${index}"]`).disabled = playing || limit === 1;
         const quotaExtra = Math.max(0, limit - BASE_RATE_LIMITS[index]);
         this.element(`[data-rate-cost="${index}"]`).textContent = quotaExtra
-          ? this.copy.quotaUnitsS(quotaExtra)
+          ? this.copy.quotaUnitsPerSecond(quotaExtra)
           : this.copy.includedQuota;
       }
     });
@@ -457,17 +462,17 @@ class QueueScaling extends HTMLElement {
       metrics = scalingMetrics(state);
     let text = '';
     if (state.rateLimit)
-      text = this.copy.http429AtTheQuota(this.names.steps[state.rateLimit.step]!, state.rateLimit.limit);
+      text = this.copy.http429QuotaExhaustedAtStep(this.names.steps[state.rateLimit.step]!, state.rateLimit.limit);
     else if (this.selectedJob) {
       const job = state.jobs[this.selectedJob - 1]!;
-      text = `${this.names.jobs[job.id - 1]!} · ${job.status === 'done' ? this.copy.completeStatus : job.status === 'pending' ? this.copy.storedWaitingForAworker : `${this.names.steps[job.step]!} · ${job.status === 'waiting' ? job.step === 0 ? this.copy.waitingForCpuitsWorker : this.copy.waitingForAslotBefore : this.copy.runningNow}`}`;
+      text = `${this.names.jobs[job.id - 1]!} · ${job.status === 'done' ? this.copy.completeStatus : job.status === 'pending' ? this.copy.storedWaitingForWorker : `${this.names.steps[job.step]!} · ${job.status === 'waiting' ? job.step === 0 ? this.copy.waitingForCpuWorkerValidatesOneAtATime : this.copy.waitingForSlotBeforeSending : this.copy.runningNow}`}`;
     } else if (state.phase === 'ready')
       text =
         this.config.workers === 1 && this.config.concurrencyPerWorker === 1
-          ? this.copy.n24CustomersWaitingThisWorker
+          ? this.copy.customersWaitingForSingleWorker
           : this.copy.teamReadyPaymentsAtOnce(this.config.workers, this.config.concurrencyPerWorker);
     else if (state.phase === 'paused')
-      text = this.copy.playbackPausedResumeWhereYou;
+      text = this.copy.playbackPausedResumeWhereYouLeft;
     else if (metrics.steps.some((step) => step.waiting.length)) {
       const busiest = metrics.steps.reduce(
         (best, step, index) =>
@@ -482,15 +487,15 @@ class QueueScaling extends HTMLElement {
     } else if (state.phase === 'complete')
       text = scalingVerdict(state).won
         ? this.copy.all24CompleteOnTime
-        : this.copy.allArrivedCompareTimeAnd;
+        : this.copy.allArrivedCompareTimeAndCost;
     else if (this.config.workers * this.config.concurrencyPerWorker > 1 && metrics.completed >= 2)
-      text = this.copy.thatsBetterTheQueueIs;
+      text = this.copy.thatsBetterTheQueueIsShrinking;
     else {
       const current = state.events.findLast(
         (event) => event.kind === 'started',
       );
       text = current
-        ? this.copy.isAtGreenShowsWhat(this.names.jobs[current.job - 1]!, this.names.steps[current.step]!)
+        ? this.copy.jobIsAtStepGreenShowsRunning(this.names.jobs[current.job - 1]!, this.names.steps[current.step]!)
         : '';
     }
     const html = this.highlight(text);
@@ -506,7 +511,7 @@ class QueueScaling extends HTMLElement {
           .slice(-4)
           .map(
             (trial) =>
-              `<span class="sc-trial ${trial.won ? 'is-won' : ''}">${teamLabel(trial.config)} <span>→</span> ${number(trial.seconds, 1)} s <small>· ${number(trial.cost)} u</small></span>`,
+              `<span class="scaling-trial ${trial.won ? 'is-won' : ''}">${teamLabel(trial.config)} <span>→</span> ${number(trial.seconds, 1)} s <small>· ${number(trial.cost)} u</small></span>`,
           )
           .join('')
       : `<small>${this.copy.yourResultsWillAppearHere}</small>`;
@@ -521,11 +526,11 @@ class QueueScaling extends HTMLElement {
     this.pause();
     const dialog = this.element<HTMLDialogElement>('dialog');
     this.modalAction = callback;
-    dialog.className = 'sc-dialog';
-    dialog.setAttribute('aria-labelledby', 'sc-dialog-title');
-    dialog.setAttribute('aria-describedby', 'sc-dialog-text');
+    dialog.className = 'scaling-dialog';
+    dialog.setAttribute('aria-labelledby', 'scaling-dialog-title');
+    dialog.setAttribute('aria-describedby', 'scaling-dialog-text');
     dialog.dataset.tone = tone;
-    dialog.innerHTML = `<header><span>${labFigure('phone')}${this.copy.onCallAsyncChaosLab}</span>${button('close', '×', `aria-label="${this.copy.close}"`)}</header><h2 id="sc-dialog-title">${escapeHtml(title)}</h2><div id="sc-dialog-text">${body}</div><footer>${button('modal-primary', label, 'class="sc-primary"')}${button('close', this.copy.backToDiagram)}</footer>`;
+    dialog.innerHTML = `<header><span>${labFigure('phone')}${this.copy.onCallAsyncChaosLab}</span>${button('close', '×', `aria-label="${this.copy.close}"`)}</header><h2 id="scaling-dialog-title">${escapeHtml(title)}</h2><div id="scaling-dialog-text">${body}</div><footer>${button('modal-primary', label, 'class="scaling-primary"')}${button('close', this.copy.backToDiagram)}</footer>`;
     if (!dialog.open) dialog.showModal();
     dialog.scrollTop = 0;
     dialog
@@ -535,7 +540,7 @@ class QueueScaling extends HTMLElement {
   private showCall(scene: 'intro') {
     const copy = callCopy(scene, this.names, this.es);
     this.modal(copy.title,
-      `<p>${this.highlight(copy.report)}</p><p class="sc-call-hint">${this.highlight(copy.hint)}</p>`,
+      `<p>${this.highlight(copy.report)}</p><p class="scaling-call-hint">${this.highlight(copy.hint)}</p>`,
       copy.action);
   }
   private showResult() {
@@ -544,10 +549,10 @@ class QueueScaling extends HTMLElement {
       const dialog = this.element<HTMLDialogElement>('dialog');
       this.pause();
       this.modalAction = undefined;
-      dialog.className = 'qs-outcome';
+      dialog.className = 'lab-outcome';
       dialog.dataset.tone = 'loss';
-      dialog.setAttribute('aria-labelledby', 'qs-outcome-title');
-      dialog.setAttribute('aria-describedby', 'qs-outcome-text');
+      dialog.setAttribute('aria-labelledby', 'lab-outcome-title');
+      dialog.setAttribute('aria-describedby', 'lab-outcome-text');
       dialog.innerHTML = rateLimitScene(this.resultContext(), rejection);
       dialog.showModal();
       dialog.querySelector<HTMLButtonElement>('[data-primary]')?.focus({ preventScroll: true });
@@ -595,5 +600,5 @@ class QueueScaling extends HTMLElement {
   }
 }
 
-if (!customElements.get('queue-scaling-game'))
-  customElements.define('queue-scaling-game', QueueScaling);
+if (!customElements.get('scaling-lab'))
+  customElements.define('scaling-lab', QueueScaling);
