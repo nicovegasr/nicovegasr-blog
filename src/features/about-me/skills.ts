@@ -6,7 +6,7 @@ export type SkillArea = {
   readonly technologies: readonly string[];
   readonly asideTag?: string;
   readonly pose: string;
-  readonly metric?: 'batch-processing' | 'response-cache';
+  readonly metric?: 'batch-processing' | 'load-waterfall';
 };
 
 const technologies = {
@@ -28,7 +28,7 @@ const skillAreasByLocale: Record<Locale, readonly SkillArea[]> = {
     },
     {
       title: 'Frontend',
-      metric: 'response-cache',
+      metric: 'load-waterfall',
       summary:
         'Construyo interfaces de principio a fin: manejo del estado, caché de peticiones, rutas protegidas y paginación.',
       technologies: technologies.frontend,
@@ -68,7 +68,7 @@ const skillAreasByLocale: Record<Locale, readonly SkillArea[]> = {
     },
     {
       title: 'Frontend',
-      metric: 'response-cache',
+      metric: 'load-waterfall',
       summary:
         'I build interfaces end to end: state management, request caching, protected routes and pagination.',
       technologies: technologies.frontend,
