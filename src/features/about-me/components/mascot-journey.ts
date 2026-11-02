@@ -98,6 +98,10 @@ const trackMascotJourney = () => {
       const age = entry.target === lastRoute ? '2026' : (entry.target as HTMLElement).dataset.startYear;
       if (age) atlases.preload(age);
       if (entry.target === lastRoute) atlases.preload('backend');
+      if (entry.target === lastRoute) {
+        atlases.preload('frontend');
+        atlases.preload('skills');
+      }
       atlasObserver.unobserve(entry.target);
     }
   }, { rootMargin: '100% 0px' });
@@ -185,7 +189,9 @@ const trackMascotJourney = () => {
     stops.forEach((stop) => stop.classList.toggle('is-active', stop === activeStop));
     atlases.show(
       visibleAge({ isOnFirstRoute, isOnLastRoute, activeStopYear: activeStop?.dataset.startYear }),
-      isOnLastRoute && last.currentIndex === 0 ? 'backend' : undefined,
+      isOnLastRoute
+        ? last.currentIndex === 0 ? 'backend' : last.currentIndex === 1 ? 'frontend' : 'skills'
+        : undefined,
     );
     mascot.classList.toggle('is-arrived', last.ratio >= 1);
   };

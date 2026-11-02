@@ -54,8 +54,8 @@ test('the pointer follows the active batch, stops offscreen and the wrench belon
   const stopped = await activeBatch();
   await page.waitForTimeout(850);
   expect(await activeBatch()).toBe(stopped);
-  await expect(page.locator('[data-page-walker]')).toHaveAttribute('data-mascot-role', '');
-  await expect(page.locator('[data-page-walker]')).toHaveCSS('--walking-atlas', /age-2026\./);
+  await expect(page.locator('[data-page-walker]')).toHaveAttribute('data-mascot-role', 'frontend');
+  await expect(page.locator('[data-page-walker]')).toHaveCSS('--walking-atlas', /skills-frontend/);
 });
 
 test.describe('static alternatives', () => {

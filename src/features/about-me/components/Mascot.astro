@@ -6,7 +6,9 @@ import laptopAtlas from '@/shared/mascot/age-2023.webp?url';
 import tieAtlas from '@/shared/mascot/age-2024.webp?url';
 import matureAtlas from '@/shared/mascot/age-2026.webp?url';
 import matureReactionsAtlas from '@/shared/mascot/age-2026-reactions.webp?url';
-import backendAtlas from '@/shared/mascot/age-2026-backend.webp?url';
+import skillsAtlas from '@/shared/mascot/skills-glasses.webp?url';
+import backendAtlas from '@/shared/mascot/skills-backend.webp?url';
+import frontendAtlas from '@/shared/mascot/skills-frontend.webp?url';
 
 const { class: className, ...attributes } = Astro.props;
 const atlases = {
@@ -15,7 +17,9 @@ const atlases = {
   2023: { walking: laptopAtlas, reactions: reactionsAtlas },
   2024: { walking: tieAtlas, reactions: reactionsAtlas },
   2026: { walking: matureAtlas, reactions: matureReactionsAtlas },
-  backend: { walking: backendAtlas, reactions: matureReactionsAtlas },
+  skills: { walking: skillsAtlas, reactions: skillsAtlas, layout: '3x3' },
+  backend: { walking: backendAtlas, reactions: backendAtlas, layout: '3x3' },
+  frontend: { walking: frontendAtlas, reactions: frontendAtlas, layout: '3x3' },
 };
 const initialAtlasUrls = [walkingAtlas, reactionsAtlas];
 ---
@@ -66,5 +70,19 @@ const initialAtlasUrls = [walkingAtlas, reactionsAtlas];
     background-image: var(--reactions-atlas);
     background-position: calc(var(--reaction-column) * 50%) calc(var(--reaction-row) * 100%);
     opacity: var(--reaction-visibility);
+  }
+
+  /* Skills sheets share walking/resting rows and a dedicated final reaction row. */
+  .mascot[data-mascot-layout='3x3']::before,
+  .mascot[data-mascot-layout='3x3']::after {
+    background-size: 300% 300%;
+  }
+
+  .mascot[data-mascot-layout='3x3']::before {
+    background-position: calc(var(--sprite-column) * 50%) calc(var(--sprite-row) * 50%);
+  }
+
+  .mascot[data-mascot-layout='3x3']::after {
+    background-position: calc(var(--reaction-column) * 50%) 100%;
   }
 </style>

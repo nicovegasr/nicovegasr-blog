@@ -41,7 +41,7 @@ for (const viewport of [{ width: 1280, height: 800 }, { width: 360, height: 640 
         await page.evaluate(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' }));
         await expect(walker).toHaveClass(/is-arrived/);
         await expect(walker).toHaveAttribute('data-mascot-age', '2026');
-        await expect(walker).toHaveCSS('--reactions-atlas', /age-2026-reactions/);
+        await expect(walker).toHaveCSS('--reactions-atlas', /skills-glasses/);
         if (locale === 'es') {
           await page.screenshot({ path: testInfo.outputPath('skills.png') });
         }

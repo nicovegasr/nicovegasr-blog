@@ -1,19 +1,25 @@
 # Interactive worker sprites
 
-## Backend tool variant
+## Skills variants
 
-`age-2026-backend.webp` is a transparent 1536 × 1024, 3 × 2 variant of
-`age-2026.webp`. The built-in ImageGen tool added a small mechanic's wrench
-directly to each pose, keeping the existing character, glasses, hair, cell
-layout and foot registration. The original atlas remains unchanged.
+The timeline retains the original age sheets, including the grey tuft in 2026.
+On reaching the skills route, the character keeps the glasses and returns to
+its normal appearance without the tuft:
 
-The About page uses this walking/standing atlas only in the Backend station;
-other skills use the usual 2026 atlas. The variant loads near the skills route,
-and decoded atlas switches share the existing stale-request guard.
+- `skills-glasses.webp`: glasses only, for the remaining skills.
+- `skills-backend.webp`: glasses and a mechanic's wrench.
+- `skills-frontend.webp`: glasses, an open navy jacket and a lime bow tie.
 
-Generation brief: preserve all six source cells and character proportions;
-integrate one grey open-ended wrench into each hand pose, with real transparent
-alpha and no extra costume, background, captions or cell boundaries.
+These transparent 1254 × 1254 sheets use three columns and three rows: walking
+frames; standing/thinking/fallen; presenting/explaining/welcoming. The runtime
+uses the final row for reactions. The Backend sheet's middle-left pose holds
+the wrench near the chin. Accessories are integrated pose by pose.
+
+The built-in ImageGen tool used the existing walking and reaction sheets and
+the approved costume study as references. The brief preserved body proportions,
+glasses and fine contours, removed all hair, and added only the role's accessory.
+The sprites were exported to WebP with alpha. Source age atlases remain unchanged.
+Skills variants load near their route and share the stale-request guard.
 
 ## Base atlases
 
