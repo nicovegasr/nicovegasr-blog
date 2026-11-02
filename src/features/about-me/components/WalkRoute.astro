@@ -3,6 +3,8 @@ import type { Locale } from '@/i18n/locale';
 import BatchMetric from './BatchMetric.astro';
 import LoadWaterfall from './LoadWaterfall.astro';
 import PageLookup from './PageLookup.astro';
+import RollingDeployment from './RollingDeployment.astro';
+import AgentReview from './AgentReview.astro';
 export type WalkRouteStation = {
   title: string;
   items: readonly string[];
@@ -10,7 +12,7 @@ export type WalkRouteStation = {
   asideTag?: string | undefined;
   label?: string;
   pose?: string;
-  metric?: 'batch-processing' | 'load-waterfall' | 'page-lookup' | undefined;
+  metric?: 'batch-processing' | 'load-waterfall' | 'page-lookup' | 'rolling-deployment' | 'agent-review' | undefined;
 };
 
 interface Props {
@@ -64,6 +66,8 @@ const tickRatio = (index: number): number =>
             {station.metric === 'batch-processing' && <BatchMetric locale={locale} />}
             {station.metric === 'load-waterfall' && <LoadWaterfall locale={locale} />}
             {station.metric === 'page-lookup' && <PageLookup locale={locale} />}
+            {station.metric === 'rolling-deployment' && <RollingDeployment locale={locale} />}
+            {station.metric === 'agent-review' && <AgentReview locale={locale} />}
           </li>
         ))
       }

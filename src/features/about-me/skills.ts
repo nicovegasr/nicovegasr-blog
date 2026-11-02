@@ -6,7 +6,7 @@ export type SkillArea = {
   readonly technologies: readonly string[];
   readonly asideTag?: string;
   readonly pose: string;
-  readonly metric?: 'batch-processing' | 'load-waterfall' | 'page-lookup';
+  readonly metric?: 'batch-processing' | 'load-waterfall' | 'page-lookup' | 'rolling-deployment' | 'agent-review';
 };
 
 const technologies = {
@@ -45,6 +45,7 @@ const skillAreasByLocale: Record<Locale, readonly SkillArea[]> = {
     },
     {
       title: 'Infraestructura',
+      metric: 'rolling-deployment',
       summary:
         'Entiendo cómo llega mi código a producción: pipelines, imágenes, despliegues en Kubernetes y AWS, y diagnóstico de fallos.',
       technologies: technologies.infrastructure,
@@ -52,6 +53,7 @@ const skillAreasByLocale: Record<Locale, readonly SkillArea[]> = {
     },
     {
       title: 'IA',
+      metric: 'agent-review',
       summary:
         'La IA forma parte de mi forma de desarrollar: asistentes de código, skills y agentes especializados.',
       technologies: technologies.artificialIntelligence,
@@ -86,6 +88,7 @@ const skillAreasByLocale: Record<Locale, readonly SkillArea[]> = {
     },
     {
       title: 'Infrastructure',
+      metric: 'rolling-deployment',
       summary:
         'I understand how my code reaches production: pipelines, images, deployments on Kubernetes and AWS, and failure diagnosis.',
       technologies: technologies.infrastructure,
@@ -93,6 +96,7 @@ const skillAreasByLocale: Record<Locale, readonly SkillArea[]> = {
     },
     {
       title: 'AI',
+      metric: 'agent-review',
       summary:
         'AI is part of how I develop: coding assistants, skills and specialized agents.',
       technologies: technologies.artificialIntelligence,
