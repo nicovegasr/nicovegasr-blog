@@ -1038,3 +1038,12 @@ scaling-lab .scaling-result-awards {
 
 scaling-lab .scaling-result-awards .lab-earned { margin-top: 1rem; gap: 0.5rem; }
 scaling-lab .scaling-result-awards .lab-earned p { font-size: 0.65rem; line-height: 1.5; }
+
+/* Four cards stay in one row down to 701px, too narrow for a label beside its stepper. */
+@media (min-width: 701px) and (max-width: 950px) {
+  scaling-lab .scaling-step-controls {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+  }
+}
