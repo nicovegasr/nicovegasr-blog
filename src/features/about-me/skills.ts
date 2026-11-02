@@ -6,7 +6,7 @@ export type SkillArea = {
   readonly technologies: readonly string[];
   readonly asideTag?: string;
   readonly pose: string;
-  readonly metric?: 'batch-processing' | 'load-waterfall';
+  readonly metric?: 'batch-processing' | 'load-waterfall' | 'page-lookup';
 };
 
 const technologies = {
@@ -37,6 +37,7 @@ const skillAreasByLocale: Record<Locale, readonly SkillArea[]> = {
     },
     {
       title: 'Bases de datos',
+      metric: 'page-lookup',
       summary:
         'Diseño para el volumen cuando el problema lo requiere: índices, particionado e integridad referencial dentro de cada base de datos.',
       technologies: technologies.databases,
@@ -77,6 +78,7 @@ const skillAreasByLocale: Record<Locale, readonly SkillArea[]> = {
     },
     {
       title: 'Databases',
+      metric: 'page-lookup',
       summary:
         'I design for volume when the problem calls for it: indexes, partitioning and referential integrity within each database.',
       technologies: technologies.databases,

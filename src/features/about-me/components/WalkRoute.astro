@@ -2,6 +2,7 @@
 import type { Locale } from '@/i18n/locale';
 import BatchMetric from './BatchMetric.astro';
 import LoadWaterfall from './LoadWaterfall.astro';
+import PageLookup from './PageLookup.astro';
 export type WalkRouteStation = {
   title: string;
   items: readonly string[];
@@ -9,7 +10,7 @@ export type WalkRouteStation = {
   asideTag?: string | undefined;
   label?: string;
   pose?: string;
-  metric?: 'batch-processing' | 'load-waterfall' | undefined;
+  metric?: 'batch-processing' | 'load-waterfall' | 'page-lookup' | undefined;
 };
 
 interface Props {
@@ -62,6 +63,7 @@ const tickRatio = (index: number): number =>
             }
             {station.metric === 'batch-processing' && <BatchMetric locale={locale} />}
             {station.metric === 'load-waterfall' && <LoadWaterfall locale={locale} />}
+            {station.metric === 'page-lookup' && <PageLookup locale={locale} />}
           </li>
         ))
       }
