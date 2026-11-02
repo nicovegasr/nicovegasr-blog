@@ -1,5 +1,13 @@
 # Project instructions
 
+## Editorial and working material
+
+- Create drafts, design proposals, image studies, review screenshots, and any
+  other editorial or working material in the private studio repository checked
+  out in `studio/`, never elsewhere in this repository. If it is missing, ask
+  for that checkout before creating the material.
+- This repository holds only what the published site uses and its documentation.
+
 ## Technical writing
 
 - Before creating or substantially rewriting any technical content for the blog,
