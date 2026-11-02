@@ -1,5 +1,5 @@
 type AtlasPair = { walking: string; reactions: string; layout?: '3x3' };
-export type MascotRole = 'skills' | 'backend' | 'frontend';
+export type MascotRole = 'skills' | 'backend' | 'frontend' | 'database' | 'infrastructure' | 'artificial-intelligence';
 
 export const createMascotAtlases = (mascot: HTMLElement, signal: AbortSignal) => {
   const atlases: Record<string, AtlasPair> = JSON.parse(mascot.dataset.mascotAtlases!);

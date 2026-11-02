@@ -6,17 +6,30 @@ The timeline retains the original age sheets, including the grey tuft in 2026.
 On reaching the skills route, the character keeps the glasses and returns to
 its normal appearance without the tuft:
 
-- `skills-glasses.webp`: glasses only, for the remaining skills.
+- `skills-glasses.webp`: glasses only, as the fallback for an unmapped skill.
 - `skills-backend.webp`: glasses and a mechanic's wrench.
-- `skills-frontend.webp`: glasses, an open navy jacket and a lime bow tie.
+- `skills-frontend.webp`: glasses, an open black jacket and a lime bow tie.
+- `skills-database.webp`: librarian with round glasses, a knitted cardigan and books with one lime spine.
+- `skills-infrastructure.webp`: architect with round glasses, a site helmet and a rolled blueprint.
+- `skills-artificial-intelligence.webp`: a slim black futuristic visor, without round glasses or other costume.
+
+The three remaining roles and the corrected Backend standing pose were generated
+with built-in ImageGen. The exports use real alpha, WebP quality 88 and a
+1536 × 1536 canvas. Each cell is registered independently to the shared 439px
+foot baseline with one uniform scale per sheet, keeping every drawing inside
+its cell. Working PNGs and exact prompts live in the private Studio repository
+at `images/assets/mascot-skills/`. Database's thinking pose keeps the books
+under one arm and the other hand at the chin; its welcoming pose retains the
+books and extends only the free arm. Infrastructure stands with both feet
+planted; AI welcomes with both hands empty and arms open.
 
 These transparent 1536 × 1536 sheets use three columns and three rows: walking
 frames; standing/thinking/fallen; presenting/explaining/welcoming. The runtime
 uses the final row for reactions. The Backend sheet's middle pose holds the
 wrench near the chin. Accessories are integrated pose by pose. Every cell is
-registered with its feet at 85.7% of the cell height. In the Glasses and Frontend
-sheets, the fallen pose loses part of a foot and Frontend's welcoming pose part
-of a hand: the original generation crossed the cell edge.
+registered with its feet at 85.7% of the cell height. The original Glasses
+fallback still loses part of a foot in its fallen pose; the active skill
+costumes use individually registered cells with safe margins.
 
 The built-in ImageGen tool used the existing walking and reaction sheets and
 the approved costume study as references. The brief preserved body proportions,
@@ -102,15 +115,15 @@ All variants use native 1536 × 1024 WebP with alpha, quality 88.
 
 The student first appears upon entering the 2019 timeline stop in Trayectoria.
 Lo que aporto keeps the original character. Do not select the student atlas
-before the timeline begins. Lo que conozco uses the 2026 walking and reaction
-atlases. Reverse scrolling must restore the corresponding earlier age and,
+before the timeline begins. Lo que conozco uses the costume for each skill,
+with the glasses-only sheet as its fallback. Reverse scrolling must restore the corresponding earlier age and,
 when leaving the timeline upwards, the original character.
 
 The home page preloads only the original walking and reaction atlases. Other
 pairs are prefetched as their timeline stops approach the viewport and decoded
 before replacing the visible pair. A delayed load cannot override a newer age
 request. The active timeline stop supplies its start year; the contributions
-and skills routes retain their original and mature appearances respectively.
+and skills routes use the original and role-specific appearances respectively.
 Preserve the existing walking, keyboard and swipe controls during integration.
 
 ### Final age prompts
@@ -165,7 +178,7 @@ Six poses in exact reading order: TOP LEFT cheerful presenting with one hand rai
 ### Asset review
 
 All 30 cells were reviewed at 60px and 120px on white and near-black (`#10141c`).
-See [age variants review](review/age-variants.webp). The WebP exports retain real
+The review sheet is archived in Studio at `images/assets/archive/unused-blog-assets/age-variants.webp`. The WebP exports retain real
 alpha and their native 1536 × 1024 resolution.
 
 The generated variants follow the source registration rather than meeting an

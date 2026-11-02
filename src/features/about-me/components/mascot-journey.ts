@@ -101,6 +101,9 @@ const trackMascotJourney = () => {
       if (entry.target === lastRoute) {
         atlases.preload('frontend');
         atlases.preload('skills');
+        atlases.preload('database');
+        atlases.preload('infrastructure');
+        atlases.preload('artificial-intelligence');
       }
       atlasObserver.unobserve(entry.target);
     }
@@ -191,7 +194,7 @@ const trackMascotJourney = () => {
     atlases.show(
       visibleAge({ isOnFirstRoute, isOnLastRoute, activeStopYear: activeStop?.dataset.startYear }),
       isOnLastRoute
-        ? last.currentIndex === 0 ? 'backend' : last.currentIndex === 1 ? 'frontend' : 'skills'
+        ? (['backend', 'frontend', 'database', 'infrastructure', 'artificial-intelligence'] as const)[last.currentIndex] ?? 'skills'
         : undefined,
     );
     mascot.classList.toggle('is-arrived', last.ratio >= 1);

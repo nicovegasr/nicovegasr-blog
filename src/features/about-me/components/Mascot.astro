@@ -9,6 +9,9 @@ import matureReactionsAtlas from '@/shared/mascot/age-2026-reactions.webp?url';
 import skillsAtlas from '@/shared/mascot/skills-glasses.webp?url';
 import backendAtlas from '@/shared/mascot/skills-backend.webp?url';
 import frontendAtlas from '@/shared/mascot/skills-frontend.webp?url';
+import databaseAtlas from '@/shared/mascot/skills-database.webp?url';
+import infrastructureAtlas from '@/shared/mascot/skills-infrastructure.webp?url';
+import artificialIntelligenceAtlas from '@/shared/mascot/skills-artificial-intelligence.webp?url';
 
 const { class: className, ...attributes } = Astro.props;
 const atlases = {
@@ -20,6 +23,9 @@ const atlases = {
   skills: { walking: skillsAtlas, reactions: skillsAtlas, layout: '3x3' },
   backend: { walking: backendAtlas, reactions: backendAtlas, layout: '3x3' },
   frontend: { walking: frontendAtlas, reactions: frontendAtlas, layout: '3x3' },
+  database: { walking: databaseAtlas, reactions: databaseAtlas, layout: '3x3' },
+  infrastructure: { walking: infrastructureAtlas, reactions: infrastructureAtlas, layout: '3x3' },
+  'artificial-intelligence': { walking: artificialIntelligenceAtlas, reactions: artificialIntelligenceAtlas, layout: '3x3' },
 };
 const initialAtlasUrls = [walkingAtlas, reactionsAtlas];
 ---

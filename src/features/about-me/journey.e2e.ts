@@ -3,6 +3,30 @@ import { expect, test } from '@playwright/test';
 const stops = '[data-journey-stop]';
 const reachedStops = `${stops}.is-reached`;
 
+for (const width of [1280, 360]) {
+  test(`skill costumes follow their stations at ${width}px`, async ({ page }, testInfo) => {
+    await page.setViewportSize({ width, height: 800 });
+    await page.goto('/es/');
+    await page.evaluate(() => document.fonts.ready);
+    const walker = page.locator('[data-page-walker]');
+    const roles = ['backend', 'frontend', 'database', 'infrastructure', 'artificial-intelligence'];
+    for (const [index, role] of roles.entries()) {
+      await page.locator('[data-route]').last().evaluate((route, station) => {
+        const stage = route.querySelector<HTMLElement>('[data-route-stage]')!;
+        window.scrollTo({ top: window.scrollY + route.getBoundingClientRect().top + (route.clientHeight - stage.offsetHeight) * station / 4 + 2, behavior: 'instant' });
+      }, index);
+      await expect(walker).toHaveAttribute('data-mascot-role', role);
+      await expect(walker).toHaveCSS('--walking-atlas', new RegExp(`skills-${role}`));
+      await expect(walker).toHaveAttribute('data-mascot-layout', '3x3');
+      await expect(page.locator('[data-route]').last().locator('.station.is-current h3')).toHaveCSS('opacity', '1');
+      await page.evaluate(async () => {
+        await Promise.all(document.getAnimations().filter((animation) => animation.effect?.getTiming().iterations !== Infinity).map((animation) => animation.finished.catch(() => undefined)));
+      });
+      await page.screenshot({ path: testInfo.outputPath(`${role}.png`) });
+    }
+  });
+}
+
 for (const viewport of [{ width: 1280, height: 800 }, { width: 360, height: 640 }]) {
   test.describe(`mascot ages at ${viewport.width}px`, () => {
     test.use({ viewport });
@@ -41,7 +65,7 @@ for (const viewport of [{ width: 1280, height: 800 }, { width: 360, height: 640 
         await page.evaluate(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' }));
         await expect(walker).toHaveClass(/is-arrived/);
         await expect(walker).toHaveAttribute('data-mascot-age', '2026');
-        await expect(walker).toHaveCSS('--reactions-atlas', /skills-glasses/);
+        await expect(walker).toHaveCSS('--reactions-atlas', /skills-artificial-intelligence/);
         if (locale === 'es') {
           await page.screenshot({ path: testInfo.outputPath('skills.png') });
         }
