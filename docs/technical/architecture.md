@@ -14,6 +14,7 @@ src/
 ├── content/                # Localized Markdown and editorial assets
 ├── features/
 │   ├── about-me/           # Personal journey: Home page, model, repository, contributions, skill areas, and the scroll-driven mascot walkway
+│   ├── async-chaos-lab/    # Interactive labs on queues, retries and scaling; see its own README
 │   ├── pills/              # Series, individual pills, and the notebook reader
 │   └── posts/              # Articles, listings, search, related posts, and feeds
 ├── shared/
