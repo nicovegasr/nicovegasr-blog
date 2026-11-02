@@ -556,8 +556,7 @@ export abstract class PaymentLab extends HTMLElement {
     const state = this.state;
     if (!['incident', 'won', 'lost', 'duplicate'].includes(state.phase)) return;
     const key = this.outcomeKey();
-    if (this.lastOutcome === key) return;
-    this.lastOutcome = key;
+    if (this.lastOutcome === key || this.outcomeTimer || this.retryStage) return;
     if (!revealed && state.phase !== 'won' && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
       // Let the character react before a dialog obscures the worker stage.
       this.dataset.outcomePending = 'true';
@@ -565,11 +564,11 @@ export abstract class PaymentLab extends HTMLElement {
         this.outcomeTimer = undefined;
         this.dataset.outcomePending = '';
         if (!this.isConnected || this.outcomeKey() !== key || this.retryStage) return;
-        this.lastOutcome = '';
         this.renderOutcome(true);
       }, 700);
       return;
     }
+    this.lastOutcome = key;
     if (state.phase === 'incident') {
       this.renderIncident();
       return;

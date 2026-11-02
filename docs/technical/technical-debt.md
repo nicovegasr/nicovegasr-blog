@@ -7,7 +7,6 @@ Known issues and what has already been resolved. Fix an item when its area is ne
 | Priority | Item | Where | Next step |
 | --- | --- | --- | --- |
 | 🟠 Medium | Five files exceed the 500-line limit: both lab controllers, `PillReader.astro`, `scaling.css` and `outcome-scene.css` | [eslint.config.js](../../eslint.config.js), [check-css-file-length.mjs](../../scripts/check-css-file-length.mjs) | Split each file and remove it from its exception list |
-| 🟠 Medium | The outcome dialog never opens if playback stops during its 700ms delay (hidden tab, inspecting a payment, editing names): `stop()` cancels the timer after `lastOutcome` was already set. Found by reading the code, not reproduced | [payment-simulation/controller.ts](../../src/features/async-chaos-lab/payment-simulation/controller.ts) | Reproduce it, then record the outcome only when the dialog opens |
 | ⚪ Low | No formatter, so formatting stays uneven | Repository | Add Prettier in its own commit, because it touches most files |
 | ⚪ Low | Browser tests sometimes time out on `page.goto` under full parallelism, cause unconfirmed; CI retries once and can hide it | [pill-reader.e2e.ts](../../src/features/pills/pill-reader.e2e.ts), [content-navigation.e2e.ts](../../src/layouts/content-navigation.e2e.ts) | Repeat the suite to find the cause if a run blocks CI |
 | ⚪ Low | At about 701px the Spanish "Disponible" and "0/4 en uso" labels of lab 3 sit almost touching | [scaling.css](../../src/features/async-chaos-lab/scaling/scaling.css) | Let the row wrap in that range |

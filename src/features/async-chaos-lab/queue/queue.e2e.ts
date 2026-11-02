@@ -36,6 +36,33 @@ test.describe('Level 1 · the queue', () => {
     await captureForReview(page, 'queue-initial');
   });
 
+  test('still shows the outcome when playback stops while it is pending', async ({ page }) => {
+    const lab = new StoriesLab(page);
+    await lab.open('es', 1);
+    await lab.action('play');
+    await expect(lab.game).toHaveAttribute('data-outcome-pending', 'true');
+
+    await page.evaluate(() => {
+      document.querySelector<HTMLButtonElement>('[data-action="inspect:0"]')!.click();
+    });
+
+    await expect(page.locator('dialog[data-outcome]')).toBeVisible();
+  });
+
+  test('still shows the outcome when the tab is hidden while it is pending', async ({ page }) => {
+    const lab = new StoriesLab(page);
+    await lab.open('es', 1);
+    await lab.action('play');
+    await expect(lab.game).toHaveAttribute('data-outcome-pending', 'true');
+
+    await page.evaluate(() => {
+      Object.defineProperty(document, 'hidden', { configurable: true, value: true });
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+
+    await expect(page.locator('dialog[data-outcome]')).toBeVisible();
+  });
+
   test('pausing freezes the trial, also while the call is reopened', async ({ page }) => {
     const lab = new StoriesLab(page);
     await lab.open('es', 1);
