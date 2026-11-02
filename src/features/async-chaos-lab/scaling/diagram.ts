@@ -44,7 +44,7 @@ export function scalingDiagram(es: boolean, speed: number) {
       </section>
       <aside class="scaling-radio" role="status" aria-live="polite">${labFigure('phone')}<div><small>${copy.onCallLive}</small><p data-radio>${copy.customersAreWaitingPressPlay}</p></div></aside>
       <div class="scaling-dock">
-        <div class="scaling-playback">${button('play', `▶ ${copy.processPayments}`, 'class="scaling-primary"')}${button('reset', '↺', `aria-label="${copy.resetTrial}"`)}<div class="scaling-speeds" role="group" aria-label="${copy.playbackSpeed}">${PLAYBACK_SPEEDS.map((speed) => button(`speed:${speed}`, `×${speed}`, `aria-pressed="${speed === speed}"`)).join('')}</div></div>
+        <div class="scaling-playback">${button('play', `▶ ${copy.processPayments}`, 'class="scaling-primary"')}${button('reset', '↺', `aria-label="${copy.resetTrial}"`)}<div class="scaling-speeds" role="group" aria-label="${copy.playbackSpeed}">${PLAYBACK_SPEEDS.map((playbackSpeed) => button(`speed:${playbackSpeed}`, `×${playbackSpeed}`, `aria-pressed="${playbackSpeed === speed}"`)).join('')}</div></div>
         <div class="scaling-clock"><strong data-time>0 s</strong><span data-throughput>0 ${copy.paymentsPerSecond}</span></div>
         <div class="scaling-dock-metrics"><span data-occupied></span><span data-waiting></span>${button('cost', '<span data-cost></span>', `aria-label="${copy.showTheCostCalculation}"`)}</div>
       </div>
