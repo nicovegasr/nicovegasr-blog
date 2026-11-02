@@ -1,6 +1,6 @@
 ---
 title: "Estudié Ingeniería Informática."
-place: "La Laguna"
+place: "Tenerife"
 organization: "Universidad de La Laguna"
 role: "Grado en Ingeniería Informática"
 startDate: 2019-09-01

@@ -1,6 +1,6 @@
 ---
 title: "I studied Computer Engineering."
-place: "La Laguna"
+place: "Tenerife"
 organization: "Universidad de La Laguna"
 role: "B.Sc. Computer Science & Engineering"
 startDate: 2019-09-01
