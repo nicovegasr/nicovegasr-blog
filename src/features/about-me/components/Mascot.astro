@@ -63,6 +63,8 @@ const initialAtlasUrls = [walkingAtlas, reactionsAtlas];
     background-image: var(--walking-atlas);
     background-position: calc(var(--sprite-column) * 50%) calc(var(--sprite-row) * 100%);
     opacity: calc(1 - var(--reaction-visibility));
+    /* 3x2 sheets draw the walking row about 9.5% lower than the resting row. */
+    transform: translateY(calc((1 - var(--sprite-row)) * -9.5%)) scaleX(var(--facing));
   }
 
   /* Las dos capas se cargan desde el principio para que las reacciones no parpadeen. */
@@ -80,6 +82,7 @@ const initialAtlasUrls = [walkingAtlas, reactionsAtlas];
 
   .mascot[data-mascot-layout='3x3']::before {
     background-position: calc(var(--sprite-column) * 50%) calc(var(--sprite-row) * 50%);
+    transform: scaleX(var(--facing));
   }
 
   .mascot[data-mascot-layout='3x3']::after {

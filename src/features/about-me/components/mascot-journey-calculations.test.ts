@@ -27,7 +27,7 @@ describe('routeProgress', () => {
 
 describe('routePosition', () => {
   it('stands still while the scroll is in the reading stretch', () => {
-    expect(routePosition(0.25 / 2, 3, 'right').ratio).toBe(0);
+    expect(routePosition(0.05 / 2, 3, 'right').ratio).toBe(0);
   });
 
   it('walks in the middle of the stretch between two stations', () => {

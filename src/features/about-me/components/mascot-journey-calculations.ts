@@ -4,9 +4,9 @@ import type { MascotPoseName } from './mascot-walker';
 export const GROUND_RATIO = 0.88;
 // The feet sit at 86% of each atlas cell.
 export const FEET_RATIO = 0.86;
-// Between two stations the mascot only walks in this stretch; the rest of the scroll is for reading.
-const WALK_STARTS_AT = 0.3;
-const WALK_LENGTH = 0.4;
+// Between two stations the mascot only walks in this stretch; the short rest keeps each station readable.
+const WALK_STARTS_AT = 0.1;
+const WALK_LENGTH = 0.8;
 
 export type WalkDirection = 'left' | 'right';
 
