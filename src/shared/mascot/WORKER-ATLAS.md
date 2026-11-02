@@ -10,10 +10,13 @@ its normal appearance without the tuft:
 - `skills-backend.webp`: glasses and a mechanic's wrench.
 - `skills-frontend.webp`: glasses, an open navy jacket and a lime bow tie.
 
-These transparent 1254 × 1254 sheets use three columns and three rows: walking
+These transparent 1536 × 1536 sheets use three columns and three rows: walking
 frames; standing/thinking/fallen; presenting/explaining/welcoming. The runtime
-uses the final row for reactions. The Backend sheet's middle-left pose holds
-the wrench near the chin. Accessories are integrated pose by pose.
+uses the final row for reactions. The Backend sheet's middle pose holds the
+wrench near the chin. Accessories are integrated pose by pose. Every cell is
+registered with its feet at 85.7% of the cell height. In the Glasses and Frontend
+sheets, the fallen pose loses part of a foot and Frontend's welcoming pose part
+of a hand: the original generation crossed the cell edge.
 
 The built-in ImageGen tool used the existing walking and reaction sheets and
 the approved costume study as references. The brief preserved body proportions,
