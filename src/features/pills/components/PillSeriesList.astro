@@ -29,10 +29,10 @@ const translate = getTranslator(locale);
             <span class="series-text">
               <span class="series-title">
                 <b>{item.title}</b>
+                {!item.draft && <span class="series-count">{item.pillCount} {translate('pills.seriesCount')}</span>}
                 {item.draft && <span class="upcoming-label">{translate('pills.upcoming')}</span>}
               </span>
               {!item.draft && <span class="series-description">{item.summary}</span>}
-              {!item.draft && <span class="series-count">{item.pillCount} {translate('pills.seriesCount')}</span>}
             </span>
           </Card>
           <span class="series-mascot" aria-hidden="true"></span>
@@ -54,7 +54,14 @@ const translate = getTranslator(locale);
     position: relative;
   }
 
+  @media (min-width: 481px) {
+    .pill-series-list {
+      grid-auto-rows: 1fr;
+    }
+  }
+
   .series-card {
+    height: 100%;
     display: flex;
     align-items: center;
     gap: var(--space-4);
@@ -123,11 +130,13 @@ const translate = getTranslator(locale);
   }
 
   .series-count {
-    display: block;
-    margin-top: var(--space-1);
-    color: var(--color-text-soft);
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-small);
+    color: var(--color-text);
     font-family: var(--font-family-mono);
     font-size: var(--font-size-meta);
+    line-height: 1.5;
   }
 
   .series-mascot {
@@ -185,7 +194,8 @@ const translate = getTranslator(locale);
 
   @media (hover: hover) and (pointer: fine) {
     .pill-series-list a:hover .series-count {
-      color: var(--color-invert-muted);
+      border-color: var(--color-invert-muted);
+      color: var(--color-invert-text);
     }
   }
 
