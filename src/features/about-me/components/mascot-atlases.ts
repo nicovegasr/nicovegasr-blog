@@ -3,15 +3,15 @@ export type MascotRole = 'skills' | 'backend' | 'frontend' | 'database' | 'infra
 
 export const createMascotAtlases = (mascot: HTMLElement, signal: AbortSignal) => {
   const atlases: Record<string, AtlasPair> = JSON.parse(mascot.dataset.mascotAtlases!);
-  const images = new Map<string, Promise<void>>();
+  const images = new Map<string, Promise<HTMLImageElement>>();
   let requestedKey = mascot.dataset.mascotAge!;
 
-  const loadImage = (url: string): Promise<void> => {
+  const loadImage = (url: string): Promise<HTMLImageElement> => {
     const existing = images.get(url);
     if (existing) return existing;
     const image = new Image();
     image.src = url;
-    const ready = image.decode();
+    const ready = image.decode().then(() => image);
     images.set(url, ready);
     return ready;
   };

@@ -48,14 +48,19 @@ export const createMascotWalker = (mascot: HTMLElement): MascotWalker => {
       show({ atlas: 'walking', cell: { column: WALK_CYCLE_COLUMNS[step] ?? 0, row: WALKING_ROW } });
       mascot.style.setProperty('--facing', isForward ? '1' : '-1');
       window.clearTimeout(restTimer);
-      restTimer = window.setTimeout(() => show(MASCOT_POSES[restPose]), REST_DELAY_IN_MILLISECONDS);
+      restTimer = window.setTimeout(() => {
+        restTimer = 0;
+        show(MASCOT_POSES[restPose]);
+      }, REST_DELAY_IN_MILLISECONDS);
     },
     rest: (poseName) => {
       if (poseName === restPose) {
         return;
       }
       restPose = poseName;
-      show(MASCOT_POSES[poseName]);
+      if (!restTimer) {
+        show(MASCOT_POSES[poseName]);
+      }
     },
   };
 };
