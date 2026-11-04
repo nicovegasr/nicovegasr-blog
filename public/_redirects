@@ -1,0 +1,3 @@
+# Spanish moved from /es/ to the root; keep every shared /es/ link working.
+/es /  301
+/es/* /:splat  301

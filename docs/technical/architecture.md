@@ -2,7 +2,7 @@
 
 ## Overview
 
-The blog is an Astro static site. The root redirects to `/es`; Spanish and English both use locale prefixes and equivalent routes where translations exist. The locale root is the About page. Content indexes live at `/es/contenido/blog/` (where `/es/contenido/` redirects), `/es/contenido/pildoras/` and `/es/contenido/laboratorios/`, with English equivalents under `/en/content/`. Published articles, pills and labs keep their original URLs, and the former index addresses redirect through `astro.config.mjs`. Content is rendered at build time, so deployment requires static hosting rather than an application server.
+The blog is an Astro static site. Spanish, the default locale, is served at the root and English under `/en/`, with equivalent routes where translations exist. Spanish used to live under `/es/`; `public/_redirects` answers those links with a Cloudflare Pages 301 to the same path at the root. The locale root is the About page. Content indexes live at `/contenido/blog/` (where `/contenido/` redirects), `/contenido/pildoras/` and `/contenido/laboratorios/`, with English equivalents under `/en/content/`. Published articles, pills and labs keep their paths below the locale, and the former index addresses redirect through `astro.config.mjs`. Content is rendered at build time, so deployment requires static hosting rather than an application server.
 
 Application code is grouped by functionality. A feature owns a coherent part of the site; it does not have to correspond to one page or one content collection. For example, posts support article pages, listings, search, and RSS.
 

@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
-const firstPill = '/es/pildoras/docker/intro/';
-const catalogue = '/es/contenido/pildoras/';
+const firstPill = '/pildoras/docker/intro/';
+const catalogue = '/contenido/pildoras/';
 const phone = { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true };
 
 test.describe('reading on a phone', () => {
@@ -55,7 +55,7 @@ test.describe('reading on a phone', () => {
 
     await index.getByRole('link', { name: /Dockerfile/ }).click();
 
-    await expect(page).toHaveURL(/\/es\/pildoras\/docker\/docker-file\/#pill-reading$/);
+    await expect(page).toHaveURL(/:\d+\/pildoras\/docker\/docker-file\/#pill-reading$/);
     await expect(page.getByRole('heading', { level: 1, name: 'Dockerfile' })).toBeVisible();
     await expect(index).toBeHidden();
     await expect(disclosure).toHaveAttribute('aria-expanded', 'false');
@@ -73,7 +73,7 @@ test.describe('on the narrowest phone', () => {
   test.use({ ...phone, viewport: { width: 320, height: 568 } });
 
   test('fits the longest series name beside its count', async ({ page }) => {
-    await page.goto('/es/pildoras/diseno-de-sistemas/kiss/');
+    await page.goto('/pildoras/diseno-de-sistemas/kiss/');
     const heading = page.locator('.contents-heading');
 
     await expect(heading.locator('.eyebrow')).toHaveText('Diseño de sistemas');
@@ -97,7 +97,7 @@ test.describe('without JavaScript', () => {
 
     await page.locator('#pill-index-navigation').getByRole('link', { name: /Dockerfile/ }).click();
 
-    await expect(page).toHaveURL(/\/es\/pildoras\/docker\/docker-file\//);
+    await expect(page).toHaveURL(/:\d+\/pildoras\/docker\/docker-file\//);
     await expect(page.getByRole('heading', { level: 1, name: 'Dockerfile' })).toBeVisible();
   });
 });
@@ -133,7 +133,7 @@ test.describe('moving through the reader', () => {
 
     await page.locator('.language-switcher a').first().click();
 
-    await expect(page).toHaveURL(/\/es\/pildoras\/docker\/intro\//);
+    await expect(page).toHaveURL(/:\d+\/pildoras\/docker\/intro\//);
     await expect(page.locator('html')).toHaveAttribute('lang', 'es');
   });
 
@@ -210,7 +210,7 @@ test.describe('on the desktop catalogue', () => {
   });
 
   test('names the series above its index', async ({ page }) => {
-    await page.goto('/es/pildoras/fundamentos/base-de-datos/');
+    await page.goto('/pildoras/fundamentos/base-de-datos/');
 
     await expect(page.locator('.contents-heading .eyebrow')).toHaveText('Fundamentos');
   });

@@ -1,4 +1,6 @@
 import { expect, test } from '@playwright/test';
+import { buildPagePath } from '@/i18n/routes';
+import { LOCALES } from '@/i18n/locale';
 
 const phones = [
   { width: 320, height: 568 },
@@ -19,7 +21,7 @@ test.beforeEach(async ({ page }) => {
 
 for (const [locale, label] of [['es', 'Ver proyectos'], ['en', 'View projects']] as const) {
   test(`the ${locale} hero links to the projects next to the repository stars`, async ({ page }) => {
-    await page.goto(`/${locale}/`);
+    await page.goto(buildPagePath('home', locale));
     const hero = page.locator('.hero');
     const projects = hero.getByRole('link', { name: label });
 
@@ -31,7 +33,7 @@ for (const [locale, label] of [['es', 'Ver proyectos'], ['en', 'View projects']]
 }
 
 test('the star badge reacts to the pointer and the keyboard without its prompt', async ({ page }) => {
-  await page.goto('/es/');
+  await page.goto('/');
   const badge = page.locator('.hero .repo-star img');
   await expect(badge).toHaveCSS('opacity', '1');
 
@@ -64,15 +66,15 @@ test('the projects link and the star prompt share the accent underline', async (
     await expect(link).toHaveCSS('text-underline-offset', '4px');
   };
 
-  await page.goto('/es/');
+  await page.goto('/');
   await accentUnderlines('.projects-link');
 
-  await page.goto('/es/contenido/blog/');
+  await page.goto('/contenido/blog/');
   await accentUnderlines('.repo-star span');
 });
 
 test('the content panel keeps asking whether the blog was useful', async ({ page }) => {
-  await page.goto('/es/contenido/blog/');
+  await page.goto('/contenido/blog/');
   await expect(page.locator('.repo-star')).toContainText('¿Te ha servido?');
 });
 
@@ -80,9 +82,9 @@ for (const viewport of [...phones, desktop]) {
   test.describe(`hero at ${viewport.width}px`, () => {
     test.use({ viewport });
 
-    for (const locale of ['es', 'en']) {
+    for (const locale of LOCALES) {
       test(`the ${locale} hero fits within the screen and keeps every link tappable`, async ({ page }, testInfo) => {
-        await page.goto(`/${locale}/`);
+        await page.goto(buildPagePath('home', locale));
         const hero = page.locator('.hero');
         await expect(hero).toHaveClass(/is-visible/);
         await page.evaluate(() => document.fonts.ready);

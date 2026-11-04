@@ -27,7 +27,7 @@ const external = { url: 'https://example.com/a-post', publisher: 'Example' };
 describe('buildPostLink', () => {
   it('points to the blog path when the post is hosted here', () => {
     expect(isHosted(buildPost())).toBe(true);
-    expect(buildPostLink(buildPost())).toBe('/es/blog/a-post/');
+    expect(buildPostLink(buildPost())).toBe('/blog/a-post/');
   });
 
   it('points to the publisher when the post lives elsewhere', () => {

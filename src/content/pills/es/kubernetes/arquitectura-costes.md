@@ -46,7 +46,7 @@ simple puede ser suficiente. La pregunta útil no es «¿podemos usar
 Kubernetes?», sino qué problemas operativos concretos resolvería y quién
 mantendría el sistema resultante.
 
-Si vienes de [Docker](/es/pildoras/docker), aquí cambia la responsabilidad:
+Si vienes de [Docker](/pildoras/docker), aquí cambia la responsabilidad:
 la imagen sigue describiendo el proceso, pero Kubernetes decide dónde y con
 qué condiciones ejecutarlo.
 

@@ -15,10 +15,10 @@ npm run dev -- --host 127.0.0.1 --port 4328
 
 | Experience               | Spanish                       | English                      |
 | ------------------------ | ----------------------------- | ---------------------------- |
-| Catalogue                | `/es/contenido/laboratorios/`       | `/en/content/labs/`         |
-| Protect pending payments | `/es/laboratorios/async-chaos-lab/` | `/en/labs/async-chaos-lab/` |
-| Inside the worker        | `/es/laboratorios/worker-steps/`    | `/en/labs/worker-steps/`    |
-| Scaling the system       | `/es/laboratorios/scaling/`         | `/en/labs/scaling/`         |
+| Catalogue                | `/contenido/laboratorios/`       | `/en/content/labs/`         |
+| Protect pending payments | `/laboratorios/async-chaos-lab/` | `/en/labs/async-chaos-lab/` |
+| Inside the worker        | `/laboratorios/worker-steps/`    | `/en/labs/worker-steps/`    |
+| Scaling the system       | `/laboratorios/scaling/`         | `/en/labs/scaling/`         |
 
 Lab 3 has a separate fixed-clock engine because resource contention differs from
 the fault/checkpoint state machine of labs 1 and 2. It shares their static Astro

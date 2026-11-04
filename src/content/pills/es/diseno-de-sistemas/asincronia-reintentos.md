@@ -29,7 +29,7 @@ En este almacenamiento, escribir sobre una clave existente reemplaza su contenid
 
 Ese guardado es [idempotente](https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/): repetirlo mantiene el mismo resultado. El fichero puede haberse escrito varias veces; no hace falta que el trabajo se ejecute una sola vez para evitar el duplicado.
 
-En el [Async Chaos Lab](/es/laboratorios/async-chaos-lab/) puedes provocar una confirmación perdida y ver qué ocurre al repetir el trabajo.
+En el [Async Chaos Lab](/laboratorios/async-chaos-lab/) puedes provocar una confirmación perdida y ver qué ocurre al repetir el trabajo.
 
 **Lo que cuesta:** conservar el identificador y el contenido entre intentos, y comprobar qué hace el destino al recibir la misma clave. Cambiar el nombre en cada intento vuelve a crear duplicados.
 

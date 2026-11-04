@@ -5,7 +5,7 @@ test('age atlases are fetched near the timeline rather than on arrival', async (
   page.on('request', (request) => {
     if (/age-\d{4}.*\.webp/.test(request.url())) requests.push(request.url());
   });
-  await page.goto('/es/');
+  await page.goto('/');
   await expect.poll(() => page.locator('[data-walkway-thread]').evaluate((element) =>
     (element as HTMLElement).style.height,
   )).not.toBe('');
@@ -30,7 +30,7 @@ for (const returnToTop of [false, true]) {
       await held;
       await route.continue();
     });
-    await page.goto('/es/');
+    await page.goto('/');
     const requested = page.waitForRequest(/age-2019.*\.webp/);
     await page.locator('[data-start-year="2019"]').evaluate((element) => {
       window.scrollTo({

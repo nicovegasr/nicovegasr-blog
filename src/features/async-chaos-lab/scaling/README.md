@@ -1,6 +1,6 @@
 # Lab 3: scaling workers and their services
 
-Routes: `/es/laboratorios/scaling/` and `/en/labs/scaling/`.
+Routes: `/laboratorios/scaling/` and `/en/labs/scaling/`.
 
 This remains a static Astro page with a native custom element. Processing happens
 in a deterministic browser simulation: no backend, real service calls, Cloudflare

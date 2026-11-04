@@ -8,7 +8,7 @@ translationSlug: "spring-batch-practical-advice"
 
 ![Visión general del procesamiento en paralelo en Spring Batch](../images/spring-batch-performance/parallel-overview.png)
 
-En un artículo anterior hablé de Spring Batch. Si no lo has leído y no conoces Spring Batch, te recomiendo leerlo [aquí](/es/blog/spring-batch-introduccion) primero.
+En un artículo anterior hablé de Spring Batch. Si no lo has leído y no conoces Spring Batch, te recomiendo leerlo [aquí](/blog/spring-batch-introduccion) primero.
 
 En este post vamos a hablar de cómo mejorar el rendimiento y el escalado en Spring Batch. Me gustaría centrarme en dos temas:
 

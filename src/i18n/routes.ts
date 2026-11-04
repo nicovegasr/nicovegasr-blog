@@ -11,6 +11,9 @@ const PILLS_DETAIL_SEGMENT: Record<Locale, string> = { es: 'pildoras', en: 'pill
 const LABS_DETAIL_SEGMENT: Record<Locale, string> = { es: 'laboratorios', en: 'labs' };
 const BLOG_DETAIL_SEGMENT = 'blog';
 
+// Spanish, the default locale, lives at the root; other locales keep their prefix.
+const LOCALE_PREFIX_SEGMENTS: Record<Locale, readonly string[]> = { es: [], en: ['en'] };
+
 const PATH_SEGMENTS_BY_PAGE: Record<PageKey, Record<Locale, readonly string[]>> = {
   home: { es: [], en: [] },
   pills: {
@@ -32,33 +35,40 @@ const joinPath = (...segments: readonly string[]): string => {
   return path.length > 0 ? `/${path}/` : '/';
 };
 
+const joinLocalePath = (locale: Locale, ...segments: readonly string[]): string =>
+  joinPath(...LOCALE_PREFIX_SEGMENTS[locale], ...segments);
+
 export const buildPagePath = (page: PageKey, locale: Locale): string =>
-  joinPath(locale, ...PATH_SEGMENTS_BY_PAGE[page][locale]);
+  joinLocalePath(locale, ...PATH_SEGMENTS_BY_PAGE[page][locale]);
 
 export const buildBlogPostPath = (locale: Locale, slug: string): string =>
-  joinPath(locale, BLOG_DETAIL_SEGMENT, slug);
+  joinLocalePath(locale, BLOG_DETAIL_SEGMENT, slug);
 
 export const buildPillSeriesPath = (locale: Locale, series: string): string =>
-  joinPath(locale, PILLS_DETAIL_SEGMENT[locale], series);
+  joinLocalePath(locale, PILLS_DETAIL_SEGMENT[locale], series);
 
 export const buildPillPath = (
   locale: Locale,
   series: string,
   pill: string,
-): string => joinPath(locale, PILLS_DETAIL_SEGMENT[locale], series, pill);
+): string => joinLocalePath(locale, PILLS_DETAIL_SEGMENT[locale], series, pill);
 
 export const buildLabPath = (locale: Locale, lab: string): string =>
-  joinPath(locale, LABS_DETAIL_SEGMENT[locale], lab);
+  joinLocalePath(locale, LABS_DETAIL_SEGMENT[locale], lab);
 
 // RSS endpoints keep their explicit extension, so no trailing slash here.
-export const buildRssFeedPath = (locale: Locale): string => `/${locale}/rss.xml`;
+export const buildRssFeedPath = (locale: Locale): string =>
+  `${joinLocalePath(locale)}rss.xml`;
 
 const pathSegments = (pathname: string): readonly string[] => pathname.split('/').filter(Boolean);
+
+const pathSegmentsWithinLocale = (pathname: string, locale: Locale): readonly string[] =>
+  pathSegments(pathname).slice(LOCALE_PREFIX_SEGMENTS[locale].length);
 
 // Content indexes live under /contenido, but published articles, pills and labs
 // keep their original URLs so that shared links and search results stay valid.
 export const contentSectionOf = (pathname: string, locale: Locale): ContentSection | null => {
-  const [, firstSegment, secondSegment] = pathSegments(pathname);
+  const [firstSegment, secondSegment] = pathSegmentsWithinLocale(pathname, locale);
   const sectionSegment = firstSegment === CONTENT_SEGMENT[locale] ? secondSegment : firstSegment;
   if (sectionSegment === PILLS_DETAIL_SEGMENT[locale]) return 'pills';
   if (sectionSegment === LABS_DETAIL_SEGMENT[locale]) return 'labs';
@@ -85,15 +95,15 @@ export const buildAlternateLocalePath = (
     return buildPagePath(matchingPage, targetLocale);
   }
 
-  const [firstSegment, ...restSegments] = pathSegments(currentPathname).slice(1);
+  const [firstSegment, ...restSegments] = pathSegmentsWithinLocale(currentPathname, currentLocale);
 
   // Pills and labs slugs are locale-independent, so deeper paths map segment by segment.
   if (firstSegment === PILLS_DETAIL_SEGMENT[currentLocale]) {
-    return joinPath(targetLocale, PILLS_DETAIL_SEGMENT[targetLocale], ...restSegments);
+    return joinLocalePath(targetLocale, PILLS_DETAIL_SEGMENT[targetLocale], ...restSegments);
   }
 
   if (firstSegment === LABS_DETAIL_SEGMENT[currentLocale]) {
-    return joinPath(targetLocale, LABS_DETAIL_SEGMENT[targetLocale], ...restSegments);
+    return joinLocalePath(targetLocale, LABS_DETAIL_SEGMENT[targetLocale], ...restSegments);
   }
 
   return buildPagePath('articles', targetLocale);

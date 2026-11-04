@@ -1,7 +1,9 @@
 import { expect, test, type Page } from '@playwright/test';
+import { buildPagePath } from '@/i18n/routes';
+import { LOCALES, type Locale } from '@/i18n/locale';
 
-const openBackend = async (page: Page, locale = 'es') => {
-  await page.goto(`/${locale}/`);
+const openBackend = async (page: Page, locale: Locale = 'es') => {
+  await page.goto(buildPagePath('home', locale));
   await page.evaluate(() => document.fonts.ready);
   await page.locator('[data-route]').last().evaluate((route) => {
     window.scrollTo({ top: window.scrollY + route.getBoundingClientRect().top + 2, behavior: 'instant' });
@@ -11,7 +13,7 @@ const openBackend = async (page: Page, locale = 'es') => {
 for (const viewport of [{ width: 1280, height: 800 }, { width: 390, height: 844 }, { width: 360, height: 640 }, { width: 320, height: 568 }]) {
   test.describe(`Backend metric at ${viewport.width}x${viewport.height}`, () => {
     test.use({ viewport });
-    for (const locale of ['es', 'en']) {
+    for (const locale of LOCALES) {
       test(`${locale} keeps the result and batch pointer clear of the walking route`, async ({ page }, testInfo) => {
         await openBackend(page, locale);
         const metric = page.locator('[data-batch-metric]');
@@ -61,7 +63,7 @@ test('the pointer follows the active batch, stops offscreen and the wrench belon
 test.describe('static alternatives', () => {
   test.use({ reducedMotion: 'reduce' });
   test('reduced motion retains the result with a stationary batch marker', async ({ page }) => {
-    await page.goto('/es/');
+    await page.goto('/');
     const metric = page.locator('[data-batch-metric]');
     await metric.scrollIntoViewIfNeeded();
     await expect(metric).toBeVisible();

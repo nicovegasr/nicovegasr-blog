@@ -1,4 +1,6 @@
 import { expect, test } from '@playwright/test';
+import { buildPagePath } from '@/i18n/routes';
+import { LOCALES } from '@/i18n/locale';
 
 const stops = '[data-journey-stop]';
 const reachedStops = `${stops}.is-reached`;
@@ -6,7 +8,7 @@ const reachedStops = `${stops}.is-reached`;
 for (const width of [1280, 360]) {
   test(`skill costumes follow their stations at ${width}px`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height: 800 });
-    await page.goto('/es/');
+    await page.goto('/');
     await page.evaluate(() => document.fonts.ready);
     const walker = page.locator('[data-page-walker]');
     const roles = ['backend', 'frontend', 'database', 'infrastructure', 'artificial-intelligence'];
@@ -31,9 +33,9 @@ for (const viewport of [{ width: 1280, height: 800 }, { width: 360, height: 640 
   test.describe(`mascot ages at ${viewport.width}px`, () => {
     test.use({ viewport });
 
-    for (const locale of ['es', 'en']) {
+    for (const locale of LOCALES) {
       test(`the ${locale} timeline restores every age in both scroll directions`, async ({ page }, testInfo) => {
-        await page.goto(`/${locale}/`);
+        await page.goto(buildPagePath('home', locale));
         const walker = page.locator('[data-page-walker]');
         await expect(walker).toHaveAttribute('data-mascot-age', 'original');
         const atlasUrls = await walker.evaluate((element) =>
@@ -81,7 +83,7 @@ for (const viewport of [{ width: 1280, height: 800 }, { width: 360, height: 640 
 }
 
 test('the journey lights up its stops as the reader scrolls', async ({ page }) => {
-  await page.goto('/es/');
+  await page.goto('/');
   const total = await page.locator(stops).count();
   expect(total).toBeGreaterThan(1);
   const reachedOnArrival = await page.locator(reachedStops).count();
@@ -94,7 +96,7 @@ test('the journey lights up its stops as the reader scrolls', async ({ page }) =
 
 test('one mascot crosses the whole page and opens its arms when it arrives', async ({ page }) => {
   const walker = page.locator('[data-page-walker]');
-  await page.goto('/es/');
+  await page.goto('/');
   await expect(walker).toHaveCount(1);
   await expect(walker).not.toHaveClass(/is-arrived/);
 
@@ -104,7 +106,7 @@ test('one mascot crosses the whole page and opens its arms when it arrives', asy
 });
 
 test('the mascot leaves the contributions at the top of the thread', async ({ page }) => {
-  await page.goto('/es/');
+  await page.goto('/');
 
   const positions = await page.evaluate(async () => {
     const route = document.querySelector<HTMLElement>('[data-route]')!;
@@ -137,7 +139,7 @@ for (const viewport of [
     test.use({ viewport });
 
     test('stays whole on screen and on its line, scrolling down and back up', async ({ page }) => {
-      await page.goto('/es/');
+      await page.goto('/');
 
       const samples = await page.evaluate(async () => {
         const walker = document.querySelector<HTMLElement>('[data-page-walker]')!;
@@ -186,7 +188,7 @@ for (const viewport of [
     });
 
     test('the timeline stops sit on the thread and the text keeps clear of it', async ({ page }) => {
-      await page.goto('/es/');
+      await page.goto('/');
       await page.evaluate(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' }));
 
       const layout = await page.evaluate(() => {
@@ -223,7 +225,7 @@ for (const viewport of [
 }
 
 test('only the chapter being read is marked as active', async ({ page }) => {
-  await page.goto('/es/');
+  await page.goto('/');
 
   await page.evaluate(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' }));
 
@@ -248,7 +250,7 @@ test('the skills route walks from area to area as the reader scrolls', async ({ 
   const skills = page.locator('[data-route]').last();
   const stations = skills.locator('[data-route-station]');
   const walker = page.locator('[data-page-walker]');
-  await page.goto('/es/');
+  await page.goto('/');
   await expect(stations.first()).toHaveClass(/is-current/);
 
   const scrollThroughRoute = (ratio: number) =>
@@ -270,7 +272,7 @@ test('the skills route walks from area to area as the reader scrolls', async ({ 
 });
 
 test('the arrow keys walk the mascot only while they are held', async ({ page }) => {
-  await page.goto('/es/');
+  await page.goto('/');
   const routes = page.locator('[data-route]');
   const walker = page.locator('[data-page-walker]');
   const walkerLeft = () => walker.evaluate((element) => element.getBoundingClientRect().left);
@@ -325,7 +327,7 @@ test.describe('with reduced motion', () => {
   test.use({ reducedMotion: 'reduce' });
 
   test('every skill area can be read one after another', async ({ page }) => {
-    await page.goto('/es/');
+    await page.goto('/');
     const stations = page.locator('[data-route]').last().locator('[data-route-station]');
     await expect(stations.last().locator('h3')).toHaveCSS('opacity', '1');
     await expect(page.locator('[data-page-walker]')).toBeHidden();
@@ -335,7 +337,7 @@ test.describe('with reduced motion', () => {
   });
 
   test('every stop is readable without scrolling', async ({ page }) => {
-    await page.goto('/es/');
+    await page.goto('/');
     await expect(page.locator(reachedStops)).toHaveCount(await page.locator(stops).count());
   });
 });
@@ -344,7 +346,7 @@ test.describe('without JavaScript', () => {
   test.use({ javaScriptEnabled: false });
 
   test('every stop is still readable', async ({ page }) => {
-    await page.goto('/es/');
+    await page.goto('/');
     await expect(page.locator(stops).first()).toBeVisible();
     await expect(page.locator(`${stops} .summary`).last()).toHaveCSS('opacity', '1');
   });

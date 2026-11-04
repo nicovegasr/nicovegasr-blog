@@ -52,7 +52,7 @@ entorno y credenciales entrarán después por ConfigMaps y Secrets. Construir
 una sola imagen y promover su digest entre entornos reduce las diferencias
 entre lo probado y lo desplegado.
 
-Puedes profundizar en [Dockerfile](/es/pildoras/docker/docker-file) y
-[builds multi-stage](/es/pildoras/docker/multistage).
+Puedes profundizar en [Dockerfile](/pildoras/docker/docker-file) y
+[builds multi-stage](/pildoras/docker/multistage).
 La [documentación de imágenes de Kubernetes](https://kubernetes.io/docs/concepts/containers/images/)
 detalla la diferencia entre etiquetas, digests y políticas de descarga.

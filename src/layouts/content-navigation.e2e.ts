@@ -5,7 +5,7 @@ const sections = '[data-content-sections] a';
 test('the footer keeps its copyright and usable social links on one row', async ({ page }) => {
   for (const width of [320, 360, 440, 706, 1280]) {
     await page.setViewportSize({ width, height: 800 });
-    for (const path of ['/es/', '/es/contenido/blog/']) {
+    for (const path of ['/', '/contenido/blog/']) {
       await page.goto(path);
       await page.evaluate(() => document.fonts.ready);
       const footer = page.locator('.site-footer');
@@ -26,41 +26,41 @@ test('the footer keeps its copyright and usable social links on one row', async 
 });
 
 test('the home is the about page and content is one click away', async ({ page }) => {
-  await page.goto('/es/');
+  await page.goto('/');
   await expect(page.locator('[data-journey]')).toBeVisible();
 
-  await page.locator('.site-header .primary a[href="/es/contenido/blog/"]').click();
+  await page.locator('.site-header .primary a[href="/contenido/blog/"]').click();
 
-  await expect(page).toHaveURL(/\/es\/contenido\/blog\/$/);
-  await expect(page.locator(`${sections}[aria-current="page"]`)).toHaveAttribute('href', '/es/contenido/blog/');
+  await expect(page).toHaveURL(/:\d+\/contenido\/blog\/$/);
+  await expect(page.locator(`${sections}[aria-current="page"]`)).toHaveAttribute('href', '/contenido/blog/');
 });
 
 test('the menu goes straight to each section with its tab selected', async ({ page }) => {
-  await page.goto('/es/');
+  await page.goto('/');
   const menu = page.locator('.site-header .primary a');
   await expect(menu).toHaveText(['Inicio', 'Blog', 'Píldoras', 'Laboratorios']);
 
   await menu.filter({ hasText: 'Píldoras' }).click();
 
-  await expect(page).toHaveURL(/\/es\/contenido\/pildoras\/$/);
+  await expect(page).toHaveURL(/:\d+\/contenido\/pildoras\/$/);
   await expect(page.locator('h1')).toHaveText('Píldoras');
   await expect(page.locator('.intro .lead')).toContainText('Conceptos reducidos al mínimo');
   await expect(page.locator('.site-header .primary a.current')).toHaveText('Píldoras');
 });
 
 test('each section has its own title and sentence', async ({ page }) => {
-  await page.goto('/es/contenido/blog/');
+  await page.goto('/contenido/blog/');
   await expect(page.locator('h1')).toHaveText('Blog');
   await expect(page.locator('.intro .lead')).toContainText('Lo que estudio');
 
-  await page.goto('/es/contenido/laboratorios/');
+  await page.goto('/contenido/laboratorios/');
   await expect(page.locator('h1')).toHaveText('Laboratorios');
   await expect(page.locator('.intro .lead')).toContainText('Construye, experimenta');
   await expect(page.getByText('Construye, experimenta')).toHaveCount(1);
 });
 
 test('the tabs give way to the menu on desktop and stay under the hamburger', async ({ page }) => {
-  await page.goto('/es/contenido/pildoras/');
+  await page.goto('/contenido/pildoras/');
   await expect(page.locator(sections).first()).toBeHidden();
 
   await page.setViewportSize({ width: 900, height: 700 });
@@ -68,14 +68,14 @@ test('the tabs give way to the menu on desktop and stay under the hamburger', as
 });
 
 test('the menu keeps the section marked inside a published pill', async ({ page }) => {
-  await page.goto('/es/pildoras/docker/intro/');
+  await page.goto('/pildoras/docker/intro/');
 
   await expect(page.locator('.site-header .primary a.current')).toHaveText('Píldoras');
 });
 
 test('the menu fits beside the logo just above the hamburger layout', async ({ page }) => {
   await page.setViewportSize({ width: 901, height: 700 });
-  await page.goto('/es/');
+  await page.goto('/');
 
   const overflows = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
 
@@ -98,7 +98,7 @@ test('the content panel moves between blog, pills and labs', async ({ page }) =>
 
 test('the panel fits on a phone without horizontal scrolling', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 640 });
-  await page.goto('/es/contenido/laboratorios/');
+  await page.goto('/contenido/laboratorios/');
 
   const overflows = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
 
@@ -108,15 +108,15 @@ test('the panel fits on a phone without horizontal scrolling', async ({ page }) 
 
 test.describe('old addresses', () => {
   for (const [oldPath, newPath] of [
-    ['/es/sobre-mi/', '/es/'],
+    ['/sobre-mi/', '/'],
     ['/en/about/', '/en/'],
-    ['/es/contenido/', '/es/contenido/blog/'],
+    ['/contenido/', '/contenido/blog/'],
     ['/en/content/', '/en/content/blog/'],
-    ['/es/pildoras/', '/es/contenido/pildoras/'],
+    ['/pildoras/', '/contenido/pildoras/'],
     ['/en/pills/', '/en/content/pills/'],
-    ['/es/articulos/', '/es/contenido/blog/'],
+    ['/articulos/', '/contenido/blog/'],
     ['/en/articles/', '/en/content/blog/'],
-    ['/es/laboratorios/', '/es/contenido/laboratorios/'],
+    ['/laboratorios/', '/contenido/laboratorios/'],
     ['/en/labs/', '/en/content/labs/'],
   ] as const) {
     test(`${oldPath} redirects to ${newPath}`, async ({ page }) => {

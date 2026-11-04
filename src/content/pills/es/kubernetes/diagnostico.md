@@ -40,7 +40,7 @@ decisiones recientes de Kubernetes; los **logs y trazas** muestran el
 comportamiento de la aplicación. Los eventos no son un registro histórico
 duradero y `kubectl logs` no sustituye una solución centralizada. Para una
 investigación posterior, conecta los identificadores de petición con
-[logs, métricas y trazas](/es/pildoras/observabilidad).
+[logs, métricas y trazas](/pildoras/observabilidad).
 
 Una comprobación local con kind o k3d ayuda a reproducir manifiestos,
 probes y fallos de arranque. No reproduce por sí sola el balanceador,

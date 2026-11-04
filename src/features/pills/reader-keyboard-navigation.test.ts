@@ -67,7 +67,7 @@ describe('reader keyboard navigation', () => {
 
   it('continues into the next published series at the last pill', () => {
     current = reader(1);
-    const continuation = { href: '/es/pildoras/fundamentos/api/#pill-reading' };
+    const continuation = { href: '/pildoras/fundamentos/api/#pill-reading' };
     current.querySelector.mockReturnValue(continuation);
     expect(pressKey('ArrowRight').defaultPrevented).toBe(true);
     expect(navigate).toHaveBeenCalledWith(continuation.href, { sourceElement: continuation });

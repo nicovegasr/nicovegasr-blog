@@ -15,21 +15,20 @@ export default defineConfig({
     defaultLocale: 'es',
     locales: ['es', 'en'],
     routing: {
-      prefixDefaultLocale: true,
+      prefixDefaultLocale: false,
     },
   },
 
   redirects: {
-    '/': '/es',
-    '/es/sobre-mi': '/es/',
+    '/sobre-mi': '/',
     '/en/about': '/en/',
-    '/es/contenido': '/es/contenido/blog/',
+    '/contenido': '/contenido/blog/',
     '/en/content': '/en/content/blog/',
-    '/es/pildoras': '/es/contenido/pildoras/',
+    '/pildoras': '/contenido/pildoras/',
     '/en/pills': '/en/content/pills/',
-    '/es/articulos': '/es/contenido/blog/',
+    '/articulos': '/contenido/blog/',
     '/en/articles': '/en/content/blog/',
-    '/es/laboratorios': '/es/contenido/laboratorios/',
+    '/laboratorios': '/contenido/laboratorios/',
     '/en/labs': '/en/content/labs/',
   },
 
@@ -43,7 +42,6 @@ export default defineConfig({
         defaultLocale: 'es',
         locales: { es: 'es-ES', en: 'en-US' },
       },
-      filter: (page) => page !== `${siteUrl}/`,
     }),
   ],
 });

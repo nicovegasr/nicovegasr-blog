@@ -1,14 +1,14 @@
 import { test as base, expect } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
 import type { Locale } from '@/i18n/locale';
+import { buildLabPath } from '@/i18n/routes';
 import { TICK_MILLISECONDS } from '../payment-simulation/engine';
 
 export { expect };
 
 export type LabSlug = 'async-chaos-lab' | 'worker-steps' | 'scaling';
 
-export const labUrl = (locale: Locale, slug: LabSlug) =>
-  `/${locale}/${locale === 'es' ? 'laboratorios' : 'labs'}/${slug}/`;
+export const labUrl = (locale: Locale, slug: LabSlug) => buildLabPath(locale, slug);
 
 // Every lab advances its deterministic engine on a setInterval of at most one payment-lab tick.
 // Shortening only those intervals speeds up playback without changing results.
