@@ -51,7 +51,7 @@ test('the menu goes straight to each section with its tab selected', async ({ pa
 test('each section has its own title and sentence', async ({ page }) => {
   await page.goto('/contenido/blog/');
   await expect(page.locator('h1')).toHaveText('Blog');
-  await expect(page.locator('.intro .lead')).toContainText('Lo que escribo');
+  await expect(page.locator('.intro .lead')).toContainText('Notas sobre arquitectura');
 
   await page.goto('/contenido/laboratorios/');
   await expect(page.locator('h1')).toHaveText('Laboratorios');

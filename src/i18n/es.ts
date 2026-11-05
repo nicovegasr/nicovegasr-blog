@@ -7,7 +7,7 @@ export const spanish = {
   'navigation.menu': 'Menú',
   'navigation.sections': 'Secciones',
 
-  'content.blogLead': 'Lo que escribo y lo que me gusta.',
+  'content.blogLead': 'Notas sobre arquitectura, rendimiento y sistemas distribuidos.',
   'content.pillsLead': 'Conceptos reducidos al mínimo para ver cómo funcionan, sin perder rigor.',
   'content.blog': 'Blog',
   'content.pills': 'Píldoras',

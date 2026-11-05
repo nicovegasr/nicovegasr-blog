@@ -1,0 +1,202 @@
+---
+import '@fontsource-variable/open-sans';
+import { buildPostLink, type Post } from '@/features/posts/post';
+import { getTranslator } from '@/i18n/translator';
+import leanMindLogo from '@/features/posts/assets/lean-mind-logo.webp?url';
+
+interface Props {
+  post: Post;
+}
+
+// Keyboard keys drawn like the decoration on Lean Mind's own blog: label, left, top.
+const KEYS = [
+  ['ctrl', '0', '6px'],
+  ['+', '44px', '8px'],
+  ['T', '30%', '30px'],
+  ['F', '62%', '0'],
+  ['</>', '84%', '24px'],
+] as const;
+
+const { post } = Astro.props;
+const translate = getTranslator(post.locale);
+const publisher = post.external?.publisher ?? 'Lean Mind';
+// Lean Mind writes dates as 09-10-2026.
+const publicationDateLabel = new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  .format(post.publicationDate)
+  .replaceAll('/', '-');
+const publicationDateMachine = post.publicationDate.toISOString().slice(0, 10);
+---
+
+<article class="lean-mind-preview" data-slug={post.slug}>
+  <div class="top">
+    <img src={leanMindLogo} alt={publisher} width="178" height="56" loading="lazy" decoding="async" />
+    <span class="badge">Blog</span>
+  </div>
+  <div class="keys" aria-hidden="true">
+    {KEYS.map(([label, left, top]) => <span style={`left:${left};top:${top}`}>{label}</span>)}
+  </div>
+  <h2>
+    <a href={buildPostLink(post)} target="_blank" rel="noopener">
+      {post.title}<span class="visually-hidden"> — {translate('blog.readOn')} {publisher} ↗</span>
+    </a>
+  </h2>
+  <p class="summary">{post.summary}</p>
+  <div class="foot">
+    <span><time datetime={publicationDateMachine}>{publicationDateLabel}</time> · {post.readingTimeInMinutes} min</span>
+    <b aria-hidden="true">Leer más</b>
+  </div>
+</article>
+
+<style>
+  /* A card from Lean Mind's own blog dropped into this grid: its black, its type, its teal. */
+  .lean-mind-preview {
+    --lean-mind-teal: #16b1b2;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    height: 100%;
+    overflow: hidden;
+    padding: var(--space-6);
+    border: 2px solid #000;
+    background: #000;
+    color: #fff;
+    font-family: 'Open Sans Variable', 'Open Sans', system-ui, sans-serif;
+    transition:
+      transform var(--motion-duration-base) var(--motion-easing),
+      box-shadow var(--motion-duration-base) var(--motion-easing);
+  }
+
+  :global(:root[data-theme='dark']) .lean-mind-preview {
+    border-color: color-mix(in srgb, var(--lean-mind-teal) 45%, transparent);
+  }
+
+  .lean-mind-preview:has(:focus-visible) {
+    transform: translate(-4px, -4px);
+    box-shadow: 6px 6px 0 var(--lean-mind-teal);
+  }
+
+  @media (hover: hover) {
+    .lean-mind-preview:hover {
+      transform: translate(-4px, -4px);
+      box-shadow: 6px 6px 0 var(--lean-mind-teal);
+    }
+  }
+
+  .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .top img {
+    width: auto;
+    height: 30px;
+  }
+
+  .badge {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--lean-mind-teal);
+  }
+
+  .keys {
+    position: relative;
+    height: 54px;
+  }
+
+  .keys span {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 4px;
+    border: 1.5px solid var(--lean-mind-teal);
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--lean-mind-teal);
+    opacity: 0.75;
+    box-shadow: 2px 2px 0 rgb(22 177 178 / 35%);
+    transition: transform var(--motion-duration-base) var(--motion-easing);
+  }
+
+  @media (hover: hover) {
+    .lean-mind-preview:hover .keys span:nth-child(odd) {
+      transform: translateY(-3px);
+    }
+
+    .lean-mind-preview:hover .keys span:nth-child(even) {
+      transform: translateY(3px);
+    }
+  }
+
+  h2 {
+    font-family: inherit;
+    font-size: 1.4rem;
+    font-weight: 400;
+    line-height: 1.3;
+    letter-spacing: 0;
+    color: #fff;
+  }
+
+  h2 a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* The whole card is the link's hit area. */
+  h2 a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .summary {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    font-size: var(--font-size-small);
+    color: #b9c2c4;
+  }
+
+  .foot {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: var(--font-size-small);
+    color: #778487;
+  }
+
+  .foot b {
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .foot b::after {
+    content: ' ↗';
+    color: var(--lean-mind-teal);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lean-mind-preview,
+    .keys span {
+      transition: none;
+    }
+  }
+</style>

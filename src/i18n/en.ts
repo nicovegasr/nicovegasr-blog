@@ -9,7 +9,7 @@ export const english: Dictionary = {
   'navigation.menu': 'Menu',
   'navigation.sections': 'Sections',
 
-  'content.blogLead': 'What I write and what I like.',
+  'content.blogLead': 'Notes on architecture, performance and distributed systems.',
   'content.pillsLead': 'Concepts reduced to the minimum to see how they work, without losing rigor.',
   'content.blog': 'Blog',
   'content.pills': 'Pills',

@@ -4,6 +4,7 @@ import type { SeriesPosition } from '@/features/posts/post-series';
 import { getTranslator } from '@/i18n/translator';
 import ReadingTime from '@/shared/reading-time/ReadingTime.astro';
 import TagList from '@/features/posts/components/TagList.astro';
+import LeanMindPostPreview from '@/features/posts/components/LeanMindPostPreview.astro';
 
 interface Props {
   post: Post;
@@ -27,7 +28,11 @@ const publicationDateLabel = new Intl.DateTimeFormat(post.locale, { day: 'numeri
   .join('');
 const publicationDateMachine = post.publicationDate.toISOString().slice(0, 10);
 const hiddenTagCount = Math.max(0, post.tags.length - VISIBLE_TAGS);
+// Articles published on Lean Mind keep that blog's own identity inside the grid.
+const isLeanMind = post.external?.publisher === 'Lean Mind';
 ---
+
+{isLeanMind ? <LeanMindPostPreview post={post} /> : (
 
 <article class:list={['post-preview', { 'is-external': post.external }]} data-slug={post.slug}>
   <div class="meta">
@@ -49,6 +54,7 @@ const hiddenTagCount = Math.max(0, post.tags.length - VISIBLE_TAGS);
   </div>
   <span class="read-more" aria-hidden="true">{readMoreLabel}</span>
 </article>
+)}
 
 <style>
   .post-preview {
