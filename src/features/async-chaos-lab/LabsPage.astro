@@ -1,11 +1,10 @@
 ---
 import type { Locale } from '@/i18n/locale';
 import ContentLayout from '@/layouts/ContentLayout.astro';
+import { buildLabPath } from '@/i18n/routes';
 import { labPath } from './shared/links';
-import previewVideoEs from './assets/lab-preview-es.mp4?url';
-import previewVideoEn from './assets/lab-preview-en.mp4?url';
-import previewMobileVideoEs from './assets/lab-preview-mobile-es.mp4?url';
-import previewMobileVideoEn from './assets/lab-preview-mobile-en.mp4?url';
+import AssemblyLinePreview from './catalogue-preview/AssemblyLinePreview.astro';
+import MemoryTerminalPreview from '@/features/out-of-memory-lab/catalogue-preview/TerminalPreview.astro';
 interface Props {
   locale: Locale;
 }
@@ -31,20 +30,17 @@ const description = es
           ? 'Evita perder pagos, protege los efectos de cada paso y aprende a escalar cuando llegan 24 de golpe. Mira lo que ocurre y cambia tu sistema sobre el diagrama.'
           : 'Keep payments safe, protect each step’s effects, and learn to scale when 24 arrive at once. Watch what happens and change your system on the diagram.'
       }
-    </p><video
-      class="lab-preview"
-      autoplay
-      muted
-      loop
-      playsinline
-      aria-hidden="true"
-      ><source
-        media="(max-width: 640px)"
-        src={es ? previewMobileVideoEs : previewMobileVideoEn}
-        type="video/mp4"
-      /><source src={es ? previewVideoEs : previewVideoEn} type="video/mp4" /></video
-    ><b>{es ? 'Abrir el simulador' : 'Open the simulator'}</b></a
+    </p><AssemblyLinePreview locale={locale} /><b>{es ? 'Abrir el simulador' : 'Open the simulator'}</b></a
   >
+  {
+    es && (
+      <a class="featured-lab" href={buildLabPath(locale, 'exit-137')}
+        ><span class="label">CUATRO RETOS · SIN QUEDARTE SIN MEMORIA</span><h2>Exit 137 →</h2><p>
+          Monta un script que recorra meses de logs sin quedarse sin memoria.
+        </p><MemoryTerminalPreview /><b>Abrir el laboratorio</b></a
+      >
+    )
+  }
 </ContentLayout>
 <style>
   .featured-lab {
@@ -62,18 +58,6 @@ const description = es
   .featured-lab p {
     max-width: 65ch;
     font-size: var(--font-size-small);
-  }
-  .lab-preview {
-    display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 2154 / 268;
-    margin-top: var(--space-4);
-  }
-  @media (max-width: 640px) {
-    .lab-preview {
-      aspect-ratio: 962 / 268;
-    }
   }
   .featured-lab b {
     display: inline-block;

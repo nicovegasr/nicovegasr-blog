@@ -1,0 +1,36 @@
+.memory-terminal {
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: var(--space-3);
+  min-height: 14rem;
+  margin-top: var(--space-4);
+  padding: var(--space-6);
+  overflow: hidden;
+  border: 2px solid var(--color-ink);
+  background: #0d0d0d;
+  color: #e8e8e8;
+  font: var(--font-size-small) / 1.6 var(--font-family-mono);
+}
+.memory-terminal-command { color: var(--color-accent); overflow-wrap: anywhere; }
+.memory-terminal-reading {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  font-size: 3.6rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.memory-terminal-reading small { font-size: 1rem; letter-spacing: 0; color: #8a8a8a; }
+.memory-terminal-gauge { position: relative; height: 10px; margin-top: var(--space-3); background: #262626; }
+.memory-terminal-gauge i { position: absolute; inset: 0 auto 0 0; background: var(--color-accent); }
+.memory-terminal-gauge i.is-danger { background: #e5484d; }
+.memory-terminal-log { align-self: end; min-height: 3.2em; color: #9a9a9a; white-space: pre-wrap; }
+.memory-terminal-log .is-killed { color: #e5484d; font-weight: 600; }
+.memory-terminal-log .is-ok { color: var(--color-accent); }
+@media (max-width: 640px) {
+  .memory-terminal { padding: var(--space-4); font-size: 0.7rem; min-height: 12rem; }
+  .memory-terminal-reading { font-size: 2.4rem; }
+  .memory-terminal-reading small { font-size: 0.75rem; }
+}

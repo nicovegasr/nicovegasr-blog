@@ -1,0 +1,36 @@
+---
+import type { Locale } from '@/i18n/locale';
+import walkAtlas from '@/shared/mascot/worker-walk-atlas.webp?url';
+import reactionsAtlas from '@/shared/mascot/worker-reactions.webp?url';
+import './assembly-line-preview.css';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const es = locale === 'es';
+const text = es
+  ? { paid: 'Cobrados', lost: 'Perdidos', duplicated: 'Duplicados', retries: 'Reintentos', api: 'entran', queue: 'cola', bank: 'Banco', charges: 'cobra', fails: '¡falla!' }
+  : { paid: 'Paid', lost: 'Lost', duplicated: 'Duplicated', retries: 'Retries', api: 'incoming', queue: 'queue', bank: 'Bank', charges: 'charges', fails: 'fails!' };
+---
+
+<assembly-line-preview class="assembly" aria-hidden="true" data-walk={walkAtlas} data-reactions={reactionsAtlas} data-fails={text.fails}>
+  <div class="assembly-score">
+    <span>{text.paid}<b data-count="paid">0</b></span>
+    <span class="is-goal">{text.lost}<b>0</b></span>
+    <span class="is-goal">{text.duplicated}<b>0</b></span>
+    <span class="assembly-retries">{text.retries}<b data-count="retries">0</b></span>
+  </div>
+  <div class="assembly-post assembly-api">API<small>{text.api}</small></div>
+  <div class="assembly-belt"></div>
+  <div class="assembly-post assembly-queue">{text.queue}</div>
+  <div class="assembly-desk" data-station="0"></div>
+  <div class="assembly-desk" data-station="1"></div>
+  <div class="assembly-desk" data-station="2"></div>
+  <div class="assembly-post assembly-bank">{text.bank}<small>{text.charges}</small></div>
+  <div class="assembly-floor"></div>
+</assembly-line-preview>
+
+<script>
+  import './assembly-line-preview';
+</script>

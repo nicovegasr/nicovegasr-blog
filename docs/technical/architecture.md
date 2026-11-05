@@ -16,6 +16,7 @@ src/
 │   ├── about-me/           # Personal journey: Home page, model, repository, contributions, skill areas, and the scroll-driven mascot walkway
 │   ├── async-chaos-lab/    # Interactive labs on queues, retries and scaling; see its own README
 │   ├── friend-blogs/       # Related blog catalogue and its coverflow adapter
+│   ├── out-of-memory-lab/  # Exit 137: a card game about keeping a log job inside its memory
 │   ├── pills/              # Series, individual pills, and the notebook reader
 │   └── posts/              # Articles, listings, search, pagination, related posts, and feeds
 ├── shared/
@@ -55,11 +56,15 @@ Feature-specific page composition stays in the feature. `PillNotebook.astro`, fo
 
 To withhold an entire pill series, set `draft: true` in its localized `overview.md` files. Draft series and all their individual pill routes are excluded from page generation and the sitemap. The home page and pills index use a separate metadata-only catalogue: once their announcement date is reached, draft titles and icons appear as non-clickable Under construction cards. Their overview body, editorial summary, and individual articles are not rendered. Remove the flag or set it to `false` when the series is ready.
 
+The labs index (`async-chaos-lab/LabsPage.astro`) shows one card per lab with a live, decorative preview: an assembly line of payments for Async Chaos Lab (`async-chaos-lab/catalogue-preview/`) and a terminal whose memory climbs to `exit code 137` for Exit 137 (`out-of-memory-lab/catalogue-preview/`). Both pause offscreen and stay still with reduced motion. Exit 137 is Spanish only, so its card only appears on the Spanish index.
+
+Exit 137 (`/laboratorios/exit-137/`) is a pure engine (`engine.ts`, `challenges.ts`, `guide.ts`) driven by `controller.ts`, which only orchestrates focused views: `briefing.ts` (the sheet before each challenge), `hud-view.ts`, `code-view.ts`, `result-view.ts`, `stage-animator.ts` (the mascot) and `coach-overlay.ts` (tutorial and tips). Numbers are deliberately round: the lab teaches orders of magnitude, not a benchmark.
+
 The header menu links directly to the blog, pills and labs indexes. `ContentLayout.astro` gives each index its own title and sentence, and shows section tabs only at the hamburger breakpoint and below.
 
 The active collections are posts, timeline, pills, and `friendBlogs`. `friendBlogs` is a single JSON file (`src/content/friend-blogs.json`) with one entry per colleague: author, blog URL, preview image, display order, an optional `feedUrl`, and a short description per locale. Update entries there; the feature adapter maps them into the shared Coverflow component.
 
-The blog index lays articles out as a card grid (three columns that drop to two and one) and paginates on the client, nine articles per page, with the page kept in `?page=`. Without JavaScript every article stays visible. Search spans every page: while there is a query the pager hides and only the matches show. Titles shaped "Series — Chapter" that share a prefix with another post form a series: the card shows "Series · n/total" and only the chapter title (`post-series.ts`).
+The blog index lays articles out as a card grid (three columns that drop to two and one) and paginates on the client, nine articles per page, with the page kept in `?page=`. Without JavaScript every article stays visible. Search spans every page: while there is a query the pager hides and only the matches show. Titles shaped "Series — Chapter" that share a prefix with another post form a series: the card shows "Series · n/total" and only the chapter title (`post-series.ts`). Articles published on Lean Mind render with that blog's own identity (`LeanMindPostPreview.astro`: black card, Open Sans, its teal keyboard keys and logo) and open in a new tab.
 
 Below the articles, the friends' blogs section renders the shared Coverflow component (`src/shared/coverflow/`, see its README): the blogs drift past continuously and the motion stops on whichever one the visitor chooses. Without JavaScript it is a grid of plain links. The retired Principles and current-work sections have no remaining collections, modules, or editorial files. When retiring another section, check its consumers, schema, Markdown, translations, components, and styles together.
 
