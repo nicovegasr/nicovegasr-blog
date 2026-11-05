@@ -55,10 +55,15 @@ const searchIndex = posts.map((post) => ({
 
       list.querySelectorAll<HTMLElement>('[data-slug]').forEach((card) => {
         const item = card.closest('li');
-        if (item) item.hidden = !matchingSlugs.has(card.dataset.slug ?? '');
+        if (!item) return;
+        item.hidden = !matchingSlugs.has(card.dataset.slug ?? '');
+        item.toggleAttribute('data-search-hidden', item.hidden);
       });
 
       if (empty) empty.hidden = matchingSlugs.size > 0;
+      // Searching spans every page, so pagination steps aside while there is a query.
+      list.dataset.searching = String(query.length > 0);
+      list.dispatchEvent(new CustomEvent('post-search'));
     });
   }
 </script>

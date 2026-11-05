@@ -1,0 +1,143 @@
+---
+import type { Locale } from '@/i18n/locale';
+import { getTranslator } from '@/i18n/translator';
+import { paginatePosts } from '@/features/posts/post-pagination';
+
+interface Props {
+  locale: Locale;
+  postCount: number;
+}
+
+const { locale, postCount } = Astro.props;
+const translate = getTranslator(locale);
+const { pageCount } = paginatePosts(postCount, 1);
+const pages = Array.from({ length: pageCount }, (_, index) => index + 1);
+---
+
+{
+  pageCount > 1 && (
+    <nav class="post-pagination" aria-label={translate('blog.paginationLabel')} data-post-pagination hidden>
+      <button type="button" class="step" data-page-step="-1">
+        {translate('blog.previousPage')}
+      </button>
+      <ol class="pages">
+        {pages.map((page) => (
+          <li>
+            <button type="button" class="page" data-page={page} aria-label={`${translate('blog.page')} ${page}`}>
+              {page}
+            </button>
+          </li>
+        ))}
+      </ol>
+      <button type="button" class="step" data-page-step="1">
+        {translate('blog.nextPage')}
+      </button>
+    </nav>
+  )
+}
+
+<script>
+  import { paginatePosts, parsePageParameter } from '@/features/posts/post-pagination';
+
+  const PAGE_PARAMETER = 'page';
+  const navigation = document.querySelector<HTMLElement>('[data-post-pagination]');
+  const list = document.querySelector<HTMLUListElement>('.post-list');
+
+  if (navigation && list) {
+    const items = [...list.children] as HTMLLIElement[];
+    let currentPage = parsePageParameter(new URL(window.location.href).searchParams.get(PAGE_PARAMETER));
+
+    const render = () => {
+      const isSearching = list.dataset.searching === 'true';
+      const { page, start, end } = paginatePosts(items.length, currentPage);
+      currentPage = page;
+      items.forEach((item, index) => {
+        const isOnPage = index >= start && index < end;
+        item.hidden = item.hasAttribute('data-search-hidden') || (!isSearching && !isOnPage);
+      });
+      navigation.hidden = isSearching;
+      navigation.querySelectorAll<HTMLButtonElement>('[data-page]').forEach((button) => {
+        const isCurrent = Number(button.dataset.page) === page;
+        button.setAttribute('aria-current', isCurrent ? 'page' : 'false');
+      });
+      const [previous, next] = navigation.querySelectorAll<HTMLButtonElement>('[data-page-step]');
+      if (previous) previous.disabled = page === 1;
+      if (next) next.disabled = end >= items.length;
+    };
+
+    const goTo = (page: number) => {
+      currentPage = page;
+      render();
+      const url = new URL(window.location.href);
+      if (currentPage === 1) url.searchParams.delete(PAGE_PARAMETER);
+      else url.searchParams.set(PAGE_PARAMETER, String(currentPage));
+      history.replaceState(history.state, '', url);
+      list.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    };
+
+    navigation.addEventListener('click', (event) => {
+      const button = (event.target as HTMLElement).closest<HTMLButtonElement>('button');
+      if (!button) return;
+      if (button.dataset.page) goTo(Number(button.dataset.page));
+      if (button.dataset.pageStep) goTo(currentPage + Number(button.dataset.pageStep));
+    });
+    list.addEventListener('post-search', render);
+    render();
+  }
+</script>
+
+<style>
+  .post-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-top: var(--space-12);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-small);
+  }
+
+  .post-pagination[hidden] {
+    display: none;
+  }
+
+  .pages {
+    display: flex;
+    gap: var(--space-2);
+    padding: 0;
+    list-style: none;
+  }
+
+  button {
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-small);
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font: inherit;
+    cursor: pointer;
+    transition:
+      border-color var(--motion-duration-fast) var(--motion-easing),
+      box-shadow var(--motion-duration-fast) var(--motion-easing);
+  }
+
+  button:disabled {
+    color: var(--color-text-muted);
+    cursor: default;
+  }
+
+  button:not(:disabled):hover,
+  button:focus-visible {
+    border-color: var(--color-ink);
+  }
+
+  .page[aria-current='page'] {
+    border-color: var(--color-ink);
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+    box-shadow: 3px 3px 0 0 var(--color-ink);
+  }
+</style>

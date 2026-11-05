@@ -28,6 +28,21 @@ export const english: Dictionary = {
   'blog.searchPlaceholder': 'Search articles…',
   'blog.searchEmpty': 'No articles match your search.',
   'blog.relatedTitle': 'Related articles',
+  'blog.paginationLabel': 'Article pages',
+  'blog.page': 'Page',
+  'blog.previousPage': '← Previous',
+  'blog.nextPage': 'Next →',
+
+  'friendBlogs.title': 'Related blogs',
+  'friendBlogs.lead': 'More people to keep learning from.',
+  'friendBlogs.pause': 'Pause',
+  'friendBlogs.play': 'Resume',
+  'friendBlogs.choose': 'Choose a blog',
+  'friendBlogs.preview': 'Website homepage',
+  'friendBlogs.carousel': 'carousel',
+  'friendBlogs.visit': 'Visit blog',
+  'friendBlogs.dragHint': 'Drag to explore',
+  'friendBlogs.swipeHint': 'Swipe to explore',
 
   'about.metaDescription':
     'Nicolás Vegas, software engineer: what I know and my journey.',

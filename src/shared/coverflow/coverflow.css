@@ -1,0 +1,224 @@
+.coverflow { display: block; container-type: inline-size; }
+.coverflow [hidden] { display: none; }
+.coverflow-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: var(--space-6);
+  width: calc(100% - var(--space-6) * 2);
+  max-width: calc(var(--content-width-wide) - var(--space-6) * 2);
+  margin: 0 auto var(--space-8);
+}
+.coverflow-heading h2 {
+  font-size: var(--font-size-heading-1);
+  letter-spacing: -0.03em;
+}
+.coverflow-heading p {
+  color: var(--color-text-soft);
+  margin-top: var(--space-2);
+}
+.coverflow-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+.coverflow-counter {
+  margin-right: var(--space-4);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.coverflow-counter b { color: var(--color-ink); font-weight: inherit; }
+.coverflow-controls button {
+  display: grid;
+  place-items: center;
+  width: 3.2rem;
+  height: 3.2rem;
+  padding: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  border: 1.5px solid var(--color-ink);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color var(--motion-duration-fast), color var(--motion-duration-fast), transform var(--motion-duration-fast);
+}
+.coverflow-controls button svg { width: 1.3rem; height: 1.3rem; stroke-width: 1.8; }
+.coverflow-controls [data-play] svg { fill: currentColor; stroke-width: 1.4; }
+.coverflow-controls button:active { transform: scale(0.94); }
+.coverflow svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.coverflow-stage {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: var(--space-8);
+  padding: var(--space-4) var(--space-6) var(--space-12);
+  max-width: var(--content-width-wide);
+  margin-inline: auto;
+}
+.coverflow-window {
+  display: block;
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--color-ink);
+  background: var(--color-paper);
+  border-radius: var(--radius-large);
+  box-shadow: 0 18px 32px -12px rgb(0 0 0 / 25%);
+}
+.coverflow-window-chrome {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: 2.8rem;
+  padding-inline: var(--space-4);
+  background: #f4f4f2;
+  border-bottom: 1px solid rgb(0 0 0 / 7%);
+  color: #3a3a3a;
+  font-size: var(--font-size-meta);
+}
+.coverflow-window-chrome > svg { width: 1rem; height: 1rem; flex-shrink: 0; }
+.coverflow-window-chrome > svg:first-of-type { margin-left: auto; }
+.coverflow-window-menu { stroke-width: 2.6; }
+.coverflow-window-lights { display: flex; gap: 0.4rem; flex-shrink: 0; }
+.coverflow-window-lights i { width: 0.65rem; height: 0.65rem; border-radius: 50%; background: #ff5f57; }
+.coverflow-window-lights i:nth-child(2) { background: #febc2e; }
+.coverflow-window-lights i:nth-child(3) { background: #28c840; }
+.coverflow-window-address {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: 0.3rem var(--space-3);
+  border-radius: 999px;
+  background: #fff;
+}
+.coverflow-window-address svg { width: 0.8rem; height: 0.8rem; flex-shrink: 0; }
+.coverflow-window-address span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.coverflow-window img { width: 100%; height: auto; aspect-ratio: 1272 / 716; object-fit: cover; }
+.coverflow-window-visit {
+  position: absolute;
+  bottom: var(--space-4);
+  right: var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-small);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  font-size: var(--font-size-small);
+  opacity: 0;
+  transform: translateY(0.4rem);
+  transition: opacity var(--motion-duration-fast), transform var(--motion-duration-fast);
+}
+.coverflow-window:hover .coverflow-window-visit,
+.coverflow-window:focus-visible .coverflow-window-visit { opacity: 1; transform: none; }
+
+.is-interactive .coverflow-stage {
+  position: relative;
+  display: block;
+  max-width: none;
+  height: calc(min(58cqw, 57rem) * 0.563 + 6rem);
+  perspective: 100rem;
+  overflow: clip;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.is-interactive .coverflow-window {
+  position: absolute;
+  width: min(58cqw, 57rem);
+  left: 50%;
+  top: var(--space-4);
+  transform: translateX(-50%);
+  will-change: transform, opacity;
+  -webkit-tap-highlight-color: transparent;
+}
+/* Cards away from the centre recede into shadow; hovering one invites the click that brings it forward. */
+.is-interactive .coverflow-window::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgb(10 10 10 / calc(var(--coverflow-shade, 0) * 16%));
+  pointer-events: none;
+  transition: background-color var(--motion-duration-fast);
+}
+.is-interactive .coverflow-window:not([data-position='0']):hover::after {
+  background: rgb(10 10 10 / calc(var(--coverflow-shade, 0) * 4%));
+}
+.is-interactive .coverflow-window[data-position='0'] { box-shadow: 0 30px 60px -24px rgb(0 0 0 / 40%); }
+.is-interactive .coverflow-window:not([data-position='0']) .coverflow-window-visit { opacity: 0; }
+.is-interactive .coverflow-stage { cursor: grab; }
+.is-dragging .coverflow-stage, .is-dragging .coverflow-window { cursor: grabbing; }
+.is-dragging .coverflow-window-visit { opacity: 0 !important; }
+
+.coverflow-dots { display: flex; justify-content: center; gap: var(--space-1); }
+.coverflow-dots button {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.coverflow-dots button::after {
+  content: '';
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 999px;
+  background: var(--color-text-muted);
+  transition: width 320ms cubic-bezier(0.22, 1, 0.36, 1), background-color var(--motion-duration-fast);
+}
+.coverflow-dots button[aria-pressed='true']::after { width: 1.6rem; background: var(--color-accent); }
+.coverflow-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-meta);
+  color: var(--color-text-muted);
+  transition: opacity 600ms ease, transform 600ms ease;
+}
+.coverflow-hint svg { width: 1rem; height: 1rem; }
+.coverflow-hint-swipe { display: none; }
+@media (pointer: coarse) {
+  .coverflow-hint-drag { display: none; }
+  .coverflow-hint-swipe { display: inline; }
+}
+.has-dragged .coverflow-hint { opacity: 0; transform: translateY(-0.3rem); pointer-events: none; }
+.coverflow-status { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }
+@media (hover: hover) {
+  .coverflow-controls button:hover { background: var(--color-accent); color: var(--color-accent-ink); }
+  .coverflow-dots button:not([aria-pressed='true']):hover::after { background: var(--color-ink); }
+}
+@container (max-width: 48rem) {
+  .coverflow-heading { flex-wrap: wrap; gap: var(--space-4); }
+  .coverflow-heading h2 { font-size: var(--font-size-heading-2); }
+  .coverflow-heading p { font-size: var(--font-size-small); }
+  .coverflow-controls { width: 100%; justify-content: end; }
+  .coverflow-controls button { width: 2.8rem; height: 2.8rem; }
+  .coverflow-counter { margin-right: auto; }
+  .is-interactive .coverflow-window { width: 78cqw; }
+  .is-interactive .coverflow-stage { height: calc(78cqw * 0.563 + 5rem); }
+  .coverflow-window-chrome { height: 2.1rem; padding-inline: var(--space-3); gap: var(--space-2); }
+  .coverflow-window-chrome > svg, .coverflow-window-address svg { display: none; }
+  .coverflow-window-address { padding: 0.15rem var(--space-2); }
+  .coverflow-window-lights { gap: 0.25rem; }
+  .coverflow-window-lights i { width: 0.4rem; height: 0.4rem; }
+  .coverflow-window-visit { opacity: 1; transform: none; padding: var(--space-1) var(--space-2); font-size: var(--font-size-meta); bottom: var(--space-2); right: var(--space-2); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .coverflow-window-visit, .coverflow-dots button::after, .coverflow-controls button { transition: none; }
+}

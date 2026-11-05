@@ -15,9 +15,12 @@ src/
 ├── features/
 │   ├── about-me/           # Personal journey: Home page, model, repository, contributions, skill areas, and the scroll-driven mascot walkway
 │   ├── async-chaos-lab/    # Interactive labs on queues, retries and scaling; see its own README
+│   ├── friend-blogs/       # Related blog catalogue and its coverflow adapter
 │   ├── pills/              # Series, individual pills, and the notebook reader
-│   └── posts/              # Articles, listings, search, related posts, and feeds
+│   └── posts/              # Articles, listings, search, pagination, related posts, and feeds
 ├── shared/
+│   ├── coverflow/          # Container-sized 3D gallery of website previews
+│   ├── mascot/             # Sprite atlases shared by the labs and the home page
 │   └── reading-time/       # Calculation, tests, and UI used by posts and pills
 ├── i18n/                   # Locales, UI dictionaries, and route builders
 ├── layouts/                # Site-wide shell, navigation, footer, and controls
@@ -54,7 +57,11 @@ To withhold an entire pill series, set `draft: true` in its localized `overview.
 
 The header menu links directly to the blog, pills and labs indexes. `ContentLayout.astro` gives each index its own title and sentence, and shows section tabs only at the hamburger breakpoint and below.
 
-The active collections are posts, timeline, and pills. The retired Principles and current-work sections have no remaining collections, modules, or editorial files. When retiring another section, check its consumers, schema, Markdown, translations, components, and styles together.
+The active collections are posts, timeline, pills, and `friendBlogs`. `friendBlogs` is a single JSON file (`src/content/friend-blogs.json`) with one entry per colleague: author, blog URL, preview image, display order, an optional `feedUrl`, and a short description per locale. Update entries there; the feature adapter maps them into the shared Coverflow component.
+
+The blog index paginates on the client, six articles per page, with the page kept in `?page=`. Without JavaScript every article stays visible. Search spans every page: while there is a query the pager hides and only the matches show.
+
+Below the articles, the friends' blogs section renders the shared Coverflow component (`src/shared/coverflow/`, see its README): the blogs drift past continuously and the motion stops on whichever one the visitor chooses. Without JavaScript it is a grid of plain links. The retired Principles and current-work sections have no remaining collections, modules, or editorial files. When retiring another section, check its consumers, schema, Markdown, translations, components, and styles together.
 
 ## Internationalization
 

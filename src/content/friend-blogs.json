@@ -1,0 +1,58 @@
+[
+  {
+    "id": "adrian-ferrera",
+    "author": "Adrián Ferrera",
+    "url": "https://adrianferrera.dev/es/blog",
+    "description": {
+      "es": "Software, producto e inteligencia artificial aplicada.",
+      "en": "Software, product and applied artificial intelligence."
+    },
+    "image": "/images/friend-blogs/adrian.webp",
+    "order": 0
+  },
+  {
+    "id": "aitor-reviriego",
+    "author": "Aitor Reviriego",
+    "url": "https://www.aitorevi.dev/blog",
+    "description": {
+      "es": "Desarrollo web, Astro y TypeScript: tutoriales y artículos técnicos.",
+      "en": "Web development, Astro and TypeScript: tutorials and technical articles."
+    },
+    "image": "/images/friend-blogs/aitor.webp",
+    "order": 1
+  },
+  {
+    "id": "mario-pinto-miranda",
+    "author": "Mario S. Pinto Miranda",
+    "url": "https://www.mario-pinto-miranda.dev/blog/",
+    "feedUrl": "https://mario-pinto-miranda.dev/rss.xml",
+    "description": {
+      "es": "Desarrollo de software, tecnología y otros temas de interés personal.",
+      "en": "Software development, technology and other personal interests."
+    },
+    "image": "/images/friend-blogs/mario.webp",
+    "order": 2
+  },
+  {
+    "id": "romer-alvarez",
+    "author": "Romer Alvarez",
+    "url": "https://romeralvarez.me/es/blog/",
+    "description": {
+      "es": "Productos, herramientas y plataformas de software.",
+      "en": "Software products, tools and platforms."
+    },
+    "image": "/images/friend-blogs/romer.webp",
+    "order": 3
+  },
+  {
+    "id": "lean-mind",
+    "author": "Lean Mind",
+    "url": "https://leanmind.es/es/blog",
+    "description": {
+      "es": "Código, equipos y desarrollo de software.",
+      "en": "Code, teams and software development."
+    },
+    "image": "/images/friend-blogs/lean-mind.webp",
+    "order": 4
+  }
+]

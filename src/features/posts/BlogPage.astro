@@ -4,6 +4,8 @@ import { getTranslator } from '@/i18n/translator';
 import ContentLayout from '@/layouts/ContentLayout.astro';
 import PostPreview from '@/features/posts/components/PostPreview.astro';
 import PostSearch from '@/features/posts/components/PostSearch.astro';
+import PostPagination from '@/features/posts/components/PostPagination.astro';
+import FriendBlogs from '@/features/friend-blogs/components/FriendBlogs.astro';
 import { findAllPosts } from '@/features/posts/post-repository';
 
 interface Props {
@@ -32,9 +34,23 @@ const posts = await findAllPosts(locale);
             </li>
           ))}
         </ul>
+        <PostPagination locale={locale} postCount={posts.length} />
       </>
     ) : (
       <p class="lead">{translate('blog.empty')}</p>
     )
   }
+  <FriendBlogs id="friend-blogs" slot="after-content" locale={locale} />
 </ContentLayout>
+
+<style>
+  /* This page owns its full-width breakout; the carousel only uses its container. */
+  :global(main:has(> #friend-blogs)) { max-width: none; padding-inline: 0; }
+  :global(main:has(> #friend-blogs) > .intro),
+  :global(main:has(> #friend-blogs) > .content-section) {
+    width: calc(100% - var(--space-6) * 2);
+    max-width: calc(var(--content-width-wide) - var(--space-6) * 2);
+    margin-inline: auto;
+  }
+  :global(main > #friend-blogs) { margin-top: var(--space-24); }
+</style>

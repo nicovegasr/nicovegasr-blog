@@ -26,6 +26,21 @@ export const spanish = {
   'blog.searchPlaceholder': 'Buscar artículos…',
   'blog.searchEmpty': 'Ningún artículo coincide con la búsqueda.',
   'blog.relatedTitle': 'Artículos relacionados',
+  'blog.paginationLabel': 'Páginas de artículos',
+  'blog.page': 'Página',
+  'blog.previousPage': '← Anterior',
+  'blog.nextPage': 'Siguiente →',
+
+  'friendBlogs.title': 'Blogs relacionados',
+  'friendBlogs.lead': 'Más gente con la que seguir aprendiendo.',
+  'friendBlogs.pause': 'Pausar',
+  'friendBlogs.play': 'Reanudar',
+  'friendBlogs.choose': 'Elegir blog',
+  'friendBlogs.preview': 'Portada de la web',
+  'friendBlogs.carousel': 'carrusel',
+  'friendBlogs.visit': 'Visitar blog',
+  'friendBlogs.dragHint': 'Arrastra para explorar',
+  'friendBlogs.swipeHint': 'Desliza para explorar',
 
   'about.metaDescription':
     'Nicolás Vegas, ingeniero informático: lo que conozco y mi trayectoria.',

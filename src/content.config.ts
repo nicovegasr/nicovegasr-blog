@@ -1,5 +1,5 @@
 import { defineCollection } from 'astro:content';
-import { glob } from 'astro/loaders';
+import { file, glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 import { MOMENT_STAGES } from './features/pills/moments/moment-stage';
 
@@ -77,4 +77,20 @@ const pills = defineCollection({
   ]),
 });
 
-export const collections = { posts, timeline, pills };
+// Colleagues' blogs listed under the blog index. feedUrl is kept for a future aggregated feed.
+const friendBlogs = defineCollection({
+  loader: file('./src/content/friend-blogs.json'),
+  schema: z.object({
+    author: z.string().min(1),
+    url: z.url(),
+    feedUrl: z.url().optional(),
+    image: z.string().startsWith('/'),
+    order: z.number().int().nonnegative(),
+    description: z.object({
+      es: z.string().min(10).max(120),
+      en: z.string().min(10).max(120),
+    }),
+  }),
+});
+
+export const collections = { posts, timeline, pills, friendBlogs };

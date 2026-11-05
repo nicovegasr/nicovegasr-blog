@@ -56,6 +56,7 @@ const heading = sections.find((section) => section.isCurrent)?.label ?? title;
     </nav>
     <slot />
   </section>
+  <slot name="after-content" />
 </BaseLayout>
 
 <style>
