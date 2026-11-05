@@ -59,7 +59,7 @@ The header menu links directly to the blog, pills and labs indexes. `ContentLayo
 
 The active collections are posts, timeline, pills, and `friendBlogs`. `friendBlogs` is a single JSON file (`src/content/friend-blogs.json`) with one entry per colleague: author, blog URL, preview image, display order, an optional `feedUrl`, and a short description per locale. Update entries there; the feature adapter maps them into the shared Coverflow component.
 
-The blog index paginates on the client, six articles per page, with the page kept in `?page=`. Without JavaScript every article stays visible. Search spans every page: while there is a query the pager hides and only the matches show.
+The blog index lays articles out as a card grid (three columns that drop to two and one) and paginates on the client, nine articles per page, with the page kept in `?page=`. Without JavaScript every article stays visible. Search spans every page: while there is a query the pager hides and only the matches show. Titles shaped "Series — Chapter" that share a prefix with another post form a series: the card shows "Series · n/total" and only the chapter title (`post-series.ts`).
 
 Below the articles, the friends' blogs section renders the shared Coverflow component (`src/shared/coverflow/`, see its README): the blogs drift past continuously and the motion stops on whichever one the visitor chooses. Without JavaScript it is a grid of plain links. The retired Principles and current-work sections have no remaining collections, modules, or editorial files. When retiring another section, check its consumers, schema, Markdown, translations, components, and styles together.
 

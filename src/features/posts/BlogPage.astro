@@ -7,6 +7,7 @@ import PostSearch from '@/features/posts/components/PostSearch.astro';
 import PostPagination from '@/features/posts/components/PostPagination.astro';
 import FriendBlogs from '@/features/friend-blogs/components/FriendBlogs.astro';
 import { findAllPosts } from '@/features/posts/post-repository';
+import { findSeriesPositions } from '@/features/posts/post-series';
 
 interface Props {
   locale: Locale;
@@ -15,6 +16,7 @@ interface Props {
 const { locale } = Astro.props;
 const translate = getTranslator(locale);
 const posts = await findAllPosts(locale);
+const seriesPositions = findSeriesPositions(posts);
 ---
 
 <ContentLayout
@@ -30,7 +32,7 @@ const posts = await findAllPosts(locale);
         <ul class="post-list">
           {posts.map((post) => (
             <li>
-              <PostPreview post={post} />
+              <PostPreview post={post} series={seriesPositions.get(post.slug)} />
             </li>
           ))}
         </ul>

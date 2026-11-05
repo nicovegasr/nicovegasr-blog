@@ -1,9 +1,9 @@
 import { expect, test, type Page } from '@playwright/test';
 
-test('the blog index shows six articles per page and searches across every page', async ({ page }) => {
+test('the blog index shows nine articles per page and searches across every page', async ({ page }) => {
   await page.goto('/contenido/blog/');
   const visiblePosts = page.locator('.post-list > li:not([hidden])');
-  await expect(visiblePosts).toHaveCount(6);
+  await expect(visiblePosts).toHaveCount(9);
 
   await page.locator('[data-post-pagination] [data-page="2"]').click();
   await expect(page).toHaveURL(/\?page=2$/);

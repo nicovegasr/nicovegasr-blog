@@ -1,13 +1,18 @@
 ---
 import { buildPostLink, type Post } from '@/features/posts/post';
+import type { SeriesPosition } from '@/features/posts/post-series';
 import { getTranslator } from '@/i18n/translator';
-import PostMeta from '@/features/posts/components/PostMeta.astro';
+import ReadingTime from '@/shared/reading-time/ReadingTime.astro';
+import TagList from '@/features/posts/components/TagList.astro';
 
 interface Props {
   post: Post;
+  series?: SeriesPosition | undefined;
 }
 
-const { post } = Astro.props;
+const VISIBLE_TAGS = 3;
+
+const { post, series } = Astro.props;
 const translate = getTranslator(post.locale);
 const postLink = buildPostLink(post);
 const linkTarget = post.external ? '_blank' : undefined;
@@ -15,63 +20,104 @@ const linkRelationship = post.external ? 'noopener' : undefined;
 const readMoreLabel = post.external
   ? `${translate('blog.readOn')} ${post.external.publisher} ↗`
   : translate('blog.readMore');
+// Short months come with a trailing dot in Spanish ("sept."); the uppercase mono meta reads cleaner without it.
+const publicationDateLabel = new Intl.DateTimeFormat(post.locale, { day: 'numeric', month: 'short', year: 'numeric' })
+  .formatToParts(post.publicationDate)
+  .map((part) => (part.type === 'month' ? part.value.replace(/\.$/, '') : part.value))
+  .join('');
+const publicationDateMachine = post.publicationDate.toISOString().slice(0, 10);
+const hiddenTagCount = Math.max(0, post.tags.length - VISIBLE_TAGS);
 ---
 
-<article class="post-preview" data-slug={post.slug}>
-  <header>
-    <h2><a href={postLink} target={linkTarget} rel={linkRelationship}>{post.title}</a></h2>
-    <PostMeta post={post} />
-  </header>
+<article class:list={['post-preview', { 'is-external': post.external }]} data-slug={post.slug}>
+  <div class="meta">
+    <time datetime={publicationDateMachine}>{publicationDateLabel}</time>
+    <span aria-hidden="true">·</span>
+    <ReadingTime minutes={post.readingTimeInMinutes} locale={post.locale} />
+  </div>
+  {series && <span class="series">{series.name} · {series.number}/{series.total}</span>}
+  <h2>
+    <a href={postLink} target={linkTarget} rel={linkRelationship}>
+      {series ? <><span class="visually-hidden">{series.name} — </span>{series.chapterTitle}</> : post.title}
+      {post.external && <span class="visually-hidden"> — {readMoreLabel}</span>}
+    </a>
+  </h2>
   <p class="summary">{post.summary}</p>
-  <a class="read-more" href={postLink} target={linkTarget} rel={linkRelationship}>{readMoreLabel}</a>
+  <div class="tags">
+    <TagList tags={post.tags.slice(0, VISIBLE_TAGS)} />
+    {hiddenTagCount > 0 && <span class="more-tags">+{hiddenTagCount}</span>}
+  </div>
+  <span class="read-more" aria-hidden="true">{readMoreLabel}</span>
 </article>
 
 <style>
   .post-preview {
     position: relative;
-    padding: var(--space-6) var(--space-8);
-    border: 1px solid var(--color-rule);
-    border-radius: var(--radius-large);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    height: 100%;
+    padding: var(--space-6);
+    border: 2px solid var(--color-ink);
     background: var(--color-paper);
     transition:
       transform var(--motion-duration-base) var(--motion-easing),
-      box-shadow var(--motion-duration-base) var(--motion-easing),
-      background var(--motion-duration-base) var(--motion-easing),
-      border-color var(--motion-duration-base) var(--motion-easing);
+      box-shadow var(--motion-duration-base) var(--motion-easing);
   }
 
-  /* Al hover/foco la tarjeta invierte a tinta. Remapear los tokens de color
-     hace que la meta y las etiquetas (componentes scoped) inviertan por cascada.
-     El hover se gatea tras (hover: hover) y el foco usa :focus-visible: en táctil
-     ninguno aplica, así el tap navega limpio sin invertir la tarjeta; el teclado
-     sí la invierte (accesibilidad). */
+  /* Articles published elsewhere carry an ink band, like a different masthead. */
+  .post-preview.is-external {
+    background: linear-gradient(var(--color-ink), var(--color-ink)) 0 0 / 100% 6px no-repeat, var(--color-paper);
+  }
+
+  /* In the dark a full white frame on every card shouts; borders rest dim and light up on hover. */
+  :global(:root[data-theme='dark']) .post-preview {
+    border-color: color-mix(in srgb, var(--color-ink) 22%, transparent);
+  }
+
+  :global(:root[data-theme='dark']) .post-preview.is-external {
+    background: linear-gradient(var(--color-accent), var(--color-accent)) 0 0 / 100% 4px no-repeat, var(--color-paper);
+  }
+
+  :global(:root[data-theme='dark']) .post-preview:is(:hover, :has(:focus-visible)) {
+    border-color: var(--color-ink);
+    box-shadow: 6px 6px 0 var(--color-accent);
+  }
+
   .post-preview:has(:focus-visible) {
-    background: var(--color-invert-surface);
-    border-color: var(--color-invert-surface);
-    box-shadow: 8px 8px 0 0 var(--color-accent);
-    transform: translate(-3px, -3px);
-    --color-ink: var(--color-invert-text);
-    --color-text-soft: var(--color-invert-text);
-    --color-text-muted: var(--color-invert-muted);
-    --color-rule: var(--color-invert-muted);
+    transform: translate(-4px, -4px);
+    box-shadow: 6px 6px 0 var(--color-ink);
   }
 
   @media (hover: hover) {
     .post-preview:hover {
-      background: var(--color-invert-surface);
-      border-color: var(--color-invert-surface);
-      box-shadow: 8px 8px 0 0 var(--color-accent);
-      transform: translate(-3px, -3px);
-      --color-ink: var(--color-invert-text);
-      --color-text-soft: var(--color-invert-text);
-      --color-text-muted: var(--color-invert-muted);
-      --color-rule: var(--color-invert-muted);
+      transform: translate(-4px, -4px);
+      box-shadow: 6px 6px 0 var(--color-ink);
     }
   }
 
+  .meta {
+    display: flex;
+    gap: var(--space-2);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-meta);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .series {
+    align-self: flex-start;
+    padding: 0.05em 0.5em;
+    border: 1.5px solid var(--color-ink);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-meta);
+    font-weight: 600;
+  }
+
   .post-preview h2 {
-    font-size: var(--font-size-heading-2);
-    margin-bottom: var(--space-3);
+    font-size: 1.35rem;
+    line-height: 1.2;
     color: var(--color-ink);
   }
 
@@ -79,6 +125,7 @@ const readMoreLabel = post.external
     text-decoration: none;
   }
 
+  /* The whole card is the link's hit area. */
   .post-preview h2 a::after {
     content: '';
     position: absolute;
@@ -86,28 +133,44 @@ const readMoreLabel = post.external
   }
 
   .summary {
-    margin-top: var(--space-3);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
     color: var(--color-text-soft);
-    max-width: var(--content-width-reading);
+    font-size: var(--font-size-small);
   }
 
-  .read-more {
-    display: inline-block;
-    margin-top: var(--space-4);
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .more-tags {
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-small);
-    text-decoration: none;
+    font-size: var(--font-size-meta);
     color: var(--color-text-muted);
   }
 
-  /* invert-text, no lima: el lima como texto no contrasta en el tema oscuro */
-  .post-preview:has(:focus-visible) .read-more {
-    color: var(--color-invert-text);
-  }
-
-  @media (hover: hover) {
-    .post-preview:hover .read-more {
-      color: var(--color-invert-text);
-    }
+  .read-more {
+    margin-top: auto;
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-rule);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    text-align: right;
+    color: var(--color-ink);
   }
 </style>

@@ -3,11 +3,11 @@ import { paginatePosts, parsePageParameter } from '@/features/posts/post-paginat
 
 describe('post pagination', () => {
   it('slices the requested page', () => {
-    expect(paginatePosts(12, 2)).toEqual({ page: 2, pageCount: 2, start: 6, end: 12 });
+    expect(paginatePosts(12, 2)).toEqual({ page: 2, pageCount: 2, start: 9, end: 12 });
   });
 
   it('keeps a short last page', () => {
-    expect(paginatePosts(13, 3)).toEqual({ page: 3, pageCount: 3, start: 12, end: 13 });
+    expect(paginatePosts(19, 3)).toEqual({ page: 3, pageCount: 3, start: 18, end: 19 });
   });
 
   it('clamps pages outside the range', () => {

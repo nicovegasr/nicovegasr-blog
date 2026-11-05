@@ -72,7 +72,8 @@ const pages = Array.from({ length: pageCount }, (_, index) => index + 1);
       if (currentPage === 1) url.searchParams.delete(PAGE_PARAMETER);
       else url.searchParams.set(PAGE_PARAMETER, String(currentPage));
       history.replaceState(history.state, '', url);
-      list.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      // Back to the search box, clear of the sticky header, so the new page starts in view.
+      (document.querySelector('.post-search') ?? list).scrollIntoView({ block: 'start', behavior: 'smooth' });
     };
 
     navigation.addEventListener('click', (event) => {

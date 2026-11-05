@@ -243,12 +243,19 @@ p {
   margin-top: var(--space-8);
 }
 
-/* Listado de artículos (home) */
+/* Artículos en cuadrícula: tres columnas que bajan a dos y a una. */
 .post-list {
   list-style: none;
   padding: 0;
   display: grid;
-  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+  gap: var(--space-6);
+}
+
+/* Saltos de página: dejan sitio a la cabecera fija. */
+.post-search,
+.post-list {
+  scroll-margin-top: 7rem;
 }
 
 /* Detalle de artículo y trabajo */
