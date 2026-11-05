@@ -54,6 +54,44 @@ test('drifts continuously and hovering eases the drift to a halt', async ({ page
   await expect(centred).toHaveAttribute('href', ROMER);
 });
 
+test('resting the mouse on a side card brings it to the centre without chaining to the next', async ({ page }) => {
+  const { section, centred } = await openGallery(page);
+  const next = section.locator('[data-slide][data-position="1"]');
+  const box = (await next.boundingBox())!;
+  const visibleRight = Math.min(box.x + box.width, page.viewportSize()!.width) - 60;
+  await page.mouse.move(visibleRight, box.y + box.height / 2, { steps: 4 });
+  await page.clock.runFor(1500);
+  await expect(centred).toHaveAttribute('href', MARIO);
+  await page.mouse.move(visibleRight + 2, box.y + box.height / 2 + 2);
+  await page.clock.runFor(3000);
+  await expect(centred).toHaveAttribute('href', MARIO);
+  await expect(section.getByRole('button', { name: 'Pausar', exact: true })).toBeVisible();
+});
+
+test('the drift keeps going when the page scrolls under a resting mouse, and only a card holds it', async ({ page }) => {
+  const { section, centred } = await openGallery(page);
+  await expect(section.locator('[data-caption][data-active]')).toContainText('Aitor Reviriego');
+  const stage = (await section.locator('.coverflow-stage').boundingBox())!;
+  // Blank space beside the cards, above them inside the stage.
+  await page.mouse.move(stage.x + 20, stage.y + 4, { steps: 3 });
+  const first = await centred.getAttribute('style');
+  await page.clock.runFor(1000);
+  expect(await centred.getAttribute('style')).not.toBe(first);
+
+  await page.mouse.move(stage.x + stage.width / 2, stage.y + stage.height / 3, { steps: 3 });
+  await page.clock.runFor(1500);
+  const held = await centred.getAttribute('style');
+  await page.clock.runFor(2000);
+  expect(await centred.getAttribute('style')).toBe(held);
+  const scrolled = await page.evaluate(() => scrollY);
+
+  await page.mouse.wheel(0, -120);
+  // Wheel scrolling runs on the compositor in real time, outside the fake clock.
+  await expect.poll(() => page.evaluate(() => scrollY)).not.toBe(scrolled);
+  await page.clock.runFor(1500);
+  expect(await centred.getAttribute('style')).not.toBe(held);
+});
+
 test('choosing a blog glides to it and stops the tour there', async ({ page }) => {
   const { section, centred } = await openGallery(page);
   await page.clock.runFor(1000);
@@ -72,6 +110,9 @@ test('choosing a blog glides to it and stops the tour there', async ({ page }) =
 
   await section.getByRole('button', { name: 'Reanudar', exact: true }).click();
   await expect(section.getByRole('button', { name: 'Pausar', exact: true })).toBeVisible();
+  // Offscreen galleries suspend their motion, so bring the cards back into view.
+  await section.locator('.coverflow-stage').scrollIntoViewIfNeeded();
+  await page.mouse.move(0, 0);
   await page.clock.runFor(6500);
   await expect(centred).not.toHaveAttribute('href', LEAN_MIND);
 });
@@ -142,7 +183,10 @@ test('keyboard focus pauses a visible link and Enter keeps its destination', asy
   await page.keyboard.press('ArrowLeft');
   await page.clock.runFor(1000);
   await expect(section.locator('[data-slide][data-position="0"]')).toHaveAttribute('href', destination!);
-  await page.route(destination!, (route) => route.fulfill({ body: '<h1>Blog destination</h1>', contentType: 'text/html' }));
+  await page.context().route(destination!, (route) => route.fulfill({ body: '<h1>Blog destination</h1>', contentType: 'text/html' }));
+  const opened = page.waitForEvent('popup');
   await page.keyboard.press('Enter');
-  await expect(page).toHaveURL(destination!);
+  // Blogs open in a new tab so the reader keeps this page.
+  await expect(await opened).toHaveURL(destination!);
+  await expect(page).toHaveURL(/\/contenido\/blog\/$/);
 });

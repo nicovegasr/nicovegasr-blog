@@ -23,7 +23,8 @@ const items = [
 
 `items`, `title` and `labels` are required. `CoverflowItem` and `CoverflowLabels`
 are exported from `coverflow.ts`. Each item accepts `title`, `href`, `image`,
-`imageAlt`, and optional `caption` for the browser bar.
+`imageAlt`, optional `caption` for the browser bar and optional `description`,
+shown under the centred card with a crossfade. Links open in a new tab.
 
 Optional props:
 
@@ -39,8 +40,12 @@ The caller owns outer spacing and full-width page breakouts. Card sizes and
 responsive rules use the component's container, so no page CSS is required.
 Multiple instances have independent controls and lifecycle state.
 
-The cards drift continuously. Hovering them eases the drift to a halt so a
-card can be read or clicked, and leaving eases it back. Any deliberate choice
+The cards drift continuously. Moving the mouse onto a card eases the drift to a
+halt so it can be read or clicked; moving off it, or scrolling the page, eases
+it back. Content scrolling or drifting under a resting mouse never holds it. Resting the mouse on a
+side card brings it to the centre; whatever slides under a still mouse never
+triggers another glide. Neighbouring cards part at the halfway point of a
+crossing so their stacking order swaps where they no longer overlap. Any deliberate choice
 (a dot, a side card, an arrow key, a drag or keyboard focus on a
 slide) glides there with an ease-out and stops the motion on that item; Play
 resumes the drift from there. A drag

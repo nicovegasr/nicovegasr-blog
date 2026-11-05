@@ -7,6 +7,8 @@ const DRAG_LEARNED_STORAGE_KEY = 'coverflow-drag-learned';
 // How far a release keeps travelling: px/ms of flick velocity × this many ms.
 const FLICK_PROJECTION_MILLISECONDS = 160;
 const DEFAULT_MILLISECONDS_PER_ITEM = 8000;
+// A mouse resting this long on a side card means interest, not a pass on the way somewhere else.
+const HOVER_INTENT_MILLISECONDS = 220;
 // Hovering or resuming eases the drift's speed instead of stopping or starting it dead.
 const SPEED_EASING_MILLISECONDS = 350;
 
@@ -27,6 +29,7 @@ class CoverflowCarousel extends HTMLElement {
     const play = this.querySelector<HTMLButtonElement>('[data-play]')!;
     const icon = this.querySelector('[data-play-icon]')!;
     const counter = this.querySelector('[data-counter]')!;
+    const captions = [...this.querySelectorAll<HTMLElement>('[data-caption]')];
     const status = this.querySelector('[data-status]')!;
     const stage = this.querySelector<HTMLElement>('.coverflow-stage')!;
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -40,6 +43,9 @@ class CoverflowCarousel extends HTMLElement {
     let drag: Drag | undefined;
     let speed = 0;
     let hovering = false;
+    let pointer: { x: number; y: number } | undefined;
+    let hoveredSlide: Element | undefined;
+    let hoverIntent = 0;
     let visible = false;
     let suppressNextClick = false;
     let renderedTarget = -1;
@@ -60,6 +66,7 @@ class CoverflowCarousel extends HTMLElement {
         slide.tabIndex = position === 0 || focused ? 0 : -1;
         slide.inert = Math.abs(position) > 1 && !focused;
         dots[index]!.setAttribute('aria-pressed', String(position === 0));
+        captions[index]?.toggleAttribute('data-active', position === 0);
       });
     };
     const paint = () => {
@@ -69,7 +76,7 @@ class CoverflowCarousel extends HTMLElement {
         slide.style.transform = pose.transform;
         slide.style.opacity = String(pose.opacity);
         slide.style.zIndex = String(pose.zIndex);
-        slide.style.setProperty('--coverflow-shade', pose.shade.toFixed(3));
+        slide.style.setProperty('--coverflow-lift', (1 - pose.shade).toFixed(3));
       });
     };
 
@@ -104,7 +111,12 @@ class CoverflowCarousel extends HTMLElement {
       if (glide) {
         const progress = Math.min(1, Math.max(0, (time - glide.start) / glide.length));
         offset = wrap(glide.from + glide.delta * easeOutQuint(progress), count);
-        if (progress >= 1) { offset = target; glide = undefined; }
+        if (progress >= 1) {
+          offset = target;
+          glide = undefined;
+          // Whatever slid under a still mouse is the new baseline, so arrival never chains into another glide.
+          hoveredSlide = slideUnderPointer();
+        }
       } else if (playing) {
         // Ramping the speed linearly gives the position a smooth quadratic ease in and out.
         const step = elapsed / SPEED_EASING_MILLISECONDS;
@@ -130,6 +142,7 @@ class CoverflowCarousel extends HTMLElement {
     };
     // Any deliberate choice by the visitor stops the tour on what they picked.
     const choose = (index: number) => {
+      clearTimeout(hoverIntent);
       if (playing) setPlaying(false);
       glideTo(index);
       status.textContent = slides[target]!.getAttribute('aria-label');
@@ -158,14 +171,32 @@ class CoverflowCarousel extends HTMLElement {
       queueMicrotask(() => { if (!signal.aborted) { renderedTarget = -1; renderSelection(); } });
     }, { signal });
 
-    // Hovering holds the countdown so a card can be read; it never cuts a glide short.
-    stage.addEventListener('pointerenter', (event) => {
-      if (event.pointerType === 'mouse') { hovering = true; schedule(); }
-    }, { signal });
     stage.addEventListener('pointerleave', (event) => {
-      if (event.pointerType === 'mouse') { hovering = false; schedule(); }
+      if (event.pointerType !== 'mouse') return;
+      hovering = false;
+      pointer = undefined;
+      hoveredSlide = undefined;
+      clearTimeout(hoverIntent);
+      schedule();
+    }, { signal });
+    // Only a mouse the visitor actually moves onto a card holds the drift; content scrolling or
+    // drifting under a resting mouse fires synthetic moves without movement and must not freeze it.
+    // The card the mouse settles on comes to the centre; the drift resumes from it on leaving.
+    stage.addEventListener('pointermove', (event) => {
+      if (event.pointerType !== 'mouse' || drag || (event.movementX === 0 && event.movementY === 0)) return;
+      pointer = { x: event.clientX, y: event.clientY };
+      const slide = slideUnderPointer();
+      if (hovering !== !!slide) { hovering = !!slide; schedule(); }
+      if (slide === hoveredSlide) return;
+      hoveredSlide = slide;
+      clearTimeout(hoverIntent);
+      const index = slides.indexOf(slide as HTMLAnchorElement);
+      if (index >= 0 && index !== target) hoverIntent = window.setTimeout(() => glideTo(index), HOVER_INTENT_MILLISECONDS);
     }, { signal });
 
+    function slideUnderPointer() {
+      return pointer ? document.elementFromPoint(pointer.x, pointer.y)?.closest('[data-slide]') ?? undefined : undefined;
+    }
     const stepWidth = () => Math.max(1, slides[0]!.offsetWidth * 0.82);
     stage.addEventListener('pointerdown', (event) => {
       if (event.button !== 0 || drag) return;
@@ -177,6 +208,7 @@ class CoverflowCarousel extends HTMLElement {
       if (!drag.moved) {
         if (Math.abs(distance) < DRAG_THRESHOLD_PIXELS) return;
         drag.moved = true;
+        clearTimeout(hoverIntent);
         // Grab the cards where they are, even mid-glide.
         glide = undefined;
         drag.startOffset = offset;
@@ -216,6 +248,13 @@ class CoverflowCarousel extends HTMLElement {
     stage.addEventListener('dragstart', (event) => event.preventDefault(), { signal });
 
     document.addEventListener('visibilitychange', schedule, { signal });
+    addEventListener('scroll', () => {
+      if (!hovering) return;
+      hovering = false;
+      hoveredSlide = undefined;
+      clearTimeout(hoverIntent);
+      schedule();
+    }, { passive: true, signal });
     reducedMotion.addEventListener('change', () => { if (reducedMotion.matches) setPlaying(false); }, { signal });
     const observer = new IntersectionObserver(([entry]) => {
       visible = entry?.isIntersecting ?? false;
@@ -226,16 +265,19 @@ class CoverflowCarousel extends HTMLElement {
     this.dispose = () => {
       this.playback = { offset, playing };
       cancelAnimationFrame(frame);
+      clearTimeout(hoverIntent);
       observer.disconnect();
       events.abort();
       this.classList.remove('is-interactive', 'is-dragging', 'has-dragged');
-      this.querySelectorAll<HTMLElement>('[data-controls], .coverflow-dots, [data-hint]').forEach((element) => { element.hidden = true; });
+      this.querySelectorAll<HTMLElement>('[data-controls], .coverflow-dots, [data-hint], .coverflow-captions').forEach((element) => { element.hidden = true; });
       slides.forEach((slide) => { slide.inert = false; slide.removeAttribute('tabindex'); slide.removeAttribute('style'); });
     };
     this.querySelectorAll<HTMLElement>('[hidden]').forEach((element) => { element.hidden = false; });
     // Once a visitor has dragged, the hint has done its job on every later visit too.
     try { if (localStorage.getItem(DRAG_LEARNED_STORAGE_KEY)) this.classList.add('has-dragged'); } catch { /* storage may be unavailable */ }
     this.classList.add('is-interactive');
+    // Cards beyond the visible three enter mid-motion; loading them late would pop them in.
+    slides.forEach((slide) => { slide.querySelector('img')!.loading = 'eager'; });
     paint();
     renderControls();
     schedule();

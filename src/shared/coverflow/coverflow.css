@@ -7,7 +7,7 @@
   gap: var(--space-6);
   width: calc(100% - var(--space-6) * 2);
   max-width: calc(var(--content-width-wide) - var(--space-6) * 2);
-  margin: 0 auto var(--space-8);
+  margin: 0 auto var(--space-4);
 }
 .coverflow-heading h2 {
   font-size: var(--font-size-heading-1);
@@ -122,41 +122,67 @@
 .coverflow-window:focus-visible .coverflow-window-visit { opacity: 1; transform: none; }
 
 .is-interactive .coverflow-stage {
+  /* Set on the stage, not the container: a container query cannot restyle its own container. */
+  --coverflow-card-width: min(58cqw, 57rem);
   position: relative;
   display: block;
   max-width: none;
-  height: calc(min(58cqw, 57rem) * 0.563 + 6rem);
+  padding: 0;
+  /* Room below the cards for their shadows, so nothing is cut by a straight edge. */
+  height: calc(var(--coverflow-card-width) * 0.5625 + 2.8rem + 4.5rem);
   perspective: 100rem;
   overflow: clip;
   touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
+  cursor: grab;
+  /* The far cards dissolve into the page instead of meeting a hard crop. */
+  mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent);
 }
 .is-interactive .coverflow-window {
   position: absolute;
-  width: min(58cqw, 57rem);
+  width: var(--coverflow-card-width);
   left: 50%;
-  top: var(--space-4);
+  top: var(--space-3);
   transform: translateX(-50%);
   will-change: transform, opacity;
   -webkit-tap-highlight-color: transparent;
+  /* Layered soft shadow that deepens continuously as a card reaches the centre. */
+  box-shadow:
+    0 2px 4px rgb(0 0 0 / calc(4% + var(--coverflow-lift, 0) * 4%)),
+    0 12px 24px -6px rgb(0 0 0 / calc(8% + var(--coverflow-lift, 0) * 8%)),
+    0 40px 70px -20px rgb(0 0 0 / calc(10% + var(--coverflow-lift, 0) * 22%));
 }
-/* Cards away from the centre recede into shadow; hovering one invites the click that brings it forward. */
-.is-interactive .coverflow-window::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: rgb(10 10 10 / calc(var(--coverflow-shade, 0) * 16%));
-  pointer-events: none;
-  transition: background-color var(--motion-duration-fast);
-}
-.is-interactive .coverflow-window:not([data-position='0']):hover::after {
-  background: rgb(10 10 10 / calc(var(--coverflow-shade, 0) * 4%));
-}
-.is-interactive .coverflow-window[data-position='0'] { box-shadow: 0 30px 60px -24px rgb(0 0 0 / 40%); }
 .is-interactive .coverflow-window:not([data-position='0']) .coverflow-window-visit { opacity: 0; }
-.is-interactive .coverflow-stage { cursor: grab; }
+/* The centred card always says it is a link, quietly; hovering brings the accent. */
+.is-interactive .coverflow-window[data-position='0'] .coverflow-window-visit {
+  opacity: 1;
+  transform: none;
+  background: rgb(255 255 255 / 92%);
+  color: #111;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 12%), 0 4px 12px -4px rgb(0 0 0 / 20%);
+}
+.is-interactive .coverflow-window[data-position='0']:hover .coverflow-window-visit,
+.is-interactive .coverflow-window[data-position='0']:focus-visible .coverflow-window-visit {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+.coverflow-captions {
+  display: grid;
+  width: calc(100% - var(--space-6) * 2);
+  max-width: var(--content-width-reading);
+  margin: calc(var(--space-4) * -1) auto 0;
+  text-align: center;
+}
+.coverflow-captions p {
+  grid-area: 1 / 1;
+  color: var(--color-text-soft);
+  opacity: 0;
+  transform: translateY(0.3rem);
+  transition: opacity 400ms ease, transform 400ms ease;
+}
+.coverflow-captions strong { color: var(--color-ink); font-weight: 600; }
+.coverflow-captions p[data-active] { opacity: 1; transform: none; }
 .is-dragging .coverflow-stage, .is-dragging .coverflow-window { cursor: grabbing; }
 .is-dragging .coverflow-window-visit { opacity: 0 !important; }
 
@@ -210,8 +236,7 @@
   .coverflow-controls { width: 100%; justify-content: end; }
   .coverflow-controls button { width: 2.8rem; height: 2.8rem; }
   .coverflow-counter { margin-right: auto; }
-  .is-interactive .coverflow-window { width: 78cqw; }
-  .is-interactive .coverflow-stage { height: calc(78cqw * 0.563 + 5rem); }
+  .is-interactive .coverflow-stage { --coverflow-card-width: 78cqw; height: calc(var(--coverflow-card-width) * 0.5625 + 2.1rem + 5rem); }
   .coverflow-window-chrome { height: 2.1rem; padding-inline: var(--space-3); gap: var(--space-2); }
   .coverflow-window-chrome > svg, .coverflow-window-address svg { display: none; }
   .coverflow-window-address { padding: 0.15rem var(--space-2); }

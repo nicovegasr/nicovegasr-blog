@@ -13,6 +13,7 @@ const items = blogs.map((blog) => ({
   image: blog.image,
   imageAlt: `${translate('friendBlogs.preview')}: ${blog.author}`,
   caption: blog.host,
+  description: blog.description,
 }));
 const labels = {
   pause: translate('friendBlogs.pause'),

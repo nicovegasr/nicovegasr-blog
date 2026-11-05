@@ -4,6 +4,7 @@ export interface CoverflowItem {
   readonly image: string;
   readonly imageAlt: string;
   readonly caption?: string;
+  readonly description?: string;
 }
 
 export interface CoverflowLabels {
@@ -35,11 +36,14 @@ export function positionOf(index: number, offset: number, count: number) {
   // Three items must fade out before wrapping at ±1.5; larger sets wrap fully offscreen.
   const edge = Math.min(2, count / 2);
   const opacity = Math.max(0, Math.min(1, (edge - distance) / Math.min(1, edge - 1)));
-  const horizontal = distance <= 1 ? -50 + position * 82 : -50 + direction * (82 + (distance - 1) * 48);
-  const depth = distance <= 1 ? distance * -11 : -11 - (distance - 1) * 8;
+  // The sine term parts neighbouring cards at the halfway point, so the instant their stacking
+  // order swaps they no longer overlap and the swap cannot be seen.
+  const spread = distance <= 1 ? 82 * distance + 6 * Math.sin(Math.PI * distance) : 82 + (distance - 1) * 48;
+  const horizontal = -50 + direction * spread;
+  const depth = distance <= 1 ? distance * -0.36 : -0.36 - (distance - 1) * 0.3;
   const angle = -direction * Math.min(40, distance * 32);
   return {
-    transform: `translateX(${horizontal}%) translateZ(${depth}rem) rotateY(${angle}deg)`,
+    transform: `translateX(${horizontal}%) translateZ(calc(var(--coverflow-card-width) * ${depth})) rotateY(${angle}deg)`,
     opacity,
     zIndex: Math.round((3 - distance) * 100),
     shade: Math.min(1, distance),

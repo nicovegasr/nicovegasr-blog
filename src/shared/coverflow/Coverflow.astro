@@ -36,7 +36,7 @@ const startIndex = Number.isFinite(initialIndex) ? Math.max(0, Math.min(items.le
   </header>
   <div class="coverflow-stage">
     {items.map((item, index) => (
-      <a class="coverflow-window" href={item.href} data-slide data-position={index - startIndex}
+      <a class="coverflow-window" href={item.href} target="_blank" rel="noopener" data-slide data-position={index - startIndex}
         draggable="false" aria-label={`${labels.visit}: ${item.title}`}>
         <div class="coverflow-window-chrome" aria-hidden="true">
           <span class="coverflow-window-lights"><i></i><i></i><i></i></span>
@@ -51,6 +51,13 @@ const startIndex = Number.isFinite(initialIndex) ? Math.max(0, Math.min(items.le
           draggable="false" loading="lazy" decoding="async" />
         <span class="coverflow-window-visit">{labels.visit} <span aria-hidden="true">↗</span></span>
       </a>
+    ))}
+  </div>
+  <div class="coverflow-captions" hidden aria-hidden="true">
+    {items.map((item, index) => (
+      <p data-caption data-active={index === startIndex ? '' : undefined}>
+        <strong>{item.title}</strong>{item.description && <span> · {item.description}</span>}
+      </p>
     ))}
   </div>
   <div class="coverflow-dots" hidden role="group" aria-label={labels.choose}>
