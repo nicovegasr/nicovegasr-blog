@@ -3,7 +3,7 @@ import { renderBriefing } from './briefing';
 import { CHALLENGES, INCIDENT_WARNING, requestedChallengeId, starsFor, type Challenge } from './challenges';
 import { CoachOverlay, type Coach } from './coach-overlay';
 import { renderCode } from './code-view';
-import { tutorial } from './copy';
+import { tutorial } from './tutorial';
 import {
   advance,
   BATCH_SIZES,

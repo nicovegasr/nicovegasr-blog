@@ -1,4 +1,15 @@
+import { DEFAULT_LOCALE, isLocale, type Locale } from '@/i18n/locale';
 import { findContentDemo } from './registry';
+
+const RELOAD_LABEL: Record<Locale, string> = {
+  es: 'Volver a cargar la animación',
+  en: 'Reload animation',
+};
+
+const localeOf = (element: Element): Locale => {
+  const language = element.closest('[lang]')?.getAttribute('lang')?.split('-')[0] ?? '';
+  return isLocale(language) ? language : DEFAULT_LOCALE;
+};
 
 class ContentDemo extends HTMLElement {
   private dispose: (() => void) | undefined;
@@ -20,7 +31,7 @@ class ContentDemo extends HTMLElement {
     if (!loadModule) return;
     this.loading = true;
     this.dataset.demoStatus = 'loading';
-    const locale = this.closest('[lang]')?.getAttribute('lang')?.startsWith('en') ? 'en' : 'es';
+    const locale = localeOf(this);
     const fallback = [...this.childNodes].map((node) => node.cloneNode(true));
 
     try {
@@ -33,7 +44,7 @@ class ContentDemo extends HTMLElement {
       this.dataset.demoStatus = 'error';
       const retry = document.createElement('button');
       retry.type = 'button';
-      retry.textContent = locale === 'es' ? 'Volver a cargar la animación' : 'Reload animation';
+      retry.textContent = RELOAD_LABEL[locale];
       retry.addEventListener('click', () => { retry.remove(); void this.load(); }, { once: true });
       this.append(retry);
     } finally {
