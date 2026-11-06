@@ -160,11 +160,11 @@ test('reduced motion starts paused and manual selection keeps the selected playb
   await expect(section.getByRole('button', { name: 'Reanudar', exact: true })).toBeVisible();
 });
 
-test('all five blog links remain available without JavaScript', async ({ browser }) => {
+test('all six blog links remain available without JavaScript', async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
   await page.goto('/contenido/blog/');
-  await expect(page.locator(`${gallery} a`)).toHaveCount(5);
+  await expect(page.locator(`${gallery} a`)).toHaveCount(6);
   await expect(page.locator(`${gallery} [data-play]`)).toBeHidden();
   await context.close();
 });

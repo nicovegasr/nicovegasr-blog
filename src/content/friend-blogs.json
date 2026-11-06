@@ -45,6 +45,17 @@
     "order": 3
   },
   {
+    "id": "cristian-suarez",
+    "author": "Cristian Suárez",
+    "url": "https://cristiansuarez.dev/",
+    "description": {
+      "es": "El desarrollador en cholas: agilidad, operaciones y crónicas de conferencias.",
+      "en": "The flip-flop developer: agile, operations and conference chronicles."
+    },
+    "image": "/images/friend-blogs/cristian.webp",
+    "order": 4
+  },
+  {
     "id": "lean-mind",
     "author": "Lean Mind",
     "url": "https://leanmind.es/es/blog",
@@ -53,6 +64,6 @@
       "en": "Code, teams and software development."
     },
     "image": "/images/friend-blogs/lean-mind.webp",
-    "order": 4
+    "order": 5
   }
 ]
