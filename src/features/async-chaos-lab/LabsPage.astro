@@ -5,65 +5,358 @@ import { buildLabPath } from '@/i18n/routes';
 import { labPath } from './shared/links';
 import AssemblyLinePreview from './catalogue-preview/AssemblyLinePreview.astro';
 import MemoryTerminalPreview from '@/features/out-of-memory-lab/catalogue-preview/TerminalPreview.astro';
+import { CHALLENGES, CHALLENGE_QUERY_PARAMETER } from '@/features/out-of-memory-lab/challenges';
+import { copyFor } from '@/features/out-of-memory-lab/copy';
+
 interface Props {
   locale: Locale;
 }
+
+type LabLevel = { title: string; href: string };
+type Lab = {
+  id: string;
+  title: string;
+  label: string;
+  summary: string;
+  caption: string;
+  levelCount: string;
+  levels: readonly LabLevel[];
+};
+
 const { locale } = Astro.props;
 const es = locale === 'es';
 const title = es ? 'Laboratorios' : 'Labs';
 const description = es
   ? 'Construye, experimenta y descubre cómo se comporta tu sistema.'
   : 'Build, experiment and discover how your system behaves.';
+const start = es ? 'Empezar' : 'Start';
+const levelsLabel = es ? 'Niveles de' : 'Levels of';
+const twoDigits = (value: number) => String(value).padStart(2, '0');
+
+const asyncChaosLab: Lab = {
+  id: 'async-chaos-lab',
+  title: 'Async Chaos Lab',
+  label: es ? 'Aprende rompiendo' : 'Learn by breaking',
+  summary: es
+    ? 'Evita perder pagos, protege los efectos de cada paso y aprende a escalar cuando llegan 24 de golpe.'
+    : 'Keep payments safe, protect each step’s effects, and learn to scale when 24 arrive at once.',
+  caption: es ? '24 pagos de golpe' : '24 payments at once',
+  levelCount: es ? '3 experimentos' : '3 experiments',
+  levels: [
+    { title: es ? 'Protege tus pagos.' : 'Protect your payments.', href: labPath(locale, 1) },
+    { title: es ? 'Un pago. Cuatro pasos.' : 'One payment. Four steps.', href: labPath(locale, 2) },
+    { title: es ? 'Tu sistema se queda pequeño.' : 'Your system is growing.', href: labPath(locale, 3) },
+  ],
+};
+
+const exit137Copy = copyFor(locale);
+const exit137: Lab = {
+  id: 'exit-137',
+  title: 'Exit 137',
+  label: es ? 'Sin quedarte sin memoria' : 'Without running out of memory',
+  summary: exit137Copy.page.description,
+  caption: es ? 'la memoria sube' : 'memory climbs',
+  levelCount: es ? `${CHALLENGES.length} retos` : `${CHALLENGES.length} challenges`,
+  levels: CHALLENGES.map((challenge) => ({
+    title: exit137Copy.challenges[challenge.id]?.title ?? '',
+    href: `${buildLabPath(locale, 'exit-137')}?${CHALLENGE_QUERY_PARAMETER}=${challenge.id}`,
+  })),
+};
+
+const labs = [asyncChaosLab, exit137];
 ---
 
 <ContentLayout locale={locale} title={title} description={description} lead={description}>
-  <a class="featured-lab" href={labPath(locale)}
-    ><span class="label"
-      >{
-        es
-          ? 'TRES EXPERIMENTOS · APRENDE ROMPIENDO'
-          : 'THREE EXPERIMENTS · LEARN BY BREAKING'
-      }</span
-    ><h2>Async Chaos Lab →</h2><p>
-      {
-        es
-          ? 'Evita perder pagos, protege los efectos de cada paso y aprende a escalar cuando llegan 24 de golpe. Mira lo que ocurre y cambia tu sistema sobre el diagrama.'
-          : 'Keep payments safe, protect each step’s effects, and learn to scale when 24 arrive at once. Watch what happens and change your system on the diagram.'
-      }
-    </p><AssemblyLinePreview locale={locale} /><b>{es ? 'Abrir el simulador' : 'Open the simulator'}</b></a
-  >
-  {
-    es && (
-      <a class="featured-lab" href={buildLabPath(locale, 'exit-137')}
-        ><span class="label">CUATRO RETOS · SIN QUEDARTE SIN MEMORIA</span><h2>Exit 137 →</h2><p>
-          Monta un script que recorra meses de logs sin quedarse sin memoria.
-        </p><MemoryTerminalPreview /><b>Abrir el laboratorio</b></a
-      >
-    )
-  }
+  <ul class="notebooks">
+    {
+      labs.map((lab, index) => (
+        <li>
+          <article class="notebook">
+            <p class="notebook-meta">
+              <span class="lab-tag">LAB {twoDigits(index + 1)}</span>
+              <span>{lab.label}</span>
+            </p>
+            <h2>
+              <a href={lab.levels[0]?.href}>{lab.title}</a>
+            </h2>
+            <p class="notebook-summary">{lab.summary}</p>
+            <a class="photo" href={lab.levels[0]?.href} tabindex="-1" aria-hidden="true">
+              {lab.id === 'exit-137' ? <MemoryTerminalPreview locale={locale} /> : <AssemblyLinePreview locale={locale} />}
+              <span class="photo-caption">fig. {index + 1} — {lab.caption}</span>
+            </a>
+            <ol class="levels" aria-label={`${levelsLabel} ${lab.title}`}>
+              {lab.levels.map((level, levelIndex) => (
+                <li>
+                  <a href={level.href}>
+                    <span class="level-number">{twoDigits(levelIndex + 1)}</span>
+                    {level.title}
+                  </a>
+                </li>
+              ))}
+            </ol>
+            <p class="notebook-foot">
+              <span>{lab.levelCount}</span>
+              <a class="notebook-start" href={lab.levels[0]?.href} tabindex="-1" aria-hidden="true">{start} →</a>
+            </p>
+          </article>
+        </li>
+      ))
+    }
+  </ul>
 </ContentLayout>
+
 <style>
-  .featured-lab {
-    display: block;
-    text-decoration: none;
+  .notebooks {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-8) var(--space-6);
+    padding: 0;
+    list-style: none;
+  }
+
+  .notebook {
+    --notebook-line: 28px;
+    --notebook-margin: 30px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-6) var(--space-6) var(--space-6) calc(var(--notebook-margin) + var(--space-4));
     border: 2px solid var(--color-ink);
-    box-shadow: 5px 5px 0 var(--color-ink);
-    padding: var(--space-6);
-    margin-bottom: var(--space-8);
+    background:
+      linear-gradient(90deg, transparent var(--notebook-margin), rgb(229 72 77 / 0.5) var(--notebook-margin) calc(var(--notebook-margin) + 1.5px), transparent calc(var(--notebook-margin) + 1.5px)),
+      repeating-linear-gradient(transparent 0 calc(var(--notebook-line) - 1px), var(--color-rule) calc(var(--notebook-line) - 1px) var(--notebook-line)),
+      var(--color-paper);
+    transition:
+      transform var(--motion-duration-base) var(--motion-easing),
+      box-shadow var(--motion-duration-base) var(--motion-easing);
   }
-  .featured-lab h2 {
-    font-size: var(--font-size-heading-1);
-    margin-block: var(--space-2);
+
+  @media (hover: hover) {
+    .notebook:hover {
+      transform: translate(-4px, -4px);
+      box-shadow: 6px 6px 0 var(--color-ink);
+    }
   }
-  .featured-lab p {
-    max-width: 65ch;
+
+  .notebook:has(:focus-visible) {
+    transform: translate(-4px, -4px);
+    box-shadow: 6px 6px 0 var(--color-ink);
+  }
+
+  .notebook-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-3);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-meta);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .lab-tag {
+    padding: 0.1em 0.6em;
+    background: var(--color-invert-surface);
+    color: var(--color-accent);
+    letter-spacing: 0.04em;
+  }
+
+  :global(:root[data-theme='dark']) .lab-tag {
+    color: var(--color-invert-text);
+  }
+
+  .notebook h2 {
+    font-size: 2.125rem;
+    line-height: var(--line-height-tight);
+    letter-spacing: -0.03em;
+  }
+
+  .notebook h2 a {
+    text-decoration: none;
+  }
+
+  .notebook-summary {
+    color: var(--color-text-soft);
     font-size: var(--font-size-small);
   }
-  .featured-lab b {
-    display: inline-block;
+
+  .photo {
+    position: relative;
+    display: block;
+    margin-top: var(--space-2);
+    padding: var(--space-2) var(--space-2) var(--space-8);
+    border: 2px solid var(--color-ink);
+    background: var(--color-paper);
+    color: inherit;
+    text-decoration: none;
+    transform: rotate(-1deg);
+    box-shadow: 3px 3px 0 rgb(0 0 0 / 0.12);
+    transition: transform var(--motion-duration-base) var(--motion-easing);
+  }
+
+  .notebooks li:nth-child(even) .photo {
+    transform: rotate(1deg);
+  }
+
+  /* The tape that holds the photo onto the page. */
+  .photo::before {
+    content: '';
+    position: absolute;
+    z-index: 2;
+    top: -12px;
+    left: 50%;
+    width: 92px;
+    height: 22px;
+    margin-left: -46px;
+    border: 1px solid rgb(0 0 0 / 0.15);
+    background: color-mix(in srgb, var(--color-accent) 75%, transparent);
+    transform: rotate(2deg);
+  }
+
+  @media (hover: hover) {
+    .notebook:hover .photo {
+      transform: none;
+    }
+  }
+
+  .photo :global(.assembly),
+  .photo :global(.memory-terminal) {
+    margin-top: 0;
+    height: 12rem;
+  }
+
+  .photo :global(.memory-terminal) {
+    padding: var(--space-4) var(--space-6);
+  }
+
+  .photo :global(.memory-terminal-reading) {
+    font-size: 2.8rem;
+  }
+
+  /* The assembly line was drawn for the full width; on half a page its stations shrink to fit. */
+  .photo :global(.assembly-desk) {
+    width: 2.9rem;
+  }
+
+  .photo :global(.assembly-worker) {
+    width: 3.4rem;
+    height: 3.4rem;
+  }
+
+  .photo :global(.assembly-bank) {
+    left: auto;
+    right: 2%;
+    min-width: 3rem;
+    width: 8%;
+  }
+
+  .photo :global(.assembly-score) {
+    gap: var(--space-4);
+  }
+
+  .photo :global(.assembly-score b) {
+    font-size: 1.25rem;
+  }
+
+  .photo-caption {
+    position: absolute;
+    left: var(--space-3);
+    bottom: var(--space-2);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-meta);
+    color: var(--color-text-soft);
+  }
+
+  .levels {
+    padding: 0;
+    list-style: none;
+    font-size: var(--font-size-small);
+  }
+
+  .levels a {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: 28px;
+    padding-inline: var(--space-1);
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .levels a::before {
+    content: '';
+    flex: 0 0 auto;
+    width: 14px;
+    height: 14px;
+    border: 1.5px solid var(--color-ink);
+    background: var(--color-paper);
+  }
+
+  .level-number {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-meta);
+    color: var(--color-text-muted);
+  }
+
+  @media (hover: hover) {
+    .levels a:hover {
+      background: var(--color-accent);
+      color: var(--color-accent-ink);
+    }
+
+    .levels a:hover .level-number {
+      color: inherit;
+    }
+
+    .levels a:hover::after {
+      content: '→';
+      margin-left: auto;
+      font-family: var(--font-family-mono);
+    }
+  }
+
+  .notebook-foot {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-small);
+    font-weight: 600;
+  }
+
+  .notebook-start {
+    padding: var(--space-1) var(--space-3);
+    border: 1.5px solid var(--color-ink);
     background: var(--color-accent);
     color: var(--color-accent-ink);
-    padding: var(--space-2) var(--space-3);
-    margin-top: var(--space-4);
+    text-decoration: none;
+  }
+
+  @media (max-width: 900px) {
+    .notebooks {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .notebook {
+      --notebook-margin: 18px;
+      padding-right: var(--space-4);
+    }
+
+    .notebook h2 {
+      font-size: var(--font-size-heading-2);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .notebook,
+    .photo {
+      transition: none;
+    }
   }
 </style>

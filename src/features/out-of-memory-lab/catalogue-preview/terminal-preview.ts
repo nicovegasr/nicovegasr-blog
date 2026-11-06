@@ -2,6 +2,21 @@ const LIMIT_MEGABYTES = 1024;
 const DANGER_MEGABYTES = 800;
 const TOTAL_LOGS = 20_000;
 
+const TEXT = {
+  es: {
+    numbers: 'es',
+    loading: (logs: string) => `cargando ${logs} logs en memoria…`,
+    processed: (done: string, total: string) => `procesados ${done} / ${total}`,
+    finished: (logs: string) => `✓ ${logs} logs · 64 MB pico · exit code 0`,
+  },
+  en: {
+    numbers: 'en',
+    loading: (logs: string) => `loading ${logs} logs into memory…`,
+    processed: (done: string, total: string) => `processed ${done} / ${total}`,
+    finished: (logs: string) => `✓ ${logs} logs · 64 MB peak · exit code 0`,
+  },
+} as const;
+
 class TerminalPreview extends HTMLElement {
   private dispose: (() => void) | undefined;
 
@@ -9,6 +24,8 @@ class TerminalPreview extends HTMLElement {
     if (this.dispose) return;
     // Reduced motion keeps the server-rendered finished streaming run.
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const text = TEXT[this.dataset.locale === 'en' ? 'en' : 'es'];
+    const number = (value: number) => value.toLocaleString(text.numbers);
     const mode = this.querySelector('[data-mode]')!;
     const megabytes = this.querySelector('[data-megabytes]')!;
     const gauge = this.querySelector<HTMLElement>('[data-gauge]')!;
@@ -29,7 +46,7 @@ class TerminalPreview extends HTMLElement {
     });
     const wake = () => { if (visible && !document.hidden && resume) { const next = resume; resume = undefined; next(); } };
     const show = (value: number) => {
-      megabytes.textContent = value.toLocaleString('es');
+      megabytes.textContent = number(value);
       gauge.style.width = `${(value / LIMIT_MEGABYTES) * 100}%`;
       gauge.classList.toggle('is-danger', value > DANGER_MEGABYTES);
     };
@@ -40,7 +57,7 @@ class TerminalPreview extends HTMLElement {
     const loop = async () => {
       while (!stopped) {
         mode.textContent = 'all-at-once';
-        log.textContent = `cargando ${TOTAL_LOGS.toLocaleString('es')} logs en memoria…`;
+        log.textContent = text.loading(number(TOTAL_LOGS));
         for (let value = 0; value <= LIMIT_MEGABYTES; value += 16) { show(value); await tick(28); }
         log.replaceChildren(
           Object.assign(document.createElement('span'), { className: 'is-killed', textContent: '[1]    4242 killed' }),
@@ -50,11 +67,11 @@ class TerminalPreview extends HTMLElement {
         mode.textContent = 'streaming';
         for (let step = 0; step <= 20; step++) {
           show(40 + Math.round(Math.sin(step) * 12 + 12));
-          log.textContent = `procesados ${(step * 1000).toLocaleString('es')} / ${TOTAL_LOGS.toLocaleString('es')}`;
+          log.textContent = text.processed(number(step * 1000), number(TOTAL_LOGS));
           await tick(140);
         }
         show(64);
-        line('is-ok', `✓ ${TOTAL_LOGS.toLocaleString('es')} logs · 64 MB pico · exit code 0`);
+        line('is-ok', text.finished(number(TOTAL_LOGS)));
         await tick(2600);
       }
     };

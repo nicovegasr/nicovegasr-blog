@@ -241,7 +241,23 @@ test('the batch size dial changes the code and progress survives a reload', asyn
 test('the Spanish catalogue links to the lab', async ({ page }) => {
   await page.goto('/contenido/laboratorios/');
   await page.getByRole('link', { name: /Exit 137/ }).click();
-  await expect(page).toHaveURL(/\/laboratorios\/exit-137\/$/);
+  await expect(page).toHaveURL(/\/laboratorios\/exit-137\/\?reto=1$/);
+});
+
+test('the English lab speaks English from the catalogue to the challenge sheet', async ({ page }) => {
+  await page.goto('/en/content/labs/');
+  await page.getByRole('link', { name: /The heavy query/ }).click();
+  await expect(page).toHaveURL(/\/en\/labs\/exit-137\/\?reto=3$/);
+  const sheet = page.getByRole('dialog', { name: 'The heavy query' });
+  await expect(sheet).toContainText('5 million logs');
+  await expect(sheet.getByRole('button', { name: 'Start' })).toBeVisible();
+});
+
+test('each challenge of the catalogue opens straight on its sheet', async ({ page }) => {
+  await page.goto('/contenido/laboratorios/');
+  await page.getByRole('link', { name: /La consulta pesada/ }).click();
+  await expect(page).toHaveURL(/\/laboratorios\/exit-137\/\?reto=3$/);
+  await expect(page.getByRole('dialog', { name: 'La consulta pesada' })).toBeVisible();
 });
 
 test('a first visit opens on the challenge sheet, with its volume and requirements, before the tutorial', async ({ page }) => {
