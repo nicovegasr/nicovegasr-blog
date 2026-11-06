@@ -10,9 +10,10 @@ interface Props {
   title: string;
   description: string;
   lead: string;
+  compact?: boolean;
 }
 
-const { locale, title, description, lead } = Astro.props;
+const { locale, title, description, lead, compact = false } = Astro.props;
 const translate = getTranslator(locale);
 
 const sections = ([
@@ -31,12 +32,12 @@ const heading = sections.find((section) => section.isCurrent)?.label ?? title;
   title={`${title} — ${translate('site.title')}`}
   description={description}
 >
-  <section class="intro reveal">
+  <section class="intro reveal" data-compact-catalogue={compact || undefined}>
     <h1>{heading}</h1>
     <p class="lead">{lead}</p>
     <RepoStar locale={locale} />
   </section>
-  <section class="reveal content-section">
+  <section class:list={['reveal', 'content-section', { 'is-compact': compact }]}>
     <nav class="sections" aria-label={translate('navigation.sections')} data-content-sections>
       <ul>
         {
@@ -60,6 +61,18 @@ const heading = sections.find((section) => section.isCurrent)?.label ?? title;
 </BaseLayout>
 
 <style>
+  :global(main:has(> [data-compact-catalogue])) {
+    padding-top: var(--space-6);
+  }
+
+  .intro[data-compact-catalogue] .lead {
+    margin-top: var(--space-2);
+  }
+
+  .content-section.is-compact {
+    margin-top: var(--space-3);
+  }
+
   .content-section {
     margin-top: var(--space-8);
   }

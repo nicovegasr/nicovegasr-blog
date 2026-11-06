@@ -15,7 +15,7 @@ const { locale, series } = Astro.props;
 const translate = getTranslator(locale);
 const twoDigits = (value: number) => String(value).padStart(2, '0');
 // A longer series stands as a taller book, so the shelf shows its size at a glance.
-const spineHeight = (item: PillSeriesCard) => `${210 + item.pills.length * 13}px`;
+const spineHeight = (item: PillSeriesCard) => `${190 + item.pills.length * 11}px`;
 const bookId = (item: PillSeriesCard) => `serie-${item.slug}`;
 ---
 
@@ -104,7 +104,7 @@ const bookId = (item: PillSeriesCard) => `serie-${item.slug}`;
     display: flex;
     align-items: flex-end;
     gap: 6px;
-    padding: var(--space-16) 0 0;
+    padding: var(--space-8) 0 0;
     list-style: none;
   }
 
@@ -112,7 +112,7 @@ const bookId = (item: PillSeriesCard) => `serie-${item.slug}`;
     --pill-icon-signal: var(--color-accent);
     /* A long title makes its book taller instead of spilling off the spine. */
     min-height: var(--spine-height);
-    width: 64px;
+    width: 52px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -199,8 +199,8 @@ const bookId = (item: PillSeriesCard) => `serie-${item.slug}`;
   }
 
   .shelf-mascot {
-    width: 92px;
-    height: 92px;
+    width: 76px;
+    height: 76px;
     margin-left: var(--space-2);
     background: var(--student-atlas) 0 0 / 300% 200% no-repeat;
   }
@@ -213,8 +213,8 @@ const bookId = (item: PillSeriesCard) => `serie-${item.slug}`;
   .book {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
-    padding: var(--space-6) var(--space-8) var(--space-8);
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-6) var(--space-6);
     border: 2px solid var(--color-ink);
     box-shadow: 6px 6px 0 var(--color-ink);
     background: var(--color-paper);
@@ -301,6 +301,9 @@ const bookId = (item: PillSeriesCard) => `serie-${item.slug}`;
 
   /* Pinned to the bottom of the shared slot, so it stays put whichever book is open. */
   .book-start {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     align-self: flex-end;
     margin-top: auto;
     padding: var(--space-1) var(--space-3);
@@ -346,6 +349,12 @@ const bookId = (item: PillSeriesCard) => `serie-${item.slug}`;
     width: 104px;
     height: 104px;
     background: var(--student-atlas) 50% 100% / 300% 200% no-repeat;
+  }
+
+  @media (min-width: 901px) and (max-width: 1150px) {
+    .pill-shelf { gap: var(--space-4); }
+    .spine { width: 44px; }
+    .shelf-mascot { width: 60px; height: 60px; }
   }
 
   @media (max-width: 900px) {
