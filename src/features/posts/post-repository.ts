@@ -55,6 +55,7 @@ export const findHostedPosts = async (locale: Locale): Promise<readonly Post[]> 
 
 type RenderablePost = {
   post: Post;
+  markdown: string;
   Content: Awaited<ReturnType<typeof render>>['Content'];
 };
 
@@ -79,7 +80,7 @@ export const findRenderablePost = async (
   }
 
   const { Content } = await render(entry);
-  return { post, Content };
+  return { post, markdown: entry.body ?? '', Content };
 };
 
 const RELATED_POSTS_LIMIT = 3;

@@ -1,7 +1,9 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PostMeta from '@/features/posts/components/PostMeta.astro';
+import PostTitle from '@/features/posts/components/PostTitle.astro';
 import RelatedPosts from '@/features/posts/components/RelatedPosts.astro';
+import CopyableCode from '@/features/posts/components/CopyableCode.astro';
 import { buildBlogPostPath } from '@/i18n/routes';
 import {
   findHostedPosts,
@@ -22,7 +24,7 @@ if (renderable === null) {
   throw new Error(`Post not found: ${locale}/${slug}`);
 }
 
-const { post, Content } = renderable;
+const { post, markdown, Content } = renderable;
 const relatedPosts = await findRelatedPosts(locale, post.slug);
 const alternatePaths = post.translationSlug
   ? { es: buildBlogPostPath('es', post.translationSlug) }
@@ -38,12 +40,12 @@ const alternatePaths = post.translationSlug
 >
   <article class="reveal">
     <header class="article-header">
-      <h1>{post.title}</h1>
+      <PostTitle title={post.title} markdown={markdown} locale={locale} />
       <PostMeta post={post} />
     </header>
-    <div class="prose">
+    <CopyableCode locale={locale}>
       <Content />
-    </div>
+    </CopyableCode>
   </article>
   <RelatedPosts posts={relatedPosts} locale={locale} />
 </BaseLayout>
