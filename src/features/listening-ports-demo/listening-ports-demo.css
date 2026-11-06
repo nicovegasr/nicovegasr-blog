@@ -1,0 +1,15 @@
+content-demo { display: block; }
+.prose .ports-demo { margin: var(--space-6) 0; }
+.ports-artwork { display: block; width: 100%; padding: 0; border: 0; border-radius: var(--radius-small); background: #fdfcfb; cursor: zoom-in; }
+.ports-artwork svg { display: block; width: 100%; height: auto; }
+.ports-artwork:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 4px; }
+.ports-demo figcaption { margin-top: var(--space-3); color: var(--color-text-soft); font-size: .875rem; line-height: 1.6; }
+.ports-zoom-close { min-height: 44px; padding: var(--space-2) var(--space-3); border: 1px solid var(--color-rule); border-radius: var(--radius-small); background: var(--color-paper); color: var(--color-ink); font: inherit; font-size: .875rem; cursor: pointer; }
+.ports-zoom-close:hover { border-color: var(--color-ink); }
+.ports-zoom-close:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 3px; }
+.ports-zoom { width: 100vw; max-width: none; height: 100dvh; max-height: none; margin: 0; padding: 72px 16px 16px; border: 0; overflow: auto; background: var(--color-paper); }
+.ports-zoom::backdrop { background: var(--color-paper); }
+.ports-zoom-content { min-width: 1000px; max-width: 1448px; margin-inline: auto; }
+.ports-zoom-content svg { display: block; width: 100%; height: auto; }
+.ports-zoom-close { position: fixed; top: 16px; right: 16px; z-index: 2; }
+html:has(.ports-zoom[open]) { overflow: hidden; }
