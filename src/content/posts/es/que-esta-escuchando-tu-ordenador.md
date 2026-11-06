@@ -6,7 +6,7 @@ tags: ["security", "networking", "node"]
 translationSlug: "what-is-your-computer-listening-to"
 ---
 
-Mi ordenador tenía ocho puertos abiertos. Dos eran de aplicaciones que había arrancado yo, así que le pedí a mi Mac que me enseñara todo lo que estaba esperando conexiones:
+Hace unos días, mientras trabajaba en el blog, me dio por revisar cuántos servidores me había dejado encendidos en local. Abrí la terminal para ver qué estaba esperando conexiones y aparecieron ocho puertos abiertos. Dos eran del blog, ¿y los otros seis?
 
 ```
 $ lsof -iTCP -sTCP:LISTEN -n -P
@@ -21,7 +21,7 @@ node      30131   nicolas  TCP 127.0.0.1:4649 (LISTEN)
 node      44900   nicolas  TCP 127.0.0.1:4321 (LISTEN)
 ```
 
-Una era el blog y otra, una app personal. El resto eran programas que no recordaba haber abierto a nada: el Centro de Control, Notion, el software del ratón…
+Los otros seis eran programas que no recordaba haber abierto a nada: el Centro de Control, Notion, el software del ratón…
 
 Cada línea es una puerta. **¿Quién puede llamar a cada una, y qué pasa si alguien entra?**
 

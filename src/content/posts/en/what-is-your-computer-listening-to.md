@@ -6,7 +6,7 @@ tags: ["security", "networking", "node"]
 translationSlug: "que-esta-escuchando-tu-ordenador"
 ---
 
-My computer had eight open ports. Two belonged to applications I had started myself, so I asked my Mac to show me everything waiting for connections:
+A few days ago, while working on the blog, I decided to check how many local servers I had left running. I opened the terminal to see what was waiting for connections and found eight open ports. Two belonged to the blog, but what about the other six?
 
 ```
 $ lsof -iTCP -sTCP:LISTEN -n -P
@@ -21,7 +21,7 @@ node      30131   nicolas  TCP 127.0.0.1:4649 (LISTEN)
 node      44900   nicolas  TCP 127.0.0.1:4321 (LISTEN)
 ```
 
-One was the blog and another was a personal app. The rest were programs I didn't remember opening up to anything: Control Center, Notion, the mouse software…
+The other six were programs I didn't remember opening up to anything: Control Center, Notion, the mouse software…
 
 Each line is a door. **Who can knock on each one, and what happens if someone gets in?**
 
