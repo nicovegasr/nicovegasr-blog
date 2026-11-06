@@ -114,6 +114,10 @@ const pathForLocale = (target: Locale): string =>
     <Footer locale={locale} />
 
     <script>
+      import '@/shared/content-demos/content-demo-element';
+    </script>
+
+    <script>
       let revealObserver: IntersectionObserver | undefined;
       const revealContent = () => {
         revealObserver?.disconnect();
