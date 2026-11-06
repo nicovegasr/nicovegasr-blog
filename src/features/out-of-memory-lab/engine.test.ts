@@ -20,7 +20,7 @@ describe('challenge 1: a week of logs', () => {
   it('a stream pays its setup on so few logs: no time star, and a hint that the simple way wins', () => {
     const { stars, hint } = play(1, build('cursor'));
     expect(stars).toBe(2);
-    expect(hint).toMatch(/lo simple gana/);
+    expect(hint).toBe('smallStream');
   });
 
   it('loading everything fills the backpack first and analyses afterwards', () => {
@@ -40,7 +40,7 @@ describe('challenge 2: months of history', () => {
     expect(outcome.killedBy).toBe('list');
     expect(outcome.logsAnalyzed).toBe(0);
     expect(stars).toBe(0);
-    expect(hint).toContain('antes de revisar');
+    expect(hint).toBe('list');
   });
 
   it.each(['cursor', 'pages'] as const)('%s survives with a flat memory', (read) => {
@@ -54,7 +54,7 @@ describe('challenge 2: months of history', () => {
     const cursor = play(2, build('cursor'));
     expect(cursor.stars).toBe(2);
     expect(cursor.outcome.longestConnectionSeconds).toBeGreaterThan(60);
-    expect(cursor.hint).toMatch(/Pide páginas/);
+    expect(cursor.hint).toBe('longConnection');
   });
 });
 
@@ -64,7 +64,7 @@ describe('challenge 3: the heavy query', () => {
     expect(outcome.queries).toBe(5_000);
     expect(outcome.seconds).toBeGreaterThan(40 * 3_600);
     expect(stars).toBe(2);
-    expect(hint).toContain('30 s');
+    expect(hint).toBe('repeatedQuery');
   });
 
   it('the cursor pays it once', () => {
@@ -79,7 +79,7 @@ describe('challenge 4: restarts and another job', () => {
     const { outcome, stars, hint } = play(4, build('cursor', 'one-by-one'));
     expect(outcome.writeTrips).toBeGreaterThan(3_000_000);
     expect(stars).toBe(1);
-    expect(hint).toContain('viaje');
+    expect(hint).toBe('oneByOne');
   });
 
   it('the largest batch that fits the worst moment wins the three stars', () => {
@@ -90,21 +90,21 @@ describe('challenge 4: restarts and another job', () => {
     const { outcome, stars, hint } = play(4, build('cursor', 'batches'), always(1_000));
     expect(outcome.killedBy).toBeNull();
     expect(stars).toBe(2);
-    expect(hint).toContain('pequeños');
+    expect(hint).toBe('smallBatch');
   });
 
   it('a big batch dies when the other job starts', () => {
     const { outcome, hint } = play(4, build('cursor', 'batches'), always(10_000));
     expect(outcome.killedBy).toBe('batch');
     expect(outcome.diedDuring).toBe('memory-squeeze');
-    expect(hint).toContain('otro job');
+    expect(hint).toBe('squeeze');
   });
 
   it('a huge batch fills the backpack on its own', () => {
     const { outcome, hint } = play(4, build('cursor', 'batches'), always(100_000));
     expect(outcome.killedBy).toBe('batch');
     expect(outcome.diedDuring).toBeNull();
-    expect(hint).toContain('lote');
+    expect(hint).toBe('batch');
   });
 
   it('announces each incident once, when it starts', () => {
@@ -120,7 +120,7 @@ describe('challenge 4: restarts and another job', () => {
 
 describe('the code shown to the player', () => {
   const text = (lines: ReturnType<typeof codeLines>) =>
-    lines.map((line) => (line.kind === 'batch-size' ? 'int batchSize = …;' : line.text)).join('\n');
+    lines.map((line) => (line.kind === 'batch-size' ? 'int batchSize = …;' : line.kind === 'hole' ? `// ${line.hole}` : line.text)).join('\n');
 
   it('has holes until both cards are placed', () => {
     const lines = codeLines({ read: null, write: null });

@@ -1,0 +1,115 @@
+/* The mascot: the script, with its memory on its back. */
+.oom-hero {
+  --fill: 0;
+  position: absolute;
+  z-index: 3;
+  bottom: calc(var(--oom-floor) - 4px);
+  width: clamp(104px, 34cqh, 170px);
+  height: clamp(104px, 34cqh, 170px);
+  transform: translateX(-50%);
+}
+.oom-hero.is-facing-left { transform: translateX(-50%) scaleX(-1); }
+.oom-sprite { position: absolute; inset: 0; background-size: 300% 200%; background-repeat: no-repeat; }
+.oom-pack {
+  position: absolute;
+  left: 4%;
+  bottom: 30%;
+  width: 34%;
+  height: 40%;
+  border: 2px solid #0a0a0a;
+  border-radius: 40% 40% 22% 22%;
+  background: var(--color-accent);
+  transform-origin: 80% 70%;
+  transform: scale(calc(0.75 + var(--fill) * 1.1));
+  transition: transform 120ms ease-out, background 200ms;
+}
+.oom-pack::after { content: ''; position: absolute; left: 20%; right: 20%; top: 30%; height: 2px; background: #0a0a0a; }
+.oom-hero.is-warm .oom-pack { background: var(--oom-amber); }
+.oom-hero.is-danger .oom-pack { background: var(--oom-red); animation: oom-wobble 0.18s linear infinite; }
+.oom-hero.is-danger::before,
+.oom-hero.is-danger::after {
+  content: '';
+  position: absolute;
+  top: 18%;
+  width: 6px;
+  height: 9px;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background: #6fb6ff;
+  border: 1px solid #0a0a0a;
+  animation: oom-sweat 0.7s ease-in infinite;
+}
+.oom-hero.is-danger::before { left: 72%; }
+.oom-hero.is-danger::after { left: 82%; animation-delay: 0.35s; }
+.oom-carried { position: absolute; display: none; right: 2%; top: 44%; border: 2px solid #0a0a0a; background: var(--color-paper); }
+.oom-carried.is-stack { display: block; width: 18px; height: 22px; box-shadow: 2px -2px 0 -0px #0a0a0a; }
+.oom-carried.is-note { display: block; width: 12px; height: 9px; background: var(--color-accent); }
+.oom-carried.is-box { display: block; width: 26px; height: 20px; background: var(--color-accent); }
+.oom-stage.is-killed .oom-pack { display: none; }
+
+.oom-flying {
+  position: absolute;
+  z-index: 2;
+  bottom: 42%;
+  transform: translateX(-50%);
+  transition: left 440ms cubic-bezier(0.3, 0, 0.4, 1), bottom 440ms cubic-bezier(0.3, 0, 0.4, 1);
+}
+.oom-flying.is-arriving { bottom: 28%; }
+.oom-flying.is-log { width: 10px; height: 13px; background: var(--color-paper); border: 1px solid var(--color-ink); }
+.oom-flying.is-box { width: 22px; height: 16px; background: var(--color-accent); border: 2px solid var(--color-ink); }
+
+.oom-paper {
+  position: absolute;
+  z-index: 4;
+  bottom: 22%;
+  width: 11px;
+  height: 14px;
+  background: var(--color-paper);
+  border: 1px solid #0a0a0a;
+  animation: oom-burst 900ms cubic-bezier(0.2, 0.7, 0.4, 1) forwards;
+}
+.oom-confetti {
+  position: absolute;
+  z-index: 4;
+  top: -12px;
+  width: 9px;
+  height: 12px;
+  background: var(--color-accent);
+  border: 1px solid #0a0a0a;
+  animation: oom-fall 1.6s ease-in forwards;
+}
+
+.oom-stamp {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  pointer-events: none;
+}
+.oom-stamp strong {
+  font: 700 clamp(1.8rem, 4vw, 2.8rem)/1 var(--font-family-display);
+  background: var(--oom-red);
+  color: #0a0a0a;
+  padding: 0.15em 0.4em;
+  border: 2px solid #0a0a0a;
+  box-shadow: 5px 5px 0 #0a0a0a;
+  transform: rotate(-4deg);
+}
+.oom-stamp code { font: 600 12px/1 var(--font-family-mono); background: var(--color-paper); padding: 4px 6px; }
+.oom-stage.is-killed .oom-stamp { display: flex; animation: oom-pop 280ms ease-out; }
+.oom-stage.is-killed { animation: oom-shake 0.1s linear 4; }
+
+.oom-floor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--oom-floor);
+  box-sizing: border-box;
+  border-top: 3px solid var(--color-ink);
+  background: repeating-linear-gradient(135deg, var(--color-ink) 0 2px, transparent 2px 11px);
+}
+

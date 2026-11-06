@@ -1,9 +1,9 @@
 import { recordAttempt, type Attempt } from './attempts';
 import { renderBriefing } from './briefing';
-import { CHALLENGES, INCIDENT_WARNING, starsFor, type Challenge } from './challenges';
+import { CHALLENGES, INCIDENT_WARNING, requestedChallengeId, starsFor, type Challenge } from './challenges';
 import { CoachOverlay, type Coach } from './coach-overlay';
 import { renderCode } from './code-view';
-import { cardCopy, incidentCopy, tips, tutorial, waitingCopy } from './copy';
+import { tutorial } from './copy';
 import {
   advance,
   BATCH_SIZES,
@@ -19,8 +19,8 @@ import {
   type Incident,
   type RunState,
 } from './engine';
-import { formatMegabytes } from './format';
 import { renderHud } from './hud-view';
+import { labTextFor, type LabText } from './lab-text';
 import { loadProgress, loadSeenTips, recordRun, saveSeenTips, type Progress } from './progress';
 import { renderLiveObjectives, renderResult } from './result-view';
 import { StageAnimator } from './stage-animator';
@@ -28,6 +28,7 @@ import { StageAnimator } from './stage-animator';
 const STEPS_PER_SECOND = 30;
 
 class OutOfMemoryLab extends HTMLElement {
+  private text: LabText = labTextFor('es');
   private challenge: Challenge = CHALLENGES[0]!;
   private build: Build = { read: null, write: null };
   private batchSize: BatchSize = 1_000;
@@ -46,14 +47,15 @@ class OutOfMemoryLab extends HTMLElement {
   private readonly animator = new StageAnimator(this, () => this.reducedMotion);
 
   connectedCallback() {
+    this.text = labTextFor(this.dataset.locale === 'en' ? 'en' : 'es');
     this.progress = loadProgress();
     this.seen = loadSeenTips();
     this.listen();
     this.fitToScreen();
     window.addEventListener('resize', this.fitToScreen);
 
-    // Every visit starts over at challenge 1; the stars won stay.
-    this.selectChallenge(1);
+    // Every visit starts over at the challenge in the link, or challenge 1; the stars won stay.
+    this.selectChallenge(requestedChallengeId(window.location.search));
     void document.fonts.ready.then(this.coach.place);
     this.frame = requestAnimationFrame(this.tick);
   }
@@ -157,7 +159,7 @@ class OutOfMemoryLab extends HTMLElement {
   private showBriefing() {
     if (this.tutorialIndex !== null) return;
     const sheet = this.one('[data-briefing]');
-    renderBriefing(sheet, this.challenge);
+    renderBriefing(this.text, sheet, this.challenge);
     sheet.hidden = false;
     this.one<HTMLButtonElement>('[data-briefing-start]').focus({ preventScroll: true });
   }
@@ -173,7 +175,7 @@ class OutOfMemoryLab extends HTMLElement {
     this.build = isReadCard(card) ? { ...this.build, read: card } : { ...this.build, write: card };
     this.afterBuildChange();
     if (card === 'batches' && this.tutorialIndex === null) {
-      this.showTip('dial', { target: '[data-dial-control]', ...tips.dial, button: 'Entendido', skippable: false });
+      this.showTip('dial', { target: '[data-dial-control]', ...this.text.copy.tips.dial, button: this.text.copy.controls.gotIt, skippable: false });
     }
   }
 
@@ -200,7 +202,7 @@ class OutOfMemoryLab extends HTMLElement {
   }
 
   private renderHud() {
-    renderHud(this, this.challenge, this.progress);
+    renderHud(this.text, this, this.challenge, this.progress);
   }
 
   private renderCards() {
@@ -222,11 +224,11 @@ class OutOfMemoryLab extends HTMLElement {
     });
     const run = this.one<HTMLButtonElement>('[data-run]');
     run.disabled = !isComplete(this.build);
-    run.textContent = isComplete(this.build) ? 'Ejecutar ▶' : 'Completa el código';
+    run.textContent = isComplete(this.build) ? this.text.copy.controls.run : this.text.copy.controls.completeTheCode;
   }
 
   private renderScript() {
-    renderCode(this.one('[data-code]'), this.build, this.batchSize, this.canEdit);
+    renderCode(this.text.copy, this.one('[data-code]'), this.build, this.batchSize, this.canEdit);
   }
 
   // ── Running ─────────────────────────────────────────────────────────
@@ -265,7 +267,7 @@ class OutOfMemoryLab extends HTMLElement {
 
   private setPaused(paused: boolean) {
     this.paused = paused;
-    this.one('[data-pause]').textContent = paused ? '▶ Continuar' : '❚❚ Pausar';
+    this.one('[data-pause]').textContent = paused ? this.text.copy.controls.resume : this.text.copy.controls.pause;
     this.one('[data-stage]').classList.toggle('is-paused', paused);
   }
 
@@ -274,7 +276,7 @@ class OutOfMemoryLab extends HTMLElement {
     this.one('[data-pause]').hidden = !running;
     this.one('[data-stop]').hidden = !running;
     this.one('[data-progress]').hidden = !running;
-    this.one('[data-pause]').textContent = '❚❚ Pausar';
+    this.one('[data-pause]').textContent = this.text.copy.controls.pause;
     this.one('[data-result]').hidden = true;
   }
 
@@ -307,21 +309,21 @@ class OutOfMemoryLab extends HTMLElement {
     if (run.incident !== null && !isOver(run)) {
       banner.hidden = false;
       banner.className = 'oom-incident is-active';
-      this.one('[data-incident-title]').textContent = incidentCopy[run.incident.kind].title;
-      this.one('[data-incident-text]').textContent = incidentCopy[run.incident.kind].text;
+      this.one('[data-incident-title]').textContent = this.text.copy.incidents[run.incident.kind].title;
+      this.one('[data-incident-text]').textContent = this.text.copy.incidents[run.incident.kind].text;
     } else if (upcoming !== undefined && !isOver(run)) {
       banner.hidden = false;
       banner.className = 'oom-incident is-warning';
-      this.one('[data-incident-title]').textContent = 'Atención';
-      this.one('[data-incident-text]').textContent = incidentCopy[upcoming.kind].warning;
+      this.one('[data-incident-title]').textContent = this.text.copy.controls.attention;
+      this.one('[data-incident-text]').textContent = this.text.copy.incidents[upcoming.kind].warning;
       if (!this.warnedIncidents.has(upcoming)) {
         this.warnedIncidents.add(upcoming);
         this.animator.surprise();
         this.showTip(`incident-${upcoming.kind}`, {
           target: '[data-incident]',
           side: 'left',
-          ...tips.incident(incidentCopy[upcoming.kind].tip),
-          button: 'Continuar',
+          ...this.text.copy.tips.incident(this.text.copy.incidents[upcoming.kind].tip),
+          button: this.text.copy.controls.continue,
           skippable: false,
         });
       }
@@ -350,7 +352,7 @@ class OutOfMemoryLab extends HTMLElement {
     const attempts = recordAttempt(this.attempts.get(this.challenge.id) ?? [], { build, batchSize: this.batchSize, stars, outcome });
     this.attempts.set(this.challenge.id, attempts);
     this.renderHud();
-    renderLiveObjectives(this, this.challenge, run);
+    renderLiveObjectives(this.text, this, this.challenge, run);
     this.one('[data-progress]').hidden = true;
     this.one('[data-pause]').hidden = true;
     this.one('[data-stop]').hidden = true;
@@ -358,7 +360,7 @@ class OutOfMemoryLab extends HTMLElement {
     window.setTimeout(() => {
       if (this.run !== run) return;
       const hasNext = CHALLENGES.some(({ id }) => id === this.challenge.id + 1);
-      renderResult(this, { challenge: this.challenge, build, outcome, stars, attempts, hasNext });
+      renderResult(this.text, this, { challenge: this.challenge, build, outcome, stars, attempts, hasNext });
       const result = this.one('[data-result]');
       result.hidden = false;
       if (this.isNarrow) result.scrollIntoView({ block: 'start', behavior: 'instant' });
@@ -383,7 +385,7 @@ class OutOfMemoryLab extends HTMLElement {
     const squeeze = run?.incident?.kind === 'memory-squeeze' ? run.incident.amount / limit : 0;
     this.one('[data-memory-fill]').style.width = `${share * 100}%`;
     this.one('[data-memory-squeeze]').style.width = `${squeeze * 100}%`;
-    this.one('[data-memory-label]').textContent = `${formatMegabytes(megabytes)} / ${formatMegabytes(limit - squeeze * limit)}`;
+    this.one('[data-memory-label]').textContent = `${this.text.format.megabytes(megabytes)} / ${this.text.format.megabytes(limit - squeeze * limit)}`;
     const effectiveShare = Math.min(1, megabytes / (limit * (1 - squeeze)));
     const memory = this.one('[data-memory]');
     memory.classList.toggle('is-warm', effectiveShare > 0.6);
@@ -394,7 +396,7 @@ class OutOfMemoryLab extends HTMLElement {
     hero.classList.toggle('is-danger', effectiveShare > 0.85);
     this.one('[data-stage]').classList.toggle('is-loading', run?.phase === 'loading');
     this.one('[data-rows]').style.height = `${this.logsLeft(run) * 100}%`;
-    renderLiveObjectives(this, this.challenge, run);
+    renderLiveObjectives(this.text, this, this.challenge, run);
     this.one('[data-progress] i').style.width = `${run === null ? 0 : (run.step / scenario.steps) * 100}%`;
   }
 
@@ -425,11 +427,10 @@ class OutOfMemoryLab extends HTMLElement {
       target: step.target,
       side: step.side,
       ...(step.alsoHighlight === undefined ? {} : { alsoHighlight: step.alsoHighlight }),
-      title: step.title,
-      text: step.text,
-      step: `Paso ${index + 1} de ${tutorial.length}`,
-      ...(step.until === undefined ? {} : { waiting: waitingCopy[step.until] }),
-      button: step.until === undefined ? 'Siguiente' : null,
+      ...this.text.copy.tutorial[step.id]!,
+      step: this.text.copy.controls.step(index + 1, tutorial.length),
+      ...(step.until === undefined ? {} : { waiting: this.text.copy.waiting[step.until] }),
+      button: step.until === undefined ? this.text.copy.page.next : null,
       skippable: true,
       onNext: () => {
         this.tutorialIndex = index + 1;
@@ -460,8 +461,8 @@ class OutOfMemoryLab extends HTMLElement {
     if (card === undefined) return;
     this.showTip(`card-${card}`, {
       target: `[data-card="${card}"]`,
-      ...tips.newCard(cardCopy[card].label),
-      button: 'Vale',
+      ...this.text.copy.tips.newCard(this.text.copy.cards[card].label),
+      button: this.text.copy.controls.okay,
       skippable: false,
     });
   }

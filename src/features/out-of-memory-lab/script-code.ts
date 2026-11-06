@@ -2,7 +2,7 @@ import type { Build, Card } from './engine';
 
 export type CodeLine =
   | { readonly kind: 'code'; readonly indent: number; readonly text: string; readonly card?: Card }
-  | { readonly kind: 'hole'; readonly indent: number; readonly hole: 'read' | 'write'; readonly text: string }
+  | { readonly kind: 'hole'; readonly indent: number; readonly hole: 'read' | 'write' }
   | { readonly kind: 'batch-size'; readonly indent: number };
 
 const code = (indent: number, text: string, card?: Card): CodeLine =>
@@ -11,7 +11,7 @@ const code = (indent: number, text: string, card?: Card): CodeLine =>
 const writeLines = (build: Build, indent: number): CodeLine[] => {
   switch (build.write) {
     case null:
-      return [{ kind: 'hole', indent, hole: 'write', text: '// ② ¿cómo guardas cada resumen?' }];
+      return [{ kind: 'hole', indent, hole: 'write' }];
     case 'one-by-one':
       return [code(indent, 'summaryRepository.save(summary);', 'one-by-one')];
     case 'batches':
@@ -35,7 +35,7 @@ const readLines = (build: Build): CodeLine[] => {
   switch (build.read) {
     case null:
       return [
-        { kind: 'hole', indent: 1, hole: 'read', text: '// ① ¿cómo coges los logs?' },
+        { kind: 'hole', indent: 1, hole: 'read' },
         code(1, 'for (LogEntry log : logs) {'),
         ...perLog(build, 2),
         code(1, '}'),

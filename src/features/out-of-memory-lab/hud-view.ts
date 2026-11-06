@@ -1,15 +1,17 @@
 import { objectiveLabel } from './briefing';
 import type { Challenge } from './challenges';
-import { formatAmount, formatSeconds } from './format';
+import type { LabText } from './lab-text';
 import type { Progress } from './progress';
 import { starsText } from './result-view';
 
 /** The top bar and the stage labels: which challenge, its stars so far, its three objectives and its data. */
-export const renderHud = (root: HTMLElement, challenge: Challenge, progress: Progress) => {
+export const renderHud = (text: LabText, root: HTMLElement, challenge: Challenge, progress: Progress) => {
+  const { copy, format } = text;
   const part = (selector: string) => root.querySelector<HTMLElement>(selector)!;
-  const { id, title, mission, objectives, scenario, period } = challenge;
-  part('[data-title]').textContent = `Reto ${id} · ${title}`;
-  part('[data-mission]').textContent = mission;
+  const { id, objectives, scenario } = challenge;
+  const words = copy.challenges[id];
+  part('[data-title]').textContent = copy.challengeHeading(id, words?.title ?? '');
+  part('[data-mission]').textContent = words?.mission ?? '';
   root.querySelectorAll<HTMLButtonElement>('[data-challenge]').forEach((button) => {
     const challengeId = Number(button.dataset.challenge);
     if (challengeId === id) button.setAttribute('aria-current', 'step');
@@ -21,7 +23,7 @@ export const renderHud = (root: HTMLElement, challenge: Challenge, progress: Pro
       const item = document.createElement('li');
       item.dataset.objective = objective.kind;
       item.innerHTML = '<span class="oom-objective-mark" data-mark>☆</span><span class="oom-objective-label" data-label></span><span class="oom-objective-value" data-value>—</span>';
-      item.querySelector('[data-label]')!.textContent = objectiveLabel(objective);
+      item.querySelector('[data-label]')!.textContent = objectiveLabel(text, objective);
       return item;
     }),
   );
@@ -29,6 +31,7 @@ export const renderHud = (root: HTMLElement, challenge: Challenge, progress: Pro
   const goalMarker = part('[data-memory-goal]');
   goalMarker.hidden = memoryGoal === undefined;
   if (memoryGoal !== undefined) goalMarker.style.left = `${(memoryGoal.max / scenario.memoryLimitMegabytes) * 100}%`;
-  part('[data-shelf-caption]').textContent =
-    `${formatAmount(scenario.logs)}${period ? ` · ${period}` : ''}${scenario.querySeconds >= 1 ? ` · consulta de ${formatSeconds(scenario.querySeconds)}` : ''}`;
+  const period = words?.period;
+  const query = scenario.querySeconds >= 1 ? ` · ${copy.facts.query(format.seconds(scenario.querySeconds))}` : '';
+  part('[data-shelf-caption]').textContent = `${format.amount(scenario.logs)}${period ? ` · ${period}` : ''}${query}`;
 };

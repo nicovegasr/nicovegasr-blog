@@ -1,0 +1,8 @@
+@keyframes oom-belt { to { background-position: 14px 0; } }
+@keyframes oom-blink { 50% { opacity: 0.55; } }
+@keyframes oom-shake { 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
+@keyframes oom-wobble { 25% { rotate: -4deg; } 75% { rotate: 4deg; } }
+@keyframes oom-pop { from { transform: scale(0.85); opacity: 0; } }
+@keyframes oom-sweat { from { transform: translateY(0); opacity: 1; } to { transform: translateY(18px); opacity: 0; } }
+@keyframes oom-burst { to { transform: translate(var(--dx), var(--dy)) rotate(var(--turn)); opacity: 0; } }
+@keyframes oom-fall { to { transform: translateY(420px) rotate(var(--turn)); } }

@@ -1,42 +1,43 @@
 import { CHALLENGES, type Challenge, type Objective } from './challenges';
-import { objectiveCopy } from './copy';
-import { formatAmount, formatCount, formatMegabytes, formatSeconds } from './format';
+import type { LabText } from './lab-text';
 
-export const objectiveLabel = (objective: Objective): string => {
+export const objectiveLabel = ({ copy, format }: LabText, objective: Objective): string => {
   switch (objective.kind) {
     case 'survive':
-      return objectiveCopy.survive;
+      return copy.objectives.survive;
     case 'seconds':
-      return objectiveCopy.seconds(formatSeconds(objective.max));
+      return copy.objectives.seconds(format.seconds(objective.max));
     case 'megabytes':
-      return objectiveCopy.megabytes(formatMegabytes(objective.max));
+      return copy.objectives.megabytes(format.megabytes(objective.max));
     case 'write-trips':
-      return objectiveCopy['write-trips'](formatCount(objective.max));
+      return copy.objectives['write-trips'](format.count(objective.max));
     case 'connection':
-      return objectiveCopy.connection(formatSeconds(objective.max));
+      return copy.objectives.connection(format.seconds(objective.max));
   }
 };
 
-const INCIDENT_FACTS = { 'restart-loop': 'reinicios en bucle', 'memory-squeeze': 'otro job pesado' } as const;
-
 /** The size of the job, which decides whether memory is a problem at all. */
-export const challengeFacts = ({ scenario, period }: Challenge): string[] => [
-  `${formatAmount(scenario.logs)} logs${period ? ` · ${period}` : ''}`,
-  `mochila de ${formatMegabytes(scenario.memoryLimitMegabytes)}`,
-  ...(scenario.querySeconds >= 1 ? [`consulta de ${formatSeconds(scenario.querySeconds)}`] : []),
-  ...scenario.incidents.map(({ kind }) => INCIDENT_FACTS[kind]),
-];
+export const challengeFacts = ({ copy, format }: LabText, { id, scenario }: Challenge): string[] => {
+  const period = copy.challenges[id]?.period;
+  return [
+    `${format.amount(scenario.logs)} logs${period ? ` · ${period}` : ''}`,
+    copy.facts.backpack(format.megabytes(scenario.memoryLimitMegabytes)),
+    ...(scenario.querySeconds >= 1 ? [copy.facts.query(format.seconds(scenario.querySeconds))] : []),
+    ...scenario.incidents.map(({ kind }) => copy.facts.incidents[kind]),
+  ];
+};
 
 /** Fills the challenge sheet shown before playing: context, volume and the three requirements. */
-export const renderBriefing = (sheet: HTMLElement, challenge: Challenge) => {
+export const renderBriefing = (text: LabText, sheet: HTMLElement, challenge: Challenge) => {
   const part = (selector: string) => sheet.querySelector<HTMLElement>(selector)!;
-  part('[data-briefing-kicker]').textContent = `Reto ${challenge.id} de ${CHALLENGES.length}`;
-  part('[data-briefing-title]').textContent = challenge.title;
-  part('[data-briefing-mission]').textContent = challenge.mission;
+  const words = text.copy.challenges[challenge.id];
+  part('[data-briefing-kicker]').textContent = text.copy.challengeOf(challenge.id, CHALLENGES.length);
+  part('[data-briefing-title]').textContent = words?.title ?? '';
+  part('[data-briefing-mission]').textContent = words?.mission ?? '';
   part('[data-briefing-facts]').replaceChildren(
-    ...challengeFacts(challenge).map((fact) => Object.assign(document.createElement('li'), { textContent: fact })),
+    ...challengeFacts(text, challenge).map((fact) => Object.assign(document.createElement('li'), { textContent: fact })),
   );
   part('[data-briefing-objectives]').replaceChildren(
-    ...challenge.objectives.map((objective) => Object.assign(document.createElement('li'), { textContent: `☆ ${objectiveLabel(objective)}` })),
+    ...challenge.objectives.map((objective) => Object.assign(document.createElement('li'), { textContent: `☆ ${objectiveLabel(text, objective)}` })),
   );
 };
