@@ -1,0 +1,405 @@
+---
+import type { Locale } from '@/i18n/locale';
+import { getTranslator } from '@/i18n/translator';
+import { pillLeafSlugOf, type PillSeriesCard } from '@/features/pills/pill';
+import PillIcon from '@/features/pills/components/PillIcon.astro';
+import { buildPillPath, buildPillSeriesPath } from '@/i18n/routes';
+import studentAtlas from '@/shared/mascot/age-2019.webp?url';
+
+interface Props {
+  locale: Locale;
+  series: readonly PillSeriesCard[];
+}
+
+const { locale, series } = Astro.props;
+const translate = getTranslator(locale);
+const twoDigits = (value: number) => String(value).padStart(2, '0');
+// A longer series stands as a taller book, so the shelf shows its size at a glance.
+const spineHeight = (item: PillSeriesCard) => `${210 + item.pills.length * 13}px`;
+const bookId = (item: PillSeriesCard) => `serie-${item.slug}`;
+---
+
+<div class="pill-shelf" style={`--student-atlas: url(${studentAtlas});`} data-pill-shelf>
+  <nav class="shelf" aria-label={translate('pills.shelf.label')}>
+    <ul class="spines">
+      {
+        series.map((item, index) => (
+          <li>
+            <a
+              class:list={['spine', { 'is-upcoming': item.draft }]}
+              href={`#${bookId(item)}`}
+              style={`--spine-height: ${spineHeight(item)};`}
+              aria-current={index === 0 ? 'true' : undefined}
+              data-spine={bookId(item)}
+            >
+              <PillIcon icon={item.icon} />
+              <span class="spine-title">{item.title}</span>
+              <span class="spine-count" aria-hidden="true">{item.draft ? '—' : twoDigits(item.pills.length)}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <span class="shelf-mascot" aria-hidden="true"></span>
+  </nav>
+
+  <div class="books">
+    {
+      series.map((item, index) => (
+        <article class:list={['book', { 'is-upcoming': item.draft }]} id={bookId(item)} data-book>
+          <p class="book-kicker">
+            {translate('pills.shelf.series')} {twoDigits(index + 1)}
+            {!item.draft && <> · {item.pills.length} {translate('pills.seriesCount')}</>}
+          </p>
+          <h2>{item.title}</h2>
+          {!item.draft && <p class="book-summary">{item.summary}</p>}
+          {item.draft ? (
+            <div class="book-upcoming">
+              <span class="upcoming-tape">{translate('pills.upcoming')}</span>
+              <span class="book-mascot" aria-hidden="true"></span>
+            </div>
+          ) : (
+            <>
+              <ol class="book-index">
+                {item.pills.map((pill, pillIndex) => (
+                  <li>
+                    <a href={buildPillPath(locale, item.slug, pillLeafSlugOf(pill.slug))}>
+                      <span class="pill-number">{twoDigits(pillIndex + 1)}</span>
+                      {pill.title}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+              <a class="book-start" href={buildPillSeriesPath(locale, item.slug)}>
+                {translate('pills.shelf.start')} →
+              </a>
+            </>
+          )}
+        </article>
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  import '../pill-shelf';
+</script>
+
+<style>
+  .pill-shelf {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--space-8);
+    align-items: end;
+  }
+
+  .shelf {
+    display: flex;
+    align-items: flex-end;
+    padding-inline: var(--space-2);
+    border-bottom: 8px solid var(--color-ink);
+  }
+
+  .spines {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    padding: var(--space-16) 0 0;
+    list-style: none;
+  }
+
+  .spine {
+    --pill-icon-signal: var(--color-accent);
+    /* A long title makes its book taller instead of spilling off the spine. */
+    min-height: var(--spine-height);
+    width: 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) 0;
+    border: 2px solid var(--color-ink);
+    border-bottom: 0;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    text-decoration: none;
+    transition:
+      transform var(--motion-duration-base) var(--motion-easing),
+      background var(--motion-duration-fast) var(--motion-easing),
+      box-shadow var(--motion-duration-base) var(--motion-easing);
+  }
+
+  .spines li:nth-child(3n + 2) .spine:not(.is-upcoming, [aria-current='true']) {
+    background: var(--color-invert-surface);
+    color: var(--color-invert-text);
+  }
+
+  .spine-title {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-family: var(--font-family-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .spine-count {
+    margin-top: auto;
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-meta);
+    font-weight: 600;
+  }
+
+  .spine.is-upcoming {
+    border-style: dashed;
+    background: repeating-linear-gradient(-45deg, transparent 0 12px, rgb(250 204 21 / 0.22) 12px 24px), var(--color-paper);
+  }
+
+  @media (hover: hover) {
+    .spine:hover {
+      transform: translateY(-8px);
+    }
+  }
+
+  .spine:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+
+  .spine[aria-current='true'],
+  .spines li .spine[aria-current='true'] {
+    --pill-icon-signal: var(--color-accent-ink);
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+    transform: translateY(-22px);
+    box-shadow: 5px 0 0 var(--color-ink);
+  }
+
+  .spine {
+    position: relative;
+  }
+
+  /* The cursor that marks the open book; the arrow keys move it along the shelf. */
+  .spine[aria-current='true']::before {
+    content: '';
+    position: absolute;
+    top: -26px;
+    left: 50%;
+    width: 18px;
+    height: 14px;
+    margin-left: -9px;
+    background: var(--color-ink);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    animation: spine-cursor-bob 1.2s var(--motion-easing) infinite alternate;
+  }
+
+  @keyframes spine-cursor-bob {
+    to { transform: translateY(-5px); }
+  }
+
+  .shelf-mascot {
+    width: 92px;
+    height: 92px;
+    margin-left: var(--space-2);
+    background: var(--student-atlas) 0 0 / 300% 200% no-repeat;
+  }
+
+  .books {
+    display: grid;
+    gap: var(--space-8);
+  }
+
+  .book {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-6) var(--space-8) var(--space-8);
+    border: 2px solid var(--color-ink);
+    box-shadow: 6px 6px 0 var(--color-ink);
+    background: var(--color-paper);
+    scroll-margin-top: var(--space-24);
+  }
+
+  /* Every book shares one slot as tall as the tallest, so opening another never moves the page. */
+  .pill-shelf[data-enhanced] .books {
+    grid-template-areas: 'book';
+  }
+
+  .pill-shelf[data-enhanced] .book {
+    grid-area: book;
+  }
+
+  .pill-shelf[data-enhanced] .book[hidden] {
+    display: flex;
+    visibility: hidden;
+  }
+
+  .book-kicker {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-meta);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .book h2 {
+    font-size: var(--font-size-heading-1);
+    line-height: var(--line-height-tight);
+    letter-spacing: -0.02em;
+  }
+
+  .book-summary {
+    color: var(--color-text-soft);
+    font-size: var(--font-size-small);
+    max-width: 60ch;
+  }
+
+  .book-index {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-6);
+    padding: 0;
+    list-style: none;
+    font-size: var(--font-size-small);
+  }
+
+  .book-index li {
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .book-index li:nth-child(-n + 2) {
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .book-index a {
+    display: flex;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-1);
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .pill-number {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-meta);
+    color: var(--color-text-muted);
+    padding-top: 0.15em;
+  }
+
+  @media (hover: hover) {
+    .book-index a:hover {
+      background: var(--color-accent);
+      color: var(--color-accent-ink);
+    }
+
+    .book-index a:hover .pill-number {
+      color: inherit;
+    }
+  }
+
+  /* Pinned to the bottom of the shared slot, so it stays put whichever book is open. */
+  .book-start {
+    align-self: flex-end;
+    margin-top: auto;
+    padding: var(--space-1) var(--space-3);
+    border: 1.5px solid var(--color-ink);
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    text-decoration: none;
+    transition:
+      transform var(--motion-duration-fast) var(--motion-easing),
+      box-shadow var(--motion-duration-fast) var(--motion-easing);
+  }
+
+  @media (hover: hover) {
+    .book-start:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 3px 3px 0 var(--color-ink);
+    }
+  }
+
+  .book-upcoming {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    min-height: 110px;
+  }
+
+  .upcoming-tape {
+    align-self: flex-start;
+    padding: var(--space-1) var(--space-3);
+    border: 1.5px solid #0a0a0a;
+    background: #facc15;
+    color: #0a0a0a;
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-meta);
+    font-weight: 600;
+    transform: rotate(-2deg);
+  }
+
+  .book-mascot {
+    width: 104px;
+    height: 104px;
+    background: var(--student-atlas) 50% 100% / 300% 200% no-repeat;
+  }
+
+  @media (max-width: 900px) {
+    .pill-shelf {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-6);
+    }
+
+    .shelf {
+      overflow-x: auto;
+    }
+
+    .spine {
+      min-height: calc(var(--spine-height) * 0.72);
+      width: 54px;
+    }
+
+    .spine-title {
+      font-size: 1rem;
+    }
+
+    .shelf-mascot {
+      flex: 0 0 auto;
+      width: 72px;
+      height: 72px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .book {
+      padding: var(--space-6) var(--space-4);
+    }
+
+    .book h2 {
+      font-size: var(--font-size-heading-2);
+    }
+
+    .book-index {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .book-index li:nth-child(2) {
+      border-top: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .spine,
+    .book-start {
+      transition: none;
+    }
+
+    .spine[aria-current='true']::before {
+      animation: none;
+    }
+  }
+</style>

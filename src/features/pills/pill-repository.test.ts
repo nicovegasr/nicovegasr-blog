@@ -51,13 +51,20 @@ describe('series publication', () => {
     expect(render).not.toHaveBeenCalled();
   });
 
-  it('counts only the published pills of each catalogue card', async () => {
+  it('lists only the published pills of each catalogue card', async () => {
     const future = pillEntry('es');
     future.id = 'es/inventory/future';
     future.data.publicationDate = new Date('2999-01-01');
     getCollection.mockResolvedValue([seriesEntry('es', false), pillEntry('es'), future, pillEntry('en')]);
     expect(await findPillSeriesCards('es')).toEqual([
-      expect.objectContaining({ slug: 'inventory', pillCount: 1 }),
+      expect.objectContaining({ slug: 'inventory', pills: [expect.objectContaining({ slug: 'inventory/intro' })] }),
+    ]);
+  });
+
+  it('keeps the pills of a draft series off its catalogue card', async () => {
+    getCollection.mockResolvedValue([seriesEntry('es', true), pillEntry('es')]);
+    expect(await findPillSeriesCards('es')).toEqual([
+      expect.objectContaining({ slug: 'inventory', pills: [] }),
     ]);
   });
 

@@ -94,7 +94,7 @@ export const findPillSeriesCards = async (
   return Promise.all(
     catalog.map(async (series) => ({
       ...series,
-      pillCount: (await publishedPillsOf(locale, series.slug)).length,
+      pills: series.draft ? [] : await publishedPillsOf(locale, series.slug),
     })),
   );
 };

@@ -77,6 +77,9 @@ export const english: Dictionary = {
   'pills.reader.toggleIndex': 'Show or hide the journey',
   'pills.reader.paginationLabel': 'Between pills',
   'pills.seriesCount': 'pills',
+  'pills.shelf.label': 'Pill series',
+  'pills.shelf.series': 'Series',
+  'pills.shelf.start': 'Start',
 
   'footer.rights': 'All rights reserved',
 };

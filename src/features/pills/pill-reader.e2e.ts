@@ -61,11 +61,15 @@ test.describe('reading on a phone', () => {
     await expect(disclosure).toHaveAttribute('aria-expanded', 'false');
   });
 
-  test('keeps the draft series mascot visible on the catalogue', async ({ page }) => {
+  test('opens a draft series as a book under construction', async ({ page }) => {
     await page.goto(catalogue);
 
-    await expect(page.locator('.is-upcoming + .series-mascot')).toHaveCSS('opacity', '1');
-    await expect(page.locator('a.series-card + .series-mascot').first()).toHaveCSS('opacity', '0');
+    await page.locator('a.spine.is-upcoming').click();
+
+    const book = page.locator('.book.is-upcoming');
+    await expect(book).toBeVisible();
+    await expect(book.locator('.upcoming-tape')).toBeVisible();
+    await expect(book.locator('.book-index')).toHaveCount(0);
   });
 });
 
@@ -90,6 +94,13 @@ test.describe('without JavaScript', () => {
 
     await expect(page.locator('#pill-index-navigation')).toBeVisible();
     await expect(page.locator('[data-pill-index-disclosure]')).toBeHidden();
+  });
+
+  test('keeps every series of the catalogue open', async ({ page }) => {
+    await page.goto(catalogue);
+
+    await expect(page.locator('#serie-fundamentos')).toBeVisible();
+    await expect(page.locator('#serie-docker')).toBeVisible();
   });
 
   test('moves to another pill through its real link', async ({ page }) => {
@@ -163,20 +174,45 @@ test.describe('on the desktop catalogue', () => {
   test('shows how many pills each series has', async ({ page }) => {
     await page.goto(catalogue);
 
-    await expect(page.locator('a.series-card[href$="/docker/"] .series-count')).toHaveText('6 píldoras');
-    await expect(page.locator('.is-upcoming .series-count')).toHaveCount(0);
+    await expect(page.locator('a.spine[href="#serie-docker"] .spine-count')).toHaveText('06');
+    await expect(page.locator('#serie-docker .book-index li')).toHaveCount(6);
   });
 
-  test('brings the mascot up onto the hovered card only', async ({ page }) => {
+  test('opens the series pulled from the shelf and links to each of its pills', async ({ page }) => {
     await page.goto(catalogue);
-    const docker = page.locator('a.series-card[href$="/docker/"]');
-    const mascot = docker.locator('+ .series-mascot');
-    await expect(mascot).toHaveCSS('opacity', '0');
+    const docker = page.locator('a.spine[href="#serie-docker"]');
+    await expect(page.locator('a.spine').first()).toHaveAttribute('aria-current', 'true');
 
-    await docker.hover();
+    await docker.click();
 
-    await expect(mascot).toHaveCSS('opacity', '1');
-    await expect(page.locator('a.series-card:not(:hover) + .series-mascot').first()).toHaveCSS('opacity', '0');
+    await expect(docker).toHaveAttribute('aria-current', 'true');
+    await expect(page.locator('#serie-docker')).toBeVisible();
+    await expect(page.locator('#serie-fundamentos')).toBeHidden();
+    await page.locator('#serie-docker').getByRole('link', { name: /Dockerfile/ }).click();
+    await expect(page).toHaveURL(/\/pildoras\/docker\/docker-file\//);
+  });
+
+  test('moves along the shelf with the arrow keys without moving the page', async ({ page }) => {
+    await page.goto(catalogue);
+    const books = page.locator('.books');
+    const heightBefore = (await books.boundingBox())!.height;
+
+    await page.keyboard.press('ArrowRight');
+
+    await expect(page.locator('a.spine[href="#serie-docker"]')).toHaveAttribute('aria-current', 'true');
+    await expect(page.locator('#serie-docker')).toBeVisible();
+    expect((await books.boundingBox())!.height).toBe(heightBefore);
+
+    await page.keyboard.press('ArrowLeft');
+
+    await expect(page.locator('#serie-fundamentos')).toBeVisible();
+  });
+
+  test('reopens the series named in the link', async ({ page }) => {
+    await page.goto(`${catalogue}#serie-observabilidad`);
+
+    await expect(page.locator('#serie-observabilidad')).toBeVisible();
+    await expect(page.locator('#serie-fundamentos')).toBeHidden();
   });
 
   test('explains the arrow keys instead of the swipe', async ({ page }) => {

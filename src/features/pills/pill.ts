@@ -26,7 +26,7 @@ export type PillSeries = {
 };
 
 export type PillSeriesCard = PillSeries & {
-  readonly pillCount: number;
+  readonly pills: readonly Pill[];
 };
 
 // Pill entry ids are "<locale>/<series>/<leaf>", so the series is the first

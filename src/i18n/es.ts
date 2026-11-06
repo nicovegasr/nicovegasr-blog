@@ -75,6 +75,9 @@ export const spanish = {
   'pills.reader.toggleIndex': 'Mostrar u ocultar el recorrido',
   'pills.reader.paginationLabel': 'Entre píldoras',
   'pills.seriesCount': 'píldoras',
+  'pills.shelf.label': 'Series de píldoras',
+  'pills.shelf.series': 'Serie',
+  'pills.shelf.start': 'Empezar',
 
   'footer.rights': 'Todos los derechos reservados',
 } as const;
