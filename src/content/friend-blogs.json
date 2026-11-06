@@ -56,6 +56,17 @@
     "order": 4
   },
   {
+    "id": "aitor-santana",
+    "author": "Aitor Santana",
+    "url": "https://ascinfo.dev/",
+    "description": {
+      "es": "Clean code, TDD y arquitectura hexagonal, con .NET y la IA generativa de fondo.",
+      "en": "Clean code, TDD and hexagonal architecture, with .NET and generative AI in the mix."
+    },
+    "image": "/images/friend-blogs/aitor-santana.webp",
+    "order": 5
+  },
+  {
     "id": "lean-mind",
     "author": "Lean Mind",
     "url": "https://leanmind.es/es/blog",
@@ -64,6 +75,6 @@
       "en": "Code, teams and software development."
     },
     "image": "/images/friend-blogs/lean-mind.webp",
-    "order": 5
+    "order": 6
   }
 ]
