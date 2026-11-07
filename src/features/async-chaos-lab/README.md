@@ -85,8 +85,8 @@ shared/              What all three share: outcome shell, figures, links, styles
    engine snapshot, and `dialogs.ts` and `guide-panel.ts` build the HTML of the calls, outcomes and
    walkthrough; the controller owns their timers, focus and modal state. None of them
    decides whether a charge, record or checkpoint exists.
-6. **`queue/QueuePage.astro`, `worker-steps/WorkerStepsPage.astro`, `scaling/ScalingPage.astro`,
-   `LabsPage.astro`**: static page composition. Each lab page loads only its own script.
+6. **`queue/QueuePage.astro`, `worker-steps/WorkerStepsPage.astro`, `scaling/ScalingPage.astro`**:
+   static page composition. `catalogue-entry.ts` and `catalogue-preview/` are what the labs catalogue (`features/labs/`) shows. Each lab page loads only its own script.
 
 Interface text lives in typed catalogues: `payment-simulation/copy.ts` for what labs 1
 and 2 share, `queue/copy.ts`, `worker-steps/copy.ts` and `scaling/copy.ts` for the rest.
