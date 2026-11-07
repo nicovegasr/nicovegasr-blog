@@ -50,6 +50,6 @@ Known issues and what has already been resolved. Fix an item when its area is ne
 | ✅  | Article routes are thin in both locales; `posts/PostPage.astro` owns the composition                                                                                   |
 | ✅  | ESLint enforces the dependency direction: `shared/` cannot import features, and features meet only through the doors in `FEATURE_DOORS`                                |
 | ✅  | The labs catalogue is its own `labs` feature; each lab supplies its entry and preview                                                                                  |
-| ✅  | Interactive Markdown demos form the `content-demos` feature, with each demo in its own subfolder, so `shared/` no longer imports a feature                             |
+| ✅  | The only interactive Markdown demo became an animated WebP (ES/EN, with a still for reduced motion), so the shell no longer loads a demo mechanism                     |
 | ✅  | No file exceeds 500 lines: lab controllers delegate markup and painting, `PillReaderIndex.astro` owns the index, and both large stylesheets are split in cascade order |
 | ✅  | Prettier formats the repository and `npm run lint` checks it                                                                                                           |

@@ -72,9 +72,13 @@ What surprised me most was the first one: `listen(3001)`, with no address, liste
 
 Listening on `*` does not mean being on the internet. On a home IPv4 network, the router usually blocks incoming connections unless port forwarding is configured. Without that, **the boundary of `*` is the network you are on: at home, your devices; on a café's Wi-Fi, anyone connected to it.** Those devices could try to connect, but Wi-Fi client isolation or the firewall may prevent them from reaching the port. And if someone compromises a computer at home, they are inside too.
 
-<content-demo name="listening-ports">
-  <p>Another device on the same Wi-Fi could reach the Node app on port 3000 if the network and firewall allow it. A request exploiting a vulnerability could allow code execution. The separate service on 127.0.0.1:4321 prevents that direct access from Wi-Fi.</p>
-</content-demo>
+<figure>
+  <picture>
+    <source media="(prefers-reduced-motion: reduce)" srcset="/images/posts/listening-ports/listening-ports-en-static.webp" />
+    <img src="/images/posts/listening-ports/listening-ports-en.webp" width="1448" height="1086" loading="lazy" decoding="async" alt="Another device on the same Wi-Fi could reach the Node app on port 3000 if the network and firewall allow it. A request exploiting a vulnerability could allow code execution. The separate service on 127.0.0.1:4321 prevents that direct access from Wi-Fi." />
+  </picture>
+  <figcaption>The connection depends on the network and firewall; code execution requires exploiting a vulnerability.</figcaption>
+</figure>
 
 ## What happens if someone gets in
 

@@ -15,7 +15,6 @@ src/
 ├── features/
 │   ├── about-me/           # Personal journey: Home page, model, repository, contributions, skill areas, and the scroll-driven mascot walkway
 │   ├── async-chaos-lab/    # Interactive labs on queues, retries and scaling; see its own README
-│   ├── content-demos/      # `<content-demo>` loader, its registry and one subfolder per interactive Markdown demo
 │   ├── labs/               # Labs catalogue; each lab supplies its entry and preview
 │   ├── friend-blogs/       # Related blog catalogue and its coverflow adapter
 │   ├── out-of-memory-lab/  # Exit 137: a card game about keeping a log job inside its memory

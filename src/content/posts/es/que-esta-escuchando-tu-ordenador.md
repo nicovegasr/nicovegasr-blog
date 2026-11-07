@@ -72,9 +72,13 @@ Lo que más me sorprendió es el primero: `listen(3001)`, sin dirección, escuch
 
 Escuchar en `*` no significa estar en internet. En una red IPv4 doméstica, el router suele bloquear las conexiones entrantes salvo que haya una redirección de puertos. Sin eso, el perímetro de **`*` es la red en la que estés: en casa, tus dispositivos; en la wifi de una cafetería, cualquiera conectado a ella.** Esos dispositivos podrían intentar conectarse, pero el aislamiento de clientes de la wifi o el firewall pueden impedir que lleguen al puerto. Y si alguien compromete un ordenador de tu casa, también está dentro.
 
-<content-demo name="listening-ports">
-  <p>Otro equipo de la misma wifi podría llegar a la app Node en el puerto 3000 si la red y el firewall lo permiten. Una petición que explote una vulnerabilidad podría permitir ejecutar código. El servicio independiente en 127.0.0.1:4321 impide ese acceso directo desde la wifi.</p>
-</content-demo>
+<figure>
+  <picture>
+    <source media="(prefers-reduced-motion: reduce)" srcset="/images/posts/listening-ports/listening-ports-es-static.webp" />
+    <img src="/images/posts/listening-ports/listening-ports-es.webp" width="1448" height="1086" loading="lazy" decoding="async" alt="Otro equipo de la misma wifi podría llegar a la app Node en el puerto 3000 si la red y el firewall lo permiten. Una petición que explote una vulnerabilidad podría permitir ejecutar código. El servicio independiente en 127.0.0.1:4321 impide ese acceso directo desde la wifi." />
+  </picture>
+  <figcaption>La conexión depende de la red y del firewall; ejecutar código requiere explotar una vulnerabilidad.</figcaption>
+</figure>
 
 ## Qué pasa si alguien entra
 
