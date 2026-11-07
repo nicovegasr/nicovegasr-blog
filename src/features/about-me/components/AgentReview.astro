@@ -1,11 +1,14 @@
 ---
+import { aboutMeCopy } from '../copy';
 import type { Locale } from '@/i18n/locale';
 import claudeMark from '@/features/about-me/assets/claude-mark.svg?raw';
 import codexMark from '@/features/about-me/assets/codex-mark.svg?raw';
 
-interface Props { locale: Locale }
+interface Props {
+  locale: Locale;
+}
 const { locale } = Astro.props;
-const es = locale === 'es';
+const text = aboutMeCopy(locale).agentReview;
 const LANE_COLUMNS = 18;
 const MILLISECONDS_PER_BLOCK = 110;
 // Illustrative amounts of work; only the two agents and the single review are literal.
@@ -18,11 +21,11 @@ const reviewDelay = Math.max(...agents.map(({ blocks }) => blocks)) * MILLISECON
 
 <figure class="agent-review" style={`--lane-columns: ${LANE_COLUMNS}; --review-delay: ${reviewDelay}ms;`}>
   <p class="result">
-    <strong>{es ? 'Guardarraíles' : 'Guardrails'}</strong>
-    <span>{es ? 'en la memoria de cada agente, no solo en un repositorio' : "in every agent's memory, not just in one repository"}</span>
+    <strong>{text.guardrails}</strong>
+    <span>{text.inEveryAgentS}</span>
   </p>
   <div class="work" aria-hidden="true">
-    <span class="gate rules">{es ? 'Mis reglas' : 'My rules'}</span>
+    <span class="gate rules">{text.myRules}</span>
     {agents.map(({ name, mark, blocks }, agentIndex) => (
       <>
         <span class="agent" style={`grid-row: ${agentIndex + 1};`}>
@@ -36,13 +39,9 @@ const reviewDelay = Math.max(...agents.map(({ blocks }) => blocks)) * MILLISECON
         </div>
       </>
     ))}
-    <span class="gate review">{es ? 'Mi revisión' : 'My review'}</span>
+    <span class="gate review">{text.myReview}</span>
   </div>
-  <figcaption class="sr-only">
-    {es
-      ? 'Esquema ilustrativo: Claude Code y Codex parten de mis reglas, trabajan a la vez y su trabajo termina en mi revisión.'
-      : 'Illustrative diagram: Claude Code and Codex start from my rules, work at the same time and their work ends in my review.'}
-  </figcaption>
+  <figcaption class="sr-only">{text.illustrativeDiagramClaudeCode}</figcaption>
 </figure>
 
 <style>
@@ -66,7 +65,9 @@ const reviewDelay = Math.max(...agents.map(({ blocks }) => blocks)) * MILLISECON
     color: var(--color-ink);
   }
 
-  .result { margin: 0; }
+  .result {
+    margin: 0;
+  }
 
   .result strong {
     display: block;
@@ -149,16 +150,26 @@ const reviewDelay = Math.max(...agents.map(({ blocks }) => blocks)) * MILLISECON
     text-align: center;
   }
 
-  .rules { grid-column: 1; }
-  .review { grid-column: 4; }
+  .rules {
+    grid-column: 1;
+  }
+  .review {
+    grid-column: 4;
+  }
 
   @media (prefers-reduced-motion: no-preference) and (min-height: 34rem) {
-    :global(.js) :global(.station) .agent-review { visibility: hidden; }
-    :global(.js) :global(.station.is-current) .agent-review { visibility: visible; }
+    :global(.js) :global(.station) .agent-review {
+      visibility: hidden;
+    }
+    :global(.js) :global(.station.is-current) .agent-review {
+      visibility: visible;
+    }
 
     /* The rules come first, both agents advance at once, and nothing is finished until the review appears. */
     :global(.js) :global(.station:not(.is-current)) .block,
-    :global(.js) :global(.station:not(.is-current)) .gate { opacity: 0; }
+    :global(.js) :global(.station:not(.is-current)) .gate {
+      opacity: 0;
+    }
     :global(.js) :global(.station.is-current) .rules {
       transition: opacity var(--motion-duration-fast) var(--motion-easing) 300ms;
     }
@@ -179,18 +190,44 @@ const reviewDelay = Math.max(...agents.map(({ blocks }) => blocks)) * MILLISECON
       margin-top: var(--space-4);
     }
 
-    .result strong { font-size: var(--font-size-heading-1); }
-    .result > span { font-size: var(--font-size-small); }
-    .work { grid-template-columns: 3rem 1rem minmax(0, 1fr) 3rem; column-gap: var(--space-1); }
-    .agent { font-size: 0; }
-    .agent-mark { width: 0.875rem; height: 0.875rem; }
-    .gate { padding: 0.125rem; font-size: 0.625rem; }
+    .result strong {
+      font-size: var(--font-size-heading-1);
+    }
+    .result > span {
+      font-size: var(--font-size-small);
+    }
+    .work {
+      grid-template-columns: 3rem 1rem minmax(0, 1fr) 3rem;
+      column-gap: var(--space-1);
+    }
+    .agent {
+      font-size: 0;
+    }
+    .agent-mark {
+      width: 0.875rem;
+      height: 0.875rem;
+    }
+    .gate {
+      padding: 0.125rem;
+      font-size: 0.625rem;
+    }
   }
 
   @media (max-width: 48rem) and (max-height: 44rem) {
-    .agent-review { --block-height: 0.875rem; gap: var(--space-1); margin-top: var(--space-2); }
-    .result strong { font-size: clamp(1.125rem, 6vw, var(--font-size-heading-2)); }
-    .result > span { margin-top: 0; font-size: var(--font-size-meta); }
-    .gate { font-size: 0.5625rem; }
+    .agent-review {
+      --block-height: 0.875rem;
+      gap: var(--space-1);
+      margin-top: var(--space-2);
+    }
+    .result strong {
+      font-size: clamp(1.125rem, 6vw, var(--font-size-heading-2));
+    }
+    .result > span {
+      margin-top: 0;
+      font-size: var(--font-size-meta);
+    }
+    .gate {
+      font-size: 0.5625rem;
+    }
   }
 </style>

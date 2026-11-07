@@ -11,19 +11,30 @@ export const PILL_ICONS: Readonly<Record<string, PillIconDrawing>> = {
     signal: 'M13 17h14v6H13Z',
   },
   server: {
-    body: ['M13 5h14l8 8v14l-8 8H13l-8-8V13ZM12 17v6h9v5l10-8-10-8v5Z', 'M0 10h7v4H0Zm0 8h7v4H0Zm0 8h7v4H0ZM16 0h4v7h-4Zm8 0h4v7h-4ZM16 33h4v7h-4Zm8 0h4v7h-4Z'],
+    body: [
+      'M13 5h14l8 8v14l-8 8H13l-8-8V13ZM12 17v6h9v5l10-8-10-8v5Z',
+      'M0 10h7v4H0Zm0 8h7v4H0Zm0 8h7v4H0ZM16 0h4v7h-4Zm8 0h4v7h-4ZM16 33h4v7h-4Zm8 0h4v7h-4Z',
+    ],
     signal: 'M33 17h7v6h-7Z',
   },
   database: {
-    body: ['M4 10C4 5 11 2 20 2s16 3 16 8v20l-7 8H11l-7-8ZM4 15v4c8 5 24 5 32 0v-4c-8 5-24 5-32 0ZM4 24v4c8 5 24 5 32 0v-4c-8 5-24 5-32 0ZM11 32v2h5v-2Z'],
+    body: [
+      'M4 10C4 5 11 2 20 2s16 3 16 8v20l-7 8H11l-7-8ZM4 15v4c8 5 24 5 32 0v-4c-8 5-24 5-32 0ZM4 24v4c8 5 24 5 32 0v-4c-8 5-24 5-32 0ZM11 32v2h5v-2Z',
+    ],
     signal: 'M9 10a11 3.5 0 1 0 22 0 11 3.5 0 1 0-22 0Z',
   },
   frontend: {
-    body: ['M3 3h26l8 8v26H3ZM7 13v20h26V13ZM7 7v3h4V7Zm7 0v3h4V7Z', 'm15 17-7 6 7 6v-5l-2-1 2-1Zm10 0v5l2 1-2 1v5l7-6Z'],
+    body: [
+      'M3 3h26l8 8v26H3ZM7 13v20h26V13ZM7 7v3h4V7Zm7 0v3h4V7Z',
+      'm15 17-7 6 7 6v-5l-2-1 2-1Zm10 0v5l2 1-2 1v5l7-6Z',
+    ],
     signal: 'M22 6h6l4 4H22Z',
   },
   network: {
-    body: ['M14 2h12v10H14ZM2 28h10v10H2Zm13 0h10v10H15Zm13 0h10v10H28Z', 'M18 11h4v7h13v11h-4v-7h-9v7h-4v-7H9v7H5V18h13Z'],
+    body: [
+      'M14 2h12v10H14ZM2 28h10v10H2Zm13 0h10v10H15Zm13 0h10v10H28Z',
+      'M18 11h4v7h13v11h-4v-7h-9v7h-4v-7H9v7H5V18h13Z',
+    ],
     signal: 'M18 5h4v4h-4Z',
   },
   infrastructure: {
@@ -39,7 +50,10 @@ export const PILL_ICONS: Readonly<Record<string, PillIconDrawing>> = {
     signal: 'M12 10 20 6l8 4-8 4Z',
   },
   whale: {
-    body: ['M2 19h25c5 0 7-5 7-9h5c0 10-5 24-21 24C9 34 3 29 2 19ZM26 23v3h3v-3Z', 'M4 11h6v6H4Zm8 0h6v6h-6Zm8 0h6v6h-6ZM12 3h6v6h-6Zm8 0h6v6h-6Z'],
+    body: [
+      'M2 19h25c5 0 7-5 7-9h5c0 10-5 24-21 24C9 34 3 29 2 19ZM26 23v3h3v-3Z',
+      'M4 11h6v6H4Zm8 0h6v6h-6Zm8 0h6v6h-6ZM12 3h6v6h-6Zm8 0h6v6h-6Z',
+    ],
     signal: 'M20 3h6v6h-6Z',
   },
   image: {
@@ -59,7 +73,10 @@ export const PILL_ICONS: Readonly<Record<string, PillIconDrawing>> = {
     signal: 'M16 29h8v5h-8Z',
   },
   compose: {
-    body: ['M2 2h15v15H2ZM6 6v7h7V6ZM23 2h9l6 6v9H23ZM2 23h15v15H2ZM23 23h15v15H23ZM27 27v7h7v-7Z', 'M17 8h6v4h-6ZM8 17h4v6H8Zm20 0h4v6h-4Zm-11 11h6v4h-6Z'],
+    body: [
+      'M2 2h15v15H2ZM6 6v7h7V6ZM23 2h9l6 6v9H23ZM2 23h15v15H2ZM23 23h15v15H23ZM27 27v7h7v-7Z',
+      'M17 8h6v4h-6ZM8 17h4v6H8Zm20 0h4v6h-4Zm-11 11h6v4h-6Z',
+    ],
     signal: 'M27 7h5v5h-5Z',
   },
   registry: {
@@ -71,7 +88,10 @@ export const PILL_ICONS: Readonly<Record<string, PillIconDrawing>> = {
     signal: 'M18 22h4v12h-4Z',
   },
   kubernetes: {
-    body: ['M20 1 36 10v20L20 39 4 30V10ZM20 7 10 13v14l10 6 10-6V13Z', 'M18 9h4v8l6-4 2 4-7 4 7 4-2 4-6-4v7h-4v-7l-6 4-2-4 7-4-7-4 2-4 6 4Z'],
+    body: [
+      'M20 1 36 10v20L20 39 4 30V10ZM20 7 10 13v14l10 6 10-6V13Z',
+      'M18 9h4v8l6-4 2 4-7 4 7 4-2 4-6-4v7h-4v-7l-6 4-2-4 7-4-7-4 2-4 6 4Z',
+    ],
     signal: 'M17 18h6v6h-6Z',
   },
   'cluster-cost': {
@@ -87,7 +107,10 @@ export const PILL_ICONS: Readonly<Record<string, PillIconDrawing>> = {
     signal: 'M18 18h4v4h-4Z',
   },
   deployment: {
-    body: ['M1 4h13v13H1ZM5 8v5h5V8ZM26 4h13v13H26ZM30 8v5h5V8Z', 'M14 8h12v4H14ZM5 17h4v10h22V17h4v14H5ZM17 23h6v8h5l-8 8-8-8h5Z'],
+    body: [
+      'M1 4h13v13H1ZM5 8v5h5V8ZM26 4h13v13H26ZM30 8v5h5V8Z',
+      'M14 8h12v4H14ZM5 17h4v10h22V17h4v14H5ZM17 23h6v8h5l-8 8-8-8h5Z',
+    ],
     signal: 'M17 6h6v8h-6Z',
   },
   config: {
@@ -99,11 +122,17 @@ export const PILL_ICONS: Readonly<Record<string, PillIconDrawing>> = {
     signal: 'M0 17h6v7H0Z',
   },
   service: {
-    body: ['M2 2h13v13H2ZM6 6v5h5V6ZM25 2h13v13H25ZM29 6v5h5V6ZM13 26h14v13H13ZM17 30v5h6v-5Z', 'M6 15h5v4h18v-4h5v9H22v3h-5v-3H6Z'],
+    body: [
+      'M2 2h13v13H2ZM6 6v5h5V6ZM25 2h13v13H25ZM29 6v5h5V6ZM13 26h14v13H13ZM17 30v5h6v-5Z',
+      'M6 15h5v4h18v-4h5v9H22v3h-5v-3H6Z',
+    ],
     signal: 'M17 30h6v5h-6Z',
   },
   pipeline: {
-    body: ['M1 1h13v13H1ZM5 5v5h5V5ZM14 14h12v12H14ZM18 18v4h4v-4ZM27 27h12v12H27ZM31 31v4h4v-4Z', 'm11 11 6 3-3 3-6-3Zm13 13 6 3-3 3-6-3Z'],
+    body: [
+      'M1 1h13v13H1ZM5 5v5h5V5ZM14 14h12v12H14ZM18 18v4h4v-4ZM27 27h12v12H27ZM31 31v4h4v-4Z',
+      'm11 11 6 3-3 3-6-3Zm13 13 6 3-3 3-6-3Z',
+    ],
     signal: 'M31 31h4v4h-4Z',
   },
   gitops: {
@@ -115,41 +144,64 @@ export const PILL_ICONS: Readonly<Record<string, PillIconDrawing>> = {
     signal: 'M11 12h9v4h-9Z',
   },
   simple: {
-    body: ['M6 5h28a3 3 0 0 1 0 6H6a3 3 0 0 1 0-6Zm0 12h20a3 3 0 0 1 0 6H6a3 3 0 0 1 0-6Zm0 12h10a3 3 0 0 1 0 6H6a3 3 0 0 1 0-6Z'],
+    body: [
+      'M6 5h28a3 3 0 0 1 0 6H6a3 3 0 0 1 0-6Zm0 12h20a3 3 0 0 1 0 6H6a3 3 0 0 1 0-6Zm0 12h10a3 3 0 0 1 0 6H6a3 3 0 0 1 0-6Z',
+    ],
   },
   responsibility: {
-    body: ['M20 3a17 17 0 1 0 0 34 17 17 0 0 0 0-34Zm0 6a11 11 0 1 1 0 22 11 11 0 0 1 0-22Zm0 6a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z'],
+    body: [
+      'M20 3a17 17 0 1 0 0 34 17 17 0 0 0 0-34Zm0 6a11 11 0 1 1 0 22 11 11 0 0 1 0-22Zm0 6a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z',
+    ],
   },
   predictable: {
     body: ['M6 16h17v-6c0-2 2-3 3.5-1.5l10 10a2 2 0 0 1 0 3l-10 10C25 33 23 32 23 30v-6H6a4 4 0 0 1 0-8Z'],
   },
   cohesion: {
     // A magnet: two sides held together by one continuous body.
-    body: ['M5 8a3 3 0 0 1 3-3h3a3 3 0 0 1 3 3v13a6 6 0 0 0 12 0V8a3 3 0 0 1 3-3h3a3 3 0 0 1 3 3v13a15 15 0 0 1-30 0ZM5 13v4h9v-4Zm21 0v4h9v-4Z'],
+    body: [
+      'M5 8a3 3 0 0 1 3-3h3a3 3 0 0 1 3 3v13a6 6 0 0 0 12 0V8a3 3 0 0 1 3-3h3a3 3 0 0 1 3 3v13a15 15 0 0 1-30 0ZM5 13v4h9v-4Zm21 0v4h9v-4Z',
+    ],
   },
   coupling: {
-    body: ['M22 5a10 10 0 0 1 14 14l-7 7-4-4 7-7a4.3 4.3 0 0 0-6-6l-7 7-4-4ZM18 35A10 10 0 0 1 4 21l7-7 4 4-7 7a4.3 4.3 0 0 0 6 6l7-7 4 4Z', 'm12 24 12-12a2.8 2.8 0 0 1 4 4L16 28a2.8 2.8 0 0 1-4-4Z'],
+    body: [
+      'M22 5a10 10 0 0 1 14 14l-7 7-4-4 7-7a4.3 4.3 0 0 0-6-6l-7 7-4-4ZM18 35A10 10 0 0 1 4 21l7-7 4 4-7 7a4.3 4.3 0 0 0 6 6l7-7 4 4Z',
+      'm12 24 12-12a2.8 2.8 0 0 1 4 4L16 28a2.8 2.8 0 0 1-4-4Z',
+    ],
   },
   snapshot: {
-    body: ['M8 3h14a3 3 0 0 1 3 3v1H12a5 5 0 0 0-5 5v18H5a3 3 0 0 1-3-3V9a6 6 0 0 1 6-6Z', 'M15 10h12l9 9v15a3 3 0 0 1-3 3H15a3 3 0 0 1-3-3V13a3 3 0 0 1 3-3Zm10 2v9h9Zm-7 14v4h12v-4Z'],
+    body: [
+      'M8 3h14a3 3 0 0 1 3 3v1H12a5 5 0 0 0-5 5v18H5a3 3 0 0 1-3-3V9a6 6 0 0 1 6-6Z',
+      'M15 10h12l9 9v15a3 3 0 0 1-3 3H15a3 3 0 0 1-3-3V13a3 3 0 0 1 3-3Zm10 2v9h9Zm-7 14v4h12v-4Z',
+    ],
   },
   'error-flow': {
     // Two explicit outcomes, without miniature punctuation inside the symbol.
-    body: ['M8 3a3 3 0 0 1 3 3v6h15V8c0-1 1-2 2-1l9 7a2 2 0 0 1 0 3l-9 7c-1 1-2 0-2-1v-5H11v7a3 3 0 0 0 3 3h7v-4c0-1 1-2 2-1l7 5a2 2 0 0 1 0 3l-7 5c-1 1-2 0-2-1v-1h-7a9 9 0 0 1-9-9V6a3 3 0 0 1 3-3Z'],
+    body: [
+      'M8 3a3 3 0 0 1 3 3v6h15V8c0-1 1-2 2-1l9 7a2 2 0 0 1 0 3l-9 7c-1 1-2 0-2-1v-5H11v7a3 3 0 0 0 3 3h7v-4c0-1 1-2 2-1l7 5a2 2 0 0 1 0 3l-7 5c-1 1-2 0-2-1v-1h-7a9 9 0 0 1-9-9V6a3 3 0 0 1 3-3Z',
+    ],
   },
   retry: {
     // Waiting between attempts has a distinct silhouette from the TDD loop.
-    body: ['M8 3h24a3 3 0 0 1 0 6H8a3 3 0 0 1 0-6Zm0 28h24a3 3 0 0 1 0 6H8a3 3 0 0 1 0-6Z', 'M10 9h20c0 6-3 8-6 11 3 3 6 5 6 11H10c0-6 3-8 6-11-3-3-6-5-6-11Zm6 4c1 3 2 4 4 5 2-1 3-2 4-5Zm4 11-5 6h10Z'],
+    body: [
+      'M8 3h24a3 3 0 0 1 0 6H8a3 3 0 0 1 0-6Zm0 28h24a3 3 0 0 1 0 6H8a3 3 0 0 1 0-6Z',
+      'M10 9h20c0 6-3 8-6 11 3 3 6 5 6 11H10c0-6 3-8 6-11-3-3-6-5-6-11Zm6 4c1 3 2 4 4 5 2-1 3-2 4-5Zm4 11-5 6h10Z',
+    ],
   },
   testable: {
-    body: ['M14 3h12a2 2 0 0 1 0 4h-1v9l11 15c2 3 0 6-3 6H7c-3 0-5-3-3-6l11-15V7h-1a2 2 0 0 1 0-4Zm5 4v11l-5 7h12l-5-7V7Zm-8 23v3h18v-3Z'],
+    body: [
+      'M14 3h12a2 2 0 0 1 0 4h-1v9l11 15c2 3 0 6-3 6H7c-3 0-5-3-3-6l11-15V7h-1a2 2 0 0 1 0-4Zm5 4v11l-5 7h12l-5-7V7Zm-8 23v3h18v-3Z',
+    ],
   },
   tdd: {
     // The development loop has two opposed arrows, not the retry clock.
-    body: ['M20 4A16 16 0 0 0 4 20h6a10 10 0 0 1 18-6h-5c-2 0-2.5 2-1 3l11 6c1 .5 3-.5 3-2V8c0-2-2-2.5-3-1l-1.5 2A16 16 0 0 0 20 4ZM30 20a10 10 0 0 1-18 6h5c2 0 2.5-2 1-3L7 17c-1-.5-3 .5-3 2v13c0 2 2 2.5 3 1l1.5-2A16 16 0 0 0 36 20Z'],
+    body: [
+      'M20 4A16 16 0 0 0 4 20h6a10 10 0 0 1 18-6h-5c-2 0-2.5 2-1 3l11 6c1 .5 3-.5 3-2V8c0-2-2-2.5-3-1l-1.5 2A16 16 0 0 0 20 4ZM30 20a10 10 0 0 1-18 6h5c2 0 2.5-2 1-3L7 17c-1-.5-3 .5-3 2v13c0 2 2 2.5 3 1l1.5-2A16 16 0 0 0 36 20Z',
+    ],
   },
   observability: {
-    body: ['M1 20C10 3 30 3 39 20 30 37 10 37 1 20Zm7 0c7 10 17 10 24 0C25 10 15 10 8 20Zm12-7a7 7 0 1 0 0 14 7 7 0 0 0 0-14Z'],
+    body: [
+      'M1 20C10 3 30 3 39 20 30 37 10 37 1 20Zm7 0c7 10 17 10 24 0C25 10 15 10 8 20Zm12-7a7 7 0 1 0 0 14 7 7 0 0 0 0-14Z',
+    ],
     signal: 'M17 17h6v6h-6Z',
   },
   logs: {

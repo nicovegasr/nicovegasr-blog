@@ -10,8 +10,7 @@ const WALK_LENGTH = 0.8;
 
 export type WalkDirection = 'left' | 'right';
 
-const clamp = (value: number, minimum: number, maximum: number): number =>
-  Math.min(Math.max(value, minimum), maximum);
+const clamp = (value: number, minimum: number, maximum: number): number => Math.min(Math.max(value, minimum), maximum);
 
 const walkedWithinStation = (travelled: number, stationIndex: number): number =>
   clamp((travelled - stationIndex - WALK_STARTS_AT) / WALK_LENGTH, 0, 1);
@@ -55,7 +54,13 @@ type HeldWalkStep = {
   walksForward: boolean;
 };
 
-export const nextLinePosition = ({ position, lastIndex, stationPixels, pixelsWalked, walksForward }: HeldWalkStep): number => {
+export const nextLinePosition = ({
+  position,
+  lastIndex,
+  stationPixels,
+  pixelsWalked,
+  walksForward,
+}: HeldWalkStep): number => {
   const distance = pixelsWalked / stationPixels;
   return clamp(position + (walksForward ? distance : -distance), 0, lastIndex);
 };
@@ -70,14 +75,17 @@ export const threadSpan = (firstRouteBottom: number, lastRouteTop: number, stage
   return { top, height: lastRouteTop + stageHeight * GROUND_RATIO - top };
 };
 
-export const threadProgress = (threadY: number, threadHeight: number): number =>
-  clamp(threadY / threadHeight, 0, 1);
+export const threadProgress = (threadY: number, threadHeight: number): number => clamp(threadY / threadHeight, 0, 1);
 
 const lineLength = (walkwayWidth: number, mascotWidth: number, lineInset: number): number =>
   walkwayWidth - mascotWidth / 2 - lineInset;
 
-export const pixelsPerStation = (walkwayWidth: number, mascotWidth: number, lineInset: number, lastIndex: number): number =>
-  lineLength(walkwayWidth, mascotWidth, lineInset) / lastIndex;
+export const pixelsPerStation = (
+  walkwayWidth: number,
+  mascotWidth: number,
+  lineInset: number,
+  lastIndex: number,
+): number => lineLength(walkwayWidth, mascotWidth, lineInset) / lastIndex;
 
 type RouteProgress = {
   isOnFirstRoute: boolean;
@@ -130,12 +138,22 @@ type RestingPoseInput = RouteProgress & {
   lastStationPose: MascotPoseName;
 };
 
-export const restingPose = ({ isOnFirstRoute, isOnLastRoute, hasArrived, firstStationPose, lastStationPose }: RestingPoseInput): MascotPoseName => {
+export const restingPose = ({
+  isOnFirstRoute,
+  isOnLastRoute,
+  hasArrived,
+  firstStationPose,
+  lastStationPose,
+}: RestingPoseInput): MascotPoseName => {
   if (isOnLastRoute) return hasArrived ? 'welcoming' : lastStationPose;
   return isOnFirstRoute ? firstStationPose : 'standing';
 };
 
-export const visibleAge = ({ isOnFirstRoute, isOnLastRoute, activeStopYear }: RouteProgress & { activeStopYear: string | undefined }): string => {
+export const visibleAge = ({
+  isOnFirstRoute,
+  isOnLastRoute,
+  activeStopYear,
+}: RouteProgress & { activeStopYear: string | undefined }): string => {
   if (isOnFirstRoute) return 'original';
-  return isOnLastRoute ? '2026' : activeStopYear ?? 'original';
+  return isOnLastRoute ? '2026' : (activeStopYear ?? 'original');
 };

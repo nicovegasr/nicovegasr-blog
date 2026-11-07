@@ -1,6 +1,6 @@
 ---
+import { postsCopy } from '../copy';
 import type { Locale } from '@/i18n/locale';
-import { getTranslator } from '@/i18n/translator';
 import { paginatePosts } from '@/features/posts/post-pagination';
 
 interface Props {
@@ -9,32 +9,30 @@ interface Props {
 }
 
 const { locale, postCount } = Astro.props;
-const translate = getTranslator(locale);
+const copy = postsCopy(locale);
 const { pageCount } = paginatePosts(postCount, 1);
 const pages = Array.from({ length: pageCount }, (_, index) => index + 1);
 ---
 
-{
-  pageCount > 1 && (
-    <nav class="post-pagination" aria-label={translate('blog.paginationLabel')} data-post-pagination hidden>
-      <button type="button" class="step" data-page-step="-1">
-        {translate('blog.previousPage')}
-      </button>
-      <ol class="pages">
-        {pages.map((page) => (
-          <li>
-            <button type="button" class="page" data-page={page} aria-label={`${translate('blog.page')} ${page}`}>
-              {page}
-            </button>
-          </li>
-        ))}
-      </ol>
-      <button type="button" class="step" data-page-step="1">
-        {translate('blog.nextPage')}
-      </button>
-    </nav>
-  )
-}
+{pageCount > 1 && (
+  <nav class="post-pagination" aria-label={copy.paginationLabel} data-post-pagination hidden>
+    <button type="button" class="step" data-page-step="-1">
+      {copy.previousPage}
+    </button>
+    <ol class="pages">
+      {pages.map((page) => (
+        <li>
+          <button type="button" class="page" data-page={page} aria-label={`${copy.page} ${page}`}>
+            {page}
+          </button>
+        </li>
+      ))}
+    </ol>
+    <button type="button" class="step" data-page-step="1">
+      {copy.nextPage}
+    </button>
+  </nav>
+)}
 
 <script>
   import { paginatePosts, parsePageParameter } from '@/features/posts/post-pagination';

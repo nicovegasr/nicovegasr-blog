@@ -5,8 +5,7 @@ const WALKING_ROW = 0;
 
 type SpriteCell = { readonly column: number; readonly row: number };
 export type MascotPose =
-  | { readonly atlas: 'walking'; readonly cell: SpriteCell }
-  | { readonly atlas: 'reactions'; readonly cell: SpriteCell };
+  { readonly atlas: 'walking'; readonly cell: SpriteCell } | { readonly atlas: 'reactions'; readonly cell: SpriteCell };
 
 export const MASCOT_POSES = {
   standing: { atlas: 'walking', cell: { column: 0, row: 1 } },

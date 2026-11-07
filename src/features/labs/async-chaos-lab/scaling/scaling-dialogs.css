@@ -1,0 +1,181 @@
+scaling-lab .scaling-dialog {
+  inset: 0;
+  margin: auto;
+  width: min(660px, calc(100vw - 2rem));
+  max-width: calc(100vw - 2rem);
+  max-height: calc(100dvh - 2rem);
+  padding: 1.7rem;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-large);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  overflow-y: auto;
+  box-shadow: 0 24px 100px rgb(0 0 0 / 0.22);
+}
+scaling-lab .scaling-dialog::backdrop {
+  background: rgb(10 10 10 / 0.6);
+  backdrop-filter: blur(3px);
+}
+scaling-lab .scaling-dialog > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+scaling-lab .scaling-dialog > header > span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--scaling-blue);
+  font: 0.5rem/1.3 var(--font-family-mono);
+  letter-spacing: 0.04em;
+}
+scaling-lab .scaling-dialog .lab-figure {
+  width: 23px;
+  height: 23px;
+}
+scaling-lab .scaling-dialog header > button {
+  background: none;
+  border: 0;
+  padding: 0.25rem;
+  font-size: 1.3rem;
+}
+scaling-lab .scaling-dialog h2 {
+  font: 500 clamp(1.8rem, 4vw, 2.65rem)/1.05 var(--font-family-display);
+  letter-spacing: -0.05em;
+  max-width: 21ch;
+  margin: 0 0 1rem;
+  text-wrap: balance;
+}
+scaling-lab .scaling-dialog p {
+  font-size: 0.85rem;
+  line-height: 1.7;
+  margin: 0.8rem 0 0;
+}
+scaling-lab .scaling-dialog p.scaling-call-hint {
+  color: var(--color-text-soft);
+  font-size: 0.73rem;
+}
+scaling-lab .scaling-dialog footer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+scaling-lab .scaling-dialog footer button:not(.scaling-primary) {
+  background: none;
+  border: 0;
+  padding: 0.4rem 0;
+  font-size: 0.7rem;
+  color: var(--color-text-soft);
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+}
+scaling-lab .scaling-dialog[data-tone='win'] .scaling-primary {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+scaling-lab .scaling-dialog p.scaling-result-label {
+  color: var(--scaling-blue);
+  font: 0.55rem/1.4 var(--font-family-mono);
+}
+scaling-lab .scaling-dialog[data-tone='win'] .scaling-result-label {
+  color: var(--scaling-green);
+}
+scaling-lab .scaling-before-after {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--color-rule);
+}
+scaling-lab .scaling-before-after > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+scaling-lab .scaling-before-after small {
+  font: 0.5rem/1.4 var(--font-family-mono);
+  color: var(--color-text-soft);
+}
+scaling-lab .scaling-before-after strong {
+  font: 500 2.6rem/1.1 var(--font-family-display);
+  letter-spacing: -0.05em;
+}
+scaling-lab .scaling-before-after span {
+  font: 0.65rem/1.4 var(--font-family-mono);
+}
+scaling-lab .scaling-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 0.85rem;
+  font: 0.7rem/1.3 var(--font-family-mono);
+}
+scaling-lab .scaling-checks [data-ok='true'] {
+  color: var(--scaling-green);
+}
+scaling-lab .scaling-checks [data-ok='false'] {
+  color: var(--scaling-coral);
+}
+scaling-lab .scaling-name-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+scaling-lab .scaling-name-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.65rem;
+  color: var(--color-text-soft);
+}
+scaling-lab .scaling-name-fields input {
+  padding: 0.4rem;
+  width: 100%;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-small);
+  color: var(--color-ink);
+  background: var(--color-paper);
+}
+scaling-lab .scaling-name-fields details {
+  grid-column: 1/-1;
+}
+scaling-lab .scaling-name-fields details label {
+  margin-top: 0.5rem;
+}
+scaling-lab .scaling-name-fields summary {
+  cursor: pointer;
+  font-size: 0.7rem;
+}
+scaling-lab .scaling-comparison {
+  overflow-x: auto;
+}
+scaling-lab .scaling-comparison table {
+  width: 100%;
+  border-collapse: collapse;
+  font: 0.65rem/1.5 var(--font-family-mono);
+}
+scaling-lab .scaling-comparison :is(th, td) {
+  text-align: left;
+  padding: 0.5rem 0.4rem;
+  border-bottom: 1px solid var(--color-rule);
+}
+scaling-lab .scaling-comparison td button {
+  border: 0;
+  background: none;
+  padding: 0.25rem 0;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+scaling-lab .scaling-trial-config {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--color-text-soft);
+  font-size: 0.5rem;
+}

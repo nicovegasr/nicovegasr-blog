@@ -152,6 +152,22 @@ p {
   margin-top: var(--space-4);
 }
 
+.prose figure {
+  margin-inline: 0;
+}
+
+.prose figure img {
+  display: block;
+  border-radius: var(--radius-small);
+}
+
+.prose figcaption {
+  margin-top: var(--space-3);
+  color: var(--color-text-soft);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
 .prose img {
   max-width: 100%;
   height: auto;

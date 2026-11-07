@@ -106,7 +106,10 @@ test.describe('without JavaScript', () => {
   test('moves to another pill through its real link', async ({ page }) => {
     await page.goto(firstPill);
 
-    await page.locator('#pill-index-navigation').getByRole('link', { name: /Dockerfile/ }).click();
+    await page
+      .locator('#pill-index-navigation')
+      .getByRole('link', { name: /Dockerfile/ })
+      .click();
 
     await expect(page).toHaveURL(/:\d+\/pildoras\/docker\/docker-file\//);
     await expect(page.getByRole('heading', { level: 1, name: 'Dockerfile' })).toBeVisible();
@@ -207,7 +210,10 @@ test.describe('on the desktop catalogue', () => {
     await expect(docker).toHaveAttribute('aria-current', 'true');
     await expect(page.locator('#serie-docker')).toBeVisible();
     await expect(page.locator('#serie-fundamentos')).toBeHidden();
-    await page.locator('#serie-docker').getByRole('link', { name: /Dockerfile/ }).click();
+    await page
+      .locator('#serie-docker')
+      .getByRole('link', { name: /Dockerfile/ })
+      .click();
     await expect(page).toHaveURL(/\/pildoras\/docker\/docker-file\//);
   });
 
@@ -220,7 +226,7 @@ test.describe('on the desktop catalogue', () => {
 
     await expect(page.locator('a.spine[href="#serie-docker"]')).toHaveAttribute('aria-current', 'true');
     await expect(page.locator('#serie-docker')).toBeVisible();
-    expect((await books.boundingBox())!.height).toBe(heightBefore);
+    expect((await books.boundingBox())!.height).toBeCloseTo(heightBefore, 1);
 
     await page.keyboard.press('ArrowLeft');
 

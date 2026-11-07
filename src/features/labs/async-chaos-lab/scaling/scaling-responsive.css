@@ -1,0 +1,144 @@
+@media (prefers-reduced-motion: no-preference) {
+  scaling-lab .scaling-dialog[open] {
+    animation: scaling-call-in 0.25s ease-out;
+  }
+  scaling-lab.is-playing .scaling-job[data-status='running'] {
+    animation: scaling-working 1.2s ease-in-out infinite;
+  }
+  @keyframes scaling-call-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes scaling-working {
+    50% {
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--scaling-green) 20%, transparent);
+    }
+  }
+}
+@media (max-width: 950px) {
+  scaling-lab .scaling-board {
+    grid-template-columns: 135px minmax(0, 1fr);
+    gap: 1.2rem;
+  }
+  scaling-lab .scaling-flow {
+    gap: 0.4rem;
+  }
+  scaling-lab .scaling-step {
+    padding: 0.45rem;
+  }
+  scaling-lab .scaling-step-heading > strong {
+    font-size: 0.7rem;
+  }
+  scaling-lab .scaling-dock-metrics {
+    gap: 0.4rem;
+  }
+}
+@media (max-width: 700px) {
+  scaling-lab {
+    padding-bottom: 100px;
+  }
+  scaling-lab .scaling-board {
+    grid-template-columns: 1fr;
+    gap: 0.7rem;
+  }
+  scaling-lab .scaling-intake {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 0.5rem;
+  }
+  scaling-lab .scaling-edit-names {
+    grid-column: 1/-1;
+    justify-self: start;
+  }
+  scaling-lab .scaling-api {
+    align-self: stretch;
+    align-content: center;
+  }
+  scaling-lab .scaling-api > strong {
+    flex-basis: 100%;
+  }
+  scaling-lab .scaling-202 {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+  scaling-lab .scaling-queue {
+    padding: 0.5rem;
+  }
+  scaling-lab .scaling-queue-jobs {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    min-height: 65px;
+  }
+  scaling-lab .scaling-queue > p {
+    display: none;
+  }
+  scaling-lab .scaling-machine {
+    gap: 0;
+  }
+  scaling-lab .scaling-team {
+    padding: 0.6rem;
+    margin-bottom: 0.6rem;
+  }
+  scaling-lab .scaling-flow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+  scaling-lab .scaling-step {
+    padding: 0.6rem;
+  }
+  scaling-lab .scaling-step-heading > strong {
+    min-height: 0;
+    font-size: 0.85rem;
+  }
+  scaling-lab .scaling-slots {
+    min-height: 30px;
+  }
+  scaling-lab .scaling-wait {
+    min-height: 32px;
+  }
+  scaling-lab .scaling-step-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    justify-content: space-between;
+  }
+  scaling-lab .scaling-dock {
+    position: fixed;
+    left: var(--space-6);
+    right: var(--space-6);
+    bottom: env(safe-area-inset-bottom, 0px);
+    margin: 0;
+    border-top: 1px solid var(--color-rule);
+    border-bottom: 0;
+    box-shadow: 0 -8px 20px color-mix(in srgb, var(--color-paper) 85%, transparent);
+    gap: 0.5rem;
+  }
+  scaling-lab .scaling-dock-metrics {
+    width: 100%;
+    justify-content: space-between;
+  }
+  scaling-lab .scaling-trial-bar > span {
+    display: none;
+  }
+  scaling-lab .scaling-radio {
+    margin-top: 0.65rem;
+    min-height: 70px;
+  }
+  scaling-lab .scaling-dialog {
+    padding: 1.2rem;
+  }
+  scaling-lab .scaling-before-after strong {
+    font-size: 2rem;
+  }
+  scaling-lab .scaling-before-after span {
+    font-size: 0.5rem;
+  }
+  scaling-lab .scaling-name-fields {
+    grid-template-columns: 1fr;
+  }
+}

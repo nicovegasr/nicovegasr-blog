@@ -20,10 +20,7 @@ const toggleEnlarged = () => {
   if (!parts) return;
   const { dialog, image } = parts;
   image.toggleAttribute('data-enlarged');
-  dialog.scrollTo(
-    (dialog.scrollWidth - dialog.clientWidth) / 2,
-    (dialog.scrollHeight - dialog.clientHeight) / 2,
-  );
+  dialog.scrollTo((dialog.scrollWidth - dialog.clientWidth) / 2, (dialog.scrollHeight - dialog.clientHeight) / 2);
 };
 
 document.addEventListener('click', (event) => {

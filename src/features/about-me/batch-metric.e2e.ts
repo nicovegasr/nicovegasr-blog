@@ -5,12 +5,20 @@ import { LOCALES, type Locale } from '@/i18n/locale';
 const openBackend = async (page: Page, locale: Locale = 'es') => {
   await page.goto(buildPagePath('home', locale));
   await page.evaluate(() => document.fonts.ready);
-  await page.locator('[data-route]').last().evaluate((route) => {
-    window.scrollTo({ top: window.scrollY + route.getBoundingClientRect().top + 2, behavior: 'instant' });
-  });
+  await page
+    .locator('[data-route]')
+    .last()
+    .evaluate((route) => {
+      window.scrollTo({ top: window.scrollY + route.getBoundingClientRect().top + 2, behavior: 'instant' });
+    });
 };
 
-for (const viewport of [{ width: 1280, height: 800 }, { width: 390, height: 844 }, { width: 360, height: 640 }, { width: 320, height: 568 }]) {
+for (const viewport of [
+  { width: 1280, height: 800 },
+  { width: 390, height: 844 },
+  { width: 360, height: 640 },
+  { width: 320, height: 568 },
+]) {
   test.describe(`Backend metric at ${viewport.width}x${viewport.height}`, () => {
     test.use({ viewport });
     for (const locale of LOCALES) {
@@ -18,13 +26,18 @@ for (const viewport of [{ width: 1280, height: 800 }, { width: 390, height: 844 
         await openBackend(page, locale);
         const metric = page.locator('[data-batch-metric]');
         await expect(metric.locator('strong')).toHaveText(locale === 'es' ? '1.000.000' : '1,000,000');
-        await expect(metric.locator('[data-batch-pointer]')).toHaveText(locale === 'es' ? 'Lotes de 1.000' : 'Batches of 1,000');
+        await expect(metric.locator('[data-batch-pointer]')).toHaveText(
+          locale === 'es' ? 'Lotes de 1.000' : 'Batches of 1,000',
+        );
         await expect(page.locator('[data-page-walker]')).toHaveAttribute('data-mascot-role', 'backend');
         const bounds = await metric.evaluate((element) => {
           const box = element.getBoundingClientRect();
           const stage = element.closest('[data-route-stage]')!;
           return {
-            top: box.top, bottom: box.bottom, left: box.left, right: box.right,
+            top: box.top,
+            bottom: box.bottom,
+            left: box.left,
+            right: box.right,
             line: stage.querySelector('[data-route-ground]')!.getBoundingClientRect().top,
             tags: element.previousElementSibling!.getBoundingClientRect().bottom,
           };
@@ -39,19 +52,29 @@ for (const viewport of [{ width: 1280, height: 800 }, { width: 390, height: 844 
   });
 }
 
-test('the pointer follows the active batch, stops offscreen and the wrench belongs only to Backend', async ({ page }) => {
+test('the pointer follows the active batch, stops offscreen and the wrench belongs only to Backend', async ({
+  page,
+}) => {
   await openBackend(page);
   const metric = page.locator('[data-batch-metric]');
-  const activeBatch = () => metric.locator('[data-batch]').evaluateAll((groups) => groups.findIndex((group) => group.classList.contains('is-active')));
+  const activeBatch = () =>
+    metric
+      .locator('[data-batch]')
+      .evaluateAll((groups) => groups.findIndex((group) => group.classList.contains('is-active')));
   const initial = await activeBatch();
   const pointer = await metric.evaluate((element) => element.style.getPropertyValue('--batch-position'));
   await expect.poll(activeBatch).not.toBe(initial);
-  await expect.poll(() => metric.evaluate((element) => element.style.getPropertyValue('--batch-position'))).not.toBe(pointer);
-  await page.locator('[data-route]').last().evaluate((route) => {
-    const stage = route.querySelector<HTMLElement>('[data-route-stage]')!;
-    const length = (route.getBoundingClientRect().height - stage.offsetHeight) / 4;
-    window.scrollTo({ top: window.scrollY + route.getBoundingClientRect().top + length, behavior: 'instant' });
-  });
+  await expect
+    .poll(() => metric.evaluate((element) => element.style.getPropertyValue('--batch-position')))
+    .not.toBe(pointer);
+  await page
+    .locator('[data-route]')
+    .last()
+    .evaluate((route) => {
+      const stage = route.querySelector<HTMLElement>('[data-route-stage]')!;
+      const length = (route.getBoundingClientRect().height - stage.offsetHeight) / 4;
+      window.scrollTo({ top: window.scrollY + route.getBoundingClientRect().top + length, behavior: 'instant' });
+    });
   await expect(metric).toBeHidden();
   const stopped = await activeBatch();
   await page.waitForTimeout(850);

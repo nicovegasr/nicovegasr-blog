@@ -1,0 +1,281 @@
+.notebooks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-8) var(--space-6);
+  padding: 0;
+  list-style: none;
+}
+
+.notebooks .notebook {
+  --notebook-line: 28px;
+  --notebook-margin: 30px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-4) var(--space-4) calc(var(--notebook-margin) + var(--space-4));
+  border: 2px solid var(--color-ink);
+  background:
+    linear-gradient(
+      90deg,
+      transparent var(--notebook-margin),
+      rgb(229 72 77 / 0.5) var(--notebook-margin) calc(var(--notebook-margin) + 1.5px),
+      transparent calc(var(--notebook-margin) + 1.5px)
+    ),
+    repeating-linear-gradient(
+      transparent 0 calc(var(--notebook-line) - 1px),
+      var(--color-rule) calc(var(--notebook-line) - 1px) var(--notebook-line)
+    ),
+    var(--color-paper);
+  transition:
+    transform var(--motion-duration-base) var(--motion-easing),
+    box-shadow var(--motion-duration-base) var(--motion-easing);
+}
+
+@media (hover: hover) {
+  .notebooks .notebook:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: 6px 6px 0 var(--color-ink);
+  }
+}
+
+.notebooks .notebook:has(:focus-visible) {
+  transform: translate(-4px, -4px);
+  box-shadow: 6px 6px 0 var(--color-ink);
+}
+
+.notebooks .notebook-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-meta);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.notebooks .lab-tag {
+  padding: 0.1em 0.6em;
+  background: var(--color-invert-surface);
+  color: var(--color-accent);
+  letter-spacing: 0.04em;
+}
+
+:root[data-theme='dark'] .notebooks .lab-tag {
+  color: var(--color-invert-text);
+}
+
+.notebooks .notebook h2 {
+  font-size: 2.125rem;
+  line-height: var(--line-height-tight);
+  letter-spacing: -0.03em;
+}
+
+.notebooks .notebook h2 a {
+  text-decoration: none;
+}
+
+.notebooks .notebook-summary {
+  color: var(--color-text-soft);
+  font-size: var(--font-size-small);
+}
+
+.notebooks .photo {
+  position: relative;
+  display: block;
+  margin-top: 0;
+  padding: var(--space-2) var(--space-2) calc(var(--space-4) + var(--space-1));
+  border: 2px solid var(--color-ink);
+  background: var(--color-paper);
+  color: inherit;
+  text-decoration: none;
+  transform: rotate(-1deg);
+  box-shadow: 3px 3px 0 rgb(0 0 0 / 0.12);
+  transition: transform var(--motion-duration-base) var(--motion-easing);
+}
+
+.notebooks li:nth-child(even) .photo {
+  transform: rotate(1deg);
+}
+
+/* The tape that holds the photo onto the page. */
+.notebooks .photo::before {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  top: -12px;
+  left: 50%;
+  width: 92px;
+  height: 22px;
+  margin-left: -46px;
+  border: 1px solid rgb(0 0 0 / 0.15);
+  background: color-mix(in srgb, var(--color-accent) 75%, transparent);
+  transform: rotate(2deg);
+}
+
+@media (hover: hover) {
+  .notebooks .notebook:hover .photo {
+    transform: none;
+  }
+}
+
+.notebooks .photo .assembly,
+.notebooks .photo .memory-terminal {
+  margin-top: 0;
+  height: 7rem;
+}
+
+.notebooks .photo .memory-terminal {
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.65rem;
+}
+
+.notebooks .photo .memory-terminal-reading {
+  font-size: 2rem;
+}
+
+.notebooks .photo .memory-terminal-reading small {
+  font-size: 0.65rem;
+}
+.notebooks .photo .memory-terminal-gauge {
+  height: 6px;
+  margin-top: var(--space-1);
+}
+.notebooks .photo .memory-terminal-log {
+  height: 2.6em;
+  line-height: 1.3;
+}
+
+/* The assembly line was drawn for the full width; on half a page its stations shrink to fit. */
+.notebooks .photo .assembly-desk {
+  width: 2.9rem;
+}
+
+.notebooks .photo .assembly-worker {
+  width: 2.3rem;
+  height: 2.3rem;
+}
+
+.notebooks .photo .assembly-bank {
+  left: auto;
+  right: 2%;
+  min-width: 3rem;
+  width: 8%;
+}
+
+.notebooks .photo .assembly-score {
+  top: var(--space-1);
+  right: var(--space-2);
+  gap: var(--space-2);
+  font-size: 0.5rem;
+}
+
+.notebooks .photo .assembly-score b {
+  font-size: 0.9rem;
+}
+
+.notebooks .photo-caption {
+  position: absolute;
+  left: var(--space-3);
+  bottom: var(--space-2);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-meta);
+  color: var(--color-text-soft);
+}
+
+.notebooks .levels {
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-small);
+}
+
+.notebooks .levels a {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 28px;
+  padding-inline: var(--space-1);
+  color: inherit;
+  text-decoration: none;
+}
+
+.notebooks .levels a::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--color-ink);
+  background: var(--color-paper);
+}
+
+.notebooks .level-number {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-meta);
+  color: var(--color-text-muted);
+}
+
+@media (hover: hover) {
+  .notebooks .levels a:hover {
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+  }
+
+  .notebooks .levels a:hover .level-number {
+    color: inherit;
+  }
+
+  .notebooks .levels a:hover::after {
+    content: '→';
+    margin-left: auto;
+    font-family: var(--font-family-mono);
+  }
+}
+
+.notebooks .notebook-foot {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-small);
+  font-weight: 600;
+}
+
+.notebooks .notebook-start {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--space-1) var(--space-3);
+  border: 1.5px solid var(--color-ink);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  text-decoration: none;
+}
+
+@media (max-width: 900px) {
+  .notebooks {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .notebooks .notebook {
+    --notebook-margin: 18px;
+    padding-right: var(--space-4);
+  }
+
+  .notebooks .notebook h2 {
+    font-size: var(--font-size-heading-2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notebooks .notebook,
+  .notebooks .photo {
+    transition: none;
+  }
+}

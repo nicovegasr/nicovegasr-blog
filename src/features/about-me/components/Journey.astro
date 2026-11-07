@@ -12,13 +12,11 @@ const { entries } = Astro.props;
 <div class="journey" data-journey>
   <span class="rail" aria-hidden="true"></span>
   <ol class="stops">
-    {
-      entries.map((entry) => (
-        <li>
-          <TimelineEntry entry={entry} />
-        </li>
-      ))
-    }
+    {entries.map((entry) => (
+      <li>
+        <TimelineEntry entry={entry} />
+      </li>
+    ))}
   </ol>
 </div>
 

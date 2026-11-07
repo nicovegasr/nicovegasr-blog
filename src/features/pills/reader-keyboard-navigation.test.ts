@@ -9,7 +9,9 @@ const reader = (selected = 0) => ({
     hasAttribute: () => index === selected,
   })),
   getBoundingClientRect: () => ({ top: 0, bottom: 1200 }),
-  querySelectorAll() { return this.links; },
+  querySelectorAll() {
+    return this.links;
+  },
   querySelector: vi.fn(() => null as { href: string } | null),
 });
 let current: ReturnType<typeof reader>;

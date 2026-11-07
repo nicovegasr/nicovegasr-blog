@@ -22,10 +22,7 @@ const link = (href: string, active = false, top = 120, bottom = 180) => {
 };
 
 const reader = (key = 'es/docker', selected = 0) => {
-  const links = [
-    link('/intro/#pill-reading', selected === 0),
-    link('/images/#pill-reading', selected === 1),
-  ];
+  const links = [link('/intro/#pill-reading', selected === 0), link('/images/#pill-reading', selected === 1)];
   const focus = vi.fn();
   const index = {
     scrollTop: 0,
@@ -58,17 +55,11 @@ const reader = (key = 'es/docker', selected = 0) => {
 
 let current: ReturnType<typeof reader>;
 let documentEvents: EventTarget;
-const emit = (name: string, fields = {}) =>
-  documentEvents.dispatchEvent(Object.assign(new Event(name), fields));
-const beforeSwap = (
-  incoming: ReturnType<typeof reader>,
-  navigationType = 'push',
-  ready = Promise.resolve(),
-) => {
+const emit = (name: string, fields = {}) => documentEvents.dispatchEvent(Object.assign(new Event(name), fields));
+const beforeSwap = (incoming: ReturnType<typeof reader>, navigationType = 'push', ready = Promise.resolve()) => {
   const event = Object.assign(new Event('astro:before-swap'), {
     newDocument: {
-      querySelector: (selector: string) =>
-        selector === '[data-pill-reader]' ? incoming : null,
+      querySelector: (selector: string) => (selector === '[data-pill-reader]' ? incoming : null),
     },
     viewTransition: { ready, skipTransition: vi.fn() },
     swap: vi.fn(),
@@ -84,20 +75,22 @@ beforeEach(async () => {
   vi.resetModules();
   current = reader();
   documentEvents = Object.assign(new EventTarget(), {
-    querySelector: (selector: string) =>
-      selector === '[data-pill-reader]' ? current : null,
+    querySelector: (selector: string) => (selector === '[data-pill-reader]' ? current : null),
     documentElement: {},
   });
   vi.stubGlobal('document', documentEvents);
   vi.stubGlobal('location', new URL('https://example.test/docker/#pill-reading'));
   vi.stubGlobal('Element', class {});
-  vi.stubGlobal('window', Object.assign(new EventTarget(), {
-    innerHeight: 800,
-    scrollY: 100,
-    getSelection: () => null,
-    scrollTo: vi.fn(),
-    matchMedia: vi.fn(() => ({ matches: false })),
-  }));
+  vi.stubGlobal(
+    'window',
+    Object.assign(new EventTarget(), {
+      innerHeight: 800,
+      scrollY: 100,
+      getSelection: () => null,
+      scrollTo: vi.fn(),
+      matchMedia: vi.fn(() => ({ matches: false })),
+    }),
+  );
   vi.stubGlobal('getComputedStyle', () => ({
     scrollMarginTop: '40px',
     getPropertyValue: () => '3s',
@@ -119,8 +112,7 @@ describe('notebook navigation lifecycle', () => {
   });
 
   it('handles the expected native transition rejection when snapshots are skipped', async () => {
-    beforeSwap(reader('es/docker', 1), 'push',
-      Promise.reject(new DOMException('Transition skipped', 'AbortError')));
+    beforeSwap(reader('es/docker', 1), 'push', Promise.reject(new DOMException('Transition skipped', 'AbortError')));
     // Vitest also fails this test if the rejected ready promise is unhandled.
     await Promise.resolve();
     emit('astro:after-swap');

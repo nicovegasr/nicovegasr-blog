@@ -1,0 +1,17 @@
+/* Feature-local lab styles, using the blog's existing palette and type.
+   Later sections override earlier ones, so this order is part of the cascade. */
+@import './stories/foundation.css';
+@import './stories/outcome-scene.css';
+@import './stories/outcome-scene-responsive.css';
+@import './stories/first-lab.css';
+@import './stories/component-roles.css';
+@import './stories/outcome-overlay.css';
+@import './stories/transport.css';
+@import './stories/decisions.css';
+@import './stories/loss-moment.css';
+@import './stories/diagram-geometry.css';
+@import './stories/walkthrough.css';
+@import './stories/naming.css';
+@import './stories/configuration.css';
+@import './stories/loss-ticket.css';
+@import './stories/controls-and-accessibility.css';

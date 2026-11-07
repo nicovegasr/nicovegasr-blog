@@ -1,0 +1,78 @@
+/* Components have distinct, consistent roles; color supplements the labels. */
+payment-lab {
+  --lab-api: #5278b0;
+  --lab-storage: #8b6caf;
+  --lab-compute: #b77d29;
+  --lab-fault: #c65a56;
+  --lab-ok: #537f66;
+}
+payment-lab .lab-api,
+payment-lab .lab-store,
+payment-lab .lab-worker {
+  position: relative;
+}
+payment-lab .lab-figure {
+  display: block;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+payment-lab .lab-figure-api {
+  color: var(--lab-api);
+}
+payment-lab .lab-figure-ram,
+payment-lab .lab-figure-db {
+  color: var(--lab-storage);
+}
+payment-lab .lab-figure-worker {
+  color: var(--lab-compute);
+}
+payment-lab .lab-api > .lab-figure {
+  width: 30px;
+  height: 30px;
+}
+payment-lab .lab-store > [data-store-figure],
+payment-lab .lab-worker > .lab-figure {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+payment-lab .lab-store > .lab-editable {
+  padding-right: 42px;
+}
+payment-lab .lab-worker > .lab-editable {
+  padding-right: 40px;
+}
+payment-lab .lab-store > [data-store-figure] {
+  transform: translateY(-5px);
+}
+payment-lab .lab-arrow {
+  position: relative;
+}
+payment-lab .lab-arrow::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  left: 50%;
+  top: 50%;
+  margin: -4px;
+  background: var(--lab-api);
+  border: 1px solid var(--color-paper);
+  opacity: 0;
+  pointer-events: none;
+}
+payment-lab .lab-job.is-done .lab-job-icon {
+  color: var(--lab-ok);
+}
+payment-lab .lab-job.is-lost .lab-job-icon,
+payment-lab .lab-job.is-failed .lab-job-icon {
+  color: var(--lab-fault);
+}
+payment-lab.is-worker-down .lab-worker > .lab-figure-worker,
+payment-lab.is-worker-down .lab-worker-interior > header > .lab-figure-worker {
+  color: var(--lab-fault);
+}
+payment-lab .lab-led {
+  fill: currentColor;
+}

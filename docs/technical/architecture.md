@@ -6,6 +6,10 @@ The blog is an Astro static site. Spanish, the default locale, is served at the 
 
 Application code is grouped by functionality. A feature owns a coherent part of the site; it does not have to correspond to one page or one content collection. For example, posts support article pages, listings, search, and RSS.
 
+## Architecture map
+
+`npm run architecture` builds an interactive map of this structure from the code: every feature and shared piece, its file count, the real imports between them and the explanation in its README. CI runs it on every commit and fails when a feature or shared piece has no `README.md` or an import breaks the dependency direction; on every push to `main` the map is published to [GitHub Pages](https://nicovegasr.github.io/nicovegasr-blog/). Write each README with a first paragraph that says what the part does, and optional `## Inside` and `## Notes` lists: the map shows them as they are.
+
 ## Structure
 
 ```text
@@ -14,16 +18,17 @@ src/
 ├── content/                # Localized Markdown and editorial assets
 ├── features/
 │   ├── about-me/           # Personal journey: Home page, model, repository, contributions, skill areas, and the scroll-driven mascot walkway
-│   ├── async-chaos-lab/    # Interactive labs on queues, retries and scaling; see its own README
-│   ├── friend-blogs/       # Related blog catalogue and its coverflow adapter
-│   ├── out-of-memory-lab/  # Exit 137: a card game about keeping a log job inside its memory
+│   ├── labs/               # Every lab and their catalogue
+│   │   ├── catalogue/      # Labs index; each lab supplies its entry and preview
+│   │   ├── async-chaos-lab/ # Queues, retries and scaling; see its own README
+│   │   └── exit-137/       # A card game about keeping a log job inside its memory
 │   ├── pills/              # Series, individual pills, and the notebook reader
 │   └── posts/              # Articles, listings, search, pagination, related posts, and feeds
 ├── shared/
-│   ├── coverflow/          # Container-sized 3D gallery of website previews
+│   ├── friend-blogs/       # Self-contained friends' blogs block: data, repository and its coverflow/ gallery
 │   ├── mascot/             # Sprite atlases shared by the labs and the home page
 │   └── reading-time/       # Calculation, tests, and UI used by posts and pills
-├── i18n/                   # Locales, UI dictionaries, and route builders
+├── i18n/                   # Locales, site-wide dictionary, and route builders
 ├── layouts/                # Site-wide shell, navigation, footer, and controls
 ├── pages/                  # Astro routes, separated by locale
 └── styles/                 # Design tokens and global styles
@@ -40,25 +45,27 @@ Keep small features flat, separating responsibilities with files:
 
 There are no mandatory `domain/`, `application/`, or `infrastructure/` directories. Add subdirectories when the amount of code makes navigation easier, rather than creating empty layers in advance.
 
+Route files in `src/pages/` stay thin: they declare `getStaticPaths` and render one page component from the feature (`PostPage.astro`, `PillNotebook.astro`, `LabsPage.astro`), so each locale's route adds no logic of its own.
+
 Pages and components consume repositories instead of importing `astro:content` directly. This keeps collection identifiers, validation, and Markdown rendering behind one boundary. Pure logic remains testable without Astro.
 
 ### Feature ownership and shared code
 
 `about-me` owns the personal journey, told as life chapters where work is a secondary credit, because it is the localized home page. The underlying content collection remains named `timeline`: content storage and feature ownership need not have identical directory names.
 
-`shared/` contains focused pieces used by more than one feature. Reading-time calculation and presentation belong together there because posts and pills both use them. The mascot sprite atlases live there too, because the labs and the home page both animate them. Shared code must not depend on feature modules. Do not use this directory as a catch-all for code with unclear ownership.
+`shared/` contains focused pieces used by more than one feature. Reading-time calculation and presentation belong together there because posts and pills both use them. The mascot sprite atlases live there too, because the labs and the home page both animate them. Shared code must not depend on feature modules. `shared/friend-blogs/` is the one shared block that reads its own content collection: it is a self-contained widget any page can drop in. Do not use this directory as a catch-all for code with unclear ownership. ESLint enforces the direction: `shared/` cannot import `@/features/`, and a feature cannot import another unless a door is declared in `FEATURE_DOORS` in `eslint.config.js` (there are none today). A second local rule (`boundaries/relative-imports-stay-inside`) makes any relative import that leaves its feature or shared piece fail, so every such import goes through the `@/` alias the first rule checks.
 
 Feature-specific page composition stays in the feature. `PillNotebook.astro`, for example, composes the pills experience using the site-wide `BaseLayout.astro`; it is not part of the global shell.
 
 ### Content
 
-`src/content/` follows Astro's content conventions. Collection schemas live in `src/content.config.ts`, and the locale is part of each Markdown entry's path. Keep editorial content outside `features/`.
+`src/content/` follows Astro's content conventions. Collection schemas live in `src/content.config.ts`, which imports one list from a feature on purpose: the valid pill moment stages from `pills/moments/moment-stage.ts`, so a misspelt stage fails validation while the list stays beside the code that draws it. The locale is part of each Markdown entry's path. Keep editorial content outside `features/`.
 
 To withhold an entire pill series, set `draft: true` in its localized `overview.md` files. Draft series and all their individual pill routes are excluded from page generation and the sitemap. The home page and pills index use a separate metadata-only catalogue: once their announcement date is reached, draft titles and icons appear as Under construction books, with no pill index. Their overview body, editorial summary, and individual articles are not rendered.
 
 The pills index (`pills/components/PillShelf.astro`) stands each series as a book spine on a shelf, taller the more pills it holds. Selecting a spine opens that series beside it with its full index of pills (`pills/pill-shelf.ts`); the open series is kept in the URL fragment (`#serie-<slug>`), and a cursor over its spine moves with the left and right arrow keys. Every book shares one slot as tall as the tallest, so changing series never moves the page. Without JavaScript every series stays open and each spine jumps to its own. Remove the flag or set it to `false` when the series is ready.
 
-The labs index (`async-chaos-lab/LabsPage.astro`) shows each lab as a notebook page: its live, decorative preview taped on as a figure, and a list of its levels, each linking straight to that level (Exit 137 opens a challenge with `?reto=N`). The previews are an assembly line of payments for Async Chaos Lab (`async-chaos-lab/catalogue-preview/`) and a terminal whose memory climbs to `exit code 137` for Exit 137 (`out-of-memory-lab/catalogue-preview/`). Both pause offscreen and stay still with reduced motion, and both keep a fixed size so their changing text never moves the page.
+The labs index (`labs/catalogue/LabsPage.astro`) shows each lab as a notebook page: its live, decorative preview taped on as a figure, and a list of its levels, each linking straight to that level (Exit 137 opens a challenge with `?reto=N`). Each lab builds its own entry in `catalogue-entry.ts`, typed by `labs/catalogue/lab-entry.ts`. The previews are an assembly line of payments for Async Chaos Lab (`labs/async-chaos-lab/catalogue-preview/`) and a terminal whose memory climbs to `exit code 137` for Exit 137 (`labs/exit-137/catalogue-preview/`). Both pause offscreen and stay still with reduced motion, and both keep a fixed size so their changing text never moves the page.
 
 Exit 137 (`/laboratorios/exit-137/`, `/en/labs/exit-137/`) is a pure engine (`engine.ts`, `challenges.ts`, `guide.ts`) driven by `controller.ts`, which only orchestrates focused views: `briefing.ts` (the sheet before each challenge), `hud-view.ts`, `code-view.ts`, `result-view.ts`, `stage-animator.ts` (the mascot) and `coach-overlay.ts` (tutorial and tips). The engine holds no words: every text lives in `copy-es.ts` and `copy-en.ts` behind the `LabCopy` type, and `lab-text.ts` pairs it with the number format of each language. `guide.ts` returns a hint key that the views translate. Numbers are deliberately round: the lab teaches orders of magnitude, not a benchmark.
 
@@ -68,19 +75,19 @@ The active collections are posts, timeline, pills, and `friendBlogs`. `friendBlo
 
 The blog index lays articles out as a card grid (three columns that drop to two and one) and paginates on the client, nine articles per page, with the page kept in `?page=`. Without JavaScript every article stays visible. Search spans every page: while there is a query the pager hides and only the matches show. Titles shaped "Series — Chapter" that share a prefix with another post form a series: the card shows "Series · n/total" and only the chapter title (`post-series.ts`). Articles published on Lean Mind render with that blog's own identity (`LeanMindPostPreview.astro`: black card, Open Sans, its teal keyboard keys and logo) and open in a new tab.
 
-Below the articles, the friends' blogs section renders the shared Coverflow component (`src/shared/coverflow/`, see its README): the blogs drift past continuously and the motion stops on whichever one the visitor chooses. Without JavaScript it is a grid of plain links. The retired Principles and current-work sections have no remaining collections, modules, or editorial files. When retiring another section, check its consumers, schema, Markdown, translations, components, and styles together.
+Below the articles, the friends' blogs section renders the Coverflow gallery (`src/shared/friend-blogs/coverflow/`, see its README): the blogs drift past continuously and the motion stops on whichever one the visitor chooses. Without JavaScript it is a grid of plain links. The retired Principles and current-work sections have no remaining collections, modules, or editorial files. When retiring another section, check its consumers, schema, Markdown, translations, components, and styles together.
 
 ## Internationalization
 
 `src/i18n/` is cross-cutting:
 
 - `locale.ts` defines supported locales and the default language.
-- `es.ts` and `en.ts` contain interface text; the English dictionary must implement the Spanish dictionary's keys.
+- `es.ts` and `en.ts` contain the site-wide interface text (shell, navigation, footer); the English dictionary must implement the Spanish dictionary's keys.
 - `translator.ts` provides typed dictionary access.
 - `routes.ts` builds and translates logical routes.
 - `entry-identifier.ts` extracts locale and slug from content entry identifiers.
 
-Use `getTranslator(locale)` in components. Do not embed parallel language dictionaries or localized route segments in feature UI. Technical identifiers, proper nouns, and authored Markdown remain separate from interface translations.
+Text that belongs to one feature lives in that feature's `copy.ts`: `export const <feature>Copy = defineCopy({ es, en })`, from `i18n/copy.ts`, gives a `(locale) => text` function. Spanish sets the shape and English must match it, so a missing text fails the build. Copy functions take a `Locale`, never a boolean, and there are no exceptions: text that depends on the state is a function in the catalogue (`processing(job)`, `records(count)`), and nothing chooses between two literals with `es ? … : …`. `localeFrom(value)` reads a locale from a `data-locale` attribute and `otherLocale(locale)` names the translation of a page. The shell uses `getTranslator(locale)`. Do not hard-code localized route segments in feature UI. Technical identifiers, proper nouns, and authored Markdown remain separate from interface translations.
 
 ## Presentation and static navigation
 

@@ -4,12 +4,7 @@ const { getCollection } = vi.hoisted(() => ({ getCollection: vi.fn() }));
 
 vi.mock('astro:content', () => ({ getCollection, render: vi.fn() }));
 
-import {
-  findAllPosts,
-  findHostedPosts,
-  findRelatedPosts,
-  findRenderablePost,
-} from '@/features/posts/post-repository';
+import { findAllPosts, findHostedPosts, findRelatedPosts, findRenderablePost } from '@/features/posts/post-repository';
 
 const EXTERNAL = {
   url: 'https://example.com/a-post',
@@ -37,8 +32,7 @@ const buildEntry = ({ id, tags = [], publicationDate = '2020-01-01', external }:
   },
 });
 
-const givenEntries = (...entries: EntryInput[]) =>
-  getCollection.mockResolvedValue(entries.map(buildEntry));
+const givenEntries = (...entries: EntryInput[]) => getCollection.mockResolvedValue(entries.map(buildEntry));
 
 beforeEach(() => getCollection.mockReset());
 
@@ -73,18 +67,11 @@ describe('findRelatedPosts', () => {
 
     const related = await findRelatedPosts('es', 'target');
 
-    expect(related.map((post) => post.slug)).toEqual([
-      'two-shared',
-      'one-newer',
-      'one-older',
-    ]);
+    expect(related.map((post) => post.slug)).toEqual(['two-shared', 'one-newer', 'one-older']);
   });
 
   it('excludes the target and posts with no shared tags', async () => {
-    givenEntries(
-      { id: 'es/target', tags: ['a'] },
-      { id: 'es/unrelated', tags: ['z'] },
-    );
+    givenEntries({ id: 'es/target', tags: ['a'] }, { id: 'es/unrelated', tags: ['z'] });
 
     expect(await findRelatedPosts('es', 'target')).toEqual([]);
   });
@@ -102,19 +89,13 @@ describe('findRelatedPosts', () => {
   });
 
   it('only considers posts in the same locale', async () => {
-    givenEntries(
-      { id: 'es/target', tags: ['a'] },
-      { id: 'en/other', tags: ['a'] },
-    );
+    givenEntries({ id: 'es/target', tags: ['a'] }, { id: 'en/other', tags: ['a'] });
 
     expect(await findRelatedPosts('es', 'target')).toEqual([]);
   });
 
   it('ignores unpublished (future) posts', async () => {
-    givenEntries(
-      { id: 'es/target', tags: ['a'] },
-      { id: 'es/future', tags: ['a'], publicationDate: '2999-01-01' },
-    );
+    givenEntries({ id: 'es/target', tags: ['a'] }, { id: 'es/future', tags: ['a'], publicationDate: '2999-01-01' });
 
     expect(await findRelatedPosts('es', 'target')).toEqual([]);
   });

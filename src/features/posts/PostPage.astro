@@ -1,0 +1,48 @@
+---
+import { otherLocale } from '@/i18n/locale';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import type { Locale } from '@/i18n/locale';
+import { buildBlogPostPath } from '@/i18n/routes';
+import PostMeta from './components/PostMeta.astro';
+import PostTitle from './components/PostTitle.astro';
+import RelatedPosts from './components/RelatedPosts.astro';
+import CopyableCode from './components/CopyableCode.astro';
+import { findRelatedPosts, findRenderablePost } from './post-repository';
+
+interface Props {
+  locale: Locale;
+  slug: string;
+}
+
+const { locale, slug } = Astro.props;
+const renderable = await findRenderablePost(locale, slug);
+if (renderable === null) {
+  throw new Error(`Post not found: ${locale}/${slug}`);
+}
+
+const { post, markdown, Content } = renderable;
+const relatedPosts = await findRelatedPosts(locale, post.slug);
+const translationLocale = otherLocale(locale);
+const alternatePaths = post.translationSlug
+  ? { [translationLocale]: buildBlogPostPath(translationLocale, post.translationSlug) }
+  : {};
+---
+
+<BaseLayout
+  locale={locale}
+  title={post.title}
+  description={post.summary}
+  openGraphType="article"
+  alternatePaths={alternatePaths}
+>
+  <article class="reveal">
+    <header class="article-header">
+      <PostTitle title={post.title} markdown={markdown} locale={locale} />
+      <PostMeta post={post} />
+    </header>
+    <CopyableCode locale={locale}>
+      <Content />
+    </CopyableCode>
+  </article>
+  <RelatedPosts posts={relatedPosts} locale={locale} />
+</BaseLayout>

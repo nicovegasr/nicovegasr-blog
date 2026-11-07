@@ -8,9 +8,7 @@ type TimelineCollectionEntry = CollectionEntry<'timeline'>;
 const byStartDateAscending = (a: TimelineEntry, b: TimelineEntry): number =>
   a.startDate.getTime() - b.startDate.getTime();
 
-const toTimelineEntry = (
-  entry: TimelineCollectionEntry,
-): TimelineEntry | null => {
+const toTimelineEntry = (entry: TimelineCollectionEntry): TimelineEntry | null => {
   const identifier = parseLocalizedEntryIdentifier(entry.id);
   if (identifier === null) {
     return null;
@@ -32,9 +30,7 @@ const toTimelineEntry = (
   };
 };
 
-export const findAllTimelineEntries = async (
-  locale: Locale,
-): Promise<readonly TimelineEntry[]> => {
+export const findAllTimelineEntries = async (locale: Locale): Promise<readonly TimelineEntry[]> => {
   const entries = await getCollection('timeline');
 
   return entries

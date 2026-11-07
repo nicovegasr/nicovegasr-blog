@@ -8,7 +8,6 @@ export async function getStaticPaths() {
 }
 const { series, pill } = Astro.params;
 if (!series || !pill) throw new Error('Missing pill route');
-
 ---
 
 <PillNotebook locale="en" seriesSlug={series} activePillSlug={pill} />

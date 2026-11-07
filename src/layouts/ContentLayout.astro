@@ -16,22 +16,20 @@ interface Props {
 const { locale, title, description, lead, compact = false } = Astro.props;
 const translate = getTranslator(locale);
 
-const sections = ([
-  { page: 'articles', label: translate('content.blog') },
-  { page: 'pills', label: translate('content.pills') },
-  { page: 'labs', label: translate('content.labs') },
-] satisfies { page: PageKey; label: string }[]).map((section) => {
+const sections = (
+  [
+    { page: 'articles', label: translate('content.blog') },
+    { page: 'pills', label: translate('content.pills') },
+    { page: 'labs', label: translate('content.labs') },
+  ] satisfies { page: PageKey; label: string }[]
+).map((section) => {
   const href = buildPagePath(section.page, locale);
   return { ...section, href, isCurrent: isSamePath(href, Astro.url.pathname) };
 });
 const heading = sections.find((section) => section.isCurrent)?.label ?? title;
 ---
 
-<BaseLayout
-  locale={locale}
-  title={`${title} — ${translate('site.title')}`}
-  description={description}
->
+<BaseLayout locale={locale} title={`${title} — ${translate('site.title')}`} description={description}>
   <section class="intro reveal" data-compact-catalogue={compact || undefined}>
     <h1>{heading}</h1>
     <p class="lead">{lead}</p>
@@ -40,19 +38,13 @@ const heading = sections.find((section) => section.isCurrent)?.label ?? title;
   <section class:list={['reveal', 'content-section', { 'is-compact': compact }]}>
     <nav class="sections" aria-label={translate('navigation.sections')} data-content-sections>
       <ul>
-        {
-          sections.map(({ href, label, isCurrent }) => (
-            <li>
-              <a
-                href={href}
-                class:list={{ current: isCurrent }}
-                aria-current={isCurrent ? 'page' : undefined}
-              >
-                {label}
-              </a>
-            </li>
-          ))
-        }
+        {sections.map(({ href, label, isCurrent }) => (
+          <li>
+            <a href={href} class:list={{ current: isCurrent }} aria-current={isCurrent ? 'page' : undefined}>
+              {label}
+            </a>
+          </li>
+        ))}
       </ul>
     </nav>
     <slot />

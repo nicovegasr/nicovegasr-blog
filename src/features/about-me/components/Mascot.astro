@@ -25,12 +25,18 @@ const atlases = {
   frontend: { walking: frontendAtlas, reactions: frontendAtlas, layout: '3x3' },
   database: { walking: databaseAtlas, reactions: databaseAtlas, layout: '3x3' },
   infrastructure: { walking: infrastructureAtlas, reactions: infrastructureAtlas, layout: '3x3' },
-  'artificial-intelligence': { walking: artificialIntelligenceAtlas, reactions: artificialIntelligenceAtlas, layout: '3x3' },
+  'artificial-intelligence': {
+    walking: artificialIntelligenceAtlas,
+    reactions: artificialIntelligenceAtlas,
+    layout: '3x3',
+  },
 };
 const initialAtlasUrls = [walkingAtlas, reactionsAtlas];
 ---
 
-{initialAtlasUrls.map((href) => <link rel="preload" as="image" href={href} media="(prefers-reduced-motion: no-preference) and (min-height: 34rem)" />)}
+{initialAtlasUrls.map((href) => (
+  <link rel="preload" as="image" href={href} media="(prefers-reduced-motion: no-preference) and (min-height: 34rem)" />
+))}
 <span
   {...attributes}
   class:list={['mascot', className]}

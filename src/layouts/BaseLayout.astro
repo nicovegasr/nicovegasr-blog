@@ -71,11 +71,9 @@ const pathForLocale = (target: Locale): string =>
     <title>{documentTitle}</title>
     <meta name="description" content={documentDescription} />
     <link rel="canonical" href={canonicalUrl} />
-    {
-      LOCALES.map((target) => (
-        <link rel="alternate" hreflang={target} href={toAbsoluteUrl(pathForLocale(target))} />
-      ))
-    }
+    {LOCALES.map((target) => (
+      <link rel="alternate" hreflang={target} href={toAbsoluteUrl(pathForLocale(target))} />
+    ))}
     <link rel="alternate" hreflang="x-default" href={toAbsoluteUrl(pathForLocale(DEFAULT_LOCALE))} />
 
     <meta property="og:type" content={openGraphType} />
@@ -84,11 +82,9 @@ const pathForLocale = (target: Locale): string =>
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:site_name" content={siteName} />
     <meta property="og:locale" content={OPEN_GRAPH_LOCALE[locale]} />
-    {
-      localesOtherThan(locale).map((target) => (
-        <meta property="og:locale:alternate" content={OPEN_GRAPH_LOCALE[target]} />
-      ))
-    }
+    {localesOtherThan(locale).map((target) => (
+      <meta property="og:locale:alternate" content={OPEN_GRAPH_LOCALE[target]} />
+    ))}
     <meta property="og:image" content={openGraphImageUrl} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -99,12 +95,7 @@ const pathForLocale = (target: Locale): string =>
     <meta name="twitter:description" content={documentDescription} />
     <meta name="twitter:image" content={openGraphImageUrl} />
 
-    <link
-      rel="alternate"
-      type="application/rss+xml"
-      title={siteName}
-      href={toAbsoluteUrl(buildRssFeedPath(locale))}
-    />
+    <link rel="alternate" type="application/rss+xml" title={siteName} href={toAbsoluteUrl(buildRssFeedPath(locale))} />
   </head>
   <body>
     <Navigation locale={locale} alternatePaths={alternatePaths} />
@@ -114,23 +105,22 @@ const pathForLocale = (target: Locale): string =>
     <Footer locale={locale} />
 
     <script>
-      import '@/shared/content-demos/content-demo-element';
-    </script>
-
-    <script>
       let revealObserver: IntersectionObserver | undefined;
       const revealContent = () => {
         revealObserver?.disconnect();
         const items = document.querySelectorAll('.reveal:not(.is-visible)');
         if ('IntersectionObserver' in window && items.length > 0) {
-          revealObserver = new IntersectionObserver((entries, observer) => {
-            for (const entry of entries) {
-              if (entry.isIntersecting) {
-                entry.target.classList.add('is-visible');
-                observer.unobserve(entry.target);
+          revealObserver = new IntersectionObserver(
+            (entries, observer) => {
+              for (const entry of entries) {
+                if (entry.isIntersecting) {
+                  entry.target.classList.add('is-visible');
+                  observer.unobserve(entry.target);
+                }
               }
-            }
-          }, { rootMargin: '0px 0px -10% 0px' });
+            },
+            { rootMargin: '0px 0px -10% 0px' },
+          );
           items.forEach((item) => revealObserver!.observe(item));
         } else {
           items.forEach((item) => item.classList.add('is-visible'));
@@ -138,8 +128,7 @@ const pathForLocale = (target: Locale): string =>
       };
       document.addEventListener('astro:page-load', revealContent);
       document.addEventListener('astro:before-swap', (event) => {
-        event.newDocument.documentElement.dataset.theme =
-          document.documentElement.dataset.theme ?? 'light';
+        event.newDocument.documentElement.dataset.theme = document.documentElement.dataset.theme ?? 'light';
       });
       revealContent();
     </script>

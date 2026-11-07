@@ -1,17 +1,11 @@
-import {
-  swapFunctions,
-  type TransitionBeforeSwapEvent,
-} from 'astro:transitions/client';
+import { swapFunctions, type TransitionBeforeSwapEvent } from 'astro:transitions/client';
 
 // Only transient DOM state is carried between static pages. Astro owns URL,
 // history, metadata, loading failures, and the navigation lifecycle.
-let pendingIndex:
-  | { key: string; scrollTop: number; focusArticle: boolean }
-  | undefined;
+let pendingIndex: { key: string; scrollTop: number; focusArticle: boolean } | undefined;
 let panelAnimation: Animation | undefined;
 
-const readerIn = (root: Document) =>
-  root.querySelector<HTMLElement>('[data-pill-reader]');
+const readerIn = (root: Document) => root.querySelector<HTMLElement>('[data-pill-reader]');
 
 const revealSelection = (index: HTMLElement) => {
   if (index.scrollHeight <= index.clientHeight) return;
@@ -31,12 +25,7 @@ const prepareNavigation = (event: TransitionBeforeSwapEvent) => {
   pendingIndex = undefined;
   const current = readerIn(document);
   const incoming = readerIn(event.newDocument);
-  if (
-    !current ||
-    !incoming ||
-    current.dataset.pillReader !== incoming.dataset.pillReader
-  )
-    return;
+  if (!current || !incoming || current.dataset.pillReader !== incoming.dataset.pillReader) return;
   const index = current.querySelector<HTMLElement>('.contents');
   const nextIndex = incoming.querySelector<HTMLElement>('.contents');
   if (!index || !nextIndex) return;
@@ -67,26 +56,20 @@ const prepareNavigation = (event: TransitionBeforeSwapEvent) => {
   };
 };
 
-const swapReadingPanel = (
-  incoming: Document,
-  currentPanel: HTMLElement,
-  incomingPanel: HTMLElement,
-) => {
+const swapReadingPanel = (incoming: Document, currentPanel: HTMLElement, incomingPanel: HTMLElement) => {
   // Keep the shell and index. Astro owns loading, history and script scheduling.
   swapFunctions.deselectScripts(incoming);
   swapFunctions.swapHeadElements(incoming);
   currentPanel.replaceWith(incomingPanel);
   const currentLanguage = document.querySelector('.language-switcher');
   const incomingLanguage = incoming.querySelector('.language-switcher');
-  if (currentLanguage && incomingLanguage)
-    currentLanguage.replaceWith(incomingLanguage);
+  if (currentLanguage && incomingLanguage) currentLanguage.replaceWith(incomingLanguage);
 };
 
 const updateSelection = (index: HTMLElement, incoming: HTMLElement) => {
   const activeHref = incoming.querySelector('a[aria-current]')?.getAttribute('href');
   index.querySelectorAll('a').forEach((link) => {
-    if (link.getAttribute('href') === activeHref)
-      link.setAttribute('aria-current', 'page');
+    if (link.getAttribute('href') === activeHref) link.setAttribute('aria-current', 'page');
     else link.removeAttribute('aria-current');
   });
 };
@@ -104,11 +87,8 @@ const alignReadingTarget = (reader: HTMLElement, targetSelector: string) => {
 
 const animateReadingPanel = (reader: HTMLElement) => {
   const panel = reader.querySelector<HTMLElement>('.reading-desk');
-  if (!panel?.animate || window.matchMedia('(prefers-reduced-motion: reduce)').matches)
-    return;
-  const value = getComputedStyle(document.documentElement)
-    .getPropertyValue('--motion-duration-reading')
-    .trim();
+  if (!panel?.animate || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const value = getComputedStyle(document.documentElement).getPropertyValue('--motion-duration-reading').trim();
   const milliseconds = parseFloat(value) * (value.endsWith('ms') ? 1 : 1000);
   panelAnimation = panel.animate(
     [
@@ -137,8 +117,7 @@ const finishNavigation = () => {
   if (!reader) return;
   const index = reader.querySelector<HTMLElement>('.contents');
   if (index) revealSelection(index);
-  if (pendingIndex?.focusArticle)
-    reader.querySelector<HTMLElement>('#chapter-title')?.focus({ preventScroll: true });
+  if (pendingIndex?.focusArticle) reader.querySelector<HTMLElement>('#chapter-title')?.focus({ preventScroll: true });
   pendingIndex = undefined;
 };
 

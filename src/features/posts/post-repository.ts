@@ -1,11 +1,6 @@
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import type { Locale } from '@/i18n/locale';
-import {
-  isHosted,
-  isPublished,
-  sharedTagCountWith,
-  type Post,
-} from '@/features/posts/post';
+import { isHosted, isPublished, sharedTagCountWith, type Post } from '@/features/posts/post';
 import { calculateReadingTimeInMinutes } from '@/shared/reading-time/reading-time';
 import { parseLocalizedEntryIdentifier } from '@/i18n/entry-identifier';
 
@@ -23,9 +18,7 @@ const toPost = (entry: CollectionEntry<'posts'>): Post | null => {
     publicationDate: entry.data.publicationDate,
     lastUpdateDate: entry.data.lastUpdateDate,
     tags: entry.data.tags,
-    readingTimeInMinutes:
-      entry.data.external?.readingTimeInMinutes ??
-      calculateReadingTimeInMinutes(entry.body ?? ''),
+    readingTimeInMinutes: entry.data.external?.readingTimeInMinutes ?? calculateReadingTimeInMinutes(entry.body ?? ''),
     translationSlug: entry.data.translationSlug,
     external: entry.data.external && {
       url: entry.data.external.url,
@@ -34,8 +27,7 @@ const toPost = (entry: CollectionEntry<'posts'>): Post | null => {
   };
 };
 
-const byNewestFirst = (a: Post, b: Post): number =>
-  b.publicationDate.getTime() - a.publicationDate.getTime();
+const byNewestFirst = (a: Post, b: Post): number => b.publicationDate.getTime() - a.publicationDate.getTime();
 
 export const findAllPosts = async (locale: Locale): Promise<readonly Post[]> => {
   const entries = await getCollection('posts');
@@ -61,10 +53,7 @@ type RenderablePost = {
 
 // Returns the post entity plus its rendered markdown body. The only place that
 // touches astro:content's render(); the detail page consumes both together.
-export const findRenderablePost = async (
-  locale: Locale,
-  slug: string,
-): Promise<RenderablePost | null> => {
+export const findRenderablePost = async (locale: Locale, slug: string): Promise<RenderablePost | null> => {
   const entries = await getCollection('posts');
   const entry = entries.find((candidate) => {
     const identifier = parseLocalizedEntryIdentifier(candidate.id);

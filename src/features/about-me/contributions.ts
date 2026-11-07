@@ -23,7 +23,8 @@ const contributionsByLocale: Record<Locale, readonly Contribution[]> = {
     {
       pose: 'presenting',
       claim: 'Mantenibilidad.',
-      detail: 'Me preocupa que el sistema se pueda seguir cambiando dentro de dos años, sin añadir complejidad que aún no hace falta.',
+      detail:
+        'Me preocupa que el sistema se pueda seguir cambiando dentro de dos años, sin añadir complejidad que aún no hace falta.',
     },
     {
       pose: 'welcoming',
@@ -45,7 +46,8 @@ const contributionsByLocale: Record<Locale, readonly Contribution[]> = {
     {
       pose: 'presenting',
       claim: 'Maintainability.',
-      detail: 'I care that the system can still be changed two years from now, without adding complexity it does not need yet.',
+      detail:
+        'I care that the system can still be changed two years from now, without adding complexity it does not need yet.',
     },
     {
       pose: 'welcoming',
@@ -55,5 +57,4 @@ const contributionsByLocale: Record<Locale, readonly Contribution[]> = {
   ],
 };
 
-export const findContributions = (locale: Locale): readonly Contribution[] =>
-  contributionsByLocale[locale];
+export const findContributions = (locale: Locale): readonly Contribution[] => contributionsByLocale[locale];

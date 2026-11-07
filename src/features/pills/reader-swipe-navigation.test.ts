@@ -7,11 +7,12 @@ let documentEvents: EventTarget;
 let selected: number;
 let selection: string;
 class Target {
-  constructor(private blocked = false, private inside = true) {}
+  constructor(
+    private blocked = false,
+    private inside = true,
+  ) {}
   closest(selector: string) {
-    return selector === '[data-pill-swipe]'
-      ? (this.inside ? this : null)
-      : (this.blocked ? this : null);
+    return selector === '[data-pill-swipe]' ? (this.inside ? this : null) : this.blocked ? this : null;
   }
 }
 const touch = (x: number, y = 200, identifier = 1) => ({ clientX: x, clientY: y, identifier });
@@ -73,7 +74,10 @@ describe('reader swipe navigation', () => {
     expect(navigate).toHaveBeenCalledWith('/one/', expect.any(Object));
   });
 
-  it.each([[0, 120, 240], [2, 220, 100]])('does not wrap at endpoint %i', (index, start, end) => {
+  it.each([
+    [0, 120, 240],
+    [2, 220, 100],
+  ])('does not wrap at endpoint %i', (index, start, end) => {
     selected = index;
     swipe(start, end);
     expect(navigate).not.toHaveBeenCalled();
@@ -109,11 +113,14 @@ describe('reader swipe navigation', () => {
     expect(navigate).not.toHaveBeenCalled();
   });
 
-  it.each([new Target(true), new Target(false, false)])('ignores controls, code and touches outside the article', (target) => {
-    emit('touchstart', [touch(220)], { target });
-    emit('touchend', [touch(100)]);
-    expect(navigate).not.toHaveBeenCalled();
-  });
+  it.each([new Target(true), new Target(false, false)])(
+    'ignores controls, code and touches outside the article',
+    (target) => {
+      emit('touchstart', [touch(220)], { target });
+      emit('touchend', [touch(100)]);
+      expect(navigate).not.toHaveBeenCalled();
+    },
+  );
 
   it('preserves text selection', () => {
     emit('touchstart', [touch(220)]);
@@ -122,12 +129,15 @@ describe('reader swipe navigation', () => {
     expect(navigate).not.toHaveBeenCalled();
   });
 
-  it.each(['touchcancel', 'astro:before-preparation', 'astro:page-load'])('cancels an unfinished swipe on %s', (name) => {
-    emit('touchstart', [touch(220)]);
-    documentEvents.dispatchEvent(new Event(name));
-    emit('touchend', [touch(100)]);
-    expect(navigate).not.toHaveBeenCalled();
-  });
+  it.each(['touchcancel', 'astro:before-preparation', 'astro:page-load'])(
+    'cancels an unfinished swipe on %s',
+    (name) => {
+      emit('touchstart', [touch(220)]);
+      documentEvents.dispatchEvent(new Event(name));
+      emit('touchend', [touch(100)]);
+      expect(navigate).not.toHaveBeenCalled();
+    },
+  );
 
   it('cancels pinch gestures and a changed touch identifier', () => {
     emit('touchstart', [touch(220)]);

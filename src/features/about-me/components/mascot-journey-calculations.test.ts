@@ -144,7 +144,9 @@ describe('walkDelta', () => {
 
   it('does not walk on the first frame or without movement', () => {
     expect(walkDelta(movement)).toBeUndefined();
-    expect(walkDelta({ ...movement, x: 200, previousX: undefined, threadY: 90, previousThreadY: undefined })).toBeUndefined();
+    expect(
+      walkDelta({ ...movement, x: 200, previousX: undefined, threadY: 90, previousThreadY: undefined }),
+    ).toBeUndefined();
   });
 
   it('reports the horizontal step and its direction', () => {

@@ -1,9 +1,12 @@
 ---
+import { aboutMeCopy } from '../copy';
 import type { Locale } from '@/i18n/locale';
 
-interface Props { locale: Locale }
+interface Props {
+  locale: Locale;
+}
 const { locale } = Astro.props;
-const es = locale === 'es';
+const text = aboutMeCopy(locale).pageLookup;
 // Measured with EXPLAIN (ANALYZE, BUFFERS) on PostgreSQL 18 with 10 million rows: 123,457 pages without an index;
 // with one, three index levels plus one table page.
 const PAGES_WITHOUT_INDEX = '+100K';
@@ -24,49 +27,60 @@ const indexLevels = Array.from({ length: INDEX_LEVELS }, (_, level) => level);
 
 <figure class="page-lookup" style={`--index-levels: ${INDEX_LEVELS}; --table-pages: ${DRAWN_TABLE_PAGES};`}>
   <p class="result">
-    <strong>{PAGES_WITHOUT_INDEX} <span aria-hidden="true">→</span><span class="sr-only">{es ? 'a' : 'to'}</span> {PAGES_WITH_INDEX}</strong>
-    <span>{es ? 'páginas de PostgreSQL leídas para encontrar 1 fila entre 10 millones' : 'PostgreSQL pages read to find 1 row among 10 million'}</span>
+    <strong>
+      {PAGES_WITHOUT_INDEX} <span aria-hidden="true">→</span>
+      <span class="sr-only">{text.to}</span> {PAGES_WITH_INDEX}
+    </strong>
+    <span>{text.postgresqlPagesReadTo}</span>
   </p>
   <div class="lookups" aria-hidden="true">
     <div class="lookup headings">
       <span></span>
-      <span class="heading index-heading">{es ? 'Índice' : 'Index'}</span>
-      <span class="heading">{es ? 'Páginas de la tabla' : 'Table pages'}</span>
+      <span class="heading index-heading">{text.index}</span>
+      <span class="heading">{text.tablePages}</span>
     </div>
     <div class="lookup">
-      <span class="lookup-label">{es ? 'Sin índice' : 'No index'}</span>
+      <span class="lookup-label">{text.noIndex}</span>
       <span></span>
       <div class="table-pages">
         {tablePages.map((page) => (
           <span class="page is-read" style={`--read-delay: ${page * MILLISECONDS_PER_TABLE_PAGE}ms;`}>
-            {rows.map(() => <span class="row" />)}
+            {rows.map(() => (
+              <span class="row" />
+            ))}
           </span>
         ))}
       </div>
     </div>
     <div class="lookup">
-      <span class="lookup-label">{es ? 'Con índice' : 'With index'}</span>
+      <span class="lookup-label">{text.withIndex}</span>
       <div class="index-levels">
         {indexLevels.map((level) => (
-          <span class="page is-found" style={`--read-delay: ${indexStartsAt + level * MILLISECONDS_PER_INDEX_LEVEL}ms;`}>
-            {rows.map(() => <span class="row" />)}
+          <span
+            class="page is-found"
+            style={`--read-delay: ${indexStartsAt + level * MILLISECONDS_PER_INDEX_LEVEL}ms;`}
+          >
+            {rows.map(() => (
+              <span class="row" />
+            ))}
           </span>
         ))}
       </div>
       <div class="table-pages">
         {tablePages.map((page) => (
-          <span class:list={['page', { 'is-found': page === TARGET_TABLE_PAGE }]} style={`--read-delay: ${targetPageAt}ms;`}>
-            {rows.map((row) => <span class:list={['row', { 'is-target': page === TARGET_TABLE_PAGE && row === TARGET_ROW }]} />)}
+          <span
+            class:list={['page', { 'is-found': page === TARGET_TABLE_PAGE }]}
+            style={`--read-delay: ${targetPageAt}ms;`}
+          >
+            {rows.map((row) => (
+              <span class:list={['row', { 'is-target': page === TARGET_TABLE_PAGE && row === TARGET_ROW }]} />
+            ))}
           </span>
         ))}
       </div>
     </div>
   </div>
-  <figcaption class="sr-only">
-    {es
-      ? 'Sin índice, la consulta lee todas las páginas de la tabla. Con índice, recorre tres niveles del índice hasta la página donde está la fila, lee esa página y toma la fila dentro de ella.'
-      : 'Without an index, the query reads every table page. With one, it walks three index levels to the page that holds the row, reads that page and takes the row from it.'}
-  </figcaption>
+  <figcaption class="sr-only">{text.withoutIndexQueryReads}</figcaption>
 </figure>
 
 <style>
@@ -91,7 +105,9 @@ const indexLevels = Array.from({ length: INDEX_LEVELS }, (_, level) => level);
     color: var(--color-ink);
   }
 
-  .result { margin: 0; }
+  .result {
+    margin: 0;
+  }
 
   .result strong {
     display: block;
@@ -145,8 +161,12 @@ const indexLevels = Array.from({ length: INDEX_LEVELS }, (_, level) => level);
     height: var(--page-height);
   }
 
-  .index-levels { grid-template-columns: repeat(var(--index-levels), minmax(0, 1fr)); }
-  .table-pages { grid-template-columns: repeat(var(--table-pages), minmax(0, 1fr)); }
+  .index-levels {
+    grid-template-columns: repeat(var(--index-levels), minmax(0, 1fr));
+  }
+  .table-pages {
+    grid-template-columns: repeat(var(--table-pages), minmax(0, 1fr));
+  }
 
   .page {
     display: grid;
@@ -161,19 +181,39 @@ const indexLevels = Array.from({ length: INDEX_LEVELS }, (_, level) => level);
     background: var(--color-rule);
   }
 
-  .is-read { border-color: var(--color-ink); }
-  .is-read .row { background: var(--color-ink); }
-  .is-found { border-color: var(--color-ink); background: var(--color-accent); }
-  .is-found .row { background: var(--color-accent); }
-  .is-found .row.is-target { background: var(--color-ink); }
+  .is-read {
+    border-color: var(--color-ink);
+  }
+  .is-read .row {
+    background: var(--color-ink);
+  }
+  .is-found {
+    border-color: var(--color-ink);
+    background: var(--color-accent);
+  }
+  .is-found .row {
+    background: var(--color-accent);
+  }
+  .is-found .row.is-target {
+    background: var(--color-ink);
+  }
 
   @media (prefers-reduced-motion: no-preference) and (min-height: 34rem) {
-    :global(.js) :global(.station) .page-lookup { visibility: hidden; }
-    :global(.js) :global(.station.is-current) .page-lookup { visibility: visible; }
+    :global(.js) :global(.station) .page-lookup {
+      visibility: hidden;
+    }
+    :global(.js) :global(.station.is-current) .page-lookup {
+      visibility: visible;
+    }
 
     /* First every page is read; then the index walks to one page, and the row appears inside it. */
-    :global(.js) :global(.station:not(.is-current)) .page { border-color: var(--color-rule); background: transparent; }
-    :global(.js) :global(.station:not(.is-current)) .row { background: var(--color-rule); }
+    :global(.js) :global(.station:not(.is-current)) .page {
+      border-color: var(--color-rule);
+      background: transparent;
+    }
+    :global(.js) :global(.station:not(.is-current)) .row {
+      background: var(--color-rule);
+    }
     :global(.js) :global(.station.is-current) .page,
     :global(.js) :global(.station.is-current) .row {
       transition:
@@ -194,19 +234,48 @@ const indexLevels = Array.from({ length: INDEX_LEVELS }, (_, level) => level);
       margin-top: var(--space-4);
     }
 
-    .result strong { font-size: var(--font-size-heading-1); }
-    .result > span { font-size: var(--font-size-small); }
-    .lookup { grid-template-columns: 4.25rem var(--index-width) minmax(0, 1fr); column-gap: var(--space-1); }
-    .lookup-label { font-size: var(--font-size-meta); }
-    .heading { font-size: 0.625rem; }
-    .page { padding: 0; border-width: 1px; }
-    .page .row:nth-child(even) { display: none; }
+    .result strong {
+      font-size: var(--font-size-heading-1);
+    }
+    .result > span {
+      font-size: var(--font-size-small);
+    }
+    .lookup {
+      grid-template-columns: 4.25rem var(--index-width) minmax(0, 1fr);
+      column-gap: var(--space-1);
+    }
+    .lookup-label {
+      font-size: var(--font-size-meta);
+    }
+    .heading {
+      font-size: 0.625rem;
+    }
+    .page {
+      padding: 0;
+      border-width: 1px;
+    }
+    .page .row:nth-child(even) {
+      display: none;
+    }
   }
 
   @media (max-width: 48rem) and (max-height: 44rem) {
-    .page-lookup { --page-height: 0.75rem; gap: var(--space-1); margin-top: var(--space-2); }
-    .result strong { font-size: clamp(1.125rem, 6vw, var(--font-size-heading-2)); }
-    .result > span { margin-top: 0; font-size: 0.625rem; line-height: 1.2; }
-    .lookup-label { font-size: 0.625rem; line-height: 1; }
+    .page-lookup {
+      --page-height: 0.75rem;
+      gap: var(--space-1);
+      margin-top: var(--space-2);
+    }
+    .result strong {
+      font-size: clamp(1.125rem, 6vw, var(--font-size-heading-2));
+    }
+    .result > span {
+      margin-top: 0;
+      font-size: 0.625rem;
+      line-height: 1.2;
+    }
+    .lookup-label {
+      font-size: 0.625rem;
+      line-height: 1;
+    }
   }
 </style>

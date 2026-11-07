@@ -45,14 +45,14 @@ the mascot atlas from the private studio repository as the character identity re
 The generated PNG was converted to WebP with alpha preserved; no poses were
 cropped, reconstructed, or drawn over outside ImageGen.
 
-| Cell (zero-based) | Pose |
-| --- | --- |
-| 0 | Walking contact A, facing right |
-| 1 | Walking passing pose, facing right |
-| 2 | Walking contact B, facing right |
-| 3 | Neutral standing worker, arms relaxed |
-| 4 | Thinking/waiting for a missing response |
-| 5 | Fallen worker with X eyes |
+| Cell (zero-based) | Pose                                    |
+| ----------------- | --------------------------------------- |
+| 0                 | Walking contact A, facing right         |
+| 1                 | Walking passing pose, facing right      |
+| 2                 | Walking contact B, facing right         |
+| 3                 | Neutral standing worker, arms relaxed   |
+| 4                 | Thinking/waiting for a missing response |
+| 5                 | Fallen worker with X eyes               |
 
 The walking loop is 0 → 1 → 2 → 1, mirrored only for leftward travel.
 It runs while the actor travels and stops when it reaches a station or playback
@@ -101,12 +101,12 @@ No props, labels, badges, speech bubbles, tile borders or logos.
 
 The original walking and reaction atlases remain unchanged for shared lab use.
 
-| Timeline start year | Walking atlas | Appearance |
-| --- | --- | --- |
-| 2019 | `age-2019.webp` | Small blue student backpack |
-| 2023 | `age-2023.webp` | Slim closed laptop under one arm |
-| 2024 | `age-2024.webp` | Blue tie |
-| 2026 | `age-2026.webp` | Round glasses and a few grey hairs, no cane |
+| Timeline start year | Walking atlas   | Appearance                                  |
+| ------------------- | --------------- | ------------------------------------------- |
+| 2019                | `age-2019.webp` | Small blue student backpack                 |
+| 2023                | `age-2023.webp` | Slim closed laptop under one arm            |
+| 2024                | `age-2024.webp` | Blue tie                                    |
+| 2026                | `age-2026.webp` | Round glasses and a few grey hairs, no cane |
 
 `age-2026-reactions.webp` retains the original reaction cell order.
 All variants use native 1536 × 1024 WebP with alpha, quality 88.
@@ -131,7 +131,6 @@ Preserve the existing walking, keyboard and swipe controls during integration.
 The first input is the exact original walking atlas as identity, pose and layout
 reference. The second input is the original reaction atlas as supporting identity
 reference.
-
 
 #### 2019
 

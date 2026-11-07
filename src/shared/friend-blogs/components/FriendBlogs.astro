@@ -1,0 +1,32 @@
+---
+import { friendBlogsCopy } from '../copy';
+import Coverflow from '../coverflow/Coverflow.astro';
+import { findAllFriendBlogs } from '../friend-blog-repository';
+import type { Locale } from '@/i18n/locale';
+interface Props {
+  locale: Locale;
+  id?: string;
+}
+const { locale, id } = Astro.props;
+const copy = friendBlogsCopy(locale);
+const blogs = await findAllFriendBlogs(locale);
+const items = blogs.map((blog) => ({
+  title: blog.author,
+  href: blog.url,
+  image: blog.image,
+  imageAlt: `${copy.preview}: ${blog.author}`,
+  caption: blog.host,
+  description: blog.description,
+}));
+const labels = {
+  pause: copy.pause,
+  resume: copy.play,
+  choose: copy.choose,
+  visit: copy.visit,
+  carousel: copy.carousel,
+  dragHint: copy.dragHint,
+  swipeHint: copy.swipeHint,
+};
+---
+
+<Coverflow {...(id ? { id } : {})} {items} {labels} initialIndex={1} title={copy.title} description={copy.lead} />

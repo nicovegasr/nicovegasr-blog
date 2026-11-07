@@ -1,0 +1,125 @@
+---
+import type { Locale } from '@/i18n/locale';
+import { labPath } from './links';
+import { labPagesCopy } from './lab-pages-copy';
+interface Props {
+  locale: Locale;
+  level: 1 | 2 | 3;
+  title: string;
+}
+const { locale, level, title } = Astro.props;
+const text = labPagesCopy(locale);
+---
+
+<header class="lab-heading">
+  <h1>{title}</h1>
+  <nav class="lab-levels" aria-label={text.labs}>
+    <span class="lab-levels-caption">{text.levelsCaption}</span>
+    <a href={labPath(locale, 1)} aria-current={level === 1 ? 'page' : undefined}>
+      <span class="lab-level-number">01</span>
+      <span class="lab-level-name">{text.queueLevel}</span>
+    </a>
+    <a href={labPath(locale, 2)} aria-current={level === 2 ? 'page' : undefined}>
+      <span class="lab-level-number">02</span>
+      <span class="lab-level-name">{text.workerLevel}</span>
+    </a>
+    <a href={labPath(locale, 3)} aria-current={level === 3 ? 'page' : undefined}>
+      <span class="lab-level-number">03</span>
+      <span class="lab-level-name">{text.scaleLevel}</span>
+    </a>
+  </nav>
+</header>
+<style>
+  .lab-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0 0 0.8rem;
+  }
+  .lab-heading h1 {
+    font: 500 clamp(1.65rem, 3vw, 2rem)/1.1 var(--font-family-display);
+    letter-spacing: -0.05em;
+    margin: 0;
+  }
+  .lab-levels {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    gap: 0.35rem;
+    flex-shrink: 0;
+  }
+  .lab-levels-caption {
+    grid-column: 1 / -1;
+    font: 500 0.6rem/1.3 var(--font-family-display);
+    color: var(--color-text-soft);
+    margin-bottom: 0.1rem;
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent);
+    text-decoration-thickness: 3px;
+    text-underline-offset: 0.25em;
+  }
+  .lab-levels a {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font: 600 0.8rem/1.3 var(--font-family-display);
+    padding: 0.5rem 0.65rem;
+    border: 1px solid var(--color-rule);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--color-ink);
+    background: color-mix(in srgb, var(--color-rule) 24%, var(--color-paper));
+    white-space: nowrap;
+  }
+  .lab-level-number {
+    display: grid;
+    place-items: center;
+    width: 23px;
+    height: 23px;
+    border-radius: 50%;
+    background: var(--color-paper);
+    color: var(--color-text-soft);
+    font: 500 0.55rem/1 var(--font-family-mono);
+  }
+  .lab-levels a:hover {
+    border-color: var(--color-text-soft);
+  }
+  .lab-levels a[aria-current='page'] {
+    background: var(--color-paper);
+  }
+  .lab-levels a[aria-current='page'] .lab-level-name {
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent);
+    text-decoration-thickness: 5px;
+    text-underline-offset: 0.25em;
+    text-decoration-skip-ink: none;
+  }
+  .lab-levels a[aria-current='page'] .lab-level-number {
+    color: var(--color-ink);
+  }
+  @media (max-width: 950px) {
+    .lab-heading {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 1.1rem;
+    }
+  }
+  @media (max-width: 580px) {
+    .lab-heading {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+    .lab-heading h1 {
+      font-size: 1.65rem;
+    }
+    .lab-levels {
+      align-self: flex-start;
+    }
+    .lab-levels a {
+      padding: 0.5rem 0.4rem;
+      font-size: 0.72rem;
+      gap: 0.3rem;
+    }
+  }
+</style>

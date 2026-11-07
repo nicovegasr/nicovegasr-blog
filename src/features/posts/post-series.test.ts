@@ -26,7 +26,12 @@ describe('post series', () => {
 
   it('numbers chapters of a shared prefix by publication date', () => {
     expect(positions.get('intro')).toEqual({ name: 'Spring Batch', chapterTitle: 'Introducción', number: 1, total: 2 });
-    expect(positions.get('advice')).toEqual({ name: 'Spring Batch', chapterTitle: 'Consejos prácticos', number: 2, total: 2 });
+    expect(positions.get('advice')).toEqual({
+      name: 'Spring Batch',
+      chapterTitle: 'Consejos prácticos',
+      number: 2,
+      total: 2,
+    });
   });
 
   it('leaves a lone prefixed title and plain titles outside any series', () => {

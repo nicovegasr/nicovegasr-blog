@@ -1,27 +1,24 @@
 ---
+import { pillsCopy } from '../copy';
 import type { Locale } from '@/i18n/locale';
-import { getTranslator } from '@/i18n/translator';
 
 interface Props {
   locale: Locale;
 }
 const { locale } = Astro.props;
-const translate = getTranslator(locale);
+const copy = pillsCopy(locale);
 ---
 
 <dialog
   class="image-zoom"
   data-pill-image-zoom
-  data-enlarge-label={translate('pills.reader.enlargeImage')}
-  aria-label={translate('pills.reader.enlargeImage')}
+  data-enlarge-label={copy.readerEnlargeImage}
+  aria-label={copy.readerEnlargeImage}
 >
-  <button
-    type="button"
-    class="close"
-    data-pill-image-zoom-close
-    aria-label={translate('pills.reader.closeImage')}
-  >
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17" /></svg>
+  <button type="button" class="close" data-pill-image-zoom-close aria-label={copy.readerCloseImage}>
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="m7 7 10 10M17 7 7 17" />
+    </svg>
   </button>
   <img alt="" />
 </dialog>

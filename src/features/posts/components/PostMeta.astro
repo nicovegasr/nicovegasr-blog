@@ -19,7 +19,9 @@ const publicationDateMachine = post.publicationDate.toISOString().slice(0, 10);
 
 <div class="post-meta">
   <time datetime={publicationDateMachine}>{publicationDateLabel}</time>
-  <span class="separator" aria-hidden="true">·</span>
+  <span class="separator" aria-hidden="true">
+    ·
+  </span>
   <ReadingTime minutes={post.readingTimeInMinutes} locale={post.locale} />
   <TagList tags={post.tags} />
 </div>

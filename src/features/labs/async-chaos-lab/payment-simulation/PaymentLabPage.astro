@@ -1,0 +1,27 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import type { Locale } from '@/i18n/locale';
+import { labPath } from '../shared/links';
+import LabHeader from '../shared/LabHeader.astro';
+import { labPagesCopy } from '../shared/lab-pages-copy';
+import '../shared/stories.css';
+import './worker-actor.css';
+interface Props {
+  locale: Locale;
+  level: 1 | 2;
+  title: string;
+}
+const { locale, level, title } = Astro.props;
+const text = labPagesCopy(locale);
+---
+
+<BaseLayout
+  locale={locale}
+  title={`${title} · Async Chaos Lab`}
+  description={text.paymentDescription}
+  alternatePaths={{ es: labPath('es', level), en: labPath('en', level) }}
+>
+  <LabHeader locale={locale} level={level} title={title} />
+  <payment-lab data-level={level} data-locale={locale}></payment-lab>
+  <noscript>{text.enableJavaScriptSimulation}</noscript>
+</BaseLayout>

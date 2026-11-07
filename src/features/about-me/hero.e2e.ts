@@ -19,7 +19,10 @@ test.beforeEach(async ({ page }) => {
   );
 });
 
-for (const [locale, label] of [['es', 'Ver proyectos'], ['en', 'View projects']] as const) {
+for (const [locale, label] of [
+  ['es', 'Ver proyectos'],
+  ['en', 'View projects'],
+] as const) {
   test(`the ${locale} hero links to the projects next to the repository stars`, async ({ page }) => {
     await page.goto(buildPagePath('home', locale));
     const hero = page.locator('.hero');
@@ -105,8 +108,11 @@ for (const viewport of [...phones, desktop]) {
         }
 
         if (viewport.width === 413) {
-          const firstTitle = (await page.locator('[data-route]').first()
-            .locator('.station.is-current .station-title').boundingBox())!;
+          const firstTitle = (await page
+            .locator('[data-route]')
+            .first()
+            .locator('.station.is-current .station-title')
+            .boundingBox())!;
           expect(firstTitle.y + firstTitle.height).toBeLessThanOrEqual(viewport.height);
         }
 
@@ -126,13 +132,18 @@ for (const viewport of [...phones, desktop]) {
         expect(overflowing).toEqual([]);
 
         const links = hero.locator('.hero-links a, .hero-projects a');
-        for (const box of await links.evaluateAll((items) => items.map((item) => item.getBoundingClientRect().toJSON()))) {
+        for (const box of await links.evaluateAll((items) =>
+          items.map((item) => item.getBoundingClientRect().toJSON()),
+        )) {
           expect(box.height).toBeGreaterThanOrEqual(43.99);
           expect(box.left).toBeGreaterThanOrEqual(0);
           expect(box.right).toBeLessThanOrEqual(viewport.width);
         }
 
-        await testInfo.attach(`hero-${locale}-${viewport.width}.png`, { body: await page.screenshot(), contentType: 'image/png' });
+        await testInfo.attach(`hero-${locale}-${viewport.width}.png`, {
+          body: await page.screenshot(),
+          contentType: 'image/png',
+        });
       });
     }
   });

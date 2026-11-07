@@ -1,37 +1,49 @@
 ---
+import { aboutMeCopy } from '../copy';
 import type { Locale } from '@/i18n/locale';
 
-interface Props { locale: Locale }
+interface Props {
+  locale: Locale;
+}
 const { locale } = Astro.props;
-const es = locale === 'es';
+const text = aboutMeCopy(locale).batchMetric;
 const number = new Intl.NumberFormat(locale, { useGrouping: 'always' });
 // An illustrative pattern of records, not a measured distribution or one square per record.
-const heights = [[2, 3, 3, 4, 3, 4], [3, 4, 5, 4, 4, 3], [4, 3, 4, 3, 4, 4], [4, 5, 6, 5, 5, 4], [3, 4, 5, 4, 3, 4], [5, 6, 5, 7, 6, 5]];
+const heights = [
+  [2, 3, 3, 4, 3, 4],
+  [3, 4, 5, 4, 4, 3],
+  [4, 3, 4, 3, 4, 4],
+  [4, 5, 6, 5, 5, 4],
+  [3, 4, 5, 4, 3, 4],
+  [5, 6, 5, 7, 6, 5],
+];
 ---
 
 <figure class="batch-metric" data-batch-metric style="--batch-position: 41.6667%;">
   <p class="result">
     <strong>{number.format(1_000_000)}</strong>
-    <span>{es ? 'registros en 5 minutos' : 'records in 5 minutes'}</span>
+    <span>{text.recordsIn5Minutes}</span>
   </p>
   <div class="field" aria-hidden="true">
     <span class="batch-pointer" data-batch-pointer>
-      {es ? 'Lotes de' : 'Batches of'} {number.format(1_000)}
-      <svg viewBox="0 0 12 12" width="12" height="12"><path d="M6 1v9M2 6l4 4 4-4" /></svg>
+      {text.batchesOf} {number.format(1_000)}
+      <svg viewBox="0 0 12 12" width="12" height="12">
+        <path d="M6 1v9M2 6l4 4 4-4" />
+      </svg>
     </span>
     <svg class="records" viewBox="0 0 600 84" focusable="false">
       {heights.map((columns, group) => (
         <g class:list={['batch', { 'is-active': group === 2 }]} data-batch>
-          {columns.map((height, column) => Array.from({ length: height }, (_, row) => (
-            <rect x={group * 100 + column * 15} y={84 - (row + 1) * 12} width="10" height="10" />
-          )))}
+          {columns.map((height, column) =>
+            Array.from({ length: height }, (_, row) => (
+              <rect x={group * 100 + column * 15} y={84 - (row + 1) * 12} width="10" height="10" />
+            )),
+          )}
         </g>
       ))}
     </svg>
   </div>
-  <figcaption class="sr-only">
-    {es ? 'Lectura de archivo y escritura selectiva, en lotes de 1.000 registros. La trama ilustra el procesamiento por lotes.' : 'File reading and selective writes, in batches of 1,000 records. The pattern illustrates batch processing.'}
-  </figcaption>
+  <figcaption class="sr-only">{text.fileReadingAndSelective}</figcaption>
 </figure>
 
 <script>
@@ -61,7 +73,9 @@ const heights = [[2, 3, 3, 4, 3, 4], [3, 4, 5, 4, 4, 3], [4, 3, 4, 3, 4, 4], [4,
     color: var(--color-ink);
   }
 
-  .result { margin: 0; }
+  .result {
+    margin: 0;
+  }
   .result strong {
     display: block;
     font-family: var(--font-family-display);
@@ -82,9 +96,17 @@ const heights = [[2, 3, 3, 4, 3, 4], [3, 4, 5, 4, 4, 3], [4, 3, 4, 3, 4, 4], [4,
     min-width: 0;
     padding-top: var(--space-8);
   }
-  .records { display: block; width: 100%; overflow: visible; }
-  .batch { fill: var(--color-ink); }
-  .batch.is-active { fill: var(--color-accent); }
+  .records {
+    display: block;
+    width: 100%;
+    overflow: visible;
+  }
+  .batch {
+    fill: var(--color-ink);
+  }
+  .batch.is-active {
+    fill: var(--color-accent);
+  }
   .batch-pointer {
     position: absolute;
     top: 0;
@@ -99,27 +121,64 @@ const heights = [[2, 3, 3, 4, 3, 4], [3, 4, 5, 4, 4, 3], [4, 3, 4, 3, 4, 4], [4,
     line-height: 1;
     transform: translateX(-50%);
   }
-  .batch-pointer svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .batch-pointer svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
 
   @media (prefers-reduced-motion: no-preference) and (min-height: 34rem) {
-    :global(.js) :global(.station) .batch-metric { visibility: hidden; }
-    :global(.js) :global(.station.is-current) .batch-metric { visibility: visible; }
-    .batch { transition: fill var(--motion-duration-base), transform var(--motion-duration-base) var(--motion-easing); }
-    .batch.is-active { transform: translateY(-3px); }
-    .batch-pointer { transition: left var(--motion-duration-base) var(--motion-easing); }
+    :global(.js) :global(.station) .batch-metric {
+      visibility: hidden;
+    }
+    :global(.js) :global(.station.is-current) .batch-metric {
+      visibility: visible;
+    }
+    .batch {
+      transition:
+        fill var(--motion-duration-base),
+        transform var(--motion-duration-base) var(--motion-easing);
+    }
+    .batch.is-active {
+      transform: translateY(-3px);
+    }
+    .batch-pointer {
+      transition: left var(--motion-duration-base) var(--motion-easing);
+    }
   }
 
   @media (max-width: 48rem) {
-    .batch-metric { grid-template-columns: 1fr; gap: var(--space-2); margin-top: var(--space-4); }
-    .result strong { font-size: var(--font-size-heading-1); }
-    .result span { font-size: var(--font-size-small); }
+    .batch-metric {
+      grid-template-columns: 1fr;
+      gap: var(--space-2);
+      margin-top: var(--space-4);
+    }
+    .result strong {
+      font-size: var(--font-size-heading-1);
+    }
+    .result span {
+      font-size: var(--font-size-small);
+    }
   }
 
   @media (max-width: 48rem) and (max-height: 44rem) {
-    .batch-metric { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-2); }
-    .result strong { font-size: clamp(1.125rem, 6vw, var(--font-size-heading-2)); }
-    .result span { font-size: var(--font-size-meta); }
-    .batch-pointer { font-size: 0.625rem; }
-    .field { padding-top: var(--space-6); }
+    .batch-metric {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--space-2);
+    }
+    .result strong {
+      font-size: clamp(1.125rem, 6vw, var(--font-size-heading-2));
+    }
+    .result span {
+      font-size: var(--font-size-meta);
+    }
+    .batch-pointer {
+      font-size: 0.625rem;
+    }
+    .field {
+      padding-top: var(--space-6);
+    }
   }
 </style>

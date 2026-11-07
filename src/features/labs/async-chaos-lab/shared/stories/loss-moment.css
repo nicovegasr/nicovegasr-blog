@@ -1,0 +1,95 @@
+/* A loss should read as the moment of the experiment, not a small status label. */
+:is(payment-lab, scaling-lab) .lab-outcome[data-tone='loss'] {
+  /* The whole scene scales with the screen height, so it fits without scrolling. */
+  --lab-loss-gap: clamp(0.5rem, 5.33dvh - 1.5rem, 1.5rem);
+  width: min(880px, calc(100vw - 2rem));
+  scrollbar-width: thin;
+  scrollbar-color: var(--lab-scene-rule) transparent;
+}
+:is(payment-lab, scaling-lab) .lab-outcome[data-tone='loss'] .lab-outcome-content {
+  padding-top: var(--lab-loss-gap);
+}
+:is(payment-lab, scaling-lab) .lab-outcome[data-tone='loss'] .lab-outcome-kicker {
+  color: #ff8179;
+  font-size: clamp(1rem, 2.2vw, 1.35rem);
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  margin-bottom: calc(var(--lab-loss-gap) * 0.8);
+}
+:is(payment-lab, scaling-lab) .lab-outcome[data-tone='loss'] .lab-outcome-kicker > span {
+  color: #ff8179;
+  font-size: 1.5em;
+}
+:is(payment-lab, scaling-lab) .lab-outcome[data-tone='loss'] h2 {
+  font-size: clamp(1.75rem, min(6vw, 7.6dvh), 4.25rem);
+  margin-bottom: var(--lab-loss-gap);
+  max-width: 17ch;
+}
+payment-lab .lab-outcome[data-tone='loss'] .lab-ticket {
+  min-height: clamp(92px, 17.7dvh - 14px, 145px);
+}
+:is(payment-lab, scaling-lab) .lab-outcome[data-tone='loss'] .lab-fatal-caller {
+  margin-top: calc(var(--lab-loss-gap) * 0.8);
+}
+:is(payment-lab, scaling-lab) .lab-outcome[data-tone='loss'] .lab-outcome-actions {
+  margin-top: var(--lab-loss-gap);
+}
+:is(payment-lab, scaling-lab) .lab-outcome[data-tone='loss'] .lab-earned {
+  margin-top: var(--lab-loss-gap);
+  padding-top: calc(var(--lab-loss-gap) * 0.65);
+}
+@media (max-height: 760px) {
+  payment-lab .lab-outcome[data-tone='loss'] .lab-ticket {
+    padding-block: 0.5rem 0.9rem;
+  }
+  payment-lab .lab-outcome[data-tone='loss'] .lab-ticket > strong {
+    margin-block: 0.4rem 0.2rem;
+  }
+  payment-lab .lab-outcome[data-tone='loss'] .lab-ticket-lines {
+    display: none;
+  }
+  :is(payment-lab, scaling-lab) .lab-outcome[data-tone='loss'] .lab-fatal-caller > .lab-figure {
+    width: 18px;
+    height: 18px;
+  }
+}
+@media (max-width: 700px) {
+  :is(payment-lab, scaling-lab) .lab-outcome[data-tone='loss'] {
+    width: calc(100vw - 1rem);
+    max-height: calc(100dvh - 1rem);
+  }
+  :is(payment-lab, scaling-lab) .lab-outcome[data-tone='loss'] .lab-outcome-top > span {
+    max-width: none;
+  }
+  :is(payment-lab, scaling-lab) .lab-outcome[data-tone='loss'] .lab-outcome-kicker {
+    font-size: clamp(0.9rem, 4vw, 1.1rem);
+  }
+  :is(payment-lab, scaling-lab) .lab-outcome[data-tone='loss'] h2 {
+    font-size: clamp(1.75rem, min(10vw, 7.6dvh), 3.2rem);
+  }
+  payment-lab .lab-outcome[data-tone='loss'] .lab-ticket-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.4rem;
+  }
+  payment-lab .lab-outcome[data-tone='loss'] .lab-ticket {
+    padding-inline: 0.5rem;
+  }
+}
+@media (max-width: 700px) and (max-height: 680px) {
+  :is(payment-lab, scaling-lab) .lab-outcome[data-tone='loss'] #lab-outcome-text {
+    font-size: 0.75rem;
+    line-height: 1.5;
+  }
+}
+/* Two achievements at once keep only their names where height is scarce. */
+@media (max-width: 700px), (max-height: 760px) {
+  :is(payment-lab, scaling-lab)
+    .lab-outcome[data-tone='loss']
+    :is(.lab-earned:has(+ .lab-earned), .lab-earned + .lab-earned)
+    p {
+    display: none;
+  }
+  :is(payment-lab, scaling-lab) .lab-outcome[data-tone='loss'] .lab-earned + .lab-earned {
+    margin-top: calc(var(--lab-loss-gap) * 0.5);
+  }
+}

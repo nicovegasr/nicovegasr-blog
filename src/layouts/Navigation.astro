@@ -46,19 +46,17 @@ const navigationItems: { href: string; label: string; isCurrentSection: boolean 
 
     <nav class="primary" id="site-nav" aria-label="Primary">
       <ul>
-        {
-          navigationItems.map(({ href, label, isCurrentSection }) => (
-              <li>
-                <a
-                  href={href}
-                  class={isCurrentSection ? 'current' : undefined}
-                  aria-current={isSamePath(href, currentPathname) ? 'page' : undefined}
-                >
-                  {label}
-                </a>
-              </li>
-          ))
-        }
+        {navigationItems.map(({ href, label, isCurrentSection }) => (
+          <li>
+            <a
+              href={href}
+              class={isCurrentSection ? 'current' : undefined}
+              aria-current={isSamePath(href, currentPathname) ? 'page' : undefined}
+            >
+              {label}
+            </a>
+          </li>
+        ))}
       </ul>
     </nav>
 

@@ -5,11 +5,9 @@ import sitemap from '@astrojs/sitemap';
 
 const siteUrl = 'https://nicovegasr.com';
 
-
 export default defineConfig({
   site: siteUrl,
   output: 'static',
-
 
   i18n: {
     defaultLocale: 'es',

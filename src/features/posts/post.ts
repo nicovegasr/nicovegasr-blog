@@ -24,11 +24,9 @@ export const isPublished = (post: Post, now: Date = new Date()): boolean =>
 
 export const isHosted = (post: Post): boolean => post.external === undefined;
 
-export const buildPostLink = (post: Post): string =>
-  post.external?.url ?? buildBlogPostPath(post.locale, post.slug);
+export const buildPostLink = (post: Post): string => post.external?.url ?? buildBlogPostPath(post.locale, post.slug);
 
 export const sharedTagCountWith = (post: Post, other: Post): number =>
   post.tags.filter((tag) => other.tags.includes(tag)).length;
 
-export const searchableText = (post: Post): string =>
-  [post.title, post.summary, ...post.tags].join(' ').toLowerCase();
+export const searchableText = (post: Post): string => [post.title, post.summary, ...post.tags].join(' ').toLowerCase();

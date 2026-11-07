@@ -1,5 +1,7 @@
 # nicovegasr.com
 
+**[Ver la arquitectura →](https://nicovegasr.github.io/nicovegasr-blog/)** · mapa generado desde el código en cada push a `main` (`npm run architecture`).
+
 Sitio personal y blog técnico bilingüe de Nicolás Vegas Rodríguez. Está construido como un sitio estático con Astro y se publica en español e inglés.
 
 ## Desarrollo
@@ -14,6 +16,7 @@ npm run dev
 ## Verificación
 
 ```bash
+npm run format     # Prettier; `lint` falla si algo está sin formatear
 npm run lint
 npm run typecheck
 npm run test:run

@@ -1,0 +1,213 @@
+import type { LabCopy } from './copy';
+
+export const spanishCopy: LabCopy = {
+  numberLocale: 'es-ES',
+  thousandsSeparator: '.',
+  millions: 'millones',
+  underATenthOfASecond: 'menos de 0,1 s',
+  catalogue: {
+    label: 'Sin quedarte sin memoria',
+    caption: 'la memoria sube',
+    levelCount: (count) => `${count} retos`,
+  },
+  page: {
+    description: 'Monta un script que recorra meses de logs sin quedarse sin memoria.',
+    challenges: 'Retos',
+    challengeButton: (id, title) => `Reto ${id}: ${title}`,
+    objectivesLabel: 'Estrellas del reto',
+    tutorial: 'Tutorial',
+    codeLabel: 'Tu código',
+    stageLabel: 'El script',
+    backpack: 'Mochila',
+    readGroup: 'Cómo coges los logs',
+    writeGroup: 'Cómo guardas',
+    newCard: 'Nueva',
+    placedCard: 'En el código ✓',
+    cardCode: 'Código',
+    flipCard: (label) => `Ver el código de «${label}»`,
+    stop: '■ Parar',
+    briefingHeading: 'Para las tres estrellas',
+    briefingNote: 'Los tienes siempre arriba, junto al reto.',
+    start: 'Empezar',
+    resultLabel: 'Resultado del reto',
+    attemptsCaption: 'Tus intentos en este reto',
+    attemptColumns: ['Tu elección', 'Estrellas', 'Memoria', 'Tiempo', 'Consultas', 'Viajes'],
+    retry: '↻ Reintentar',
+    nextChallenge: 'Siguiente reto →',
+    skipTutorial: 'Saltar tutorial',
+    next: 'Siguiente',
+    withoutJavaScript: 'Activa JavaScript para jugar al laboratorio.',
+  },
+  controls: {
+    run: 'Ejecutar ▶',
+    completeTheCode: 'Completa el código',
+    pause: '❚❚ Pausar',
+    resume: '▶ Continuar',
+    attention: 'Atención',
+    continue: 'Continuar',
+    gotIt: 'Entendido',
+    okay: 'Vale',
+    step: (current, total) => `Paso ${current} de ${total}`,
+  },
+  code: {
+    readHole: '¿cómo coges los logs?',
+    writeHole: '¿cómo guardas cada resumen?',
+    dropHere: 'Suelta aquí una carta',
+    smallerBatch: 'Lote más pequeño',
+    biggerBatch: 'Lote más grande',
+    remove: (label) => `Quitar «${label}»`,
+  },
+  cards: {
+    'load-all': {
+      label: 'Traerlos todos de golpe',
+      shortLabel: 'Todos de golpe',
+      description: 'Pides el histórico entero y luego lo revisas.',
+      code: 'List<LogEntry> logs =\n  repo\n  .findAllOrdered(\n    id);',
+    },
+    cursor: {
+      label: 'Que te los vayan pasando',
+      shortLabel: 'Poco a poco',
+      description: 'Una consulta, y la base de datos te los entrega poco a poco.',
+      code: 'try (Stream<LogEntry>\n  logs = repo\n  .streamAllOrdered(\n    id)) {',
+    },
+    pages: {
+      label: 'Pedirlos de mil en mil',
+      shortLabel: 'De mil en mil',
+      description: 'Pides mil, los revisas y pides los siguientes.',
+      code: 'while (!(page = repo\n  .findPageAfter(id,\n    last, 1_000))\n  .isEmpty()) {',
+    },
+    'one-by-one': {
+      label: 'Guardar cada nota al momento',
+      shortLabel: 'Nota a nota',
+      description: 'Un viaje a la base de datos por cada una.',
+      code: 'summaryRepository\n  .save(summary);',
+    },
+    batches: {
+      label: 'Juntarlas en lotes',
+      shortLabel: 'Lotes',
+      description: 'Las vas juntando y guardas el lote entero de una vez.',
+      code: 'batch.add(summary);\nif (batch.size()\n    == batchSize) {\n  write(batch);\n  batch.clear(); }',
+    },
+  },
+  challenges: {
+    1: {
+      title: 'Una semana de logs',
+      mission: 'Solo una semana: son pocos datos y la memoria no es un problema. Monta el script y ejecútalo.',
+      period: 'una semana',
+      takeaway: 'Con pocos datos, traerlo todo a una lista es perfectamente razonable.',
+    },
+    2: {
+      title: 'Meses de histórico',
+      mission: 'Ahora va el histórico entero: 200 millones de logs que no caben en una mochila de 512 MB.',
+      period: 'meses de histórico',
+      takeaway:
+        'Con un recorrido tan largo, el cursor retiene la conexión todo el rato; las páginas la sueltan entre consulta y consulta.',
+    },
+    3: {
+      title: 'La consulta pesada',
+      mission: '5 millones de logs y una consulta que cruza tres tablas: tarda 30 s en devolver la primera fila.',
+      takeaway: 'El cursor paga la consulta una vez, a cambio de tener la conexión ocupada todo el recorrido.',
+    },
+    4: {
+      title: 'Se reinicia sin parar',
+      mission: '50 millones de logs, reinicios en bucle y otro job que te quita memoria. Elige el lote antes.',
+      takeaway: 'El mejor lote es el más grande que cabe en el peor momento, no en el normal.',
+    },
+  },
+  challengeOf: (id, total) => `Reto ${id} de ${total}`,
+  challengeHeading: (id, title) => `Reto ${id} · ${title}`,
+  facts: {
+    backpack: (size) => `mochila de ${size}`,
+    query: (duration) => `consulta de ${duration}`,
+    incidents: { 'restart-loop': 'reinicios en bucle', 'memory-squeeze': 'otro job pesado' },
+  },
+  incidents: {
+    'restart-loop': {
+      warning: 'Se acerca: la aplicación va a entrar en bucle de reinicios.',
+      title: '¡Bucle de reinicios!',
+      text: 'Aparecen cuatro veces más ejecuciones que anotar.',
+      tip: 'Va a haber cuatro veces más notas que guardar: con lotes pequeños, muchos más viajes.',
+    },
+    'memory-squeeze': {
+      warning: 'Se acerca: va a arrancar otro job pesado en la misma aplicación.',
+      title: '¡Arranca otro job!',
+      text: 'Otro job de la aplicación se queda con 330 MB del heap.',
+      tip: 'Va a arrancar otro job en la misma aplicación y se quedará con 330 MB del heap. Tu lote tiene que caber en lo que quede.',
+    },
+  },
+  hints: {
+    list: 'La lista necesita todo el histórico en la mochila antes de revisar el primer log.',
+    batch: 'El lote también viaja en la mochila: uno demasiado grande la vuelve a llenar.',
+    squeeze:
+      'Arrancó otro job y tu lote ya no cabía en lo que quedaba de heap. El lote se elige pensando en el peor momento.',
+    repeatedQuery: 'Cada página vuelve a lanzar la consulta, y aquí cada lanzamiento cuesta 30 s.',
+    manyPages: 'Cada página es una consulta más. Con tantas, el tiempo se acumula.',
+    oneByOne: 'Cada nota es un viaje a la base de datos. Júntalas.',
+    smallBatch: 'Con tantas notas, lotes tan pequeños siguen siendo demasiados viajes.',
+    memory: 'Aguanta, pero va más cargado de lo necesario.',
+    longConnection:
+      'El cursor tiene la conexión abierta todo el recorrido: minutos bloqueando el pool y una transacción larga. Pide páginas y suéltala entre una y otra.',
+    smallStream:
+      'Con una semana de logs, abrir un cursor cuesta más que traerlos todos. Con pocos datos, lo simple gana.',
+  },
+  objectives: {
+    survive: 'Sin OOM Killed',
+    seconds: (limit) => `Menos de ${limit}`,
+    megabytes: (limit) => `Menos de ${limit}`,
+    'write-trips': (limit) => `Menos de ${limit} viajes`,
+    connection: (limit) => `Conexión < ${limit} seguido`,
+  },
+  live: { dead: 'muerto', full: (percent) => `${percent} % lleno` },
+  result: {
+    killed: 'OOM Killed',
+    perfect: '¡Tres estrellas!',
+    partial: 'Funciona, pero se puede mejorar',
+    peak: (megabytes) => `pico de ${megabytes}`,
+    logsReviewed: (count) => `con ${count} logs revisados`,
+    trips: (count) => `${count} viajes`,
+    inARow: (duration) => `${duration} seguidos`,
+    batchesOf: (size) => `Lotes de ${size}`,
+  },
+  waiting: {
+    read: 'Esperando a que coloques una carta ①…',
+    write: 'Esperando a que coloques una carta ②…',
+    run: 'Pulsa Ejecutar para seguir…',
+  },
+  tutorial: {
+    stage: {
+      title: 'Tu aplicación se queda sin memoria de vez en cuando.',
+      text: 'Este script revisa sus logs para contar cuántas veces ha pasado. Tú decides cómo está escrito.',
+    },
+    memory: {
+      title: 'Esta barra es la mochila del script: su memoria.',
+      text: 'Todo lo que retiene va dentro. Si se llena, el sistema lo mata: OOM Killed.',
+    },
+    stars: {
+      title: 'Cada reto tiene tres estrellas.',
+      text: 'Aquí ves qué tienes que conseguir, y mientras corre, cómo vas en cada una.',
+    },
+    read: {
+      title: 'El código tiene huecos. Este decide cómo coge los logs.',
+      text: 'Toca una carta del grupo ① de abajo, o arrástrala aquí. Con </> ves su código.',
+    },
+    write: {
+      title: 'Este hueco decide cómo guarda lo que anota.',
+      text: 'Toca la carta del grupo ② para seguir.',
+    },
+    run: {
+      title: '¡Listo! Ejecuta y vigila la mochila.',
+      text: 'Puedes repetir cada reto las veces que quieras, con otras cartas.',
+    },
+  },
+  tips: {
+    newCard: (label) => ({ title: `Carta nueva: ${label}`, text: 'Pruébala.' }),
+    dial: {
+      title: 'Elige el tamaño del lote antes de ejecutar.',
+      text: 'Mientras corre ya no se puede tocar, igual que en producción: lo cambiarías desplegando otra vez.',
+    },
+    incident: (text) => ({
+      title: 'Viene un incidente. He pausado para que lo veas venir.',
+      text: `${text} Veamos si aguanta el lote que elegiste.`,
+    }),
+  },
+};

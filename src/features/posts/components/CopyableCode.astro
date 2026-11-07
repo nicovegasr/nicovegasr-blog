@@ -1,15 +1,29 @@
 ---
 import type { Locale } from '@/i18n/locale';
 
-interface Props { locale: Locale }
+interface Props {
+  locale: Locale;
+}
 const { locale } = Astro.props;
-const labels = locale === 'es'
-  ? { copy: 'Copiar', commands: 'Copiar solo los comandos', copied: 'Copiado', error: 'No se pudo copiar. Inténtalo de nuevo.' }
-  : { copy: 'Copy', commands: 'Copy commands only', copied: 'Copied', error: 'Could not copy. Try again.' };
+const labels =
+  locale === 'es'
+    ? {
+        copy: 'Copiar',
+        commands: 'Copiar solo los comandos',
+        copied: 'Copiado',
+        error: 'No se pudo copiar. Inténtalo de nuevo.',
+      }
+    : { copy: 'Copy', commands: 'Copy commands only', copied: 'Copied', error: 'Could not copy. Try again.' };
 ---
 
-<div class="prose" data-copyable-code data-copy={labels.copy} data-commands={labels.commands}
-  data-copied={labels.copied} data-error={labels.error}>
+<div
+  class="prose"
+  data-copyable-code
+  data-copy={labels.copy}
+  data-commands={labels.commands}
+  data-copied={labels.copied}
+  data-error={labels.error}
+>
   <slot />
 </div>
 
@@ -25,7 +39,10 @@ const labels = locale === 'es'
         if (!text?.trim()) return;
 
         // Terminal transcripts keep their output on screen but copy only commands.
-        const commands = text.split('\n').filter((line) => line.startsWith('$ ')).map((line) => line.slice(2));
+        const commands = text
+          .split('\n')
+          .filter((line) => line.startsWith('$ '))
+          .map((line) => line.slice(2));
         const copyText = commands.length ? commands.join('\n') : text.replace(/\n$/, '');
         const block = document.createElement('div');
         block.setAttribute('data-copy-block', '');
@@ -44,14 +61,20 @@ const labels = locale === 'es'
           clearTimeout(resetTimer);
           button.disabled = true;
           status.textContent = '';
-          void navigator.clipboard.writeText(copyText).then(() => {
-            status.textContent = container.dataset.copied ?? 'Copied';
-          }).catch(() => {
-            status.textContent = container.dataset.error ?? 'Could not copy. Try again.';
-          }).finally(() => {
-            button.disabled = false;
-            resetTimer = setTimeout(() => { status.textContent = ''; }, 3000);
-          });
+          void navigator.clipboard
+            .writeText(copyText)
+            .then(() => {
+              status.textContent = container.dataset.copied ?? 'Copied';
+            })
+            .catch(() => {
+              status.textContent = container.dataset.error ?? 'Could not copy. Try again.';
+            })
+            .finally(() => {
+              button.disabled = false;
+              resetTimer = setTimeout(() => {
+                status.textContent = '';
+              }, 3000);
+            });
         });
 
         toolbar.append(status, button);
@@ -93,9 +116,25 @@ const labels = locale === 'es'
     font-weight: 600;
     cursor: pointer;
   }
-  .code-copy-button:hover { border-color: var(--color-ink); }
-  .code-copy-button:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 2px; }
-  .code-copy-button:disabled { opacity: 0.6; cursor: wait; }
-  .prose [data-copy-block] pre { margin: 0; border: 0; border-radius: 0; }
-  @media (pointer: coarse) { .code-copy-button { min-height: 44px; } }
+  .code-copy-button:hover {
+    border-color: var(--color-ink);
+  }
+  .code-copy-button:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+  .code-copy-button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+  }
+  .prose [data-copy-block] pre {
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+  }
+  @media (pointer: coarse) {
+    .code-copy-button {
+      min-height: 44px;
+    }
+  }
 </style>

@@ -1,10 +1,11 @@
 ---
+import { otherLocale } from '@/i18n/locale';
+import { pillsCopy } from '../copy';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PillReader from '@/features/pills/components/PillReader.astro';
 import PillImageZoom from '@/features/pills/components/PillImageZoom.astro';
 import ReaderKeyboardTip from '@/features/pills/components/ReaderKeyboardTip.astro';
 import type { Locale } from '@/i18n/locale';
-import { getTranslator } from '@/i18n/translator';
 import { buildPillPath, buildPillSeriesPath } from '@/i18n/routes';
 import { findRenderablePillSeries } from '@/features/pills/pill-repository';
 import { pillLeafSlugOf } from '@/features/pills/pill';
@@ -16,28 +17,23 @@ interface Props {
 }
 const { locale, seriesSlug, activePillSlug } = Astro.props;
 const renderable = await findRenderablePillSeries(locale, seriesSlug);
-if (!renderable)
-  throw new Error(`Pill series not found: ${locale}/${seriesSlug}`);
+if (!renderable) throw new Error(`Pill series not found: ${locale}/${seriesSlug}`);
 const { series, pills } = renderable;
-const activePill = pills.find(
-  (pill) => pillLeafSlugOf(pill.slug) === activePillSlug,
-);
-if (activePillSlug && !activePill)
-  throw new Error(`Pill not found: ${activePillSlug}`);
-const translate = getTranslator(locale);
-const otherLocale = locale === 'es' ? 'en' : 'es';
+const activePill = pills.find((pill) => pillLeafSlugOf(pill.slug) === activePillSlug);
+if (activePillSlug && !activePill) throw new Error(`Pill not found: ${activePillSlug}`);
+const copy = pillsCopy(locale);
+const translationLocale = otherLocale(locale);
 const alternatePaths = {
-  [otherLocale]: activePillSlug
-    ? buildPillPath(otherLocale, series.slug, activePillSlug)
-    : buildPillSeriesPath(otherLocale, series.slug),
+  [translationLocale]: activePillSlug
+    ? buildPillPath(translationLocale, series.slug, activePillSlug)
+    : buildPillSeriesPath(translationLocale, series.slug),
 };
-
 ---
 
 <BaseLayout
   locale={locale}
   clientNavigation
-  title={activePill ? `${activePill.title} — ${series.title}` : `${series.title} — ${translate('pills.heading')}`}
+  title={activePill ? `${activePill.title} — ${series.title}` : `${series.title} — ${copy.heading}`}
   description={activePill?.subtitle ?? series.summary}
   openGraphType={activePill ? 'article' : 'website'}
   alternatePaths={alternatePaths}

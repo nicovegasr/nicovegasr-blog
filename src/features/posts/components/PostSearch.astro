@@ -1,7 +1,7 @@
 ---
+import { postsCopy } from '../copy';
 import type { Locale } from '@/i18n/locale';
 import { type Post, searchableText } from '@/features/posts/post';
-import { getTranslator } from '@/i18n/translator';
 
 interface Props {
   locale: Locale;
@@ -9,8 +9,8 @@ interface Props {
 }
 
 const { locale, posts } = Astro.props;
-const translate = getTranslator(locale);
-const placeholder = translate('blog.searchPlaceholder');
+const copy = postsCopy(locale);
+const placeholder = copy.searchPlaceholder;
 
 // Índice de búsqueda derivado del repositorio en build-time (no del DOM).
 // Se serializa al cliente; el navegador filtra sobre estos datos, no scrapeando.
@@ -27,18 +27,17 @@ const searchIndex = posts.map((post) => ({
   </svg>
   <input type="search" class="input" placeholder={placeholder} aria-label={placeholder} />
 </div>
-<p class="post-search-empty" hidden>{translate('blog.searchEmpty')}</p>
+<p class="post-search-empty" hidden>
+  {copy.searchEmpty}
+</p>
 
-<script type="application/json" id="post-search-index" set:html={JSON.stringify(searchIndex)}
-></script>
+<script type="application/json" id="post-search-index" set:html={JSON.stringify(searchIndex)}></script>
 
 <script>
   type SearchEntry = { slug: string; text: string };
 
   const indexElement = document.getElementById('post-search-index');
-  const searchIndex: SearchEntry[] = indexElement
-    ? JSON.parse(indexElement.textContent ?? '[]')
-    : [];
+  const searchIndex: SearchEntry[] = indexElement ? JSON.parse(indexElement.textContent ?? '[]') : [];
 
   const input = document.querySelector<HTMLInputElement>('.post-search .input');
   const list = document.querySelector<HTMLUListElement>('.post-list');
@@ -48,9 +47,7 @@ const searchIndex = posts.map((post) => ({
     input.addEventListener('input', () => {
       const query = input.value.trim().toLowerCase();
       const matchingSlugs = new Set(
-        searchIndex
-          .filter((entry) => entry.text.includes(query))
-          .map((entry) => entry.slug),
+        searchIndex.filter((entry) => entry.text.includes(query)).map((entry) => entry.slug),
       );
 
       list.querySelectorAll<HTMLElement>('[data-slug]').forEach((card) => {

@@ -1,0 +1,36 @@
+---
+import type { Locale } from '@/i18n/locale';
+import { terminalCopy } from './terminal-copy';
+import './terminal-preview.css';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const text = terminalCopy(locale);
+const finished = text.finished((20_000).toLocaleString(text.numbers));
+---
+
+<!-- Decorative: loading everything climbs to 1 GB and is killed; streaming stays flat and finishes. -->
+<terminal-preview class="memory-terminal" aria-hidden="true" data-locale={locale}>
+  <div class="memory-terminal-command">
+    $ java -jar LogAnalyzerJob.jar --mode=<span data-mode>streaming</span>
+  </div>
+  <div>
+    <div class="memory-terminal-reading">
+      <span data-megabytes>64</span>
+      <small>MB / 1024 MB</small>
+    </div>
+    <div class="memory-terminal-gauge">
+      <i data-gauge style="width: 6%"></i>
+    </div>
+  </div>
+  <div class="memory-terminal-log" data-log>
+    <span class="is-ok">{finished}</span>
+  </div>
+</terminal-preview>
+
+<script>
+  import './terminal-preview';
+</script>

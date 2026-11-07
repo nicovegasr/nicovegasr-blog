@@ -1,0 +1,64 @@
+---
+import type { Locale } from '@/i18n/locale';
+import ContentLayout from '@/layouts/ContentLayout.astro';
+import AssemblyLinePreview from '@/features/labs/async-chaos-lab/catalogue-preview/AssemblyLinePreview.astro';
+import { asyncChaosLabEntry } from '@/features/labs/async-chaos-lab/catalogue-entry';
+import MemoryTerminalPreview from '@/features/labs/exit-137/catalogue-preview/TerminalPreview.astro';
+import { exit137Entry } from '@/features/labs/exit-137/catalogue-entry';
+import { catalogueCopy } from './copy';
+import './labs-page.css';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const { title, description, start, levelsOf: levelsLabel } = catalogueCopy(locale);
+const twoDigits = (value: number) => String(value).padStart(2, '0');
+const labs = [asyncChaosLabEntry(locale), exit137Entry(locale)];
+---
+
+<ContentLayout locale={locale} title={title} description={description} lead={description} compact>
+  <ul class="notebooks">
+    {labs.map((lab, index) => (
+      <li>
+        <article class="notebook">
+          <p class="notebook-meta">
+            <span class="lab-tag">LAB {twoDigits(index + 1)}</span>
+            <span>{lab.label}</span>
+          </p>
+          <h2>
+            <a href={lab.levels[0]?.href}>{lab.title}</a>
+          </h2>
+          <p class="notebook-summary">{lab.summary}</p>
+          <a class="photo" href={lab.levels[0]?.href} tabindex="-1" aria-hidden="true">
+            {lab.id === 'exit-137' ? (
+              <MemoryTerminalPreview locale={locale} />
+            ) : (
+              <AssemblyLinePreview locale={locale} />
+            )}
+            <span class="photo-caption">
+              fig. {index + 1} — {lab.caption}
+            </span>
+          </a>
+          <ol class="levels" aria-label={`${levelsLabel} ${lab.title}`}>
+            {lab.levels.map((level, levelIndex) => (
+              <li>
+                <a href={level.href}>
+                  <span class="level-number">{twoDigits(levelIndex + 1)}</span>
+                  {level.title}
+                </a>
+              </li>
+            ))}
+          </ol>
+          <p class="notebook-foot">
+            <span>{lab.levelCount}</span>
+            <a class="notebook-start" href={lab.levels[0]?.href} tabindex="-1" aria-hidden="true">
+              {start} →
+            </a>
+          </p>
+        </article>
+      </li>
+    ))}
+  </ul>
+</ContentLayout>

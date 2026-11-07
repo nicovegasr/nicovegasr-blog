@@ -13,23 +13,41 @@ for (const width of [1280, 360]) {
     const walker = page.locator('[data-page-walker]');
     const roles = ['backend', 'frontend', 'database', 'infrastructure', 'artificial-intelligence'];
     for (const [index, role] of roles.entries()) {
-      await page.locator('[data-route]').last().evaluate((route, station) => {
-        const stage = route.querySelector<HTMLElement>('[data-route-stage]')!;
-        window.scrollTo({ top: window.scrollY + route.getBoundingClientRect().top + (route.clientHeight - stage.offsetHeight) * station / 4 + 2, behavior: 'instant' });
-      }, index);
+      await page
+        .locator('[data-route]')
+        .last()
+        .evaluate((route, station) => {
+          const stage = route.querySelector<HTMLElement>('[data-route-stage]')!;
+          window.scrollTo({
+            top:
+              window.scrollY +
+              route.getBoundingClientRect().top +
+              ((route.clientHeight - stage.offsetHeight) * station) / 4 +
+              2,
+            behavior: 'instant',
+          });
+        }, index);
       await expect(walker).toHaveAttribute('data-mascot-role', role);
       await expect(walker).toHaveCSS('--walking-atlas', new RegExp(`skills-${role}`));
       await expect(walker).toHaveAttribute('data-mascot-layout', '3x3');
       await expect(page.locator('[data-route]').last().locator('.station.is-current h3')).toHaveCSS('opacity', '1');
       await page.evaluate(async () => {
-        await Promise.all(document.getAnimations().filter((animation) => animation.effect?.getTiming().iterations !== Infinity).map((animation) => animation.finished.catch(() => undefined)));
+        await Promise.all(
+          document
+            .getAnimations()
+            .filter((animation) => animation.effect?.getTiming().iterations !== Infinity)
+            .map((animation) => animation.finished.catch(() => undefined)),
+        );
       });
       await page.screenshot({ path: testInfo.outputPath(`${role}.png`) });
     }
   });
 }
 
-for (const viewport of [{ width: 1280, height: 800 }, { width: 360, height: 640 }]) {
+for (const viewport of [
+  { width: 1280, height: 800 },
+  { width: 360, height: 640 },
+]) {
   test.describe(`mascot ages at ${viewport.width}px`, () => {
     test.use({ viewport });
 
@@ -39,9 +57,17 @@ for (const viewport of [{ width: 1280, height: 800 }, { width: 360, height: 640 
         const walker = page.locator('[data-page-walker]');
         await expect(walker).toHaveAttribute('data-mascot-age', 'original');
         const atlasUrls = await walker.evaluate((element) =>
-          Object.values((JSON.parse(element.getAttribute('data-mascot-atlases')!) as Record<string, { walking: string; reactions: string }>).original!),
+          Object.values(
+            (
+              JSON.parse(element.getAttribute('data-mascot-atlases')!) as Record<
+                string,
+                { walking: string; reactions: string }
+              >
+            ).original!,
+          ),
         );
-        const preloadedUrls = await page.locator('link[rel="preload"][as="image"]')
+        const preloadedUrls = await page
+          .locator('link[rel="preload"][as="image"]')
           .evaluateAll((links) => links.map((link) => link.getAttribute('href')));
         expect(preloadedUrls).toEqual(atlasUrls);
 
@@ -236,13 +262,16 @@ test('only the chapter being read is marked as active', async ({ page }) => {
 test('the journey is told in chronological order and the stack comes after it', async ({ page }) => {
   await page.goto('/en/');
 
-  const dates = await page.locator(`${stops} time:first-of-type`).evaluateAll((times) =>
-    times.map((time) => time.getAttribute('datetime') ?? ''),
-  );
+  const dates = await page
+    .locator(`${stops} time:first-of-type`)
+    .evaluateAll((times) => times.map((time) => time.getAttribute('datetime') ?? ''));
   expect(dates).toEqual([...dates].sort());
 
   const journeyTop = await page.locator('[data-journey]').evaluate((element) => element.getBoundingClientRect().top);
-  const stackTop = await page.locator('[data-route]').last().evaluate((element) => element.getBoundingClientRect().top);
+  const stackTop = await page
+    .locator('[data-route]')
+    .last()
+    .evaluate((element) => element.getBoundingClientRect().top);
   expect(stackTop).toBeGreaterThan(journeyTop);
 });
 
@@ -258,7 +287,10 @@ test('the skills route walks from area to area as the reader scrolls', async ({ 
       const routes = document.querySelectorAll<HTMLElement>('[data-route]');
       const route = routes[routes.length - 1]!;
       const scrollable = route.offsetHeight - window.innerHeight;
-      window.scrollTo({ top: route.getBoundingClientRect().top + window.scrollY + scrollable * routeRatio, behavior: 'instant' });
+      window.scrollTo({
+        top: route.getBoundingClientRect().top + window.scrollY + scrollable * routeRatio,
+        behavior: 'instant',
+      });
     }, ratio);
 
   await scrollThroughRoute(0.5);

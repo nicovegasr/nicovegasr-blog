@@ -6,10 +6,7 @@ import { findAllPosts } from '@/features/posts/post-repository';
 
 // Builds the localized blog RSS feed. The per-locale endpoints under pages/
 // only supply their locale and the configured site URL.
-export const buildPostsRssFeed = async (
-  locale: Locale,
-  site: string | URL | undefined,
-): Promise<Response> => {
+export const buildPostsRssFeed = async (locale: Locale, site: string | URL | undefined): Promise<Response> => {
   if (site === undefined) {
     throw new Error('The site URL must be configured to build the RSS feed.');
   }

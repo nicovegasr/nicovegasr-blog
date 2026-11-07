@@ -10,9 +10,9 @@ test('the footer keeps its copyright and usable social links on one row', async 
       await page.evaluate(() => document.fonts.ready);
       const footer = page.locator('.site-footer');
       const copyright = (await footer.locator('.copyright').boundingBox())!;
-      const links = await footer.locator('.social-links a').evaluateAll((items) =>
-        items.map((item) => item.getBoundingClientRect().toJSON()),
-      );
+      const links = await footer
+        .locator('.social-links a')
+        .evaluateAll((items) => items.map((item) => item.getBoundingClientRect().toJSON()));
       expect(links).toHaveLength(4);
       expect(copyright.x + copyright.width).toBeLessThanOrEqual(links[0]!.x);
       for (const link of links) {
