@@ -114,7 +114,7 @@ export class StageAnimator {
       pose = Math.floor(this.heroClock * 2.5) % 3 === 0 ? POSES.thinking : POSES.standing;
     } else pose = POSES.standing;
 
-    hero.style.left = `${this.heroX}%`;
+    hero.style.setProperty('--hero-x', String(this.heroX));
     hero.classList.toggle('is-facing-left', facingLeft);
     hero.classList.toggle('is-walking', next !== undefined);
     sprite.style.backgroundImage = `url(${pose.atlas === 'walk' ? walkAtlas : reactionsAtlas})`;
@@ -158,11 +158,11 @@ export class StageAnimator {
   private fly(fromX: number, toX: number, kind: 'log' | 'box') {
     const stage = this.one('[data-stage]');
     const element = Object.assign(document.createElement('i'), { className: `oom-flying is-${kind}` });
-    element.style.left = `${fromX}%`;
+    element.style.setProperty('--flying-x', String(fromX));
     stage.append(element);
     requestAnimationFrame(() =>
       requestAnimationFrame(() => {
-        element.style.left = `${toX}%`;
+        element.style.setProperty('--flying-x', String(toX));
         element.classList.add('is-arriving');
       }),
     );
