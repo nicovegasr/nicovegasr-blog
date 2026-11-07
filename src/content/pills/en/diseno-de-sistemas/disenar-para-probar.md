@@ -8,52 +8,34 @@ momentStage: 'design-for-testing'
 publicationDate: 2026-10-12
 ---
 
-If checking a discount requires connecting a database and waiting for a date to arrive, the test depends on more than the rule. Separating the calculation from how it obtains its data lets you check it with known inputs.
+**Designing for testability** means making a rule checkable with known inputs and an observable result. Making its required data explicit keeps its test from depending on a database or the system clock.
 
-## Month 20: a campaign that depends on the clock
+## Example: calculating a price during a campaign
 
-Marketing wants to apply a discount between two dates. The function that calculates the price loads the product and campaign, reads the system time and saves the result. Testing what happens when the campaign ends means preparing the database and controlling a clock the function reads on its own.
+A campaign applies a discount between two instants: its start is included and its end excluded. The calculation receives the product, campaign and date; it returns a price in integer cents without modifying the product:
 
-The calculation only needs the price, the campaign conditions and a date. Loading them and saving the result belong to the use case.
-
-## The decision: pass the data and date into the calculation
-
-~~~ts
-function calculateCampaignPrice(
-  product: Product,
-  campaign: Campaign,
-  now: Date,
-): number {
+```js
+function calculateCampaignPrice(product, campaign, now) {
   if (now < campaign.startsAt || now >= campaign.endsAt) {
     return product.priceInCents;
   }
-
   return Math.round(
     product.priceInCents * (1 - campaign.discountPercent / 100),
   );
 }
-~~~
 
-The campaign includes its start instant and excludes its end. The function returns the price in cents without modifying the product. For a price of 10,000 cents and a 20% campaign active from October 10 to October 20, both cases can be checked with fixed dates:
-
-~~~ts
 const product = { priceInCents: 10000 };
 const campaign = {
   startsAt: new Date('2026-10-10T00:00:00Z'),
   endsAt: new Date('2026-10-20T00:00:00Z'),
   discountPercent: 20,
 };
-const during = new Date('2026-10-15T12:00:00Z');
-const atEnd = new Date('2026-10-20T00:00:00Z');
+expect(calculateCampaignPrice(product, campaign, campaign.startsAt)).toBe(8000);
+expect(calculateCampaignPrice(product, campaign, campaign.endsAt)).toBe(10000);
+```
 
-expect(calculateCampaignPrice(product, campaign, during)).toBe(8000);
-expect(calculateCampaignPrice(product, campaign, atEnd)).toBe(10000);
-~~~
+These checks use fixed dates without waiting for the campaign day. The use case loads the data, reads the time once and passes it to the calculation before saving the result.
 
-These tests do not query the database or wait for October 20. The use case still loads the product and campaign, reads the time once and passes it to the calculation before saving the price. A working calculation does not prove that the repository saves correctly; that integration is tested separately.
+## What designing for testability means here
 
-**What it costs:** making the inputs explicit and allowing the use case clock to be controlled. An interface is not needed for every piece: the calculation can already be tested as a function.
-
-**Check the rule with data and a date; test access to that data separately.**
-
-*The importer for a single supplier now has alerts, reports and campaigns. Each change has helped shape the design.*
+The rule can be checked by controlling its inputs, without adding an interface for every value. Passing calculation tests does not prove data is loaded or saved correctly: those integrations are tested separately.

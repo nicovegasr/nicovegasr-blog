@@ -1,51 +1,31 @@
 ---
 kind: 'pill'
 title: 'Keep It Simple, Stupid (KISS)'
-subtitle: 'Resolver lo complejo sin complicarlo más'
+subtitle: 'Resolver sin complicar'
 icon: 'simple'
 order: 1
 momentStage: 'kiss'
 publicationDate: 2026-10-12
 ---
 
-**KISS** (*Keep It Simple, Stupid*) propone usar la solución más sencilla que resuelva el problema de verdad. Simple no significa ignorar su complejidad, sino evitar añadir la que no hace falta.
+**KISS** (*Keep It Simple, Stupid*) es un principio que propone buscar la forma más sencilla de resolver un problema, sin ignorar su complejidad inherente.
 
-Imaginemos una cadena de tiendas que importa el inventario de sus proveedores. Es el sistema que veremos crecer a lo largo de la serie.
+## Ejemplo: leer ficheros de distintos clientes
 
-## Mes 1: un proveedor, una función
+Imaginemos una aplicación que lee ficheros de distintos clientes, procesa sus datos y los guarda. Un cliente identifica sus productos con el campo `code`; otro, con `sku`. Interpretar esas diferencias forma parte de la complejidad inherente del problema.
 
-Llega un único proveedor que envía su inventario en JSON. Una función lo lee y devuelve registros de inventario. No hace falta más.
+Podemos usar lectores que conozcan cada estructura y devuelvan los datos con una representación común. Si las reglas de procesamiento son las mismas, después seguimos los mismos pasos para procesarlos y guardarlos. Cuando cambia la estructura de un fichero, cambia su lector; el resto del flujo puede mantenerse.
 
-## Mes 3: otro `if`
+El caso de uso recibe el lector adecuado para la estructura del fichero:
 
-Llegan más proveedores, cada uno con su propia estructura. Lo rápido es añadir una rama:
-
-~~~ts
-if (supplier === 'north') { code = item.code; }
-else if (supplier === 'south') { code = item.product.sku; }
-// ...y un if más por cada proveedor nuevo
-~~~
-
-Cada `if` parece la opción simple. La lógica de lectura acaba copiada en los cron jobs que importan stock, concilian y exportan.
-
-## Mes 6: un proveedor renombra un campo
-
-Un proveedor cambia `code` por `sku`. Se actualizan dos cron jobs; el tercero sigue buscando `code`, recibe `undefined` y carga productos sin código. El proceso termina sin avisar.
-
-La variación entre proveedores es **complejidad inherente**: viene con el problema. Duplicar la lógica de lectura en varios procesos es **complejidad añadida**: la hemos puesto nosotros.
-
-## La decisión: un lector por formato
-
-~~~ts
-interface InventoryReader {
-  read(file: InventoryFile): InventoryRecord[];
+```js
+function importInventory(file, reader, processor, repository) {
+  return reader.read(file) // ← Distintos lectores devuelven registros de dominio comunes.
+    .then(records => processor.process(records))
+    .then(records => repository.saveAll(records));
 }
-~~~
+```
 
-Cada estructura tiene su lector y los tres cron jobs lo reutilizan. Cuando un proveedor cambia su formato, tocas un lector y sus pruebas.
+## Qué significa aplicar KISS aquí
 
-**Lo que cuesta:** una interfaz y un lector por formato. Un motor configurable o un sistema de plugins añadiría más piezas que mantener. Puede compensar si necesitas incorporar formatos sin desplegar.
-
-**Un `if` puede ser suficiente. Aquí, separar los lectores simplifica el cambio: cada formato se interpreta en un solo sitio.**
-
-*Los formatos ya se leen en un solo sitio. Ahora cada lector también aplica las reglas del inventario.*
+Si la tarea contempla ficheros de distintos clientes, la solución sencilla debe atender esas diferencias y mantener claro el flujo de lectura, procesamiento y guardado. Separar los lectores tiene sentido si ayuda a cubrir esa necesidad sin introducir mecanismos para requisitos que todavía no existen.

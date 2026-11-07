@@ -1,51 +1,31 @@
 ---
 kind: 'pill'
 title: 'Keep It Simple, Stupid (KISS)'
-subtitle: 'Handle complexity without adding more'
+subtitle: 'Solve without overcomplicating'
 icon: 'simple'
 order: 1
 momentStage: 'kiss'
 publicationDate: 2026-10-12
 ---
 
-**KISS** (*Keep It Simple, Stupid*) asks you to use the simplest solution that actually solves the problem. Simple doesn't mean ignoring its complexity; it means avoiding complexity you don't need.
+**KISS** (*Keep It Simple, Stupid*) is a principle that proposes finding the simplest way to solve a problem without ignoring its inherent complexity.
 
-Imagine a retail chain that imports inventory from its suppliers. This is the system we'll see grow throughout the series.
+## Example: reading files from different clients
 
-## Month 1: one supplier, one function
+Imagine an application that reads files from different clients, processes their data and saves it. One client identifies products with a `code` field; another uses `sku`. Interpreting those differences is part of the problem's inherent complexity.
 
-A single supplier sends its inventory as JSON. One function reads it and returns inventory records. Nothing else is needed.
+We can use readers that understand each structure and return the data in a common representation. If the processing rules are the same, we then follow the same steps to process and save it. When a file's structure changes, its reader changes; the rest of the flow can stay the same.
 
-## Month 3: another `if`
+The use case receives the appropriate reader for the file structure:
 
-More suppliers arrive, each with its own structure. The quick move is to add a branch:
-
-~~~ts
-if (supplier === 'north') { code = item.code; }
-else if (supplier === 'south') { code = item.product.sku; }
-// ...and one more if for every new supplier
-~~~
-
-Each `if` looks like the simple option. The reading logic ends up copied into the cron jobs that import stock, reconcile it and export it.
-
-## Month 6: a supplier renames a field
-
-A supplier switches `code` to `sku`. Two cron jobs get updated; the third keeps looking for `code`, gets `undefined` and loads products with no code. The process finishes without reporting a problem.
-
-The variation between suppliers is **inherent complexity**: it comes with the problem. Duplicating the reading logic across several processes is **added complexity**: we put it there.
-
-## The decision: one reader per format
-
-~~~ts
-interface InventoryReader {
-  read(file: InventoryFile): InventoryRecord[];
+```js
+function importInventory(file, reader, processor, repository) {
+  return reader.read(file) // ← Different readers return common domain records.
+    .then(records => processor.process(records))
+    .then(records => repository.saveAll(records));
 }
-~~~
+```
 
-Each structure has its own reader, and all three cron jobs reuse it. When a supplier changes its format, you touch one reader and its tests.
+## What applying KISS means here
 
-**What it costs:** one interface and one reader per format. A configurable engine or a plugin system would add more pieces to maintain. That may be worthwhile if you need to onboard formats without deploying.
-
-**An `if` can be enough. Here, separate readers make changes simpler: each format is interpreted in one place.**
-
-*Each format is now read in one place. Each reader also applies the inventory rules.*
+If the task includes files from different clients, the simple solution must handle those differences while keeping the reading, processing and saving flow clear. Separate readers make sense if they help meet that need without introducing mechanisms for requirements that do not yet exist.

@@ -8,54 +8,30 @@ momentStage: 'coupling'
 publicationDate: 2026-10-12
 ---
 
-When one piece knows the details of another, changing those details can mean modifying both. In the report generator, coupling shows up in how much it needs to know about storage to save a file.
+**Coupling** describes dependencies between pieces of a system. When one knows the details of another, changing those details can require modifying both. Choosing what it needs to know can limit the reach of those changes.
 
-## Month 16: the use case also knows how to save the report
+## Example: saving reports to different destinations
 
-The use case generates an inventory report and uploads it through the storage SDK:
+A use case generates an inventory report. If it also knows the storage SDK's methods, supporting disk storage requires changing it. We can make it depend on a `save(report)` operation and move SDK details into an implementation:
 
-~~~ts
-const report = generateInventoryReport(records);
-await storageSdk.putObject({
-  key: `reports/${crypto.randomUUID()}.csv`,
-  body: report.content,
-});
-~~~
-
-Now one installation needs to save reports to disk. Doing that means opening the same use case and adding local paths and filesystem calls. Report generation has not changed, but its code also knows how each destination stores the file.
-
-## The decision: ask for the report to be saved
-
-The use case receives a `ReportArchive`. Its contract expresses what it needs: save the complete report.
-
-~~~ts
-interface ReportArchive {
-  save(report: InventoryReport): Promise<void>;
+```js
+function exportInventory(records, archive) {
+  const report = generateInventoryReport(records);
+  return archive.save(report);
 }
 
-const report = generateInventoryReport(records);
-await archive.save(report);
-~~~
-
-The SDK call and the construction of its key move into `ObjectStorageArchive`:
-
-~~~ts
-class ObjectStorageArchive implements ReportArchive {
-  async save(report: InventoryReport): Promise<void> {
-    await storageSdk.putObject({
+const objectStorageArchive = {
+  save(report) {
+    return storageSdk.putObject({
       key: `reports/${crypto.randomUUID()}.csv`,
       body: report.content,
-    });
-  }
-}
-~~~
+    }).then(() => undefined);
+  },
+};
+```
 
-Another implementation can save to disk. Application configuration chooses which one the use case receives. Changing the destination still takes work, but that change no longer requires modifying report generation.
+Another implementation can save to disk. Configuration chooses which one the use case receives; both must save the report or communicate failure by rejecting the promise.
 
-The use case remains coupled to `ReportArchive`: it needs `save` to store the report or communicate the failure. What it no longer knows are the SDK methods, their parameters and the paths for each destination.
+## What reducing coupling means here
 
-**What it costs:** maintaining the contract, its implementations and the configuration connecting them. With a single stable SDK call and no need to separate those changes, adding an interface may not pay off.
-
-**Storage changes are separated from changes to the report content.**
-
-*The report has been saved, but the response never arrives.*
+The use case still depends on the `archive` contract but no longer knows the SDK parameters or destination paths. Maintaining that contract and connecting its implementations has a cost; a single stable SDK call may not justify this separation.
