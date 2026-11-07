@@ -1,7 +1,7 @@
-out-of-memory-lab {
+exit-137-lab {
   display: block;
 }
-main:has(> out-of-memory-lab) {
+main:has(> exit-137-lab) {
   padding-top: var(--space-3);
   max-width: 1320px;
 }

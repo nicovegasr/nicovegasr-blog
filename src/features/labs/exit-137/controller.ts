@@ -27,7 +27,7 @@ import { StageAnimator } from './stage-animator';
 
 const STEPS_PER_SECOND = 30;
 
-class OutOfMemoryLab extends HTMLElement {
+class Exit137Lab extends HTMLElement {
   private text: LabText = labTextFor('es');
   private challenge: Challenge = CHALLENGES[0]!;
   private build: Build = { read: null, write: null };
@@ -495,4 +495,4 @@ class OutOfMemoryLab extends HTMLElement {
   }
 }
 
-customElements.define('out-of-memory-lab', OutOfMemoryLab);
+customElements.define('exit-137-lab', Exit137Lab);

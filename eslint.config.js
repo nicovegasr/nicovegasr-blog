@@ -1,4 +1,5 @@
 import { readdirSync } from 'node:fs';
+import { dirname, relative, resolve, sep } from 'node:path';
 import astro from 'eslint-plugin-astro';
 import tseslint from 'typescript-eslint';
 
@@ -34,6 +35,40 @@ const featureBoundary = (feature) => {
   };
 };
 
+// The alias rules above only see `@/` paths, so a relative import may not leave its own feature or shared piece.
+const sourceRoot = resolve(import.meta.dirname, 'src');
+const unitOf = (path) => {
+  const [area, unit] = relative(sourceRoot, path).split(sep);
+  return area === 'features' || area === 'shared' ? `${area}/${unit}` : undefined;
+};
+const boundaries = {
+  rules: {
+    'relative-imports-stay-inside': {
+      meta: { type: 'problem', schema: [] },
+      create(context) {
+        const unit = unitOf(context.filename);
+        const check = (node) => {
+          const target = node.source?.value;
+          if (!unit || typeof target !== 'string' || !target.startsWith('.')) return;
+          const resolved = resolve(dirname(context.filename), target);
+          if (unitOf(resolved) !== unit) {
+            context.report({
+              node: node.source,
+              message: `Import outside ${unit} with the @/ alias, so the boundary rules can check it.`,
+            });
+          }
+        };
+        return {
+          ImportDeclaration: check,
+          ExportNamedDeclaration: check,
+          ExportAllDeclaration: check,
+          ImportExpression: check,
+        };
+      },
+    },
+  },
+};
+
 export default tseslint.config(
   { ignores: ['dist', '.astro', 'poc', 'studio', 'assets', 'playwright-report', 'test-results', '.claude'] },
   ...tseslint.configs.recommended,
@@ -58,6 +93,11 @@ export default tseslint.config(
     rules: {
       'max-lines': ['error', { max: MAXIMUM_LINES_PER_FILE, skipBlankLines: true }],
     },
+  },
+  {
+    files: ['src/features/**', 'src/shared/**'],
+    plugins: { boundaries },
+    rules: { 'boundaries/relative-imports-stay-inside': 'error' },
   },
   ...FEATURES.map(featureBoundary),
   {

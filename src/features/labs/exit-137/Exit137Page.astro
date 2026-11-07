@@ -2,27 +2,27 @@
 import type { Locale } from '@/i18n/locale';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { CHALLENGES } from './challenges';
-import { outOfMemoryLabCopy } from './copy';
+import { exit137Copy } from './copy';
 import { READ_CARDS, WRITE_CARDS } from './engine';
-import './out-of-memory.css';
-import './out-of-memory-mascot.css';
-import './out-of-memory-tray.css';
-import './out-of-memory-dialogs.css';
-import './out-of-memory-animations.css';
-import './out-of-memory-responsive.css';
+import './exit-137.css';
+import './exit-137-mascot.css';
+import './exit-137-tray.css';
+import './exit-137-dialogs.css';
+import './exit-137-animations.css';
+import './exit-137-responsive.css';
 
 interface Props {
   locale: Locale;
 }
 
 const { locale } = Astro.props;
-const copy = outOfMemoryLabCopy(locale);
+const copy = exit137Copy(locale);
 const { page, cards: cardCopy } = copy;
 const title = 'Exit 137';
 ---
 
 <BaseLayout locale={locale} title={title} description={page.description}>
-  <out-of-memory-lab class="oom" data-locale={locale}>
+  <exit-137-lab class="oom" data-locale={locale}>
     <h1 class="oom-visually-hidden">{title}</h1>
     <div class="oom-game" data-game>
       <header class="oom-hud">
@@ -217,7 +217,7 @@ const title = 'Exit 137';
       </div>
     </div>
     <noscript>{page.withoutJavaScript}</noscript>
-  </out-of-memory-lab>
+  </exit-137-lab>
 </BaseLayout>
 <script>
   import './controller';

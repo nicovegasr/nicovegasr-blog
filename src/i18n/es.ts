@@ -15,8 +15,8 @@ export const spanish = {
 
   'theme.toggle': 'Cambiar tema',
 
-  'blog.starPrompt': '¿Te ha servido?',
-  'blog.starCount': 'Estrellas del repositorio en GitHub',
+  'repoStar.prompt': '¿Te ha servido?',
+  'repoStar.count': 'Estrellas del repositorio en GitHub',
 
   'footer.rights': 'Todos los derechos reservados',
 } as const;

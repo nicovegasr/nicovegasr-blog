@@ -17,8 +17,8 @@ export const english: Dictionary = {
 
   'theme.toggle': 'Toggle theme',
 
-  'blog.starPrompt': 'Found it useful?',
-  'blog.starCount': 'GitHub repository stars',
+  'repoStar.prompt': 'Found it useful?',
+  'repoStar.count': 'GitHub repository stars',
 
   'footer.rights': 'All rights reserved',
 };

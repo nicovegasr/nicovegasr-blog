@@ -120,4 +120,4 @@ export interface LabCopy {
   };
 }
 
-export const outOfMemoryLabCopy = defineCopy<LabCopy>({ es: spanishCopy, en: englishCopy });
+export const exit137Copy = defineCopy<LabCopy>({ es: spanishCopy, en: englishCopy });
