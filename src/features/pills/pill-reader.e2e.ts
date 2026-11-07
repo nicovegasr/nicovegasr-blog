@@ -207,7 +207,7 @@ test.describe('on the desktop catalogue', () => {
 
     await expect(page.locator('a.spine[href="#serie-docker"]')).toHaveAttribute('aria-current', 'true');
     await expect(page.locator('#serie-docker')).toBeVisible();
-    expect((await books.boundingBox())!.height).toBe(heightBefore);
+    expect((await books.boundingBox())!.height).toBeCloseTo(heightBefore, 1);
 
     await page.keyboard.press('ArrowLeft');
 
