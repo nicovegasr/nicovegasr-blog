@@ -1,6 +1,6 @@
 import { getCollection } from 'astro:content';
 import type { Locale } from '@/i18n/locale';
-import { hostOf, type FriendBlog } from '@/features/friend-blogs/friend-blog';
+import { hostOf, type FriendBlog } from './friend-blog';
 
 export const findAllFriendBlogs = async (locale: Locale): Promise<readonly FriendBlog[]> => {
   const entries = await getCollection('friendBlogs');

@@ -1,7 +1,7 @@
 ---
 import { friendBlogsCopy } from '../copy';
-import Coverflow from '@/shared/coverflow/Coverflow.astro';
-import { findAllFriendBlogs } from '@/features/friend-blogs/friend-blog-repository';
+import Coverflow from '../coverflow/Coverflow.astro';
+import { findAllFriendBlogs } from '../friend-blog-repository';
 import type { Locale } from '@/i18n/locale';
 interface Props {
   locale: Locale;

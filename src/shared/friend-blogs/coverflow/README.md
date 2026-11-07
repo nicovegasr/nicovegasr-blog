@@ -6,7 +6,7 @@ mouse and touch dragging, and static links without JavaScript. It has no depende
 
 ```astro
 ---
-import Coverflow from '@/shared/coverflow/Coverflow.astro';
+import Coverflow from '@/shared/friend-blogs/coverflow/Coverflow.astro';
 const items = [
   {
     title: 'First site',
@@ -79,7 +79,7 @@ The blog uses a small adapter:
 
 ```astro
 ---
-import FriendBlogs from '@/features/friend-blogs/components/FriendBlogs.astro';
+import FriendBlogs from '@/shared/friend-blogs/components/FriendBlogs.astro';
 ---
 
 <FriendBlogs locale="es" />

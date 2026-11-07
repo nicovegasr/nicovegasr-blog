@@ -16,12 +16,11 @@ src/
 │   ├── about-me/           # Personal journey: Home page, model, repository, contributions, skill areas, and the scroll-driven mascot walkway
 │   ├── async-chaos-lab/    # Interactive labs on queues, retries and scaling; see its own README
 │   ├── labs/               # Labs catalogue; each lab supplies its entry and preview
-│   ├── friend-blogs/       # Related blog catalogue and its coverflow adapter
 │   ├── out-of-memory-lab/  # Exit 137: a card game about keeping a log job inside its memory
 │   ├── pills/              # Series, individual pills, and the notebook reader
 │   └── posts/              # Articles, listings, search, pagination, related posts, and feeds
 ├── shared/
-│   ├── coverflow/          # Container-sized 3D gallery of website previews
+│   ├── friend-blogs/       # Self-contained friends' blogs block: data, repository and its coverflow/ gallery
 │   ├── mascot/             # Sprite atlases shared by the labs and the home page
 │   └── reading-time/       # Calculation, tests, and UI used by posts and pills
 ├── i18n/                   # Locales, site-wide dictionary, and route builders
@@ -49,7 +48,7 @@ Pages and components consume repositories instead of importing `astro:content` d
 
 `about-me` owns the personal journey, told as life chapters where work is a secondary credit, because it is the localized home page. The underlying content collection remains named `timeline`: content storage and feature ownership need not have identical directory names.
 
-`shared/` contains focused pieces used by more than one feature. Reading-time calculation and presentation belong together there because posts and pills both use them. The mascot sprite atlases live there too, because the labs and the home page both animate them. Shared code must not depend on feature modules. Do not use this directory as a catch-all for code with unclear ownership. ESLint enforces the direction: `shared/` cannot import `@/features/`, and a feature can import another only through the doors listed in `FEATURE_DOORS` in `eslint.config.js` (the labs catalogue reading each lab's entry and preview, and the blog index showing the friend blogs). The rule checks `@/` imports, so cross-feature imports must use that alias.
+`shared/` contains focused pieces used by more than one feature. Reading-time calculation and presentation belong together there because posts and pills both use them. The mascot sprite atlases live there too, because the labs and the home page both animate them. Shared code must not depend on feature modules. `shared/friend-blogs/` is the one shared block that reads its own content collection: it is a self-contained widget any page can drop in. Do not use this directory as a catch-all for code with unclear ownership. ESLint enforces the direction: `shared/` cannot import `@/features/`, and a feature can import another only through the doors listed in `FEATURE_DOORS` in `eslint.config.js` (the labs catalogue reading each lab's entry and preview). The rule checks `@/` imports, so cross-feature imports must use that alias.
 
 Feature-specific page composition stays in the feature. `PillNotebook.astro`, for example, composes the pills experience using the site-wide `BaseLayout.astro`; it is not part of the global shell.
 
@@ -71,7 +70,7 @@ The active collections are posts, timeline, pills, and `friendBlogs`. `friendBlo
 
 The blog index lays articles out as a card grid (three columns that drop to two and one) and paginates on the client, nine articles per page, with the page kept in `?page=`. Without JavaScript every article stays visible. Search spans every page: while there is a query the pager hides and only the matches show. Titles shaped "Series — Chapter" that share a prefix with another post form a series: the card shows "Series · n/total" and only the chapter title (`post-series.ts`). Articles published on Lean Mind render with that blog's own identity (`LeanMindPostPreview.astro`: black card, Open Sans, its teal keyboard keys and logo) and open in a new tab.
 
-Below the articles, the friends' blogs section renders the shared Coverflow component (`src/shared/coverflow/`, see its README): the blogs drift past continuously and the motion stops on whichever one the visitor chooses. Without JavaScript it is a grid of plain links. The retired Principles and current-work sections have no remaining collections, modules, or editorial files. When retiring another section, check its consumers, schema, Markdown, translations, components, and styles together.
+Below the articles, the friends' blogs section renders the Coverflow gallery (`src/shared/friend-blogs/coverflow/`, see its README): the blogs drift past continuously and the motion stops on whichever one the visitor chooses. Without JavaScript it is a grid of plain links. The retired Principles and current-work sections have no remaining collections, modules, or editorial files. When retiring another section, check its consumers, schema, Markdown, translations, components, and styles together.
 
 ## Internationalization
 

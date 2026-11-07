@@ -17,7 +17,6 @@ const FEATURE_DOORS = {
   ],
   'async-chaos-lab': ['labs/lab-entry'],
   'out-of-memory-lab': ['labs/lab-entry'],
-  posts: ['friend-blogs/components/'],
 };
 
 const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
