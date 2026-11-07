@@ -11,13 +11,16 @@ concurrency:
 
 jobs:
   submit:
-    name: Submit the live URLs to IndexNow
+    name: Submit the site URLs to IndexNow
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version-file: .node-version
-      # Cloudflare deploys main on its own; give it time to publish before reading the live sitemap.
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      # Cloudflare deploys main on its own; give it time to publish before IndexNow fetches the pages.
       - run: sleep 300
       - run: node scripts/submit-indexnow.mjs
