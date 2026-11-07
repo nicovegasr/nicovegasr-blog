@@ -45,15 +45,19 @@ export const findHostedPosts = async (locale: Locale): Promise<readonly Post[]> 
   return posts.filter(isHosted);
 };
 
-type RenderablePost = {
+type PostSource = {
   post: Post;
   markdown: string;
+};
+
+type RenderablePost = PostSource & {
   Content: Awaited<ReturnType<typeof render>>['Content'];
 };
 
-// Returns the post entity plus its rendered markdown body. The only place that
-// touches astro:content's render(); the detail page consumes both together.
-export const findRenderablePost = async (locale: Locale, slug: string): Promise<RenderablePost | null> => {
+const findHostedPostEntry = async (
+  locale: Locale,
+  slug: string,
+): Promise<{ entry: CollectionEntry<'posts'>; post: Post } | null> => {
   const entries = await getCollection('posts');
   const entry = entries.find((candidate) => {
     const identifier = parseLocalizedEntryIdentifier(candidate.id);
@@ -67,9 +71,24 @@ export const findRenderablePost = async (locale: Locale, slug: string): Promise<
   if (post === null || !isPublished(post) || !isHosted(post)) {
     return null;
   }
+  return { entry, post };
+};
 
-  const { Content } = await render(entry);
-  return { post, markdown: entry.body ?? '', Content };
+export const findPostSource = async (locale: Locale, slug: string): Promise<PostSource | null> => {
+  const found = await findHostedPostEntry(locale, slug);
+  return found && { post: found.post, markdown: found.entry.body ?? '' };
+};
+
+// Returns the post entity plus its rendered markdown body. The only place that
+// touches astro:content's render(); the detail page consumes both together.
+export const findRenderablePost = async (locale: Locale, slug: string): Promise<RenderablePost | null> => {
+  const found = await findHostedPostEntry(locale, slug);
+  if (found === null) {
+    return null;
+  }
+
+  const { Content } = await render(found.entry);
+  return { post: found.post, markdown: found.entry.body ?? '', Content };
 };
 
 const RELATED_POSTS_LIMIT = 3;

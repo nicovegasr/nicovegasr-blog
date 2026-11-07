@@ -25,6 +25,7 @@ src/
 │   ├── pills/              # Series, individual pills, and the notebook reader
 │   └── posts/              # Articles, listings, search, pagination, related posts, and feeds
 ├── shared/
+│   ├── discovery/          # Author identity, schema.org JSON-LD and the llms.txt renderer
 │   ├── friend-blogs/       # Self-contained friends' blogs block: data, repository and its coverflow/ gallery
 │   ├── mascot/             # Sprite atlases shared by the labs and the home page
 │   └── reading-time/       # Calculation, tests, and UI used by posts and pills
@@ -91,7 +92,14 @@ Text that belongs to one feature lives in that feature's `copy.ts`: `export cons
 
 ## Presentation and static navigation
 
-`BaseLayout.astro` owns the document shell, global styles, self-hosted fonts, SEO metadata, alternate-language links, and theme initialization. Reusable site controls live alongside it in `layouts/`; feature-specific UI stays with its feature.
+`BaseLayout.astro` owns the document shell, global styles, self-hosted fonts, SEO metadata, alternate-language links, the site-wide WebSite and Person JSON-LD, and theme initialization. Pages add their own head tags through its `head` slot: `PostPage.astro` adds the `BlogPosting` JSON-LD, the `article:*` Open Graph tags and a `text/markdown` alternate link. Reusable site controls live alongside it in `layouts/`; feature-specific UI stays with its feature.
+
+### Search engines and agents
+
+- Every hosted article also builds as plain Markdown at its URL plus `.md` (`/blog/<slug>.md`, `/en/blog/<slug>.md`): front matter for citations, then the body, with relative images replaced by their alt text (`posts/post-markdown.ts`).
+- Every hosted article gets its own share card at `/og/<locale>/<slug>.png`, drawn at build time with Satori and Resvg (`posts/social-image/`): tags, title, author photo and reading time. Satori needs WOFF fonts, so the static `@fontsource/space-grotesk` package sits beside the variable one the site uses. Other pages keep `og-default.png`.
+- `/llms.txt` indexes the articles' Markdown copies, the pill series and the labs (`pages/llms.txt.ts`, rendered by `shared/discovery/llms-text.ts`).
+- After each push to `main`, the IndexNow workflow waits for the Cloudflare deploy and submits every sitemap URL (`scripts/submit-indexnow.mjs`). The key file is `public/<key>.txt`; changing the key means changing both.
 
 Design tokens live in `src/styles/tokens.css`. `base.css` contains the reset, typography, and genuinely global patterns. Components use scoped styles and theme-independent color tokens. See the visual guide for the palette, typography, depth, and motion rules.
 

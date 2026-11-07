@@ -1,0 +1,23 @@
+name: IndexNow
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: indexnow
+  cancel-in-progress: true
+
+jobs:
+  submit:
+    name: Submit the live URLs to IndexNow
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      # Cloudflare deploys main on its own; give it time to publish before reading the live sitemap.
+      - run: sleep 300
+      - run: node scripts/submit-indexnow.mjs

@@ -2,23 +2,31 @@
 import type { Post } from '@/features/posts/post';
 import ReadingTime from '@/shared/reading-time/ReadingTime.astro';
 import TagList from '@/features/posts/components/TagList.astro';
+import { postsCopy } from '@/features/posts/copy';
 
 interface Props {
   post: Post;
 }
 
 const { post } = Astro.props;
+const copy = postsCopy(post.locale);
 
-const publicationDateLabel = new Intl.DateTimeFormat(post.locale, {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-}).format(post.publicationDate);
-const publicationDateMachine = post.publicationDate.toISOString().slice(0, 10);
+const dateFormat = new Intl.DateTimeFormat(post.locale, { day: 'numeric', month: 'long', year: 'numeric' });
+const machineDate = (date: Date): string => date.toISOString().slice(0, 10);
 ---
 
 <div class="post-meta">
-  <time datetime={publicationDateMachine}>{publicationDateLabel}</time>
+  <time datetime={machineDate(post.publicationDate)}>{dateFormat.format(post.publicationDate)}</time>
+  {post.lastUpdateDate && (
+    <>
+      <span class="separator" aria-hidden="true">
+        ·
+      </span>
+      <span>
+        {copy.updated} <time datetime={machineDate(post.lastUpdateDate)}>{dateFormat.format(post.lastUpdateDate)}</time>
+      </span>
+    </>
+  )}
   <span class="separator" aria-hidden="true">
     ·
   </span>

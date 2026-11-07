@@ -11,6 +11,8 @@ const es = {
   previousPage: '← Anterior',
   nextPage: 'Siguiente →',
   lead: 'Notas sobre arquitectura, rendimiento y sistemas distribuidos.',
+  updated: 'Actualizado',
+  image: 'Imagen',
 };
 
 const en = {
@@ -25,6 +27,8 @@ const en = {
   previousPage: '← Previous',
   nextPage: 'Next →',
   lead: 'Notes on architecture, performance and distributed systems.',
+  updated: 'Updated',
+  image: 'Image',
 };
 
 export const postsCopy = defineCopy({ es, en });

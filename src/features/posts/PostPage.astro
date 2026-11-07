@@ -2,7 +2,9 @@
 import { otherLocale } from '@/i18n/locale';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import type { Locale } from '@/i18n/locale';
-import { buildBlogPostPath } from '@/i18n/routes';
+import { buildBlogPostMarkdownPath, buildBlogPostPath, buildBlogPostSocialImagePath } from '@/i18n/routes';
+import JsonLd from '@/shared/discovery/JsonLd.astro';
+import { buildArticleGraph } from '@/shared/discovery/structured-data';
 import PostMeta from './components/PostMeta.astro';
 import PostTitle from './components/PostTitle.astro';
 import RelatedPosts from './components/RelatedPosts.astro';
@@ -26,6 +28,21 @@ const translationLocale = otherLocale(locale);
 const alternatePaths = post.translationSlug
   ? { [translationLocale]: buildBlogPostPath(translationLocale, post.translationSlug) }
   : {};
+
+const toAbsoluteUrl = (path: string): string => new URL(path, Astro.site).toString();
+const isoDate = (date: Date): string => date.toISOString().slice(0, 10);
+const socialImagePath = buildBlogPostSocialImagePath(locale, post.slug);
+const articleGraph = buildArticleGraph({
+  siteUrl: toAbsoluteUrl('/'),
+  url: toAbsoluteUrl(buildBlogPostPath(locale, post.slug)),
+  headline: post.title,
+  description: post.summary,
+  language: locale,
+  publicationDate: post.publicationDate,
+  lastUpdateDate: post.lastUpdateDate,
+  keywords: post.tags,
+  imageUrl: toAbsoluteUrl(socialImagePath),
+});
 ---
 
 <BaseLayout
@@ -33,8 +50,18 @@ const alternatePaths = post.translationSlug
   title={post.title}
   description={post.summary}
   openGraphType="article"
+  openGraphImagePath={socialImagePath}
   alternatePaths={alternatePaths}
 >
+  <Fragment slot="head">
+    <meta property="article:published_time" content={isoDate(post.publicationDate)} />
+    {post.lastUpdateDate && <meta property="article:modified_time" content={isoDate(post.lastUpdateDate)} />}
+    {post.tags.map((tag) => (
+      <meta property="article:tag" content={tag} />
+    ))}
+    <link rel="alternate" type="text/markdown" href={toAbsoluteUrl(buildBlogPostMarkdownPath(locale, post.slug))} />
+    <JsonLd node={articleGraph} />
+  </Fragment>
   <article class="reveal">
     <header class="article-header">
       <PostTitle title={post.title} markdown={markdown} locale={locale} />

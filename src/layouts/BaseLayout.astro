@@ -6,6 +6,8 @@ import { getTranslator } from '@/i18n/translator';
 import { buildAlternateLocalePath, localesOtherThan, buildRssFeedPath } from '@/i18n/routes';
 import Navigation from '@/layouts/Navigation.astro';
 import Footer from '@/layouts/Footer.astro';
+import JsonLd from '@/shared/discovery/JsonLd.astro';
+import { buildSiteGraph } from '@/shared/discovery/structured-data';
 
 import '@fontsource-variable/space-grotesk/wght.css';
 import '@fontsource-variable/inter/wght.css';
@@ -21,6 +23,7 @@ interface Props {
   openGraphType?: 'website' | 'article';
   clientNavigation?: boolean;
   alternatePaths?: Partial<Record<Locale, string>>;
+  openGraphImagePath?: string;
 }
 
 const {
@@ -30,6 +33,7 @@ const {
   openGraphType = 'website',
   clientNavigation = false,
   alternatePaths = {},
+  openGraphImagePath = '/og-default.png',
 } = Astro.props;
 const translate = getTranslator(locale);
 
@@ -40,7 +44,7 @@ const siteName = translate('site.title');
 const currentPathname = Astro.url.pathname;
 const toAbsoluteUrl = (path: string): string => new URL(path, Astro.site).toString();
 const canonicalUrl = toAbsoluteUrl(currentPathname);
-const openGraphImageUrl = toAbsoluteUrl('/og-default.png');
+const openGraphImageUrl = toAbsoluteUrl(openGraphImagePath);
 const pathForLocale = (target: Locale): string =>
   target === locale
     ? currentPathname
@@ -96,6 +100,15 @@ const pathForLocale = (target: Locale): string =>
     <meta name="twitter:image" content={openGraphImageUrl} />
 
     <link rel="alternate" type="application/rss+xml" title={siteName} href={toAbsoluteUrl(buildRssFeedPath(locale))} />
+    <JsonLd
+      node={buildSiteGraph({
+        siteUrl: toAbsoluteUrl('/'),
+        name: siteName,
+        description: translate('site.description'),
+        language: locale,
+      })}
+    />
+    <slot name="head" />
   </head>
   <body>
     <Navigation locale={locale} alternatePaths={alternatePaths} />

@@ -1,0 +1,11 @@
+---
+import { serializeJsonLd } from './structured-data';
+
+interface Props {
+  node: Readonly<Record<string, unknown>>;
+}
+
+const { node } = Astro.props;
+---
+
+<script is:inline type="application/ld+json" set:html={serializeJsonLd(node)} />

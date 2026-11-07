@@ -1,6 +1,8 @@
 ---
 // Enlaces a plataformas como iconos. URLs/handles a pelo (no contenido editorial),
 // mismo criterio que el stack. Sin backend ni formulario.
+import { AUTHOR } from '@/shared/discovery/author';
+
 type Platform = 'email' | 'linkedin' | 'github' | 'medium';
 
 interface SocialLink {
@@ -10,14 +12,10 @@ interface SocialLink {
 }
 
 const links: SocialLink[] = [
-  { platform: 'email', label: 'Email', href: 'mailto:nicovegasr@gmail.com' },
-  {
-    platform: 'linkedin',
-    label: 'LinkedIn',
-    href: 'https://www.linkedin.com/in/nicolas-vegas-rodriguez-07a4a5208/',
-  },
-  { platform: 'github', label: 'GitHub', href: 'https://github.com/nicovegasr' },
-  { platform: 'medium', label: 'Medium', href: 'https://medium.com/@nicovegasr' },
+  { platform: 'email', label: 'Email', href: `mailto:${AUTHOR.email}` },
+  { platform: 'linkedin', label: 'LinkedIn', href: AUTHOR.profiles.linkedin },
+  { platform: 'github', label: 'GitHub', href: AUTHOR.profiles.github },
+  { platform: 'medium', label: 'Medium', href: AUTHOR.profiles.medium },
 ];
 
 const isExternal = (link: SocialLink): boolean => link.platform !== 'email';

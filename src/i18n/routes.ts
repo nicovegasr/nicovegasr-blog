@@ -53,8 +53,14 @@ export const buildPillPath = (locale: Locale, series: string, pill: string): str
 export const buildLabPath = (locale: Locale, lab: string): string =>
   joinLocalePath(locale, LABS_DETAIL_SEGMENT[locale], lab);
 
-// RSS endpoints keep their explicit extension, so no trailing slash here.
+// Files with an explicit extension (feeds, Markdown copies) have no trailing slash.
 export const buildRssFeedPath = (locale: Locale): string => `${joinLocalePath(locale)}rss.xml`;
+
+export const buildBlogPostMarkdownPath = (locale: Locale, slug: string): string =>
+  `${joinLocalePath(locale, BLOG_DETAIL_SEGMENT)}${slug}.md`;
+
+// Share cards for every locale live together under /og/, outside the localized trees.
+export const buildBlogPostSocialImagePath = (locale: Locale, slug: string): string => `/og/${locale}/${slug}.png`;
 
 const pathSegments = (pathname: string): readonly string[] => pathname.split('/').filter(Boolean);
 
