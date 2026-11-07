@@ -42,6 +42,8 @@ Keep small features flat, separating responsibilities with files:
 
 There are no mandatory `domain/`, `application/`, or `infrastructure/` directories. Add subdirectories when the amount of code makes navigation easier, rather than creating empty layers in advance.
 
+Route files in `src/pages/` stay thin: they declare `getStaticPaths` and render one page component from the feature (`PostPage.astro`, `PillNotebook.astro`, `LabsPage.astro`), so each locale's route adds no logic of its own.
+
 Pages and components consume repositories instead of importing `astro:content` directly. This keeps collection identifiers, validation, and Markdown rendering behind one boundary. Pure logic remains testable without Astro.
 
 ### Feature ownership and shared code
