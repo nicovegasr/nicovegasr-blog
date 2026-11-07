@@ -1,3 +1,4 @@
+import type { DeepReadonly } from './deep-readonly';
 export const JOB_COUNT = 3;
 export const TICK_MILLISECONDS = 650;
 export const PLAYBACK_SPEEDS = [1, 2, 3, 4] as const;
@@ -225,7 +226,7 @@ export function run(config: SimulationConfig, rules: SimulationRules) {
   }
   throw new Error('Scenario did not terminate');
 }
-export const totals = (state: SimulationState) => ({
+export const totals = (state: DeepReadonly<SimulationState>) => ({
   done: state.jobs.filter((job) => job.status === 'done').length,
   lost: state.jobs.filter((job) => job.status === 'lost').length,
   attempts: state.jobs.reduce((total, job) => total + job.attempt, 0),

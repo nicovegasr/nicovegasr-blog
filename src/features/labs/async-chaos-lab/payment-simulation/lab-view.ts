@@ -5,6 +5,7 @@ import type { PaymentLabDefinition } from './definition';
 import type { SimulationConfig, SimulationState } from './engine';
 import type { GuideStage } from './guide';
 import type { Labels } from './labels';
+import type { DeepReadonly } from './deep-readonly';
 
 export type RetryStage = 'failure' | 'restart';
 
@@ -13,8 +14,8 @@ export interface PaymentLabView {
   readonly definition: PaymentLabDefinition;
   readonly locale: Locale;
   readonly copy: ReturnType<typeof paymentCopy>;
-  readonly config: Readonly<SimulationConfig>;
-  readonly state: Readonly<SimulationState>;
+  readonly config: DeepReadonly<SimulationConfig>;
+  readonly state: DeepReadonly<SimulationState>;
   readonly labels: Readonly<Labels>;
   readonly defaults: Readonly<Labels>;
   readonly runId: number;
