@@ -1,19 +1,36 @@
 ---
 import type { Locale } from '@/i18n/locale';
 
-interface Props { title: string; markdown: string; locale: Locale }
+interface Props {
+  title: string;
+  markdown: string;
+  locale: Locale;
+}
 const { title, markdown, locale } = Astro.props;
 const body = markdown.replace(/^(?:\r?\n)+/, '');
 const source = JSON.stringify(`# ${title}\n\n${body}`).replaceAll('<', '\\u003c');
-const labels = locale === 'es'
-  ? { copy: 'Copiar', description: 'Copiar el artículo en Markdown', copied: 'Copiado', error: 'No se pudo copiar. Inténtalo de nuevo.' }
-  : { copy: 'Copy', description: 'Copy the article as Markdown', copied: 'Copied', error: 'Could not copy. Try again.' };
+const labels =
+  locale === 'es'
+    ? {
+        copy: 'Copiar',
+        description: 'Copiar el artículo en Markdown',
+        copied: 'Copiado',
+        error: 'No se pudo copiar. Inténtalo de nuevo.',
+      }
+    : {
+        copy: 'Copy',
+        description: 'Copy the article as Markdown',
+        copied: 'Copied',
+        error: 'Could not copy. Try again.',
+      };
 ---
 
 <div class="post-title">
   <h1>{title}</h1>
   <markdown-copy data-copied={labels.copied} data-error={labels.error}>
-    <button type="button" aria-label={labels.description} title={labels.description} hidden>{labels.copy}</button>
+    <button type="button" aria-label={labels.description} title={labels.description} hidden>
+      {labels.copy}
+    </button>
     <span role="status"></span>
     <script is:inline type="application/json" data-markdown-source set:html={source} />
   </markdown-copy>
@@ -35,21 +52,34 @@ const labels = locale === 'es'
       let timer: ReturnType<typeof setTimeout> | undefined;
       button.hidden = false;
 
-      button.addEventListener('click', () => {
-        clearTimeout(timer);
-        status.textContent = '';
-        button.disabled = true;
-        void navigator.clipboard.writeText(markdown).then(() => {
-          status.textContent = this.dataset.copied ?? 'Copied';
-        }).catch(() => {
-          status.textContent = this.dataset.error ?? 'Could not copy. Try again.';
-        }).finally(() => {
-          button.disabled = false;
-          timer = setTimeout(() => { status.textContent = ''; }, 3000);
-        });
-      }, { signal: events.signal });
+      button.addEventListener(
+        'click',
+        () => {
+          clearTimeout(timer);
+          status.textContent = '';
+          button.disabled = true;
+          void navigator.clipboard
+            .writeText(markdown)
+            .then(() => {
+              status.textContent = this.dataset.copied ?? 'Copied';
+            })
+            .catch(() => {
+              status.textContent = this.dataset.error ?? 'Could not copy. Try again.';
+            })
+            .finally(() => {
+              button.disabled = false;
+              timer = setTimeout(() => {
+                status.textContent = '';
+              }, 3000);
+            });
+        },
+        { signal: events.signal },
+      );
 
-      this.dispose = () => { events.abort(); clearTimeout(timer); };
+      this.dispose = () => {
+        events.abort();
+        clearTimeout(timer);
+      };
     }
 
     disconnectedCallback() {
@@ -62,9 +92,24 @@ const labels = locale === 'es'
 </script>
 
 <style>
-  .post-title { display: flex; align-items: flex-start; gap: var(--space-4); margin-bottom: var(--space-4); }
-  .post-title h1 { flex: 1; min-width: 0; margin: 0; }
-  markdown-copy { display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-2); flex-shrink: 0; }
+  .post-title {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+  .post-title h1 {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+  }
+  markdown-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-2);
+    flex-shrink: 0;
+  }
   button {
     min-height: 44px;
     padding: var(--space-2) var(--space-3);
@@ -77,13 +122,32 @@ const labels = locale === 'es'
     font-weight: 600;
     cursor: pointer;
   }
-  button:hover { border-color: var(--color-ink); }
-  button:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 3px; }
-  button:disabled { opacity: 0.6; cursor: wait; }
-  [role='status'] { max-width: 180px; font-size: var(--font-size-meta); color: var(--color-text-soft); }
+  button:hover {
+    border-color: var(--color-ink);
+  }
+  button:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 3px;
+  }
+  button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+  }
+  [role='status'] {
+    max-width: 180px;
+    font-size: var(--font-size-meta);
+    color: var(--color-text-soft);
+  }
   @media (max-width: 620px) {
-    .post-title { flex-wrap: wrap; gap: var(--space-3); }
-    .post-title h1 { flex-basis: 100%; }
-    markdown-copy { align-items: flex-start; }
+    .post-title {
+      flex-wrap: wrap;
+      gap: var(--space-3);
+    }
+    .post-title h1 {
+      flex-basis: 100%;
+    }
+    markdown-copy {
+      align-items: flex-start;
+    }
   }
 </style>

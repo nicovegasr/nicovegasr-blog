@@ -1,6 +1,12 @@
 import {
-  blockSessionStorage, captureForReview, expect, expectFullyInViewport, expectNoHorizontalOverflow,
-  setSimulationInterval, test, useDarkTheme,
+  blockSessionStorage,
+  captureForReview,
+  expect,
+  expectFullyInViewport,
+  expectNoHorizontalOverflow,
+  setSimulationInterval,
+  test,
+  useDarkTheme,
 } from '../shared/lab-test';
 import { StoriesLab } from '../payment-simulation/stories-lab';
 
@@ -8,10 +14,15 @@ test.describe('Level 1 · the queue', () => {
   test('starts in RAM with three plain steps and a compact diagram', async ({ page }) => {
     const lab = new StoriesLab(page);
     await lab.open('es', 1);
-    await page.evaluate(() => sessionStorage.setItem('queue-story-names-es', JSON.stringify({ storage: 'Base de datos' })));
+    await page.evaluate(() =>
+      sessionStorage.setItem('queue-story-names-es', JSON.stringify({ storage: 'Base de datos' })),
+    );
     await lab.open('es', 1);
 
-    await expect(page.locator('[data-display-label=storage]'), 'a saved default name follows the current RAM configuration').toHaveText('Memoria RAM');
+    await expect(
+      page.locator('[data-display-label=storage]'),
+      'a saved default name follows the current RAM configuration',
+    ).toHaveText('Memoria RAM');
     await expect(page.locator('[data-action=step]')).toHaveCount(0);
     await expect(page.locator('[data-setting=count]')).toHaveCount(0);
     const steps = page.locator('[data-step-card]');
@@ -27,11 +38,15 @@ test.describe('Level 1 · the queue', () => {
 
     await expectFullyInViewport(lab.dock, 'the transport is visible from the start');
     await expect(lab.dock.locator('[data-action=personalize]')).toHaveCount(0);
-    const namesAboveApi = await page.evaluate(() =>
-      document.querySelector('[data-action=personalize]')!.getBoundingClientRect().bottom <=
-      document.querySelector('.lab-api')!.getBoundingClientRect().top);
+    const namesAboveApi = await page.evaluate(
+      () =>
+        document.querySelector('[data-action=personalize]')!.getBoundingClientRect().bottom <=
+        document.querySelector('.lab-api')!.getBoundingClientRect().top,
+    );
     expect(namesAboveApi, 'names sit above the API').toBe(true);
-    const diagramFits = await page.evaluate(() => document.querySelector('.lab-diagram')!.getBoundingClientRect().bottom <= innerHeight);
+    const diagramFits = await page.evaluate(
+      () => document.querySelector('.lab-diagram')!.getBoundingClientRect().bottom <= innerHeight,
+    );
     expect(diagramFits, 'the core diagram fits a desktop screen').toBe(true);
     await captureForReview(page, 'queue-initial');
   });
@@ -107,10 +122,15 @@ test.describe('Level 1 · the queue', () => {
       await captureForReview(page, 'tutorial-call');
       await lab.action('walkthrough');
       await lab.choose('protect', 'on');
-      await expect(lab.guide, 'ID protection alone does not make RAM durable').not.toContainText('La base de datos conserva');
+      await expect(lab.guide, 'ID protection alone does not make RAM durable').not.toContainText(
+        'La base de datos conserva',
+      );
       await lab.choose('protect', 'off');
       await expect(page.locator('dialog[open]'), 'no second introduction').toHaveCount(0);
-      await expect(page.locator('[data-guide-focus]'), 'the first step asks to run, not to change a setting').toHaveCount(0);
+      await expect(
+        page.locator('[data-guide-focus]'),
+        'the first step asks to run, not to change a setting',
+      ).toHaveCount(0);
       await lab.expectGuideReadable(fullSystemWidth);
       await captureForReview(page, 'queue-guided-map');
     });
@@ -122,7 +142,10 @@ test.describe('Level 1 · the queue', () => {
       await expect(lab.dialog).toContainText('GAME LOSS');
       await expect(lab.dialog).toContainText('TU COMPAÑERO DE GUARDIA');
       await expect(page.locator('.lab-array .lab-job.is-lost')).toHaveCount(2);
-      await expect(page.locator('#lab-outcome-text'), 'the caller reports a customer problem, not the diagnosis').not.toContainText(/RAM|worker|persist/);
+      await expect(
+        page.locator('#lab-outcome-text'),
+        'the caller reports a customer problem, not the diagnosis',
+      ).not.toContainText(/RAM|worker|persist/);
       await captureForReview(page, 'queue-ram-loss');
     });
 
@@ -211,7 +234,10 @@ test.describe('Level 1 · the queue', () => {
       await lab.open('es', 1);
       await lab.runToStop();
       await expect(page.locator('.lab-ticket.is-lost').first()).toHaveCSS('animation-name', 'none');
-      expect(await page.evaluate(() => !!document.activeElement?.closest('dialog[open]')), 'the outcome owns keyboard focus').toBe(true);
+      expect(
+        await page.evaluate(() => !!document.activeElement?.closest('dialog[open]')),
+        'the outcome owns keyboard focus',
+      ).toBe(true);
       await page.keyboard.press('Escape');
       await expect(lab.dialog).toHaveJSProperty('open', false);
     });

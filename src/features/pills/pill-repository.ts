@@ -17,10 +17,8 @@ type PillEntry = CollectionEntry<'pills'>;
 type SeriesEntry = PillEntry & { data: { kind: 'series' } };
 type PillItemEntry = PillEntry & { data: { kind: 'pill' } };
 
-const isSeriesEntry = (entry: PillEntry): entry is SeriesEntry =>
-  entry.data.kind === 'series';
-const isPillEntry = (entry: PillEntry): entry is PillItemEntry =>
-  entry.data.kind === 'pill';
+const isSeriesEntry = (entry: PillEntry): entry is SeriesEntry => entry.data.kind === 'series';
+const isPillEntry = (entry: PillEntry): entry is PillItemEntry => entry.data.kind === 'pill';
 
 const toPillSeries = (entry: SeriesEntry): PillSeries | null => {
   const identifier = parseLocalizedEntryIdentifier(entry.id);
@@ -58,10 +56,7 @@ const toPill = (entry: PillItemEntry): Pill | null => {
   };
 };
 
-const publishedPillsOf = async (
-  locale: Locale,
-  series: string,
-): Promise<Pill[]> => {
+const publishedPillsOf = async (locale: Locale, series: string): Promise<Pill[]> => {
   const entries = await getCollection('pills');
   const pills = entries
     .filter(isPillEntry)
@@ -74,9 +69,7 @@ const publishedPillsOf = async (
 
 // The catalogue exposes metadata only. Draft series can be announced here
 // without rendering their overview or publishing any individual pill route.
-export const findPillSeriesCatalog = async (
-  locale: Locale,
-): Promise<readonly PillSeries[]> => {
+export const findPillSeriesCatalog = async (locale: Locale): Promise<readonly PillSeries[]> => {
   const entries = await getCollection('pills');
   const series = entries
     .filter(isSeriesEntry)
@@ -87,9 +80,7 @@ export const findPillSeriesCatalog = async (
   return seriesOrder(series);
 };
 
-export const findPillSeriesCards = async (
-  locale: Locale,
-): Promise<readonly PillSeriesCard[]> => {
+export const findPillSeriesCards = async (locale: Locale): Promise<readonly PillSeriesCard[]> => {
   const catalog = await findPillSeriesCatalog(locale);
   return Promise.all(
     catalog.map(async (series) => ({
@@ -99,9 +90,7 @@ export const findPillSeriesCards = async (
   );
 };
 
-export const findAllPillSeries = async (
-  locale: Locale,
-): Promise<readonly PillSeries[]> =>
+export const findAllPillSeries = async (locale: Locale): Promise<readonly PillSeries[]> =>
   (await findPillSeriesCatalog(locale)).filter((series) => isPublished(series));
 
 export const findNextPillSeries = async (
@@ -118,13 +107,9 @@ export const findNextPillSeries = async (
   return null;
 };
 
-export const findAllPublishedPills = async (
-  locale: Locale,
-): Promise<readonly { series: string; pill: string }[]> => {
+export const findAllPublishedPills = async (locale: Locale): Promise<readonly { series: string; pill: string }[]> => {
   const entries = await getCollection('pills');
-  const publishedSeries = new Set(
-    (await findAllPillSeries(locale)).map((series) => series.slug),
-  );
+  const publishedSeries = new Set((await findAllPillSeries(locale)).map((series) => series.slug));
   return entries
     .filter(isPillEntry)
     .map(toPill)
@@ -139,16 +124,11 @@ type RenderableSeries = {
   pills: readonly Pill[];
 };
 
-export const findRenderablePillSeries = async (
-  locale: Locale,
-  series: string,
-): Promise<RenderableSeries | null> => {
+export const findRenderablePillSeries = async (locale: Locale, series: string): Promise<RenderableSeries | null> => {
   const entries = await getCollection('pills');
   const entry = entries.filter(isSeriesEntry).find((candidate) => {
     const identifier = parseLocalizedEntryIdentifier(candidate.id);
-    return (
-      identifier?.locale === locale && seriesSlugOf(identifier.slug) === series
-    );
+    return identifier?.locale === locale && seriesSlugOf(identifier.slug) === series;
   });
   if (entry === undefined) {
     return null;
@@ -196,9 +176,7 @@ export const findRenderablePill = async (
     return null;
   }
 
-  const pillSeries = (await findAllPillSeries(locale)).find(
-    (candidate) => candidate.slug === series,
-  );
+  const pillSeries = (await findAllPillSeries(locale)).find((candidate) => candidate.slug === series);
 
   if (pillSeries === undefined) {
     return null;

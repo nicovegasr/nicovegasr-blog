@@ -1,5 +1,4 @@
-export type AchievementId =
-  'brave' | 'survivor' | 'identity' | 'double' | 'efficient';
+export type AchievementId = 'brave' | 'survivor' | 'identity' | 'double' | 'efficient';
 export const achievements: {
   id: AchievementId;
   es: [string, string];
@@ -11,10 +10,7 @@ export const achievements: {
       'Quien tiene miedo a morir, que no nazca',
       'Lo ejecutaste sin protecciones. Ahora ya sabes lo que había en juego.',
     ],
-    en: [
-      'No guts, no glory',
-      'You ran it without protection. Now you know what was at stake.',
-    ],
+    en: ['No guts, no glory', 'You ran it without protection. Now you know what was at stake.'],
   },
   {
     id: 'survivor',
@@ -29,14 +25,8 @@ export const achievements: {
   },
   {
     id: 'identity',
-    es: [
-      'A ti ya te he visto',
-      'Completaste los tres pagos sin repetir sus efectos locales, pese a la reentrega.',
-    ],
-    en: [
-      'Have we met?',
-      'You completed all three payments without repeating their local effects, despite redelivery.',
-    ],
+    es: ['A ti ya te he visto', 'Completaste los tres pagos sin repetir sus efectos locales, pese a la reentrega.'],
+    en: ['Have we met?', 'You completed all three payments without repeating their local effects, despite redelivery.'],
   },
   {
     id: 'double',
@@ -44,10 +34,7 @@ export const achievements: {
       'Otra vez el mismo',
       'El mismo ID produjo dos resultados. Reintentar no siempre es repetir sin consecuencias.',
     ],
-    en: [
-      'The same one again',
-      'The same ID produced two results. Retrying is not always harmless repetition.',
-    ],
+    en: ['The same one again', 'The same ID produced two results. Retrying is not always harmless repetition.'],
   },
   {
     id: 'efficient',

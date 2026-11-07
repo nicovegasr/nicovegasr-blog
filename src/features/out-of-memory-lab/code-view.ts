@@ -3,7 +3,13 @@ import type { LabCopy } from './copy';
 import { codeLines, javaNumber } from './script-code';
 
 /** The script with its holes, the placed cards (removable while editing) and the batch-size dial. */
-export const renderCode = (copy: LabCopy, container: HTMLElement, build: Build, batchSize: BatchSize, canEdit: boolean) => {
+export const renderCode = (
+  copy: LabCopy,
+  container: HTMLElement,
+  build: Build,
+  batchSize: BatchSize,
+  canEdit: boolean,
+) => {
   const removable = new Set<Card>();
   const holeComment = { read: `// ① ${copy.code.readHole}`, write: `// ② ${copy.code.writeHole}` } as const;
   container.replaceChildren(
@@ -25,7 +31,11 @@ export const renderCode = (copy: LabCopy, container: HTMLElement, build: Build, 
           element.classList.add('is-card');
           if (!removable.has(line.card) && canEdit) {
             removable.add(line.card);
-            const remove = Object.assign(document.createElement('button'), { type: 'button', className: 'oom-remove', textContent: '✕' });
+            const remove = Object.assign(document.createElement('button'), {
+              type: 'button',
+              className: 'oom-remove',
+              textContent: '✕',
+            });
             remove.dataset.remove = line.card;
             remove.setAttribute('aria-label', copy.code.remove(copy.cards[line.card].label));
             element.append(remove);

@@ -33,9 +33,15 @@ payment-lab .lab-actor-stations > span.is-finished {
   color: var(--lab-ok);
   font-weight: 600;
 }
-payment-lab .lab-worker-journey[data-actor-state='idle'] .is-current { border-color: var(--color-rule); }
-payment-lab .lab-worker-journey[data-actor-state='dead'] .is-current { border-color: var(--lab-fault); }
-payment-lab .lab-worker-journey[data-actor-state='uncertain'] .is-current { border-color: var(--lab-compute); }
+payment-lab .lab-worker-journey[data-actor-state='idle'] .is-current {
+  border-color: var(--color-rule);
+}
+payment-lab .lab-worker-journey[data-actor-state='dead'] .is-current {
+  border-color: var(--lab-fault);
+}
+payment-lab .lab-worker-journey[data-actor-state='uncertain'] .is-current {
+  border-color: var(--lab-compute);
+}
 payment-lab .lab-actor-caption {
   margin: 0.3rem 0 0;
   min-height: 1.4em;
@@ -103,23 +109,45 @@ payment-lab .lab-actor-reaction {
   font: 600 1rem/1 var(--font-family-display);
   color: var(--lab-compute);
 }
-payment-lab .lab-actor[data-state='duplicate'] .lab-actor-reaction { color: var(--lab-fault); }
-payment-lab .lab-actor:is([data-state='done'], [data-state='saving'], [data-state='skipping']) .lab-actor-reaction { color: var(--lab-ok); }
+payment-lab .lab-actor[data-state='duplicate'] .lab-actor-reaction {
+  color: var(--lab-fault);
+}
+payment-lab .lab-actor:is([data-state='done'], [data-state='saving'], [data-state='skipping']) .lab-actor-reaction {
+  color: var(--lab-ok);
+}
 payment-lab .lab-actor[data-state='returning'] .lab-actor-body {
   animation: lab-worker-wake 280ms ease-out;
 }
 @keyframes lab-worker-wake {
-  from { opacity: 0; transform: translateY(5px); }
-  to { opacity: 1; transform: none; }
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 @keyframes lab-worker-fall {
-  from { transform: translateY(-6px) rotate(-12deg); }
-  to { transform: none; }
+  from {
+    transform: translateY(-6px) rotate(-12deg);
+  }
+  to {
+    transform: none;
+  }
 }
 @media (max-width: 580px) {
-  payment-lab .lab-actor { width: 72px; height: 72px; margin-left: -36px; top: 10px; }
+  payment-lab .lab-actor {
+    width: 72px;
+    height: 72px;
+    margin-left: -36px;
+    top: 10px;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   payment-lab .lab-actor,
-  payment-lab .lab-actor-body { transition: none; animation: none !important; }
+  payment-lab .lab-actor-body {
+    transition: none;
+    animation: none !important;
+  }
 }

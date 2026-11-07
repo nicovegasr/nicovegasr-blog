@@ -54,8 +54,7 @@ const skillAreasByLocale: Record<Locale, readonly SkillArea[]> = {
     {
       title: 'IA',
       metric: 'agent-review',
-      summary:
-        'La IA forma parte de mi forma de desarrollar: asistentes de código, skills y agentes especializados.',
+      summary: 'La IA forma parte de mi forma de desarrollar: asistentes de código, skills y agentes especializados.',
       technologies: technologies.artificialIntelligence,
       pose: 'welcoming',
     },
@@ -72,8 +71,7 @@ const skillAreasByLocale: Record<Locale, readonly SkillArea[]> = {
     {
       title: 'Frontend',
       metric: 'load-waterfall',
-      summary:
-        'I build interfaces end to end: state management, request caching, protected routes and pagination.',
+      summary: 'I build interfaces end to end: state management, request caching, protected routes and pagination.',
       technologies: technologies.frontend,
       asideTag: "UX/UI… that's where it gets hard",
       pose: 'presenting',
@@ -97,8 +95,7 @@ const skillAreasByLocale: Record<Locale, readonly SkillArea[]> = {
     {
       title: 'AI',
       metric: 'agent-review',
-      summary:
-        'AI is part of how I develop: coding assistants, skills and specialized agents.',
+      summary: 'AI is part of how I develop: coding assistants, skills and specialized agents.',
       technologies: technologies.artificialIntelligence,
       pose: 'welcoming',
     },

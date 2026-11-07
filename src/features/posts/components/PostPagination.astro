@@ -14,27 +14,25 @@ const { pageCount } = paginatePosts(postCount, 1);
 const pages = Array.from({ length: pageCount }, (_, index) => index + 1);
 ---
 
-{
-  pageCount > 1 && (
-    <nav class="post-pagination" aria-label={translate('blog.paginationLabel')} data-post-pagination hidden>
-      <button type="button" class="step" data-page-step="-1">
-        {translate('blog.previousPage')}
-      </button>
-      <ol class="pages">
-        {pages.map((page) => (
-          <li>
-            <button type="button" class="page" data-page={page} aria-label={`${translate('blog.page')} ${page}`}>
-              {page}
-            </button>
-          </li>
-        ))}
-      </ol>
-      <button type="button" class="step" data-page-step="1">
-        {translate('blog.nextPage')}
-      </button>
-    </nav>
-  )
-}
+{pageCount > 1 && (
+  <nav class="post-pagination" aria-label={translate('blog.paginationLabel')} data-post-pagination hidden>
+    <button type="button" class="step" data-page-step="-1">
+      {translate('blog.previousPage')}
+    </button>
+    <ol class="pages">
+      {pages.map((page) => (
+        <li>
+          <button type="button" class="page" data-page={page} aria-label={`${translate('blog.page')} ${page}`}>
+            {page}
+          </button>
+        </li>
+      ))}
+    </ol>
+    <button type="button" class="step" data-page-step="1">
+      {translate('blog.nextPage')}
+    </button>
+  </nav>
+)}
 
 <script>
   import { paginatePosts, parsePageParameter } from '@/features/posts/post-pagination';

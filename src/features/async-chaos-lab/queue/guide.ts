@@ -7,31 +7,19 @@ export function queueGuideBeat(context: GuideContext): GuideBeat {
   if (state.phase === 'won')
     return beat(
       4,
-      translate(
-        'Tres pagos. Un registro por ID.',
-        'Three payments. One record per ID.',
-      ),
+      translate('Tres pagos. Un registro por ID.', 'Three payments. One record per ID.'),
       translate(
         'Los pendientes sobrevivieron a la caída. El pago que volvió conservó su registro anterior, aunque el worker tuvo que intentarlo otra vez.',
         'Pending payments survived the crash. The returning payment kept its existing record, even though the worker had to try again.',
       ),
-      translate(
-        'Puedes seguir experimentando con esta configuración.',
-        'Keep experimenting with this configuration.',
-      ),
+      translate('Puedes seguir experimentando con esta configuración.', 'Keep experimenting with this configuration.'),
     );
   if (state.phase === 'incident')
     return beat(
       stage === 'safe' ? 4 : state.incident === 'ack-retry' ? 3 : 2,
       state.incident === 'ack-retry'
-        ? translate(
-            'El registro existe. La confirmación falló.',
-            'The record exists. Confirmation failed.',
-          )
-        : translate(
-            'El worker cayó. El pendiente sigue aquí.',
-            'The worker crashed. Pending work is still here.',
-          ),
+        ? translate('El registro existe. La confirmación falló.', 'The record exists. Confirmation failed.')
+        : translate('El worker cayó. El pendiente sigue aquí.', 'The worker crashed. Pending work is still here.'),
       state.incident === 'ack-retry'
         ? translate(
             `${context.job} ya tiene una fila, pero sigue pendiente porque falló marcarlo como terminado. Vuelve el mismo ID.`,
@@ -49,10 +37,7 @@ export function queueGuideBeat(context: GuideContext): GuideBeat {
   if (stage === 'storage')
     return beat(
       2,
-      translate(
-        'Dales una copia fuera del worker.',
-        'Keep a copy outside the worker.',
-      ),
+      translate('Dales una copia fuera del worker.', 'Keep a copy outside the worker.'),
       translate(
         'La RAM era la única copia de los pendientes. Repite la prueba guardándolos en una base de datos separada.',
         'RAM held the only copy of pending work. Repeat the trial with payments saved in a separate database.',
@@ -85,10 +70,7 @@ export function queueGuideBeat(context: GuideContext): GuideBeat {
   if (state.phase === 'lost')
     return beat(
       1,
-      translate(
-        'Aceptar no bastaba para conservarlos.',
-        'Acceptance did not keep them safe.',
-      ),
+      translate('Aceptar no bastaba para conservarlos.', 'Acceptance did not keep them safe.'),
       translate(
         'El primer pago está registrado. Los otros dos solo esperaban en la RAM del proceso que cayó.',
         'The first payment is recorded. The other two were only waiting in the crashed process’s RAM.',
@@ -101,10 +83,7 @@ export function queueGuideBeat(context: GuideContext): GuideBeat {
   if (state.phase === 'duplicate')
     return beat(
       3,
-      translate(
-        'El mismo pago se registró otra vez.',
-        'The same payment was recorded again.',
-      ),
+      translate('El mismo pago se registró otra vez.', 'The same payment was recorded again.'),
       translate(
         'Su primera fila seguía ahí. Reintentar sin reconocer el ID creó una segunda.',
         'Its first row was still there. Retrying without recognizing its ID created a second one.',
@@ -117,10 +96,7 @@ export function queueGuideBeat(context: GuideContext): GuideBeat {
   if (stage === 'safe')
     return beat(
       4,
-      translate(
-        'Las dos decisiones trabajan juntas.',
-        'The two choices work together.',
-      ),
+      translate('Las dos decisiones trabajan juntas.', 'The two choices work together.'),
       translate(
         'La base de datos conserva lo pendiente. El ID reconoce una fila ya creada. Son protecciones para problemas distintos.',
         'The database keeps pending work. The ID recognizes an existing row. They protect against different problems.',
@@ -139,10 +115,7 @@ export function queueGuideBeat(context: GuideContext): GuideBeat {
     );
   return beat(
     1,
-    translate(
-      'La tienda ya ha dicho «recibido».',
-      'The shop already said “received”.',
-    ),
+    translate('La tienda ya ha dicho «recibido».', 'The shop already said “received”.'),
     translate(
       `${context.api} aceptó tres pagos. ${context.worker} debe revisarlos y registrarlos. Solo «Registrar pago» crea una fila.`,
       `${context.api} accepted three payments. ${context.worker} must check and record them. Only “Record payment” creates a row.`,

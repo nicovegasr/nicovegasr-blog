@@ -43,7 +43,9 @@ export class StageAnimator {
   }
 
   reset() {
-    this.one('[data-stage]').querySelectorAll('.oom-flying, .oom-confetti, .oom-paper').forEach((element) => element.remove());
+    this.one('[data-stage]')
+      .querySelectorAll('.oom-flying, .oom-confetti, .oom-paper')
+      .forEach((element) => element.remove());
     this.one('[data-drawer]').replaceChildren();
     this.heroX = DESK_X;
     this.route = [];
@@ -71,7 +73,10 @@ export class StageAnimator {
     if (run.phase === 'loading' && run.step % 3 === 0) this.fly(SHELF_X, this.heroX, 'log');
     const idle = this.route.length === 0;
     if (events.includes('page') && idle) {
-      this.route = [{ x: SHELF_X + 7, arrive: () => (this.carrying = 'stack') }, { x: DESK_X, arrive: () => (this.carrying = null) }];
+      this.route = [
+        { x: SHELF_X + 7, arrive: () => (this.carrying = 'stack') },
+        { x: DESK_X, arrive: () => (this.carrying = null) },
+      ];
     } else if (events.includes('trip') && idle) {
       this.route = [
         { x: CABINET_X - 7, carrying: 'note', arrive: () => this.file('note') },

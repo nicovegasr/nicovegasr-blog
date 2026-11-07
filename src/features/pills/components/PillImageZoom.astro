@@ -15,13 +15,10 @@ const translate = getTranslator(locale);
   data-enlarge-label={translate('pills.reader.enlargeImage')}
   aria-label={translate('pills.reader.enlargeImage')}
 >
-  <button
-    type="button"
-    class="close"
-    data-pill-image-zoom-close
-    aria-label={translate('pills.reader.closeImage')}
-  >
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17" /></svg>
+  <button type="button" class="close" data-pill-image-zoom-close aria-label={translate('pills.reader.closeImage')}>
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="m7 7 10 10M17 7 7 17" />
+    </svg>
   </button>
   <img alt="" />
 </dialog>

@@ -86,7 +86,12 @@ export interface LabCopy {
     readonly query: (duration: string) => string;
     readonly incidents: Readonly<Record<IncidentKind, string>>;
   };
-  readonly incidents: Readonly<Record<IncidentKind, { readonly warning: string; readonly title: string; readonly text: string; readonly tip: string }>>;
+  readonly incidents: Readonly<
+    Record<
+      IncidentKind,
+      { readonly warning: string; readonly title: string; readonly text: string; readonly tip: string }
+    >
+  >;
   readonly hints: Readonly<Record<HintKey, string>>;
   readonly objectives: {
     readonly survive: string;

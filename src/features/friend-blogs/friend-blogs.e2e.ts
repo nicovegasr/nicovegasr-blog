@@ -68,7 +68,9 @@ test('resting the mouse on a side card brings it to the centre without chaining 
   await expect(section.getByRole('button', { name: 'Pausar', exact: true })).toBeVisible();
 });
 
-test('the drift keeps going when the page scrolls under a resting mouse, and only a card holds it', async ({ page }) => {
+test('the drift keeps going when the page scrolls under a resting mouse, and only a card holds it', async ({
+  page,
+}) => {
   const { section, centred } = await openGallery(page);
   await expect(section.locator('[data-caption][data-active]')).toContainText('Aitor Reviriego');
   const stage = (await section.locator('.coverflow-stage').boundingBox())!;
@@ -95,7 +97,9 @@ test('the drift keeps going when the page scrolls under a resting mouse, and onl
 test('choosing a blog glides to it and stops the tour there', async ({ page }) => {
   const { section, centred } = await openGallery(page);
   await page.clock.runFor(1000);
-  await page.keyboard.press('Tab'); await section.locator('[data-play]').focus(); await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('Tab');
+  await section.locator('[data-play]').focus();
+  await page.keyboard.press('ArrowRight');
   await expect(centred).toHaveAttribute('href', MARIO);
   await expect(section.getByRole('button', { name: 'Reanudar', exact: true })).toBeVisible();
   await page.clock.runFor(20000);
@@ -183,7 +187,9 @@ test('keyboard focus pauses a visible link and Enter keeps its destination', asy
   await page.keyboard.press('ArrowLeft');
   await page.clock.runFor(1000);
   await expect(section.locator('[data-slide][data-position="0"]')).toHaveAttribute('href', destination!);
-  await page.context().route(destination!, (route) => route.fulfill({ body: '<h1>Blog destination</h1>', contentType: 'text/html' }));
+  await page
+    .context()
+    .route(destination!, (route) => route.fulfill({ body: '<h1>Blog destination</h1>', contentType: 'text/html' }));
   const opened = page.waitForEvent('popup');
   await page.keyboard.press('Enter');
   // Blogs open in a new tab so the reader keeps this page.

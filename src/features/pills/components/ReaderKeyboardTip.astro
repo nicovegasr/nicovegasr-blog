@@ -9,15 +9,15 @@ const { locale } = Astro.props;
 const translate = getTranslator(locale);
 ---
 
-<aside
-  class="keyboard-tip"
-  data-reader-keyboard-tip
-  aria-label={translate('pills.reader.keyboardTipLabel')}
-  hidden
->
-  <span class="keys" aria-hidden="true"><kbd>←</kbd><kbd>→</kbd></span>
+<aside class="keyboard-tip" data-reader-keyboard-tip aria-label={translate('pills.reader.keyboardTipLabel')} hidden>
+  <span class="keys" aria-hidden="true">
+    <kbd>←</kbd>
+    <kbd>→</kbd>
+  </span>
   <p>{translate('pills.reader.keyboardTip')}</p>
-  <span class="seconds" aria-hidden="true" data-keyboard-tip-seconds>3</span>
+  <span class="seconds" aria-hidden="true" data-keyboard-tip-seconds>
+    3
+  </span>
 </aside>
 
 <script>

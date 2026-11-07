@@ -12,13 +12,7 @@ export type GuideStage =
   | 'email'
   | 'optimize'
   | 'efficient';
-export type GuideTarget =
-  | 'storage'
-  | 'identity'
-  | 'charge'
-  | 'provider'
-  | 'steps'
-  | null;
+export type GuideTarget = 'storage' | 'identity' | 'charge' | 'provider' | 'steps' | null;
 export type GuideContext = {
   es: boolean;
   stage: GuideStage;

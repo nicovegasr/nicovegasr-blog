@@ -12,8 +12,15 @@
   height: clamp(104px, 34cqh, 170px);
   transform: translateX(-50%);
 }
-.oom-hero.is-facing-left { transform: translateX(-50%) scaleX(-1); }
-.oom-sprite { position: absolute; inset: 0; background-size: 300% 200%; background-repeat: no-repeat; }
+.oom-hero.is-facing-left {
+  transform: translateX(-50%) scaleX(-1);
+}
+.oom-sprite {
+  position: absolute;
+  inset: 0;
+  background-size: 300% 200%;
+  background-repeat: no-repeat;
+}
 .oom-pack {
   position: absolute;
   left: 4%;
@@ -25,11 +32,26 @@
   background: var(--color-accent);
   transform-origin: 80% 70%;
   transform: scale(calc(0.75 + var(--fill) * 1.1));
-  transition: transform 120ms ease-out, background 200ms;
+  transition:
+    transform 120ms ease-out,
+    background 200ms;
 }
-.oom-pack::after { content: ''; position: absolute; left: 20%; right: 20%; top: 30%; height: 2px; background: #0a0a0a; }
-.oom-hero.is-warm .oom-pack { background: var(--oom-amber); }
-.oom-hero.is-danger .oom-pack { background: var(--oom-red); animation: oom-wobble 0.18s linear infinite; }
+.oom-pack::after {
+  content: '';
+  position: absolute;
+  left: 20%;
+  right: 20%;
+  top: 30%;
+  height: 2px;
+  background: #0a0a0a;
+}
+.oom-hero.is-warm .oom-pack {
+  background: var(--oom-amber);
+}
+.oom-hero.is-danger .oom-pack {
+  background: var(--oom-red);
+  animation: oom-wobble 0.18s linear infinite;
+}
 .oom-hero.is-danger::before,
 .oom-hero.is-danger::after {
   content: '';
@@ -42,13 +64,42 @@
   border: 1px solid #0a0a0a;
   animation: oom-sweat 0.7s ease-in infinite;
 }
-.oom-hero.is-danger::before { left: 72%; }
-.oom-hero.is-danger::after { left: 82%; animation-delay: 0.35s; }
-.oom-carried { position: absolute; display: none; right: 2%; top: 44%; border: 2px solid #0a0a0a; background: var(--color-paper); }
-.oom-carried.is-stack { display: block; width: 18px; height: 22px; box-shadow: 2px -2px 0 -0px #0a0a0a; }
-.oom-carried.is-note { display: block; width: 12px; height: 9px; background: var(--color-accent); }
-.oom-carried.is-box { display: block; width: 26px; height: 20px; background: var(--color-accent); }
-.oom-stage.is-killed .oom-pack { display: none; }
+.oom-hero.is-danger::before {
+  left: 72%;
+}
+.oom-hero.is-danger::after {
+  left: 82%;
+  animation-delay: 0.35s;
+}
+.oom-carried {
+  position: absolute;
+  display: none;
+  right: 2%;
+  top: 44%;
+  border: 2px solid #0a0a0a;
+  background: var(--color-paper);
+}
+.oom-carried.is-stack {
+  display: block;
+  width: 18px;
+  height: 22px;
+  box-shadow: 2px -2px 0 -0px #0a0a0a;
+}
+.oom-carried.is-note {
+  display: block;
+  width: 12px;
+  height: 9px;
+  background: var(--color-accent);
+}
+.oom-carried.is-box {
+  display: block;
+  width: 26px;
+  height: 20px;
+  background: var(--color-accent);
+}
+.oom-stage.is-killed .oom-pack {
+  display: none;
+}
 
 .oom-flying {
   position: absolute;
@@ -60,9 +111,21 @@
   translate: calc(var(--flying-x) * 1cqw) 0;
   transition: translate 440ms cubic-bezier(0.3, 0, 0.4, 1);
 }
-.oom-flying.is-arriving { translate: calc(var(--flying-x) * 1cqw) 14cqh; }
-.oom-flying.is-log { width: 10px; height: 13px; background: var(--color-paper); border: 1px solid var(--color-ink); }
-.oom-flying.is-box { width: 22px; height: 16px; background: var(--color-accent); border: 2px solid var(--color-ink); }
+.oom-flying.is-arriving {
+  translate: calc(var(--flying-x) * 1cqw) 14cqh;
+}
+.oom-flying.is-log {
+  width: 10px;
+  height: 13px;
+  background: var(--color-paper);
+  border: 1px solid var(--color-ink);
+}
+.oom-flying.is-box {
+  width: 22px;
+  height: 16px;
+  background: var(--color-accent);
+  border: 2px solid var(--color-ink);
+}
 
 .oom-paper {
   position: absolute;
@@ -105,9 +168,18 @@
   box-shadow: 5px 5px 0 #0a0a0a;
   transform: rotate(-4deg);
 }
-.oom-stamp code { font: 600 12px/1 var(--font-family-mono); background: var(--color-paper); padding: 4px 6px; }
-.oom-stage.is-killed .oom-stamp { display: flex; animation: oom-pop 280ms ease-out; }
-.oom-stage.is-killed { animation: oom-shake 0.1s linear 4; }
+.oom-stamp code {
+  font: 600 12px/1 var(--font-family-mono);
+  background: var(--color-paper);
+  padding: 4px 6px;
+}
+.oom-stage.is-killed .oom-stamp {
+  display: flex;
+  animation: oom-pop 280ms ease-out;
+}
+.oom-stage.is-killed {
+  animation: oom-shake 0.1s linear 4;
+}
 
 .oom-floor {
   position: absolute;
@@ -119,4 +191,3 @@
   border-top: 3px solid var(--color-ink);
   background: repeating-linear-gradient(135deg, var(--color-ink) 0 2px, transparent 2px 11px);
 }
-

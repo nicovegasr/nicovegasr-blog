@@ -95,7 +95,8 @@ export const spanishCopy: LabCopy = {
       title: 'Meses de histórico',
       mission: 'Ahora va el histórico entero: 200 millones de logs que no caben en una mochila de 512 MB.',
       period: 'meses de histórico',
-      takeaway: 'Con un recorrido tan largo, el cursor retiene la conexión todo el rato; las páginas la sueltan entre consulta y consulta.',
+      takeaway:
+        'Con un recorrido tan largo, el cursor retiene la conexión todo el rato; las páginas la sueltan entre consulta y consulta.',
     },
     3: {
       title: 'La consulta pesada',
@@ -132,14 +133,17 @@ export const spanishCopy: LabCopy = {
   hints: {
     list: 'La lista necesita todo el histórico en la mochila antes de revisar el primer log.',
     batch: 'El lote también viaja en la mochila: uno demasiado grande la vuelve a llenar.',
-    squeeze: 'Arrancó otro job y tu lote ya no cabía en lo que quedaba de heap. El lote se elige pensando en el peor momento.',
+    squeeze:
+      'Arrancó otro job y tu lote ya no cabía en lo que quedaba de heap. El lote se elige pensando en el peor momento.',
     repeatedQuery: 'Cada página vuelve a lanzar la consulta, y aquí cada lanzamiento cuesta 30 s.',
     manyPages: 'Cada página es una consulta más. Con tantas, el tiempo se acumula.',
     oneByOne: 'Cada nota es un viaje a la base de datos. Júntalas.',
     smallBatch: 'Con tantas notas, lotes tan pequeños siguen siendo demasiados viajes.',
     memory: 'Aguanta, pero va más cargado de lo necesario.',
-    longConnection: 'El cursor tiene la conexión abierta todo el recorrido: minutos bloqueando el pool y una transacción larga. Pide páginas y suéltala entre una y otra.',
-    smallStream: 'Con una semana de logs, abrir un cursor cuesta más que traerlos todos. Con pocos datos, lo simple gana.',
+    longConnection:
+      'El cursor tiene la conexión abierta todo el recorrido: minutos bloqueando el pool y una transacción larga. Pide páginas y suéltala entre una y otra.',
+    smallStream:
+      'Con una semana de logs, abrir un cursor cuesta más que traerlos todos. Con pocos datos, lo simple gana.',
   },
   objectives: {
     survive: 'Sin OOM Killed',

@@ -17,19 +17,16 @@ const es = locale === 'es';
 <BaseLayout
   locale={locale}
   title={`${title} · Async Chaos Lab`}
-  description={es
-    ? 'Ponle tus nombres al sistema, ejecuta tres pagos y observa las consecuencias de cada decisión.'
-    : 'Name your system, run three payments and see the consequences of each decision.'}
+  description={
+    es
+      ? 'Ponle tus nombres al sistema, ejecuta tres pagos y observa las consecuencias de cada decisión.'
+      : 'Name your system, run three payments and see the consequences of each decision.'
+  }
   alternatePaths={{ es: labPath('es', level), en: labPath('en', level) }}
 >
   <LabHeader locale={locale} level={level} title={title} />
-  <payment-lab data-level={level} data-locale={locale}
-  ></payment-lab>
-  <noscript
-    >{
-      es
-        ? 'Activa JavaScript para probar la simulación.'
-        : 'Enable JavaScript to try the simulation.'
-    }</noscript
-  >
+  <payment-lab data-level={level} data-locale={locale}></payment-lab>
+  <noscript>
+    {es ? 'Activa JavaScript para probar la simulación.' : 'Enable JavaScript to try the simulation.'}
+  </noscript>
 </BaseLayout>

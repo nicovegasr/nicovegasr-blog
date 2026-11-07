@@ -157,10 +157,18 @@ const loadStep = (state: RunState): RunState => {
   const perStep = total > room ? room / STEPS_TO_FILL_A_HOPELESS_LIST : total / steps;
   const loadedMegabytes = Math.min(total, state.loadedMegabytes + perStep);
   const step = state.step + 1;
-  const seconds = state.seconds + (step === 1 ? scenario.querySeconds : 0) + transferSeconds(scenario.logs) * (perStep / total);
+  const seconds =
+    state.seconds + (step === 1 ? scenario.querySeconds : 0) + transferSeconds(scenario.logs) * (perStep / total);
   const megabytes = MACHINE.baseMegabytes + loadedMegabytes;
   // Loading the list keeps the connection busy until the last row arrives.
-  const changes = { step, loadedMegabytes, seconds, queries: 1, longestConnectionSeconds: seconds, events: [] as RunEvent[] };
+  const changes = {
+    step,
+    loadedMegabytes,
+    seconds,
+    queries: 1,
+    longestConnectionSeconds: seconds,
+    events: [] as RunEvent[],
+  };
   if (megabytes > scenario.memoryLimitMegabytes) return die(state, 'list', changes);
   return {
     ...state,
@@ -197,7 +205,8 @@ const analyzeStep = (state: RunState, batchSize: BatchSize): RunState => {
   const multiplier = incident?.kind === 'restart-loop' ? incident.amount : 1;
   const found = (logsAnalyzed - before) * (scenario.runs / scenario.logs) * multiplier;
   const summaries = state.summaries + found;
-  const steadyMegabytes = MACHINE.baseMegabytes + (build.read === 'load-all' ? state.loadedMegabytes : fetchWindowMegabytes);
+  const steadyMegabytes =
+    MACHINE.baseMegabytes + (build.read === 'load-all' ? state.loadedMegabytes : fetchWindowMegabytes);
   const rowsSeconds = (rows: number) => (rows / 1_000) * MACHINE.secondsPerThousandWrittenRows;
 
   let pendingSummaries = 0;
@@ -209,7 +218,8 @@ const analyzeStep = (state: RunState, batchSize: BatchSize): RunState => {
   } else {
     const pending = state.pendingSummaries + found;
     const changes = { step, logsAnalyzed, incident, limitMegabytes, seconds, queries, summaries, events };
-    if (steadyMegabytes + summariesMegabytes(Math.min(pending, batchSize)) > limitMegabytes) return die(state, 'batch', changes);
+    if (steadyMegabytes + summariesMegabytes(Math.min(pending, batchSize)) > limitMegabytes)
+      return die(state, 'batch', changes);
     const flushes = Math.floor(pending / batchSize);
     pendingSummaries = pending - flushes * batchSize;
     writeTrips += flushes;

@@ -12,7 +12,12 @@
   color: #e8e8e8;
   font: var(--font-size-small) / 1.6 var(--font-family-mono);
 }
-.memory-terminal-command { overflow: hidden; color: var(--color-accent); white-space: nowrap; text-overflow: ellipsis; }
+.memory-terminal-command {
+  overflow: hidden;
+  color: var(--color-accent);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
 .memory-terminal-reading {
   display: flex;
   align-items: baseline;
@@ -23,15 +28,49 @@
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
 }
-.memory-terminal-reading small { font-size: 1rem; letter-spacing: 0; color: #8a8a8a; }
-.memory-terminal-gauge { position: relative; height: 10px; margin-top: var(--space-3); background: #262626; }
-.memory-terminal-gauge i { position: absolute; inset: 0 auto 0 0; background: var(--color-accent); }
-.memory-terminal-gauge i.is-danger { background: #e5484d; }
-.memory-terminal-log { align-self: end; height: 3.2em; overflow: hidden; color: #9a9a9a; white-space: pre; }
-.memory-terminal-log .is-killed { color: #e5484d; font-weight: 600; }
-.memory-terminal-log .is-ok { color: var(--color-accent); }
+.memory-terminal-reading small {
+  font-size: 1rem;
+  letter-spacing: 0;
+  color: #8a8a8a;
+}
+.memory-terminal-gauge {
+  position: relative;
+  height: 10px;
+  margin-top: var(--space-3);
+  background: #262626;
+}
+.memory-terminal-gauge i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--color-accent);
+}
+.memory-terminal-gauge i.is-danger {
+  background: #e5484d;
+}
+.memory-terminal-log {
+  align-self: end;
+  height: 3.2em;
+  overflow: hidden;
+  color: #9a9a9a;
+  white-space: pre;
+}
+.memory-terminal-log .is-killed {
+  color: #e5484d;
+  font-weight: 600;
+}
+.memory-terminal-log .is-ok {
+  color: var(--color-accent);
+}
 @media (max-width: 640px) {
-  .memory-terminal { padding: var(--space-4); font-size: 0.7rem; height: 12rem; }
-  .memory-terminal-reading { font-size: 2.4rem; }
-  .memory-terminal-reading small { font-size: 0.75rem; }
+  .memory-terminal {
+    padding: var(--space-4);
+    font-size: 0.7rem;
+    height: 12rem;
+  }
+  .memory-terminal-reading {
+    font-size: 2.4rem;
+  }
+  .memory-terminal-reading small {
+    font-size: 0.75rem;
+  }
 }

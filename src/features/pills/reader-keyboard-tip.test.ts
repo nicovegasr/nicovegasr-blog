@@ -55,10 +55,7 @@ describe('reader keyboard tip', () => {
     expect(tip?.hidden).toBe(false);
     vi.advanceTimersByTime(1000);
     expect(tip?.hidden).toBe(true);
-    expect(storage.setItem).toHaveBeenCalledWith(
-      'pills.keyboard-tip.dismissed',
-      'true',
-    );
+    expect(storage.setItem).toHaveBeenCalledWith('pills.keyboard-tip.dismissed', 'true');
     tip = newTip(false);
     changePage();
     expect(tip.hidden).toBe(true);

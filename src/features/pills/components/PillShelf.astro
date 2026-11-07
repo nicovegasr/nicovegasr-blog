@@ -22,62 +22,65 @@ const bookId = (item: PillSeriesCard) => `serie-${item.slug}`;
 <div class="pill-shelf" style={`--student-atlas: url(${studentAtlas});`} data-pill-shelf>
   <nav class="shelf" aria-label={translate('pills.shelf.label')}>
     <ul class="spines">
-      {
-        series.map((item, index) => (
-          <li>
-            <a
-              class:list={['spine', { 'is-upcoming': item.draft }]}
-              href={`#${bookId(item)}`}
-              style={`--spine-height: ${spineHeight(item)};`}
-              aria-current={index === 0 ? 'true' : undefined}
-              data-spine={bookId(item)}
-            >
-              <PillIcon icon={item.icon} />
-              <span class="spine-title">{item.title}</span>
-              <span class="spine-count" aria-hidden="true">{item.draft ? '—' : twoDigits(item.pills.length)}</span>
-            </a>
-          </li>
-        ))
-      }
+      {series.map((item, index) => (
+        <li>
+          <a
+            class:list={['spine', { 'is-upcoming': item.draft }]}
+            href={`#${bookId(item)}`}
+            style={`--spine-height: ${spineHeight(item)};`}
+            aria-current={index === 0 ? 'true' : undefined}
+            data-spine={bookId(item)}
+          >
+            <PillIcon icon={item.icon} />
+            <span class="spine-title">{item.title}</span>
+            <span class="spine-count" aria-hidden="true">
+              {item.draft ? '—' : twoDigits(item.pills.length)}
+            </span>
+          </a>
+        </li>
+      ))}
     </ul>
     <span class="shelf-mascot" aria-hidden="true"></span>
   </nav>
 
   <div class="books">
-    {
-      series.map((item, index) => (
-        <article class:list={['book', { 'is-upcoming': item.draft }]} id={bookId(item)} data-book>
-          <p class="book-kicker">
-            {translate('pills.shelf.series')} {twoDigits(index + 1)}
-            {!item.draft && <> · {item.pills.length} {translate('pills.seriesCount')}</>}
-          </p>
-          <h2>{item.title}</h2>
-          {!item.draft && <p class="book-summary">{item.summary}</p>}
-          {item.draft ? (
-            <div class="book-upcoming">
-              <span class="upcoming-tape">{translate('pills.upcoming')}</span>
-              <span class="book-mascot" aria-hidden="true"></span>
-            </div>
-          ) : (
+    {series.map((item, index) => (
+      <article class:list={['book', { 'is-upcoming': item.draft }]} id={bookId(item)} data-book>
+        <p class="book-kicker">
+          {translate('pills.shelf.series')} {twoDigits(index + 1)}
+          {!item.draft && (
             <>
-              <ol class="book-index">
-                {item.pills.map((pill, pillIndex) => (
-                  <li>
-                    <a href={buildPillPath(locale, item.slug, pillLeafSlugOf(pill.slug))}>
-                      <span class="pill-number">{twoDigits(pillIndex + 1)}</span>
-                      {pill.title}
-                    </a>
-                  </li>
-                ))}
-              </ol>
-              <a class="book-start" href={buildPillSeriesPath(locale, item.slug)}>
-                {translate('pills.shelf.start')} →
-              </a>
+              {' '}
+              · {item.pills.length} {translate('pills.seriesCount')}
             </>
           )}
-        </article>
-      ))
-    }
+        </p>
+        <h2>{item.title}</h2>
+        {!item.draft && <p class="book-summary">{item.summary}</p>}
+        {item.draft ? (
+          <div class="book-upcoming">
+            <span class="upcoming-tape">{translate('pills.upcoming')}</span>
+            <span class="book-mascot" aria-hidden="true"></span>
+          </div>
+        ) : (
+          <>
+            <ol class="book-index">
+              {item.pills.map((pill, pillIndex) => (
+                <li>
+                  <a href={buildPillPath(locale, item.slug, pillLeafSlugOf(pill.slug))}>
+                    <span class="pill-number">{twoDigits(pillIndex + 1)}</span>
+                    {pill.title}
+                  </a>
+                </li>
+              ))}
+            </ol>
+            <a class="book-start" href={buildPillSeriesPath(locale, item.slug)}>
+              {translate('pills.shelf.start')} →
+            </a>
+          </>
+        )}
+      </article>
+    ))}
   </div>
 </div>
 
@@ -153,7 +156,8 @@ const bookId = (item: PillSeriesCard) => `serie-${item.slug}`;
 
   .spine.is-upcoming {
     border-style: dashed;
-    background: repeating-linear-gradient(-45deg, transparent 0 12px, rgb(250 204 21 / 0.22) 12px 24px), var(--color-paper);
+    background:
+      repeating-linear-gradient(-45deg, transparent 0 12px, rgb(250 204 21 / 0.22) 12px 24px), var(--color-paper);
   }
 
   @media (hover: hover) {
@@ -195,7 +199,9 @@ const bookId = (item: PillSeriesCard) => `serie-${item.slug}`;
   }
 
   @keyframes spine-cursor-bob {
-    to { transform: translateY(-5px); }
+    to {
+      transform: translateY(-5px);
+    }
   }
 
   .shelf-mascot {
@@ -352,9 +358,16 @@ const bookId = (item: PillSeriesCard) => `serie-${item.slug}`;
   }
 
   @media (min-width: 901px) and (max-width: 1150px) {
-    .pill-shelf { gap: var(--space-4); }
-    .spine { width: 44px; }
-    .shelf-mascot { width: 60px; height: 60px; }
+    .pill-shelf {
+      gap: var(--space-4);
+    }
+    .spine {
+      width: 44px;
+    }
+    .shelf-mascot {
+      width: 60px;
+      height: 60px;
+    }
   }
 
   @media (max-width: 900px) {

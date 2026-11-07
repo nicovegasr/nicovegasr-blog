@@ -10,7 +10,9 @@ const drawing = PILL_ICONS[icon] ?? PILL_ICONS.summary!;
 ---
 
 <svg class="pill-icon" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
-  {drawing.body.map((d) => <path d={d} fill-rule="evenodd" />)}
+  {drawing.body.map((d) => (
+    <path d={d} fill-rule="evenodd" />
+  ))}
   {drawing.signal && <path class="signal" d={drawing.signal} />}
 </svg>
 

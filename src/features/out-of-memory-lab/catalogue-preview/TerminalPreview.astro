@@ -7,17 +7,27 @@ interface Props {
 }
 
 const { locale } = Astro.props;
-const finished = locale === 'es' ? '✓ 20.000 logs · 64 MB pico · exit code 0' : '✓ 20,000 logs · 64 MB peak · exit code 0';
+const finished =
+  locale === 'es' ? '✓ 20.000 logs · 64 MB pico · exit code 0' : '✓ 20,000 logs · 64 MB peak · exit code 0';
 ---
 
 <!-- Decorative: loading everything climbs to 1 GB and is killed; streaming stays flat and finishes. -->
 <terminal-preview class="memory-terminal" aria-hidden="true" data-locale={locale}>
-  <div class="memory-terminal-command">$ java -jar LogAnalyzerJob.jar --mode=<span data-mode>streaming</span></div>
-  <div>
-    <div class="memory-terminal-reading"><span data-megabytes>64</span><small>MB / 1024 MB</small></div>
-    <div class="memory-terminal-gauge"><i data-gauge style="width: 6%"></i></div>
+  <div class="memory-terminal-command">
+    $ java -jar LogAnalyzerJob.jar --mode=<span data-mode>streaming</span>
   </div>
-  <div class="memory-terminal-log" data-log><span class="is-ok">{finished}</span></div>
+  <div>
+    <div class="memory-terminal-reading">
+      <span data-megabytes>64</span>
+      <small>MB / 1024 MB</small>
+    </div>
+    <div class="memory-terminal-gauge">
+      <i data-gauge style="width: 6%"></i>
+    </div>
+  </div>
+  <div class="memory-terminal-log" data-log>
+    <span class="is-ok">{finished}</span>
+  </div>
 </terminal-preview>
 
 <script>

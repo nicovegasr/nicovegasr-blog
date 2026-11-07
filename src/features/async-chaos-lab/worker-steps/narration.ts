@@ -6,8 +6,7 @@ import { workerStepsConfig } from './rules';
 export const usesCustomSteps = (lab: PaymentLab) =>
   lab.config.steps.some(
     (step, index) =>
-      lab.step(index) !== lab.defaults.steps[index] ||
-      step.kind !== workerStepsConfig().steps[index]?.kind,
+      lab.step(index) !== lab.defaults.steps[index] || step.kind !== workerStepsConfig().steps[index]?.kind,
   );
 
 export function workerStepsFeedback(lab: PaymentLab): [string, string] {
@@ -18,14 +17,26 @@ export function workerStepsFeedback(lab: PaymentLab): [string, string] {
   if (lab.retryStage)
     return lab.retryStage === 'failure'
       ? [
-          lab.inLocale(`EL INCIDENTE OCURRIÓ EN EL PASO ${state.step + 1}`, `THE INCIDENT HAPPENED AT STEP ${state.step + 1}`),
+          lab.inLocale(
+            `EL INCIDENTE OCURRIÓ EN EL PASO ${state.step + 1}`,
+            `THE INCIDENT HAPPENED AT STEP ${state.step + 1}`,
+          ),
           state.incident === 'email-uncertain'
-            ? lab.inLocale(`«${step}»: no llegó confirmación. El envío pudo ocurrir; el worker no tiene una marca guardada.`, `“${step}”: no confirmation arrived. The send may have happened; the worker has no saved marker.`)
-            : lab.inLocale(`«${step}» no terminó. Los pasos anteriores ya produjeron sus resultados.`, `“${step}” did not complete. Earlier steps already produced their results.`),
+            ? lab.inLocale(
+                `«${step}»: no llegó confirmación. El envío pudo ocurrir; el worker no tiene una marca guardada.`,
+                `“${step}”: no confirmation arrived. The send may have happened; the worker has no saved marker.`,
+              )
+            : lab.inLocale(
+                `«${step}» no terminó. Los pasos anteriores ya produjeron sus resultados.`,
+                `“${step}” did not complete. Earlier steps already produced their results.`,
+              ),
         ]
       : [
           lab.inLocale('REINICIANDO EL WORKER · MISMO PAGO', 'RESTARTING THE WORKER · SAME PAYMENT'),
-          lab.inLocale(`Volvemos al inicio de «${job}». Los efectos anteriores siguen existiendo; solo se saltarán los pasos cuyo avance se guardó.`, `Returning to the start of “${job}”. Earlier effects still exist; only steps with saved progress will be skipped.`),
+          lab.inLocale(
+            `Volvemos al inicio de «${job}». Los efectos anteriores siguen existiendo; solo se saltarán los pasos cuyo avance se guardó.`,
+            `Returning to the start of “${job}”. Earlier effects still exist; only steps with saved progress will be skipped.`,
+          ),
         ];
   if (state.phase === 'duplicate')
     return [
@@ -40,10 +51,10 @@ export function workerStepsFeedback(lab: PaymentLab): [string, string] {
               `«${step}» produjo dos efectos para «${job}»: la respuesta se perdió antes de guardar el avance local. Esa marca no evita la repetición tras un timeout. Activa la deduplicación por clave en el proveedor y prueba de nuevo.`,
               `“${step}” produced two effects for “${job}”: the response was lost before local progress was saved. That marker cannot prevent a retry after a timeout. Enable provider deduplication by key and try again.`,
             )
-        : lab.inLocale(
-            `«${step}» produjo dos efectos para «${job}». Reiniciar el worker no deshizo el primero.`,
-            `“${step}” produced two effects for “${job}”. Restarting the worker did not undo the first.`,
-          ),
+          : lab.inLocale(
+              `«${step}» produjo dos efectos para «${job}». Reiniciar el worker no deshizo el primero.`,
+              `“${step}” produced two effects for “${job}”. Restarting the worker did not undo the first.`,
+            ),
     ];
   if (state.phase === 'incident') {
     if (state.incident === 'activation-failed')
@@ -78,10 +89,7 @@ export function workerStepsFeedback(lab: PaymentLab): [string, string] {
             ),
       ];
     return [
-      lab.inLocale(
-        'Ocurrió el efecto. No se guardó su marca.',
-        'The effect happened. Its marker was not saved.',
-      ),
+      lab.inLocale('Ocurrió el efecto. No se guardó su marca.', 'The effect happened. Its marker was not saved.'),
       lab.inLocale(
         `«${step}» ya produjo su efecto para «${job}». El worker cayó antes de guardarlo. Una marca local no basta si nunca se guardó. Recordar pasos no puede recuperar una marca que nunca se escribió: necesitas consultar o reconocer la operación en el proveedor.`,
         `“${step}” already produced its effect for “${job}”. The worker crashed before saving it. Remembering steps cannot recover a marker that was never written: you need to query or recognize the operation at the receiver.`,
@@ -108,10 +116,7 @@ export function workerStepsFeedback(lab: PaymentLab): [string, string] {
   }
   if (state.phase === 'ready')
     return [
-      lab.inLocale(
-        'Un pago puede quedarse a medias.',
-        'A payment can stop halfway.',
-      ),
+      lab.inLocale('Un pago puede quedarse a medias.', 'A payment can stop halfway.'),
       usesCustomSteps(lab)
         ? lab.inLocale(
             'Los tres pagos están guardados. El worker ejecutará las acciones que has elegido. Mira cuáles pueden repetirse y decide qué avances recordar al reintentar.',
@@ -137,10 +142,7 @@ export function workerStepsFeedback(lab: PaymentLab): [string, string] {
 }
 
 export const workerStepsTutorial = (lab: PaymentLab) => ({
-  title: lab.inLocale(
-    'El pago está guardado. Falta terminarlo.',
-    'The payment is saved. Now finish it.',
-  ),
+  title: lab.inLocale('El pago está guardado. Falta terminarlo.', 'The payment is saved. Now finish it.'),
   lines: [
     lab.inLocale(
       'Los pagos ya están guardados. Ahora mira dentro del worker: revisa los datos, cobra, activa la suscripción y manda el email.',
@@ -163,26 +165,21 @@ export function workerStepsIncidentCall(lab: PaymentLab): { title: string; repor
     step = lab.step(state.step);
   if (state.phase === 'duplicate')
     return {
-      title: lab.inLocale(
-        'Tenemos un resultado duplicado.',
-        'We have a duplicate result.',
-      ),
-      report: !usesCustomSteps(lab) && state.step === 1
-        ? lab.inLocale(
-            `Nos acaba de escribir el cliente de ${job}. Le hemos cobrado dos veces el mismo pago. Necesita saber qué ha ocurrido.`,
-            `The customer for ${job} just wrote to us. We charged them twice for the same payment. They need to know what happened.`,
-          )
-        : lab.inLocale(
-            `${step} aparece dos veces para ${job}. No ha entrado otro pago. ¿Puedes revisar qué hemos repetido?`,
-            `${step} appears twice for ${job}. No new payment came in. Can you check what we repeated?`,
-          ),
+      title: lab.inLocale('Tenemos un resultado duplicado.', 'We have a duplicate result.'),
+      report:
+        !usesCustomSteps(lab) && state.step === 1
+          ? lab.inLocale(
+              `Nos acaba de escribir el cliente de ${job}. Le hemos cobrado dos veces el mismo pago. Necesita saber qué ha ocurrido.`,
+              `The customer for ${job} just wrote to us. We charged them twice for the same payment. They need to know what happened.`,
+            )
+          : lab.inLocale(
+              `${step} aparece dos veces para ${job}. No ha entrado otro pago. ¿Puedes revisar qué hemos repetido?`,
+              `${step} appears twice for ${job}. No new payment came in. Can you check what we repeated?`,
+            ),
     };
   if (!usesCustomSteps(lab) && state.incident === 'activation-failed')
     return {
-      title: lab.inLocale(
-        'Ha pagado y no puede entrar.',
-        'They paid and cannot get in.',
-      ),
+      title: lab.inLocale('Ha pagado y no puede entrar.', 'They paid and cannot get in.'),
       report: lab.inLocale(
         `El cliente de ${job} acaba de escribir: «Me habéis cobrado, pero no puedo entrar». ¿Puedes terminar de activarle la cuenta? Y ojo con volver a cobrarle.`,
         `The customer for ${job} just wrote: “You charged me, but I cannot get in.” Can you finish activating their account? And watch out for charging them again.`,

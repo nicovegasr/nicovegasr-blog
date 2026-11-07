@@ -4,24 +4,19 @@ const readerIn = () => document.querySelector<HTMLElement>('[data-pill-reader]')
 
 const render = (reader: HTMLElement, collapsed: boolean) => {
   reader.toggleAttribute('data-index-collapsed', collapsed);
-  reader
-    .querySelector('[data-pill-index-toggle]')
-    ?.setAttribute('aria-expanded', String(!collapsed));
+  reader.querySelector('[data-pill-index-toggle]')?.setAttribute('aria-expanded', String(!collapsed));
 };
 
 const renderDisclosure = (reader: HTMLElement, open: boolean) => {
   reader.setAttribute('data-index-disclosure', open ? 'open' : 'closed');
-  reader
-    .querySelector('[data-pill-index-disclosure]')
-    ?.setAttribute('aria-expanded', String(open));
+  reader.querySelector('[data-pill-index-disclosure]')?.setAttribute('aria-expanded', String(open));
 };
 
 document.addEventListener('click', (event) => {
   if (!(event.target instanceof Element)) return;
   if (event.target.closest('[data-pill-index-disclosure]')) {
     const reader = readerIn();
-    if (reader)
-      renderDisclosure(reader, reader.getAttribute('data-index-disclosure') !== 'open');
+    if (reader) renderDisclosure(reader, reader.getAttribute('data-index-disclosure') !== 'open');
     return;
   }
   if (!event.target.closest('[data-pill-index-toggle]')) return;

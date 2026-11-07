@@ -9,4 +9,4 @@ const demos: Record<string, () => Promise<ContentDemoModule>> = {
   'listening-ports': () => import('@/features/listening-ports-demo/listening-ports-demo'),
 };
 
-export const findContentDemo = (name: string) => Object.hasOwn(demos, name) ? demos[name] : undefined;
+export const findContentDemo = (name: string) => (Object.hasOwn(demos, name) ? demos[name] : undefined);

@@ -9,5 +9,4 @@ export const OPEN_GRAPH_LOCALE: Record<Locale, string> = {
   en: 'en_US',
 };
 
-export const isLocale = (value: string): value is Locale =>
-  (LOCALES as readonly string[]).includes(value);
+export const isLocale = (value: string): value is Locale => (LOCALES as readonly string[]).includes(value);

@@ -4,8 +4,7 @@ import type { SimulationState } from './engine';
 
 export type RetryStage = 'failure' | 'restart' | undefined;
 export type ActorState =
-  | 'idle' | 'working' | 'saving' | 'skipping' | 'dead'
-  | 'uncertain' | 'duplicate' | 'returning' | 'done';
+  'idle' | 'working' | 'saving' | 'skipping' | 'dead' | 'uncertain' | 'duplicate' | 'returning' | 'done';
 export type WorkerFrame = { state: ActorState; step: number; job: number | null };
 
 /** Presentation only: the actor cannot acknowledge work or advance the engine. */
@@ -17,21 +16,29 @@ export function workerFrame(state: SimulationState, retry: RetryStage): WorkerFr
   if (state.phase === 'ready') return { state: 'idle', step: 0, job: null };
   if (state.phase === 'won') return { ...frame, state: 'done' };
   if (state.phase === 'duplicate') return { ...frame, state: 'duplicate' };
-  if (state.phase === 'lost' || (state.phase === 'incident' &&
-    ['activation-failed', 'worker-retry'].includes(state.incident)))
+  if (
+    state.phase === 'lost' ||
+    (state.phase === 'incident' && ['activation-failed', 'worker-retry'].includes(state.incident))
+  )
     return { ...frame, state: 'dead' };
   if (state.phase === 'incident') return { ...frame, state: 'uncertain' };
   const last = state.events.at(-1);
-  if (last?.kind === 'skipped' && last.job === job.id)
-    return { ...frame, state: 'skipping', step: last.step };
+  if (last?.kind === 'skipped' && last.job === job.id) return { ...frame, state: 'skipping', step: last.step };
   if (state.cursor === 'save') return { ...frame, state: 'saving' };
   if (job.status === 'done') return { ...frame, state: 'done' };
   return { ...frame, state: 'working' };
 }
 
 const poses: Record<ActorState, number> = {
-  idle: 3, working: 3, saving: 3, skipping: 3, dead: 5,
-  uncertain: 4, duplicate: 2, returning: 3, done: 5,
+  idle: 3,
+  working: 3,
+  saving: 3,
+  skipping: 3,
+  dead: 5,
+  uncertain: 4,
+  duplicate: 2,
+  returning: 3,
+  done: 5,
 };
 
 export function actorMarkup() {
@@ -53,7 +60,10 @@ export class WorkerActor {
   private gait: Animation | undefined;
   private generation = 0;
 
-  constructor(private node: HTMLElement, private steps: number) {}
+  constructor(
+    private node: HTMLElement,
+    private steps: number,
+  ) {}
 
   render(frame: WorkerFrame, speed: number, playing: boolean, reduced: boolean) {
     const sprite = this.node.querySelector<HTMLElement>('.lab-actor-sprite')!;
@@ -80,18 +90,24 @@ export class WorkerActor {
         sprite.style.backgroundImage = `url('${walkingAtlas}')`;
         this.node.dataset.moving = 'true';
         this.node.dataset.direction = frame.step < this.step! ? 'left' : 'right';
-        this.walk = body.animate([
-          { transform: 'translateY(0) rotate(-1deg)' },
-          { transform: 'translateY(-1px) rotate(1deg)' },
-          { transform: 'translateY(0) rotate(-1deg)' },
-        ], { duration: duration / 2, iterations: 2, easing: 'ease-in-out' });
-        this.gait = sprite.animate([
-          { backgroundPosition: '0% 0%', offset: 0 },
-          { backgroundPosition: '50% 0%', offset: 0.25 },
-          { backgroundPosition: '100% 0%', offset: 0.5 },
-          { backgroundPosition: '50% 0%', offset: 0.75 },
-          { backgroundPosition: '0% 0%', offset: 1 },
-        ], { duration: duration / 2, iterations: 2, easing: 'steps(1, end)' });
+        this.walk = body.animate(
+          [
+            { transform: 'translateY(0) rotate(-1deg)' },
+            { transform: 'translateY(-1px) rotate(1deg)' },
+            { transform: 'translateY(0) rotate(-1deg)' },
+          ],
+          { duration: duration / 2, iterations: 2, easing: 'ease-in-out' },
+        );
+        this.gait = sprite.animate(
+          [
+            { backgroundPosition: '0% 0%', offset: 0 },
+            { backgroundPosition: '50% 0%', offset: 0.25 },
+            { backgroundPosition: '100% 0%', offset: 0.5 },
+            { backgroundPosition: '50% 0%', offset: 0.75 },
+            { backgroundPosition: '0% 0%', offset: 1 },
+          ],
+          { duration: duration / 2, iterations: 2, easing: 'steps(1, end)' },
+        );
         this.walk.onfinish = () => {
           if (generation !== this.generation) return;
           setPose(pose);
@@ -110,8 +126,15 @@ export class WorkerActor {
     token.textContent = frame.job === null ? '' : `ID ${String(frame.job).padStart(2, '0')}`;
     token.hidden = frame.job === null;
     this.node.querySelector<HTMLElement>('[data-actor-reaction]')!.textContent = {
-      idle: '', working: '', saving: '✓', skipping: '↷', dead: '',
-      uncertain: '?', duplicate: '×2', returning: '↻', done: '✓',
+      idle: '',
+      working: '',
+      saving: '✓',
+      skipping: '↷',
+      dead: '',
+      uncertain: '?',
+      duplicate: '×2',
+      returning: '↻',
+      done: '✓',
     }[frame.state];
     this.step = frame.step;
     this.state = frame.state;

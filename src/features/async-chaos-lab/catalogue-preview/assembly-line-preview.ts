@@ -31,7 +31,10 @@ class AssemblyLinePreview extends HTMLElement {
       element.style.backgroundImage = `url(${atlas === 'walk' ? walk : reactions})`;
       element.style.backgroundPosition = `${(cell % 3) * 50}% ${Math.floor(cell / 3) * 100}%`;
     };
-    const later = (milliseconds: number) => new Promise<void>((resolve) => { timers.push(window.setTimeout(resolve, milliseconds)); });
+    const later = (milliseconds: number) =>
+      new Promise<void>((resolve) => {
+        timers.push(window.setTimeout(resolve, milliseconds));
+      });
     const running = () => visible && !document.hidden && !reducedMotion.matches && this.isConnected;
 
     const compact = matchMedia(COMPACT_QUERY).matches;
@@ -40,16 +43,20 @@ class AssemblyLinePreview extends HTMLElement {
       const worker = Object.assign(document.createElement('div'), { className: 'assembly-worker' });
       worker.style.left = `calc(${left}% - 0.3rem)`;
       pose(worker, 'walk', WALK_CELLS.standing);
-      const bubble = Object.assign(document.createElement('div'), { className: 'assembly-bubble', textContent: this.dataset.fails });
+      const bubble = Object.assign(document.createElement('div'), {
+        className: 'assembly-bubble',
+        textContent: this.dataset.fails,
+      });
       bubble.style.left = `calc(${left}% + 0.6rem)`;
       this.append(worker, bubble);
       return { left, worker, bubble, busy: false };
     });
 
-    const placeQueue = () => queue.forEach((ticket, index) => {
-      ticket.style.left = `calc(${compact ? 28 : 33}% + 0.4rem + ${index * 4}px)`;
-      ticket.style.bottom = `calc(20px + 2rem + ${index * 16}px)`;
-    });
+    const placeQueue = () =>
+      queue.forEach((ticket, index) => {
+        ticket.style.left = `calc(${compact ? 28 : 33}% + 0.4rem + ${index * 4}px)`;
+        ticket.style.bottom = `calc(20px + 2rem + ${index * 16}px)`;
+      });
     const newTicket = () => {
       const ticket = Object.assign(document.createElement('div'), {
         className: 'assembly-ticket',
@@ -64,7 +71,10 @@ class AssemblyLinePreview extends HTMLElement {
       const ticket = newTicket();
       Object.assign(ticket.style, { left: '4%', bottom: 'calc(20px + 4.2rem)' });
       requestAnimationFrame(() => Object.assign(ticket.style, { left: '24%', bottom: 'calc(20px + 0.8rem)' }));
-      void later(900).then(() => { queue.push(ticket); placeQueue(); });
+      void later(900).then(() => {
+        queue.push(ticket);
+        placeQueue();
+      });
     };
 
     const work = async () => {
@@ -99,10 +109,16 @@ class AssemblyLinePreview extends HTMLElement {
     };
 
     const syncRunning = () => this.classList.toggle('is-running', running());
-    const observer = new IntersectionObserver(([entry]) => { visible = entry?.isIntersecting ?? false; syncRunning(); });
+    const observer = new IntersectionObserver(([entry]) => {
+      visible = entry?.isIntersecting ?? false;
+      syncRunning();
+    });
     observer.observe(this);
     document.addEventListener('visibilitychange', syncRunning);
-    timers.push(window.setInterval(arrive, 1100), window.setInterval(() => void work(), 500));
+    timers.push(
+      window.setInterval(arrive, 1100),
+      window.setInterval(() => void work(), 500),
+    );
 
     // Without motion the line still reads: a few tickets wait in the queue.
     if (reducedMotion.matches) {
@@ -111,10 +127,15 @@ class AssemblyLinePreview extends HTMLElement {
     }
 
     this.dispose = () => {
-      timers.forEach((timer) => { clearTimeout(timer); clearInterval(timer); });
+      timers.forEach((timer) => {
+        clearTimeout(timer);
+        clearInterval(timer);
+      });
       observer.disconnect();
       document.removeEventListener('visibilitychange', syncRunning);
-      this.querySelectorAll('.assembly-worker, .assembly-bubble, .assembly-ticket').forEach((element) => element.remove());
+      this.querySelectorAll('.assembly-worker, .assembly-bubble, .assembly-ticket').forEach((element) =>
+        element.remove(),
+      );
     };
   }
 

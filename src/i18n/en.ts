@@ -44,8 +44,7 @@ export const english: Dictionary = {
   'friendBlogs.dragHint': 'Drag to explore',
   'friendBlogs.swipeHint': 'Swipe to explore',
 
-  'about.metaDescription':
-    'Nicolás Vegas, software engineer: what I know and my journey.',
+  'about.metaDescription': 'Nicolás Vegas, software engineer: what I know and my journey.',
   'about.portraitAlt': 'Photo of Nicolás Vegas',
   'about.heroStatement': 'Nicolás Vegas',
   'about.heroRole': 'Software engineer · High-volume systems · AI-assisted development',

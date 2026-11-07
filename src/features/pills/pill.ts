@@ -31,24 +31,19 @@ export type PillSeriesCard = PillSeries & {
 
 // Pill entry ids are "<locale>/<series>/<leaf>", so the series is the first
 // slug segment and the leaf is the rest (the URL-facing pill slug).
-export const seriesSlugOf = (pillSlug: string): string =>
-  pillSlug.split('/')[0] ?? '';
+export const seriesSlugOf = (pillSlug: string): string => pillSlug.split('/')[0] ?? '';
 
-export const pillLeafSlugOf = (pillSlug: string): string =>
-  pillSlug.split('/').slice(1).join('/');
+export const pillLeafSlugOf = (pillSlug: string): string => pillSlug.split('/').slice(1).join('/');
 
-export const isPublished = (
-  entry: { publicationDate: Date; draft?: boolean },
-  now: Date = new Date(),
-): boolean => !entry.draft && entry.publicationDate.getTime() <= now.getTime();
+export const isPublished = (entry: { publicationDate: Date; draft?: boolean }, now: Date = new Date()): boolean =>
+  !entry.draft && entry.publicationDate.getTime() <= now.getTime();
 
 const byOrderAscending = (a: Pill, b: Pill): number => a.order - b.order;
 
 export const seriesOrder = (series: readonly PillSeries[]): PillSeries[] =>
   [...series].sort((a, b) => a.order - b.order);
 
-export const railOrder = (pills: readonly Pill[]): Pill[] =>
-  [...pills].sort(byOrderAscending);
+export const railOrder = (pills: readonly Pill[]): Pill[] => [...pills].sort(byOrderAscending);
 
 // Previous/next pill around the current one within an already-ordered rail, so a
 // pill page can offer sequential navigation. Undefined at the ends.

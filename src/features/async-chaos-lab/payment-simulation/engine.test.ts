@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  advance,
-  continueAfterIncident,
-  initialState,
-  run,
-  totals,
-} from './engine';
+import { advance, continueAfterIncident, initialState, run, totals } from './engine';
 import type { SimulationConfig, SimulationRules, SimulationState } from './engine';
 import { queueConfig, queueRules } from '../queue/rules';
 import { workerStepsConfig, workerStepsRules } from '../worker-steps/rules';
@@ -17,9 +11,7 @@ describe('Simulation invariants', () => {
     const state = run(config, workerStepsRules);
     expect(state.phase).toBe('won');
     expect(state.events.some((event) => event.kind === 'saved')).toBe(false);
-    expect(
-      state.jobs.every((job) => job.steps.every((step) => !step.checkpoint)),
-    ).toBe(true);
+    expect(state.jobs.every((job) => job.steps.every((step) => !step.checkpoint))).toBe(true);
 
     config.steps[1]!.remember = true;
     const remembered = run(config, workerStepsRules);
@@ -41,11 +33,7 @@ describe('Simulation invariants', () => {
     expect(reset.tick).toBe(0);
     expect(reset.events).toEqual([]);
     expect(reset.injected).toEqual([]);
-    expect(
-      reset.jobs.every((job) =>
-        job.steps.every((step) => step.effects === 0 && !step.checkpoint),
-      ),
-    ).toBe(true);
+    expect(reset.jobs.every((job) => job.steps.every((step) => step.effects === 0 && !step.checkpoint))).toBe(true);
     expect(totals(completed).done).toBe(3);
   });
 
@@ -61,21 +49,13 @@ describe('Simulation invariants', () => {
       for (let command = 0; command < 200; command++) {
         const previous = states.at(-1)!;
         freeze(previous);
-        const next =
-          previous.phase === 'incident'
-            ? continueAfterIncident(previous)
-            : advance(previous, rules);
+        const next = previous.phase === 'incident' ? continueAfterIncident(previous) : advance(previous, rules);
         if (next === previous) return states;
         states.push(next);
       }
       throw new Error('Scenario exceeded its command budget');
     }
-    const configs = [
-      queueConfig(),
-      queueConfig(),
-      workerStepsConfig(),
-      workerStepsConfig(),
-    ];
+    const configs = [queueConfig(), queueConfig(), workerStepsConfig(), workerStepsConfig()];
     configs[1]!.storage = 'db';
     configs[1]!.protectLocalRecord = true;
     configs[3]!.steps.forEach((step) => (step.remember = true));
@@ -87,21 +67,14 @@ describe('Simulation invariants', () => {
       expect(replay(config, rules)).toEqual(states);
       for (const state of states) {
         expect(state.jobs.map((job) => job.id)).toEqual([1, 2, 3]);
+        expect(state.jobs.flatMap((job) => job.steps).every((step) => !step.checkpoint || step.effects > 0)).toBe(true);
         expect(
-          state.jobs
-            .flatMap((job) => job.steps)
-            .every((step) => !step.checkpoint || step.effects > 0),
-        ).toBe(true);
-        expect(
-          state.jobs
-            .filter((job) => job.status === 'done')
-            .every((job) => job.steps.every((step) => step.effects > 0)),
+          state.jobs.filter((job) => job.status === 'done').every((job) => job.steps.every((step) => step.effects > 0)),
         ).toBe(true);
         expect(
           state.events.every(
             (event, stepIndex) =>
-              event.tick <= state.tick &&
-              (!stepIndex || event.tick >= state.events[stepIndex - 1]!.tick),
+              event.tick <= state.tick && (!stepIndex || event.tick >= state.events[stepIndex - 1]!.tick),
           ),
         ).toBe(true);
       }

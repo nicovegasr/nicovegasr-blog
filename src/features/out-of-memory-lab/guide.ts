@@ -23,7 +23,8 @@ export const hintFor = (challenge: Challenge, build: CompleteBuild, outcome: Out
   if (failed === undefined) return null;
   if (failed.kind === 'megabytes') return 'memory';
   // A week of logs fits easily: the stream only adds its setup.
-  if (failed.kind === 'seconds' && build.read === 'cursor' && challenge.scenario.logs <= SMALL_VOLUME_LOGS) return 'smallStream';
+  if (failed.kind === 'seconds' && build.read === 'cursor' && challenge.scenario.logs <= SMALL_VOLUME_LOGS)
+    return 'smallStream';
   if (failed.kind === 'connection') return 'longConnection';
   if (failed.kind === 'write-trips') return build.write === 'one-by-one' ? 'oneByOne' : 'smallBatch';
   if (build.read === 'pages' && challenge.scenario.querySeconds >= 1) return 'repeatedQuery';

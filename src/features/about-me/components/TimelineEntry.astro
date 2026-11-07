@@ -24,14 +24,14 @@ const formatMonthYear = (date: Date): string =>
 
 const startMachine = entry.startDate.toISOString().slice(0, 10);
 const endMachine = entry.endDate?.toISOString().slice(0, 10);
-const credit = [entry.organization, entry.role, entry.sector].filter(
-  (part): part is string => part !== undefined,
-);
+const credit = [entry.organization, entry.role, entry.sector].filter((part): part is string => part !== undefined);
 ---
 
 <article class="timeline-entry" data-journey-stop data-start-year={entry.startDate.getUTCFullYear()}>
   <div class="when">
-    <time class="year" datetime={startMachine}>{entry.startDate.getUTCFullYear()}</time>
+    <time class="year" datetime={startMachine}>
+      {entry.startDate.getUTCFullYear()}
+    </time>
     <span class="place">{entry.place}</span>
   </div>
   <div class="body">
@@ -50,31 +50,27 @@ const credit = [entry.organization, entry.role, entry.sector].filter(
       )}
     </div>
     {entry.summary !== undefined && <p class="summary">{entry.summary}</p>}
-    {
-      entry.documentUrl !== undefined && (
-        <p class="document">
-          <a href={entry.documentUrl} target="_blank" rel="noopener noreferrer">
-            {entry.documentLabel} →
-          </a>
-        </p>
-      )
-    }
-    {
-      entry.organization !== undefined && (
-        <p class="credit">
-          <span>{credit.join(' · ')}</span>
-          <span class="period">
-            <time datetime={startMachine}>{formatMonthYear(entry.startDate)}</time>
-            {' – '}
-            {entry.endDate === undefined ? (
-              <span>{translate('about.present')}</span>
-            ) : (
-              <time datetime={endMachine}>{formatMonthYear(entry.endDate)}</time>
-            )}
-          </span>
-        </p>
-      )
-    }
+    {entry.documentUrl !== undefined && (
+      <p class="document">
+        <a href={entry.documentUrl} target="_blank" rel="noopener noreferrer">
+          {entry.documentLabel} →
+        </a>
+      </p>
+    )}
+    {entry.organization !== undefined && (
+      <p class="credit">
+        <span>{credit.join(' · ')}</span>
+        <span class="period">
+          <time datetime={startMachine}>{formatMonthYear(entry.startDate)}</time>
+          {' – '}
+          {entry.endDate === undefined ? (
+            <span>{translate('about.present')}</span>
+          ) : (
+            <time datetime={endMachine}>{formatMonthYear(entry.endDate)}</time>
+          )}
+        </span>
+      </p>
+    )}
   </div>
 </article>
 

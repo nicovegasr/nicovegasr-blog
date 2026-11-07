@@ -5,26 +5,12 @@ import { escapeHtml } from '../shared/text';
 
 export function guidePanel(lab: PaymentLab, beat: GuideBeat) {
   let action = '';
-  if (beat.target)
-    action = button(
-      'guide-focus',
-      lab.copy.showThisChoice,
-    );
-  else if (lab.state.phase === 'won')
-    action = button(
-      'guide-finish',
-      lab.copy.keepExperimenting,
-    );
-  else if (['lost', 'duplicate'].includes(lab.state.phase))
-    action = button(
-      'lesson',
-      lab.copy.changeTheDesign,
-    );
+  if (beat.target) action = button('guide-focus', lab.copy.showThisChoice);
+  else if (lab.state.phase === 'won') action = button('guide-finish', lab.copy.keepExperimenting);
+  else if (['lost', 'duplicate'].includes(lab.state.phase)) action = button('lesson', lab.copy.changeTheDesign);
   const optional = lab.definition.guideOptionalAction(lab);
   return /* HTML */ `<header class="lab-guide-header">
-      <span
-        >${lab.copy.guidedWalkthroughHeading}
-        <span class="lab-guide-chapter">${beat.chapter}/4</span></span
+      <span>${lab.copy.guidedWalkthroughHeading} <span class="lab-guide-chapter">${beat.chapter}/4</span></span
       ><button
         type="button"
         data-action="guide-close"
@@ -40,9 +26,7 @@ export function guidePanel(lab: PaymentLab, beat: GuideBeat) {
       </div>
       <div class="lab-guide-next">
         <span class="lab-eyebrow">${lab.copy.now}</span>
-        <p id="lab-guide-task" role="status" aria-live="polite">
-          ${escapeHtml(beat.task)}
-        </p>
+        <p id="lab-guide-task" role="status" aria-live="polite">${escapeHtml(beat.task)}</p>
         ${action || optional ? /* HTML */ `<div class="lab-guide-actions">${action}${optional}</div>` : ''}
       </div>
     </div>`;

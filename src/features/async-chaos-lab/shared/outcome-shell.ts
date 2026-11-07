@@ -16,7 +16,7 @@ type OutcomeScene = {
 
 /** One outcome scene for every level. HTML slots are built by the controllers. */
 export function outcomeShell(scene: OutcomeScene): string {
-  const translate = (es: string, en: string) => scene.es ? es : en;
+  const translate = (es: string, en: string) => (scene.es ? es : en);
   return `<div class="lab-outcome-shell">
     <header class="lab-outcome-top"><span>ASYNC CHAOS LAB <span aria-hidden="true">/</span> ${translate('Ensayo', 'Trial')} ${String(scene.trial).padStart(2, '0')}</span><button type="button" data-action="${scene.dismissAction ?? 'dismiss'}" aria-label="${translate('Cerrar', 'Close')}">×</button></header>
     <div class="lab-outcome-content">

@@ -1,49 +1,169 @@
 @media (max-width: 1180px) {
-  .oom-hud { flex-wrap: wrap; row-gap: var(--space-2); }
-  .oom-heading { flex-basis: 40%; }
-  .oom-objectives { order: 4; flex-basis: 100%; }
-  .oom-objectives li { flex: 1; }
+  .oom-hud {
+    flex-wrap: wrap;
+    row-gap: var(--space-2);
+  }
+  .oom-heading {
+    flex-basis: 40%;
+  }
+  .oom-objectives {
+    order: 4;
+    flex-basis: 100%;
+  }
+  .oom-objectives li {
+    flex: 1;
+  }
   /* The buttons take their own row only when the cards would not fit beside them. */
-  .oom-tray { flex-wrap: wrap; row-gap: var(--space-2); }
-  .oom-hand { flex: 99 1 max-content; }
-  .oom-controls { flex: 1 1 8rem; flex-direction: row; flex-wrap: wrap; width: auto; }
-  .oom-controls .oom-run, .oom-controls .oom-secondary { flex: 1 1 7rem; min-width: 0; white-space: normal; line-height: 1.2; }
+  .oom-tray {
+    flex-wrap: wrap;
+    row-gap: var(--space-2);
+  }
+  .oom-hand {
+    flex: 99 1 max-content;
+  }
+  .oom-controls {
+    flex: 1 1 8rem;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: auto;
+  }
+  .oom-controls .oom-run,
+  .oom-controls .oom-secondary {
+    flex: 1 1 7rem;
+    min-width: 0;
+    white-space: normal;
+    line-height: 1.2;
+  }
 }
 
 @media (max-width: 900px) {
-  .oom-game { height: auto; grid-template-rows: auto auto auto; }
-  .oom-bubble { position: fixed; z-index: 60; left: 12px; right: 12px; bottom: 12px; }
-  .oom-bubble.is-docked-top { top: calc(var(--oom-nav, 64px) + 8px); bottom: auto; }
-  .oom-result { grid-template-columns: minmax(0, 1fr); }
-  .oom-result-card { grid-template-columns: minmax(0, 1fr); }
+  .oom-game {
+    height: auto;
+    grid-template-rows: auto auto auto;
+  }
+  .oom-bubble {
+    position: fixed;
+    z-index: 60;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+  }
+  .oom-bubble.is-docked-top {
+    top: calc(var(--oom-nav, 64px) + 8px);
+    bottom: auto;
+  }
+  .oom-result {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .oom-result-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
   /* Five narrow columns fit a phone only if the name of the choice takes its own line. */
-  .oom-compare, .oom-compare thead, .oom-compare tbody { display: block; }
-  .oom-compare tr { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
-  .oom-compare th, .oom-compare td { padding: 4px; font-size: 11px; }
-  .oom-compare th { font-size: 9px; letter-spacing: 0; }
-  .oom-compare th:first-child, .oom-compare td:first-child { grid-column: 1 / -1; }
-  .oom-result { align-items: start; scroll-margin-top: calc(var(--oom-nav, 64px) + 8px); }
-  .oom-card { flex: 0 0 200px; }
-  .oom-shelf, .oom-cabinet { width: 26%; }
-  .oom-result-card { padding: var(--space-3); }
-  .oom-remove { width: 32px; height: 32px; }
-  .oom-hud { flex-wrap: wrap; }
-  .oom-heading { order: 3; flex-basis: 100%; }
-  .oom-objectives { order: 4; flex-wrap: wrap; }
-  .oom-board { grid-template-columns: 1fr; }
-  .oom-stage { order: -1; height: 300px; border-left: 0; border-bottom: 2px solid var(--color-ink); }
-  .oom-code { max-height: 340px; font-size: 12px; }
-  .oom-tray { flex-direction: column; flex-wrap: nowrap; align-items: stretch; }
-  .oom-hand { flex: none; flex-direction: column; gap: var(--space-3); }
-  .oom-group { flex: none; }
-  .oom-group + .oom-group { padding-left: 0; border-left: 0; }
-  .oom-group-cards { overflow-x: auto; padding-bottom: 6px; }
-  .oom-controls { flex: none; justify-content: flex-end; }
-  .oom-controls .oom-run, .oom-controls .oom-secondary { flex: 0 1 auto; min-width: 9.5rem; }
+  .oom-compare,
+  .oom-compare thead,
+  .oom-compare tbody {
+    display: block;
+  }
+  .oom-compare tr {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .oom-compare th,
+  .oom-compare td {
+    padding: 4px;
+    font-size: 11px;
+  }
+  .oom-compare th {
+    font-size: 9px;
+    letter-spacing: 0;
+  }
+  .oom-compare th:first-child,
+  .oom-compare td:first-child {
+    grid-column: 1 / -1;
+  }
+  .oom-result {
+    align-items: start;
+    scroll-margin-top: calc(var(--oom-nav, 64px) + 8px);
+  }
+  .oom-card {
+    flex: 0 0 200px;
+  }
+  .oom-shelf,
+  .oom-cabinet {
+    width: 26%;
+  }
+  .oom-result-card {
+    padding: var(--space-3);
+  }
+  .oom-remove {
+    width: 32px;
+    height: 32px;
+  }
+  .oom-hud {
+    flex-wrap: wrap;
+  }
+  .oom-heading {
+    order: 3;
+    flex-basis: 100%;
+  }
+  .oom-objectives {
+    order: 4;
+    flex-wrap: wrap;
+  }
+  .oom-board {
+    grid-template-columns: 1fr;
+  }
+  .oom-stage {
+    order: -1;
+    height: 300px;
+    border-left: 0;
+    border-bottom: 2px solid var(--color-ink);
+  }
+  .oom-code {
+    max-height: 340px;
+    font-size: 12px;
+  }
+  .oom-tray {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+  }
+  .oom-hand {
+    flex: none;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  .oom-group {
+    flex: none;
+  }
+  .oom-group + .oom-group {
+    padding-left: 0;
+    border-left: 0;
+  }
+  .oom-group-cards {
+    overflow-x: auto;
+    padding-bottom: 6px;
+  }
+  .oom-controls {
+    flex: none;
+    justify-content: flex-end;
+  }
+  .oom-controls .oom-run,
+  .oom-controls .oom-secondary {
+    flex: 0 1 auto;
+    min-width: 9.5rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .oom-game *, .oom-game *::before, .oom-game *::after { animation: none !important; transition: none !important; }
+  .oom-game *,
+  .oom-game *::before,
+  .oom-game *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 /* Hidden but keeping its room: placing a card must not change the height of the tray. */
-.oom-card.is-placed .oom-card-front small { visibility: hidden; }
+.oom-card.is-placed .oom-card-front small {
+  visibility: hidden;
+}

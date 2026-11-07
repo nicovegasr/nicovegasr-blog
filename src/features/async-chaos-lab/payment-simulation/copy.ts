@@ -10,7 +10,8 @@ const es = {
   openTutorial: 'Abrir el tutorial',
   tutorial: 'Tutorial',
   trialMetrics: 'Métricas del ensayo',
-  achievementsForThisBrowserSession: 'Logros de esta sesión del navegador. Los reinicios del laboratorio no los borran.',
+  achievementsForThisBrowserSession:
+    'Logros de esta sesión del navegador. Los reinicios del laboratorio no los borran.',
   paymentName: 'Nombre del pago',
   editNames: 'Editar nombres',
   names: 'Nombres',
@@ -66,7 +67,8 @@ const es = {
   letMeCheckTheSystem: 'Voy a mirar el sistema',
   noDurableCopy: 'Sin copia duradera',
   resultSaved: 'Resultado guardado',
-  completedAndLostWhenRamDisappeared: (done: string | number, lost: string | number) => `${done} completado · ${lost} perdidos al desaparecer la RAM`,
+  completedAndLostWhenRamDisappeared: (done: string | number, lost: string | number) =>
+    `${done} completado · ${lost} perdidos al desaparecer la RAM`,
   theSamePaymentTwoResults: 'El mismo pago. Dos resultados.',
   paymentsWillNeverBeRecorded: (lost: string | number) => `Faltan ${lost} pagos por registrar.`,
   dataLost: 'PERDISTE LOS DATOS',
@@ -157,7 +159,8 @@ const en: typeof es = {
   letMeCheckTheSystem: 'Let me check the system',
   noDurableCopy: 'No durable copy',
   resultSaved: 'Result saved',
-  completedAndLostWhenRamDisappeared: (done: string | number, lost: string | number) => `${done} completed · ${lost} lost when RAM disappeared`,
+  completedAndLostWhenRamDisappeared: (done: string | number, lost: string | number) =>
+    `${done} completed · ${lost} lost when RAM disappeared`,
   theSamePaymentTwoResults: 'The same payment. Two results.',
   paymentsWillNeverBeRecorded: (lost: string | number) => `${lost} payments will never be recorded.`,
   dataLost: 'DATA LOST',

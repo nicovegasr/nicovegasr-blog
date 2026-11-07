@@ -22,7 +22,8 @@ export const renderHud = (text: LabText, root: HTMLElement, challenge: Challenge
     ...objectives.map((objective) => {
       const item = document.createElement('li');
       item.dataset.objective = objective.kind;
-      item.innerHTML = '<span class="oom-objective-mark" data-mark>☆</span><span class="oom-objective-label" data-label></span><span class="oom-objective-value" data-value>—</span>';
+      item.innerHTML =
+        '<span class="oom-objective-mark" data-mark>☆</span><span class="oom-objective-label" data-label></span><span class="oom-objective-value" data-value>—</span>';
       item.querySelector('[data-label]')!.textContent = objectiveLabel(text, objective);
       return item;
     }),

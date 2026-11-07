@@ -15,11 +15,7 @@ import { queueCopy } from './copy';
 function resultLabel(lab: PaymentLab, index: number, count: number) {
   const kind = lab.config.steps[index]?.kind ?? 'append';
   if (kind === 'check')
-    return count
-      ? index === 0
-        ? queueCopy(lab.es).validated
-        : queueCopy(lab.es).prepared
-      : queueCopy(lab.es).pending;
+    return count ? (index === 0 ? queueCopy(lab.es).validated : queueCopy(lab.es).prepared) : queueCopy(lab.es).pending;
   return `${count} ${lab.inLocale(count === 1 ? 'registro' : 'registros', count === 1 ? 'record' : 'records')}`;
 }
 
@@ -42,7 +38,9 @@ export const queueLab: PaymentLabDefinition = {
   firstGuideStage: 'ram',
   diagram: queueDiagram,
   stepDescription: (lab, step) =>
-    /* HTML */ `<p class="lab-step-contract">${step.kind === 'append' ? queueCopy(lab.es).onlyOneRecordPerId : queueCopy(lab.es).safeToRepeat}</p>`,
+    /* HTML */ `<p class="lab-step-contract">
+      ${step.kind === 'append' ? queueCopy(lab.es).onlyOneRecordPerId : queueCopy(lab.es).safeToRepeat}
+    </p>`,
   stepOptions: () => '',
   stepState: (lab, index, { progress, shown, active }) =>
     active
@@ -54,70 +52,46 @@ export const queueLab: PaymentLabDefinition = {
       lab.config.storage = input.value === 'db' ? 'db' : 'ram';
       lab.syncStorageName();
       if (lab.guide !== 'off')
-        lab.guide =
-          lab.config.storage === 'ram'
-            ? 'ram'
-            : lab.config.protectLocalRecord
-              ? 'safe'
-              : 'durable';
+        lab.guide = lab.config.storage === 'ram' ? 'ram' : lab.config.protectLocalRecord ? 'safe' : 'durable';
     }
     if (key === 'protect') {
       lab.config.protectLocalRecord = input.value === 'on';
       if (lab.guide !== 'off')
-        lab.guide =
-          lab.config.storage === 'ram'
-            ? 'ram'
-            : lab.config.protectLocalRecord
-              ? 'safe'
-              : 'identity';
+        lab.guide = lab.config.storage === 'ram' ? 'ram' : lab.config.protectLocalRecord ? 'safe' : 'identity';
     }
   },
   paintSystem(lab) {
-    lab.element('[data-process]').className =
-      `lab-process ${lab.config.storage === 'ram' ? 'is-ram' : 'is-durable'}`;
+    lab.element('[data-process]').className = `lab-process ${lab.config.storage === 'ram' ? 'is-ram' : 'is-durable'}`;
     lab.element('[data-boundary]').textContent =
       lab.config.storage === 'ram'
         ? queueCopy(lab.es).sameProcessSharedFate
         : queueCopy(lab.es).independentDatabaseSurvivesWorker;
-    lab.replace(
-      '[data-store-figure]',
-      labFigure(lab.config.storage === 'ram' ? 'ram' : 'db'),
-    );
-    lab.element<HTMLSelectElement>('[data-setting=storage]').value =
-      lab.config.storage;
-    lab.element<HTMLSelectElement>('[data-setting=protect]').value = lab.config
-      .protectLocalRecord
-      ? 'on'
-      : 'off';
+    lab.replace('[data-store-figure]', labFigure(lab.config.storage === 'ram' ? 'ram' : 'db'));
+    lab.element<HTMLSelectElement>('[data-setting=storage]').value = lab.config.storage;
+    lab.element<HTMLSelectElement>('[data-setting=protect]').value = lab.config.protectLocalRecord ? 'on' : 'off';
     lab.element('[data-storage-note]').textContent =
       lab.config.storage === 'ram'
         ? queueCopy(lab.es).pendingWorkInsideTheWorker
         : queueCopy(lab.es).pendingWorkSurvivesTheWorker;
-    lab.element('[data-protection-note]').textContent = lab.config
-      .protectLocalRecord
+    lab.element('[data-protection-note]').textContent = lab.config.protectLocalRecord
       ? queueCopy(lab.es).keepOneRowPerId
       : queueCopy(lab.es).eachAttemptCanCreateAnotherRow;
   },
   metrics(lab) {
     const state = lab.state,
-      repeatedDeliveries = state.jobs.reduce(
-        (total, job) => total + Math.max(0, job.attempt - 1),
-        0,
-      ),
+      repeatedDeliveries = state.jobs.reduce((total, job) => total + Math.max(0, job.attempt - 1), 0),
       extraRecords = state.jobs.reduce(
         (total, job) =>
           total +
           job.steps.reduce(
             (sum, progress, index) =>
-              sum +
-              (state.config.steps[index]?.kind === 'append'
-                ? Math.max(0, progress.effects - 1)
-                : 0),
+              sum + (state.config.steps[index]?.kind === 'append' ? Math.max(0, progress.effects - 1) : 0),
             0,
           ),
         0,
       );
-    return /* HTML */ `<span><b>${repeatedDeliveries}</b> ${queueCopy(lab.es).redeliveries}</span><span><b>${extraRecords}</b> ${queueCopy(lab.es).extraRecords}</span>`;
+    return /* HTML */ `<span><b>${repeatedDeliveries}</b> ${queueCopy(lab.es).redeliveries}</span
+      ><span><b>${extraRecords}</b> ${queueCopy(lab.es).extraRecords}</span>`;
   },
   feedback: queueFeedback,
   tutorial: queueTutorial,
@@ -130,19 +104,14 @@ export const queueLab: PaymentLabDefinition = {
     const counts = totals(lab.state);
     return queueCopy(lab.es).attemptsThreeRecordsOnePerId(counts.attempts);
   },
-  duplicateFooters: (lab) => [
-    queueCopy(lab.es).firstRecord,
-    queueCopy(lab.es).secondRecord,
-  ],
+  duplicateFooters: (lab) => [queueCopy(lab.es).firstRecord, queueCopy(lab.es).secondRecord],
   interruptedEvidence(lab) {
     const state = lab.state,
       job = state.jobs[Math.max(0, state.active)]!;
     return /* HTML */ `<div class="lab-ack-evidence">
       <div>
         <span>${queueCopy(lab.es).paymentId}</span
-        ><strong
-          >${String(job.id).padStart(2, '0')} · ${escapeHtml(lab.job(job.id - 1))}</strong
-        >
+        ><strong>${String(job.id).padStart(2, '0')} · ${escapeHtml(lab.job(job.id - 1))}</strong>
       </div>
       <div>
         <span>${queueCopy(lab.es).itsRecord}</span
@@ -150,13 +119,7 @@ export const queueLab: PaymentLabDefinition = {
           >${state.incident === 'ack-retry' ? '✓ ' + queueCopy(lab.es).oneRowAlreadyExists : '— ' + queueCopy(lab.es).notRecordedYet}</strong
         >
       </div>
-      <div>
-        <span>${queueCopy(lab.es).inTheDatabase}</span
-        ><strong
-          >↻
-          ${queueCopy(lab.es).availableToRetry}</strong
-        >
-      </div>
+      <div><span>${queueCopy(lab.es).inTheDatabase}</span><strong>↻ ${queueCopy(lab.es).availableToRetry}</strong></div>
     </div>`;
   },
   earnedAchievements,

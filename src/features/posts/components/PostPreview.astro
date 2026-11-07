@@ -32,28 +32,42 @@ const hiddenTagCount = Math.max(0, post.tags.length - VISIBLE_TAGS);
 const isLeanMind = post.external?.publisher === 'Lean Mind';
 ---
 
-{isLeanMind ? <LeanMindPostPreview post={post} /> : (
-
-<article class:list={['post-preview', { 'is-external': post.external }]} data-slug={post.slug}>
-  <div class="meta">
-    <time datetime={publicationDateMachine}>{publicationDateLabel}</time>
-    <span aria-hidden="true">·</span>
-    <ReadingTime minutes={post.readingTimeInMinutes} locale={post.locale} />
-  </div>
-  {series && <span class="series">{series.name} · {series.number}/{series.total}</span>}
-  <h2>
-    <a href={postLink} target={linkTarget} rel={linkRelationship}>
-      {series ? <><span class="visually-hidden">{series.name} — </span>{series.chapterTitle}</> : post.title}
-      {post.external && <span class="visually-hidden"> — {readMoreLabel}</span>}
-    </a>
-  </h2>
-  <p class="summary">{post.summary}</p>
-  <div class="tags">
-    <TagList tags={post.tags.slice(0, VISIBLE_TAGS)} />
-    {hiddenTagCount > 0 && <span class="more-tags">+{hiddenTagCount}</span>}
-  </div>
-  <span class="read-more" aria-hidden="true">{readMoreLabel}</span>
-</article>
+{isLeanMind ? (
+  <LeanMindPostPreview post={post} />
+) : (
+  <article class:list={['post-preview', { 'is-external': post.external }]} data-slug={post.slug}>
+    <div class="meta">
+      <time datetime={publicationDateMachine}>{publicationDateLabel}</time>
+      <span aria-hidden="true">·</span>
+      <ReadingTime minutes={post.readingTimeInMinutes} locale={post.locale} />
+    </div>
+    {series && (
+      <span class="series">
+        {series.name} · {series.number}/{series.total}
+      </span>
+    )}
+    <h2>
+      <a href={postLink} target={linkTarget} rel={linkRelationship}>
+        {series ? (
+          <>
+            <span class="visually-hidden">{series.name} — </span>
+            {series.chapterTitle}
+          </>
+        ) : (
+          post.title
+        )}
+        {post.external && <span class="visually-hidden"> — {readMoreLabel}</span>}
+      </a>
+    </h2>
+    <p class="summary">{post.summary}</p>
+    <div class="tags">
+      <TagList tags={post.tags.slice(0, VISIBLE_TAGS)} />
+      {hiddenTagCount > 0 && <span class="more-tags">+{hiddenTagCount}</span>}
+    </div>
+    <span class="read-more" aria-hidden="true">
+      {readMoreLabel}
+    </span>
+  </article>
 )}
 
 <style>
@@ -73,7 +87,9 @@ const isLeanMind = post.external?.publisher === 'Lean Mind';
 
   /* Articles published elsewhere carry an ink band, like a different masthead. */
   .post-preview.is-external {
-    background: linear-gradient(var(--color-ink), var(--color-ink)) 0 0 / 100% 6px no-repeat, var(--color-paper);
+    background:
+      linear-gradient(var(--color-ink), var(--color-ink)) 0 0 / 100% 6px no-repeat,
+      var(--color-paper);
   }
 
   /* In the dark a full white frame on every card shouts; borders rest dim and light up on hover. */
@@ -82,7 +98,9 @@ const isLeanMind = post.external?.publisher === 'Lean Mind';
   }
 
   :global(:root[data-theme='dark']) .post-preview.is-external {
-    background: linear-gradient(var(--color-accent), var(--color-accent)) 0 0 / 100% 4px no-repeat, var(--color-paper);
+    background:
+      linear-gradient(var(--color-accent), var(--color-accent)) 0 0 / 100% 4px no-repeat,
+      var(--color-paper);
   }
 
   :global(:root[data-theme='dark']) .post-preview:is(:hover, :has(:focus-visible)) {

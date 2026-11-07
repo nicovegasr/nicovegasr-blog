@@ -35,4 +35,3 @@ only when that demo appears in the current document. Unknown names keep their
 fallback content. Import or mount failures preserve the fallback and offer a
 retry button. Disconnecting a demo invokes its cleanup function; reconnecting
 mounts it again.
-

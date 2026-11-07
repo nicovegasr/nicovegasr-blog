@@ -42,8 +42,7 @@ export const spanish = {
   'friendBlogs.dragHint': 'Arrastra para explorar',
   'friendBlogs.swipeHint': 'Desliza para explorar',
 
-  'about.metaDescription':
-    'Nicolás Vegas, ingeniero informático: lo que conozco y mi trayectoria.',
+  'about.metaDescription': 'Nicolás Vegas, ingeniero informático: lo que conozco y mi trayectoria.',
   'about.portraitAlt': 'Foto de Nicolás Vegas',
   'about.heroStatement': 'Nicolás Vegas',
   'about.heroRole': 'Ingeniero de software · Sistemas de alto volumen · Desarrollo con IA',

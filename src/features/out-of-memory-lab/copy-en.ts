@@ -95,7 +95,8 @@ export const englishCopy: LabCopy = {
       title: 'Months of history',
       mission: 'Now it is the whole history: 200 million logs that do not fit in a 512 MB backpack.',
       period: 'months of history',
-      takeaway: 'On such a long run, the cursor holds the connection the whole time; pages release it between one query and the next.',
+      takeaway:
+        'On such a long run, the cursor holds the connection the whole time; pages release it between one query and the next.',
     },
     3: {
       title: 'The heavy query',
@@ -132,14 +133,17 @@ export const englishCopy: LabCopy = {
   hints: {
     list: 'The list needs the whole history in the backpack before reviewing the first log.',
     batch: 'The batch travels in the backpack too: one that is too big fills it up again.',
-    squeeze: 'Another job started and your batch no longer fit in what was left of the heap. Choose the batch with the worst moment in mind.',
+    squeeze:
+      'Another job started and your batch no longer fit in what was left of the heap. Choose the batch with the worst moment in mind.',
     repeatedQuery: 'Every page runs the query again, and here each run costs 30 s.',
     manyPages: 'Every page is one more query. With so many, the time adds up.',
     oneByOne: 'Every note is a trip to the database. Group them.',
     smallBatch: 'With so many notes, batches this small are still too many trips.',
     memory: 'It holds, but it carries more than it needs.',
-    longConnection: 'The cursor keeps the connection open the whole run: minutes blocking the pool and a long transaction. Ask for pages and release it between them.',
-    smallStream: 'With a week of logs, opening a cursor costs more than fetching them all. With little data, simple wins.',
+    longConnection:
+      'The cursor keeps the connection open the whole run: minutes blocking the pool and a long transaction. Ask for pages and release it between them.',
+    smallStream:
+      'With a week of logs, opening a cursor costs more than fetching them all. With little data, simple wins.',
   },
   objectives: {
     survive: 'No OOM Killed',

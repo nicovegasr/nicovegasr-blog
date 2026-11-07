@@ -16,14 +16,10 @@ interface Props {
 }
 const { locale, seriesSlug, activePillSlug } = Astro.props;
 const renderable = await findRenderablePillSeries(locale, seriesSlug);
-if (!renderable)
-  throw new Error(`Pill series not found: ${locale}/${seriesSlug}`);
+if (!renderable) throw new Error(`Pill series not found: ${locale}/${seriesSlug}`);
 const { series, pills } = renderable;
-const activePill = pills.find(
-  (pill) => pillLeafSlugOf(pill.slug) === activePillSlug,
-);
-if (activePillSlug && !activePill)
-  throw new Error(`Pill not found: ${activePillSlug}`);
+const activePill = pills.find((pill) => pillLeafSlugOf(pill.slug) === activePillSlug);
+if (activePillSlug && !activePill) throw new Error(`Pill not found: ${activePillSlug}`);
 const translate = getTranslator(locale);
 const otherLocale = locale === 'es' ? 'en' : 'es';
 const alternatePaths = {
@@ -31,7 +27,6 @@ const alternatePaths = {
     ? buildPillPath(otherLocale, series.slug, activePillSlug)
     : buildPillSeriesPath(otherLocale, series.slug),
 };
-
 ---
 
 <BaseLayout

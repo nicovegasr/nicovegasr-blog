@@ -16,12 +16,17 @@ test.describe('Level 2 · the worker', () => {
       return stage.bottom <= steps.top && stage.left >= worker.left && stage.right <= worker.right;
     });
     expect(stageReserved, 'the character has a reserved stage above the step controls').toBe(true);
-    const providerOutsidePopover = await page.locator('[data-setting=provider-3]').evaluate((input) => input.closest('[popover]') === null);
+    const providerOutsidePopover = await page
+      .locator('[data-setting=provider-3]')
+      .evaluate((input) => input.closest('[popover]') === null);
     expect(providerOutsidePopover, 'receiver protection is visible without opening the step configuration').toBe(true);
-    await expect(page.locator('label').filter({ has: page.locator('[data-setting=remember-3]') })).toContainText('Guardar avance al recibir confirmación');
+    await expect(page.locator('label').filter({ has: page.locator('[data-setting=remember-3]') })).toContainText(
+      'Guardar avance al recibir confirmación',
+    );
     await captureForReview(page, 'worker-initial');
 
-    const chainHeight = () => page.locator('.lab-worker-interior').evaluate((chain) => chain.getBoundingClientRect().height);
+    const chainHeight = () =>
+      page.locator('.lab-worker-interior').evaluate((chain) => chain.getBoundingClientRect().height);
     const heightBefore = await chainHeight();
     await page.locator('button[popovertarget="lab-step-options-3"]:not([popovertargetaction])').click();
     expect(await chainHeight(), 'opening a step configuration does not resize the chain').toBe(heightBefore);
@@ -46,7 +51,9 @@ test.describe('Level 2 · the worker', () => {
       await lab.untilStop();
       await expect(lab.feedback).toContainText('Cobraste');
       await expect(lab.dialog).toContainText('Ha pagado y no puede entrar');
-      await expect(page.locator('[data-step-card="2"]'), 'the interrupted activation is marked as failed').toHaveClass(/is-failed/);
+      await expect(page.locator('[data-step-card="2"]'), 'the interrupted activation is marked as failed').toHaveClass(
+        /is-failed/,
+      );
       await expect(page.locator('[data-step-state="2"]')).toContainText('Paso 3 falló');
       await captureForReview(page, 'worker-partial-effect');
       expect(await lab.runToStop()).toBe('duplicate');
@@ -57,7 +64,9 @@ test.describe('Level 2 · the worker', () => {
       await lab.toggle('remember-1');
       await lab.toggle('remember-3');
       expect(await lab.finish()).toBe('duplicate');
-      await expect(lab.feedback).toContainText(/respuesta se perdió antes de guardar el avance local.*deduplicación por clave/);
+      await expect(lab.feedback).toContainText(
+        /respuesta se perdió antes de guardar el avance local.*deduplicación por clave/,
+      );
     });
 
     await test.step('deduplication at the receiver closes that gap', async () => {
@@ -126,8 +135,12 @@ test.describe('Level 2 · the worker', () => {
     const lab = new StoriesLab(page);
     await lab.open('es', 2);
     const hostile = '<img src=x onerror="window.storyXss=1">';
-    const injected = () => page.evaluate(() =>
-      (window as Window & { storyXss?: number }).storyXss !== undefined || !!document.querySelector('payment-lab img'));
+    const injected = () =>
+      page.evaluate(
+        () =>
+          (window as Window & { storyXss?: number }).storyXss !== undefined ||
+          !!document.querySelector('payment-lab img'),
+      );
 
     await lab.action('personalize');
     for (const label of ['step-1', 'job-0', 'worker']) await lab.rename(label, hostile);

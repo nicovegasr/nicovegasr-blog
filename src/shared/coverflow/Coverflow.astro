@@ -11,67 +11,125 @@ interface Props {
   duration?: number;
   autoplay?: boolean;
 }
-const { items, title, description, labels, id = `coverflow-${crypto.randomUUID()}`,
-  initialIndex = 0, duration = 8000, autoplay = true } = Astro.props;
+const {
+  items,
+  title,
+  description,
+  labels,
+  id = `coverflow-${crypto.randomUUID()}`,
+  initialIndex = 0,
+  duration = 8000,
+  autoplay = true,
+} = Astro.props;
 const titleId = `${id}-title`;
-const startIndex = Number.isFinite(initialIndex) ? Math.max(0, Math.min(items.length - 1, Math.trunc(initialIndex))) : 0;
+const startIndex = Number.isFinite(initialIndex)
+  ? Math.max(0, Math.min(items.length - 1, Math.trunc(initialIndex)))
+  : 0;
 ---
+
 {items.length > 0 && (
-
-<coverflow-carousel class="coverflow" id={id} role="region" aria-labelledby={titleId} aria-roledescription={labels.carousel}
-  data-coverflow data-initial-index={startIndex} data-duration={duration} data-autoplay={autoplay}
-  data-play-label={labels.resume}
-  data-pause-label={labels.pause}>
-  <header class="coverflow-heading">
-    <div>
-      <h2 id={titleId}>{title}</h2>
-      {description && <p>{description}</p>}
-    </div>
-    <div class="coverflow-controls" data-controls hidden>
-      <span class="coverflow-counter" aria-hidden="true"><b data-counter>{String(startIndex + 1).padStart(2, '0')}</b> / {String(items.length).padStart(2, '0')}</span>
-      <button type="button" data-play aria-label={labels.resume} title={labels.resume}>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path data-play-icon d="m9 5 10 7-10 7Z" /></svg>
-      </button>
-    </div>
-  </header>
-  <div class="coverflow-stage">
-    {items.map((item, index) => (
-      <a class="coverflow-window" href={item.href} target="_blank" rel="noopener" data-slide data-position={index - startIndex}
-        draggable="false" aria-label={`${labels.visit}: ${item.title}`}>
-        <div class="coverflow-window-chrome" aria-hidden="true">
-          <span class="coverflow-window-lights"><i></i><i></i><i></i></span>
-          <span class="coverflow-window-address">
-            <svg viewBox="0 0 24 24"><path d="M7 11V8a5 5 0 0 1 10 0v3M6 11h12v9H6Z" /></svg>
-            <span>{item.caption ?? item.title}</span>
+  <coverflow-carousel
+    class="coverflow"
+    id={id}
+    role="region"
+    aria-labelledby={titleId}
+    aria-roledescription={labels.carousel}
+    data-coverflow
+    data-initial-index={startIndex}
+    data-duration={duration}
+    data-autoplay={autoplay}
+    data-play-label={labels.resume}
+    data-pause-label={labels.pause}
+  >
+    <header class="coverflow-heading">
+      <div>
+        <h2 id={titleId}>{title}</h2>
+        {description && <p>{description}</p>}
+      </div>
+      <div class="coverflow-controls" data-controls hidden>
+        <span class="coverflow-counter" aria-hidden="true">
+          <b data-counter>{String(startIndex + 1).padStart(2, '0')}</b> / {String(items.length).padStart(2, '0')}
+        </span>
+        <button type="button" data-play aria-label={labels.resume} title={labels.resume}>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path data-play-icon d="m9 5 10 7-10 7Z" />
+          </svg>
+        </button>
+      </div>
+    </header>
+    <div class="coverflow-stage">
+      {items.map((item, index) => (
+        <a
+          class="coverflow-window"
+          href={item.href}
+          target="_blank"
+          rel="noopener"
+          data-slide
+          data-position={index - startIndex}
+          draggable="false"
+          aria-label={`${labels.visit}: ${item.title}`}
+        >
+          <div class="coverflow-window-chrome" aria-hidden="true">
+            <span class="coverflow-window-lights">
+              <i></i>
+              <i></i>
+              <i></i>
+            </span>
+            <span class="coverflow-window-address">
+              <svg viewBox="0 0 24 24">
+                <path d="M7 11V8a5 5 0 0 1 10 0v3M6 11h12v9H6Z" />
+              </svg>
+              <span>{item.caption ?? item.title}</span>
+            </span>
+            <svg viewBox="0 0 24 24">
+              <path d="m12 4 2.5 5.2 5.5.7-4 3.9 1 5.6-5-2.7-5 2.7 1-5.6-4-3.9 5.5-.7Z" />
+            </svg>
+            <svg viewBox="0 0 24 24" class="coverflow-window-menu">
+              <path d="M12 6h.01M12 12h.01M12 18h.01" />
+            </svg>
+          </div>
+          <img
+            src={item.image}
+            width="1272"
+            height="716"
+            alt={item.imageAlt}
+            draggable="false"
+            loading="lazy"
+            decoding="async"
+          />
+          <span class="coverflow-window-visit">
+            {labels.visit} <span aria-hidden="true">↗</span>
           </span>
-          <svg viewBox="0 0 24 24"><path d="m12 4 2.5 5.2 5.5.7-4 3.9 1 5.6-5-2.7-5 2.7 1-5.6-4-3.9 5.5-.7Z" /></svg>
-          <svg viewBox="0 0 24 24" class="coverflow-window-menu"><path d="M12 6h.01M12 12h.01M12 18h.01" /></svg>
-        </div>
-        <img src={item.image} width="1272" height="716" alt={item.imageAlt}
-          draggable="false" loading="lazy" decoding="async" />
-        <span class="coverflow-window-visit">{labels.visit} <span aria-hidden="true">↗</span></span>
-      </a>
-    ))}
-  </div>
-  <div class="coverflow-captions" hidden aria-hidden="true">
-    {items.map((item, index) => (
-      <p data-caption data-active={index === startIndex ? '' : undefined}>
-        <strong>{item.title}</strong>{item.description && <span> · {item.description}</span>}
-      </p>
-    ))}
-  </div>
-  <div class="coverflow-dots" hidden role="group" aria-label={labels.choose}>
-    {items.map((item, index) => <button type="button" data-dot={index}
-      aria-label={item.title} aria-pressed={index === startIndex ? 'true' : 'false'}></button>)}
-  </div>
-  <p class="coverflow-hint" data-hint hidden aria-hidden="true">
-    <svg viewBox="0 0 24 24"><path d="M3 12h18M7 8l-4 4 4 4m10-8 4 4-4 4" /></svg>
-    <span class="coverflow-hint-drag">{labels.dragHint}</span>
-    <span class="coverflow-hint-swipe">{labels.swipeHint}</span>
-  </p>
-  <p class="coverflow-status" aria-live="polite" aria-atomic="true" data-status></p>
-</coverflow-carousel>
-
+        </a>
+      ))}
+    </div>
+    <div class="coverflow-captions" hidden aria-hidden="true">
+      {items.map((item, index) => (
+        <p data-caption data-active={index === startIndex ? '' : undefined}>
+          <strong>{item.title}</strong>
+          {item.description && <span> · {item.description}</span>}
+        </p>
+      ))}
+    </div>
+    <div class="coverflow-dots" hidden role="group" aria-label={labels.choose}>
+      {items.map((item, index) => (
+        <button
+          type="button"
+          data-dot={index}
+          aria-label={item.title}
+          aria-pressed={index === startIndex ? 'true' : 'false'}
+        ></button>
+      ))}
+    </div>
+    <p class="coverflow-hint" data-hint hidden aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <path d="M3 12h18M7 8l-4 4 4 4m10-8 4 4-4 4" />
+      </svg>
+      <span class="coverflow-hint-drag">{labels.dragHint}</span>
+      <span class="coverflow-hint-swipe">{labels.swipeHint}</span>
+    </p>
+    <p class="coverflow-status" aria-live="polite" aria-atomic="true" data-status></p>
+  </coverflow-carousel>
 )}
 <script>
   import './coverflow-element';

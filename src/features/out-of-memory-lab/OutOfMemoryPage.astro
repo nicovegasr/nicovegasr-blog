@@ -28,8 +28,13 @@ const title = 'Exit 137';
       <header class="oom-hud">
         <nav class="oom-levels" aria-label={page.challenges}>
           {CHALLENGES.map((challenge) => (
-            <button type="button" data-challenge={challenge.id} aria-label={page.challengeButton(challenge.id, copy.challenges[challenge.id]?.title ?? '')}>
-              <b>{challenge.id}</b><small data-stars></small>
+            <button
+              type="button"
+              data-challenge={challenge.id}
+              aria-label={page.challengeButton(challenge.id, copy.challenges[challenge.id]?.title ?? '')}
+            >
+              <b>{challenge.id}</b>
+              <small data-stars></small>
             </button>
           ))}
         </nav>
@@ -38,7 +43,9 @@ const title = 'Exit 137';
           <p class="oom-heading-mission" data-mission></p>
         </div>
         <ul class="oom-objectives" data-objectives aria-label={page.objectivesLabel}></ul>
-        <button type="button" class="oom-help" data-help>{page.tutorial}</button>
+        <button type="button" class="oom-help" data-help>
+          {page.tutorial}
+        </button>
       </header>
 
       <div class="oom-board">
@@ -50,13 +57,23 @@ const title = 'Exit 137';
         <section class="oom-stage" data-stage aria-label={page.stageLabel}>
           <div class="oom-memory" data-memory>
             <span>{page.backpack}</span>
-            <div class="oom-memory-bar"><i data-memory-fill></i><b data-memory-squeeze></b><u data-memory-goal hidden></u></div>
+            <div class="oom-memory-bar">
+              <i data-memory-fill></i>
+              <b data-memory-squeeze></b>
+              <u data-memory-goal hidden></u>
+            </div>
             <span data-memory-label></span>
           </div>
-          <div class="oom-incident" data-incident hidden role="status"><b data-incident-title></b><span data-incident-text></span></div>
+          <div class="oom-incident" data-incident hidden role="status">
+            <b data-incident-title></b>
+            <span data-incident-text></span>
+          </div>
           <div class="oom-shelf" aria-hidden="true">
-            <b>app_logs</b><small data-shelf-caption></small>
-            <div class="oom-rows"><span data-rows></span></div>
+            <b>app_logs</b>
+            <small data-shelf-caption></small>
+            <div class="oom-rows">
+              <span data-rows></span>
+            </div>
           </div>
           <div class="oom-belt" aria-hidden="true"></div>
           <div class="oom-hero" data-hero aria-hidden="true">
@@ -64,29 +81,54 @@ const title = 'Exit 137';
             <i class="oom-sprite" data-sprite></i>
             <i class="oom-carried" data-carried></i>
           </div>
-          <div class="oom-cabinet" aria-hidden="true"><b>run_summaries</b><div class="oom-drawer" data-drawer></div></div>
-          <div class="oom-stamp" aria-hidden="true"><strong>OOM Killed</strong><code>exit code 137</code></div>
+          <div class="oom-cabinet" aria-hidden="true">
+            <b>run_summaries</b>
+            <div class="oom-drawer" data-drawer></div>
+          </div>
+          <div class="oom-stamp" aria-hidden="true">
+            <strong>OOM Killed</strong>
+            <code>exit code 137</code>
+          </div>
           <div class="oom-floor"></div>
         </section>
       </div>
 
       <footer class="oom-tray">
-        <div class="oom-progress" data-progress hidden><i></i></div>
+        <div class="oom-progress" data-progress hidden>
+          <i></i>
+        </div>
         <div class="oom-hand" data-hand>
           {[
             { group: 'read', number: '①', title: page.readGroup, cards: READ_CARDS },
             { group: 'write', number: '②', title: page.writeGroup, cards: WRITE_CARDS },
           ].map(({ group, number, title, cards }) => (
             <div class="oom-group" data-group={group}>
-              <p class="oom-group-title"><b>{number}</b> {title}</p>
+              <p class="oom-group-title">
+                <b>{number}</b> {title}
+              </p>
               <div class="oom-group-cards">
                 {cards.map((card) => (
                   <div class="oom-card" data-card={card} draggable="true" hidden>
                     <button type="button" class="oom-card-face" data-place>
-                      <span class="oom-card-front"><span class="oom-card-new">{page.newCard}</span><span class="oom-card-placed">{page.placedCard}</span><b>{cardCopy[card].label}</b><small>{cardCopy[card].description}</small></span>
-                      <span class="oom-card-back"><span class="oom-card-back-label">{page.cardCode}</span><code>{cardCopy[card].code}</code></span>
+                      <span class="oom-card-front">
+                        <span class="oom-card-new">{page.newCard}</span>
+                        <span class="oom-card-placed">{page.placedCard}</span>
+                        <b>{cardCopy[card].label}</b>
+                        <small>{cardCopy[card].description}</small>
+                      </span>
+                      <span class="oom-card-back">
+                        <span class="oom-card-back-label">{page.cardCode}</span>
+                        <code>{cardCopy[card].code}</code>
+                      </span>
                     </button>
-                    <button type="button" class="oom-card-flip" data-flip aria-label={page.flipCard(cardCopy[card].label)}>&lt;/&gt;</button>
+                    <button
+                      type="button"
+                      class="oom-card-flip"
+                      data-flip
+                      aria-label={page.flipCard(cardCopy[card].label)}
+                    >
+                      &lt;/&gt;
+                    </button>
                   </div>
                 ))}
               </div>
@@ -94,9 +136,15 @@ const title = 'Exit 137';
           ))}
         </div>
         <div class="oom-controls">
-          <button type="button" class="oom-run" data-run>{copy.controls.run}</button>
-          <button type="button" class="oom-secondary" data-pause hidden>{copy.controls.pause}</button>
-          <button type="button" class="oom-secondary" data-stop hidden>{page.stop}</button>
+          <button type="button" class="oom-run" data-run>
+            {copy.controls.run}
+          </button>
+          <button type="button" class="oom-secondary" data-pause hidden>
+            {copy.controls.pause}
+          </button>
+          <button type="button" class="oom-secondary" data-stop hidden>
+            {page.stop}
+          </button>
         </div>
       </footer>
 
@@ -112,7 +160,9 @@ const title = 'Exit 137';
             <p class="oom-briefing-note">{page.briefingNote}</p>
           </div>
           <div class="oom-result-actions">
-            <button type="button" class="oom-run" data-briefing-start>{page.start}</button>
+            <button type="button" class="oom-run" data-briefing-start>
+              {page.start}
+            </button>
           </div>
         </div>
       </section>
@@ -126,12 +176,22 @@ const title = 'Exit 137';
           <p class="oom-result-text" data-result-text></p>
           <table class="oom-compare">
             <caption class="oom-visually-hidden">{page.attemptsCaption}</caption>
-            <thead><tr>{page.attemptColumns.map((column) => <th scope="col">{column}</th>)}</tr></thead>
+            <thead>
+              <tr>
+                {page.attemptColumns.map((column) => (
+                  <th scope="col">{column}</th>
+                ))}
+              </tr>
+            </thead>
             <tbody data-compare></tbody>
           </table>
           <div class="oom-result-actions">
-            <button type="button" class="oom-run" data-retry>{page.retry}</button>
-            <button type="button" class="oom-secondary" data-next hidden>{page.nextChallenge}</button>
+            <button type="button" class="oom-run" data-retry>
+              {page.retry}
+            </button>
+            <button type="button" class="oom-secondary" data-next hidden>
+              {page.nextChallenge}
+            </button>
           </div>
         </div>
       </section>
@@ -146,8 +206,12 @@ const title = 'Exit 137';
           <p class="oom-bubble-text" data-bubble-text></p>
           <p class="oom-bubble-wait" data-bubble-wait></p>
           <div class="oom-bubble-actions">
-            <button type="button" class="oom-bubble-skip" data-bubble-skip>{page.skipTutorial}</button>
-            <button type="button" class="oom-bubble-next" data-bubble-next>{page.next}</button>
+            <button type="button" class="oom-bubble-skip" data-bubble-skip>
+              {page.skipTutorial}
+            </button>
+            <button type="button" class="oom-bubble-next" data-bubble-next>
+              {page.next}
+            </button>
           </div>
         </div>
       </div>
@@ -155,4 +219,6 @@ const title = 'Exit 137';
     <noscript>{page.withoutJavaScript}</noscript>
   </out-of-memory-lab>
 </BaseLayout>
-<script>import './controller';</script>
+<script>
+  import './controller';
+</script>

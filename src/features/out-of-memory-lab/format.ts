@@ -21,6 +21,7 @@ export const formatFor = (copy: LabCopy): LabFormat => {
       if (seconds < 2 * 3_600) return `${group(seconds / 60)} min`;
       return `${decimals.format(seconds / 3_600)} h`;
     },
-    megabytes: (megabytes) => (megabytes >= 1_024 ? `${decimals.format(megabytes / 1_024)} GB` : `${group(megabytes)} MB`),
+    megabytes: (megabytes) =>
+      megabytes >= 1_024 ? `${decimals.format(megabytes / 1_024)} GB` : `${group(megabytes)} MB`,
   };
 };

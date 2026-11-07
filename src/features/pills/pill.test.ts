@@ -44,11 +44,7 @@ describe('seriesOrder', () => {
       buildSeries({ slug: 'docker', order: 2 }),
     ];
 
-    expect(seriesOrder(series).map((item) => item.slug)).toEqual([
-      'fundamentos',
-      'docker',
-      'observabilidad',
-    ]);
+    expect(seriesOrder(series).map((item) => item.slug)).toEqual(['fundamentos', 'docker', 'observabilidad']);
   });
 });
 
@@ -59,11 +55,7 @@ describe('railOrder', () => {
       buildPill({ slug: 'docker/a', order: 1 }),
       buildPill({ slug: 'docker/c', order: 3 }),
     ];
-    expect(railOrder(pills).map((pill) => pill.slug)).toEqual([
-      'docker/a',
-      'docker/b',
-      'docker/c',
-    ]);
+    expect(railOrder(pills).map((pill) => pill.slug)).toEqual(['docker/a', 'docker/b', 'docker/c']);
   });
 });
 
@@ -75,11 +67,7 @@ describe('seriesSlugOf / pillLeafSlugOf', () => {
 });
 
 describe('neighboringPills', () => {
-  const ordered = [
-    buildPill({ slug: 'docker/a' }),
-    buildPill({ slug: 'docker/b' }),
-    buildPill({ slug: 'docker/c' }),
-  ];
+  const ordered = [buildPill({ slug: 'docker/a' }), buildPill({ slug: 'docker/b' }), buildPill({ slug: 'docker/c' })];
 
   it('returns both neighbors in the middle', () => {
     const { previous, next } = neighboringPills(ordered, 'docker/b');
@@ -103,11 +91,7 @@ describe('neighboringPills', () => {
 describe('isPublished', () => {
   it('hides entries dated in the future', () => {
     const now = new Date('2026-01-10');
-    expect(
-      isPublished({ publicationDate: new Date('2026-01-20') }, now),
-    ).toBe(false);
-    expect(
-      isPublished({ publicationDate: new Date('2026-01-01') }, now),
-    ).toBe(true);
+    expect(isPublished({ publicationDate: new Date('2026-01-20') }, now)).toBe(false);
+    expect(isPublished({ publicationDate: new Date('2026-01-01') }, now)).toBe(true);
   });
 });

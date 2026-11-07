@@ -1,6 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { CHALLENGES, starsFor, type Challenge } from './challenges';
-import { advance, outcomeOf, playToEnd, startRun, type BatchSize, type CompleteBuild, type ReadCard, type RunState, type WriteCard } from './engine';
+import {
+  advance,
+  outcomeOf,
+  playToEnd,
+  startRun,
+  type BatchSize,
+  type CompleteBuild,
+  type ReadCard,
+  type RunState,
+  type WriteCard,
+} from './engine';
 import { hintFor } from './guide';
 import { codeLines } from './script-code';
 
@@ -120,7 +130,11 @@ describe('challenge 4: restarts and another job', () => {
 
 describe('the code shown to the player', () => {
   const text = (lines: ReturnType<typeof codeLines>) =>
-    lines.map((line) => (line.kind === 'batch-size' ? 'int batchSize = …;' : line.kind === 'hole' ? `// ${line.hole}` : line.text)).join('\n');
+    lines
+      .map((line) =>
+        line.kind === 'batch-size' ? 'int batchSize = …;' : line.kind === 'hole' ? `// ${line.hole}` : line.text,
+      )
+      .join('\n');
 
   it('has holes until both cards are placed', () => {
     const lines = codeLines({ read: null, write: null });

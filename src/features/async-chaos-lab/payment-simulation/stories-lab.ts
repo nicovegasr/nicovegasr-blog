@@ -102,7 +102,10 @@ export class StoriesLab {
 
   /** The visible progress: step states plus results. Equal snapshots mean nothing moved. */
   async progress() {
-    return (await this.page.locator('[data-steps]').textContent())! + (await this.page.locator('[data-results]').textContent())!;
+    return (
+      (await this.page.locator('[data-steps]').textContent())! +
+      (await this.page.locator('[data-results]').textContent())!
+    );
   }
 
   /**
@@ -123,7 +126,9 @@ export class StoriesLab {
     });
     expect(layout.system.width, 'the walkthrough keeps the diagram full width').toBe(fullSystemWidth);
     expect(layout.guide.top, 'the explanation follows the diagram').toBeGreaterThanOrEqual(layout.system.bottom);
-    expect(layout.guide.top, 'the site header does not cover the explanation').toBeGreaterThanOrEqual(layout.siteHeader);
+    expect(layout.guide.top, 'the site header does not cover the explanation').toBeGreaterThanOrEqual(
+      layout.siteHeader,
+    );
     expect(layout.guide.bottom, 'the transport does not cover the explanation').toBeLessThanOrEqual(layout.dock.top);
     expect(layout.font, 'the explanation stays readable').toBeGreaterThanOrEqual(13);
     await expectFullyInViewport(this.dock, 'the guided transport stays visible');

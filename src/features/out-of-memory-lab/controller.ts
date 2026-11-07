@@ -175,7 +175,12 @@ class OutOfMemoryLab extends HTMLElement {
     this.build = isReadCard(card) ? { ...this.build, read: card } : { ...this.build, write: card };
     this.afterBuildChange();
     if (card === 'batches' && this.tutorialIndex === null) {
-      this.showTip('dial', { target: '[data-dial-control]', ...this.text.copy.tips.dial, button: this.text.copy.controls.gotIt, skippable: false });
+      this.showTip('dial', {
+        target: '[data-dial-control]',
+        ...this.text.copy.tips.dial,
+        button: this.text.copy.controls.gotIt,
+        skippable: false,
+      });
     }
   }
 
@@ -211,7 +216,10 @@ class OutOfMemoryLab extends HTMLElement {
       const card = element.dataset.card as Card;
       element.hidden = !this.challenge.cards.includes(card);
       element.classList.toggle('is-placed', this.build.read === card || this.build.write === card);
-      element.classList.toggle('is-new', this.challenge.id > 1 && this.challenge.newCards.includes(card) && !this.progress.survived[this.challenge.id]);
+      element.classList.toggle(
+        'is-new',
+        this.challenge.id > 1 && this.challenge.newCards.includes(card) && !this.progress.survived[this.challenge.id],
+      );
       element.classList.toggle('is-locked', running);
       if (!this.challenge.cards.includes(card)) element.classList.remove('is-flipped');
       element.draggable = !running;
@@ -349,7 +357,12 @@ class OutOfMemoryLab extends HTMLElement {
     else this.animator.burst();
 
     this.progress = recordRun(this.progress, this.challenge.id, stars, survived);
-    const attempts = recordAttempt(this.attempts.get(this.challenge.id) ?? [], { build, batchSize: this.batchSize, stars, outcome });
+    const attempts = recordAttempt(this.attempts.get(this.challenge.id) ?? [], {
+      build,
+      batchSize: this.batchSize,
+      stars,
+      outcome,
+    });
     this.attempts.set(this.challenge.id, attempts);
     this.renderHud();
     renderLiveObjectives(this.text, this, this.challenge, run);
@@ -357,14 +370,17 @@ class OutOfMemoryLab extends HTMLElement {
     this.one('[data-pause]').hidden = true;
     this.one('[data-stop]').hidden = true;
 
-    window.setTimeout(() => {
-      if (this.run !== run) return;
-      const hasNext = CHALLENGES.some(({ id }) => id === this.challenge.id + 1);
-      renderResult(this.text, this, { challenge: this.challenge, build, outcome, stars, attempts, hasNext });
-      const result = this.one('[data-result]');
-      result.hidden = false;
-      if (this.isNarrow) result.scrollIntoView({ block: 'start', behavior: 'instant' });
-    }, this.reducedMotion ? 0 : 1_300);
+    window.setTimeout(
+      () => {
+        if (this.run !== run) return;
+        const hasNext = CHALLENGES.some(({ id }) => id === this.challenge.id + 1);
+        renderResult(this.text, this, { challenge: this.challenge, build, outcome, stars, attempts, hasNext });
+        const result = this.one('[data-result]');
+        result.hidden = false;
+        if (this.isNarrow) result.scrollIntoView({ block: 'start', behavior: 'instant' });
+      },
+      this.reducedMotion ? 0 : 1_300,
+    );
   }
 
   // ── Stage ───────────────────────────────────────────────────────────
@@ -385,7 +401,8 @@ class OutOfMemoryLab extends HTMLElement {
     const squeeze = run?.incident?.kind === 'memory-squeeze' ? run.incident.amount / limit : 0;
     this.one('[data-memory-fill]').style.width = `${share * 100}%`;
     this.one('[data-memory-squeeze]').style.width = `${squeeze * 100}%`;
-    this.one('[data-memory-label]').textContent = `${this.text.format.megabytes(megabytes)} / ${this.text.format.megabytes(limit - squeeze * limit)}`;
+    this.one('[data-memory-label]').textContent =
+      `${this.text.format.megabytes(megabytes)} / ${this.text.format.megabytes(limit - squeeze * limit)}`;
     const effectiveShare = Math.min(1, megabytes / (limit * (1 - squeeze)));
     const memory = this.one('[data-memory]');
     memory.classList.toggle('is-warm', effectiveShare > 0.6);
@@ -443,7 +460,10 @@ class OutOfMemoryLab extends HTMLElement {
     if (this.tutorialIndex === null || tutorial[this.tutorialIndex]?.until === undefined) return;
     // Follows the method in both directions: removing a card goes back to the step that asks for it.
     this.tutorialIndex = tutorial.findIndex(
-      ({ until }) => (until === 'read' && this.build.read === null) || (until === 'write' && this.build.write === null) || until === 'run',
+      ({ until }) =>
+        (until === 'read' && this.build.read === null) ||
+        (until === 'write' && this.build.write === null) ||
+        until === 'run',
     );
     this.showTutorialStep();
   }

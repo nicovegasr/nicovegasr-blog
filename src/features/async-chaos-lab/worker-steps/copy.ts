@@ -11,8 +11,10 @@ const es = {
   avoidsRepeatingItIfMarkerSaved: 'Evita repetirlo si su marca llegó a guardarse.',
   thisStepDoesPlaceholder: 'Este paso hace…',
   letsTheWorkerSkipThisStep: 'Permite saltar este paso cuando llegó su confirmación y guardamos la marca.',
-  localButAddingRowChangesResult: 'Es local, pero añadir otra fila cambia el resultado. La idempotencia también importa dentro de tu sistema.',
-  thisActionIsSafeToRepeat: 'Esta acción concreta puede repetirse con seguridad. No necesita deduplicación del proveedor.',
+  localButAddingRowChangesResult:
+    'Es local, pero añadir otra fila cambia el resultado. La idempotencia también importa dentro de tu sistema.',
+  thisActionIsSafeToRepeat:
+    'Esta acción concreta puede repetirse con seguridad. No necesita deduplicación del proveedor.',
   deduplicateAtTheServiceByKey: 'Deduplicar en el servicio por clave (simulado)',
   coversTimeoutAtService: 'Cubre el timeout: el servicio reconoce la misma clave aunque se pierda su respuesta.',
   validationOk: 'validación OK',
@@ -20,7 +22,8 @@ const es = {
   stateSet: 'estado fijado',
   unchanged: 'sin modificar',
   restartingBackToFirstStep: '↻ Reiniciando · volvemos al primer paso del mismo pago',
-  stepUnconfirmedTimeoutAfterRequesting: (stepNumber: string | number) => `? Paso ${stepNumber} sin confirmar · timeout tras solicitar el envío`,
+  stepUnconfirmedTimeoutAfterRequesting: (stepNumber: string | number) =>
+    `? Paso ${stepNumber} sin confirmar · timeout tras solicitar el envío`,
   stepFailedDidNotComplete: (stepNumber: string | number) => `× Paso ${stepNumber} falló · no llegó a completarse`,
   actionDoneSavingProgress: '✓ Acción hecha · guardando avance',
   runningNow: '▶ Ejecutando ahora',
@@ -34,7 +37,8 @@ const es = {
   optionalSaveRepeatedWork: 'Opcional: ahorrar trabajo',
   youChargedThemTwice: 'Le has cobrado dos veces.',
   onePaymentTwoEffects: 'Un pago. Dos efectos.',
-  attemptsSkippedStepsNoDuplicate: (attempts: string | number, skipped: string | number) => `${attempts} intentos · ${skipped} pasos saltados · ningún resultado duplicado`,
+  attemptsSkippedStepsNoDuplicate: (attempts: string | number, skipped: string | number) =>
+    `${attempts} intentos · ${skipped} pasos saltados · ningún resultado duplicado`,
   firstEffect: 'Primer efecto',
   repeatedEffect: 'Efecto repetido',
   unconfirmedTimeout: 'Sin confirmar · timeout',
@@ -54,7 +58,8 @@ const en: typeof es = {
   avoidsRepeatingItIfMarkerSaved: 'Avoids repeating it if its marker was saved.',
   thisStepDoesPlaceholder: 'This step does…',
   letsTheWorkerSkipThisStep: 'Lets the worker skip this step after confirmation was received and saved.',
-  localButAddingRowChangesResult: 'It is local, but adding another row changes the result. Idempotency also matters inside your system.',
+  localButAddingRowChangesResult:
+    'It is local, but adding another row changes the result. Idempotency also matters inside your system.',
   thisActionIsSafeToRepeat: 'This particular action is safe to repeat. It does not need receiver deduplication.',
   deduplicateAtTheServiceByKey: 'Deduplicate at the service by key (simulated)',
   coversTimeoutAtService: 'Covers a timeout: the service recognizes the same key even if its response is lost.',
@@ -63,7 +68,8 @@ const en: typeof es = {
   stateSet: 'state set',
   unchanged: 'unchanged',
   restartingBackToFirstStep: '↻ Restarting · back to the first step of the same payment',
-  stepUnconfirmedTimeoutAfterRequesting: (stepNumber: string | number) => `? Step ${stepNumber} unconfirmed · timeout after requesting the send`,
+  stepUnconfirmedTimeoutAfterRequesting: (stepNumber: string | number) =>
+    `? Step ${stepNumber} unconfirmed · timeout after requesting the send`,
   stepFailedDidNotComplete: (stepNumber: string | number) => `× Step ${stepNumber} failed · did not complete`,
   actionDoneSavingProgress: '✓ Action done · saving progress',
   runningNow: '▶ Running now',
@@ -77,7 +83,8 @@ const en: typeof es = {
   optionalSaveRepeatedWork: 'Optional: save repeated work',
   youChargedThemTwice: 'You charged them twice.',
   onePaymentTwoEffects: 'One payment. Two effects.',
-  attemptsSkippedStepsNoDuplicate: (attempts: string | number, skipped: string | number) => `${attempts} attempts · ${skipped} skipped steps · no duplicate results`,
+  attemptsSkippedStepsNoDuplicate: (attempts: string | number, skipped: string | number) =>
+    `${attempts} attempts · ${skipped} skipped steps · no duplicate results`,
   firstEffect: 'First effect',
   repeatedEffect: 'Repeated effect',
   unconfirmedTimeout: 'Unconfirmed · timeout',

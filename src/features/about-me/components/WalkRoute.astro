@@ -25,12 +25,16 @@ interface Props {
 
 const { locale, title, stations, direction, titleSize } = Astro.props;
 const lastIndex = stations.length - 1;
-const tickRatio = (index: number): number =>
-  direction === 'right' ? index / lastIndex : 1 - index / lastIndex;
+const tickRatio = (index: number): number => (direction === 'right' ? index / lastIndex : 1 - index / lastIndex);
 ---
 
 <section
-  class:list={['route', `route--${direction}`, `route--${titleSize}`, { 'route--with-metric': stations.some((station) => station.metric) }]}
+  class:list={[
+    'route',
+    `route--${direction}`,
+    `route--${titleSize}`,
+    { 'route--with-metric': stations.some((station) => station.metric) },
+  ]}
   data-route
   data-direction={direction}
   style={`--route-stations: ${stations.length};`}
@@ -38,53 +42,43 @@ const tickRatio = (index: number): number =>
   <div class="stage" data-route-stage>
     <h2 class="route-title">{title}</h2>
     <ol class="stations">
-      {
-        stations.map((station, stationIndex) => (
-          <li
-            class:list={['station', { 'is-current': stationIndex === 0 }]}
-            data-route-station
-            data-pose={station.pose}
-          >
-            <h3 class="station-title">
-              <span class="station-name">{station.title}</span>
-            </h3>
-            <ul class="items">
-              {station.items.map((item, itemIndex) => (
-                <li style={`--item-index: ${itemIndex};`}>{item}</li>
+      {stations.map((station, stationIndex) => (
+        <li class:list={['station', { 'is-current': stationIndex === 0 }]} data-route-station data-pose={station.pose}>
+          <h3 class="station-title">
+            <span class="station-name">{station.title}</span>
+          </h3>
+          <ul class="items">
+            {station.items.map((item, itemIndex) => (
+              <li style={`--item-index: ${itemIndex};`}>{item}</li>
+            ))}
+          </ul>
+          {station.tags !== undefined && (
+            <ul class="tags">
+              {station.tags.map((tag) => (
+                <li>{tag}</li>
               ))}
+              {station.asideTag !== undefined && <li class="aside-tag">{station.asideTag}</li>}
             </ul>
-            {
-              station.tags !== undefined && (
-                <ul class="tags">
-                  {station.tags.map((tag) => (
-                    <li>{tag}</li>
-                  ))}
-                  {station.asideTag !== undefined && <li class="aside-tag">{station.asideTag}</li>}
-                </ul>
-              )
-            }
-            {station.metric === 'batch-processing' && <BatchMetric locale={locale} />}
-            {station.metric === 'load-waterfall' && <LoadWaterfall locale={locale} />}
-            {station.metric === 'page-lookup' && <PageLookup locale={locale} />}
-            {station.metric === 'rolling-deployment' && <RollingDeployment locale={locale} />}
-            {station.metric === 'agent-review' && <AgentReview locale={locale} />}
-          </li>
-        ))
-      }
+          )}
+          {station.metric === 'batch-processing' && <BatchMetric locale={locale} />}
+          {station.metric === 'load-waterfall' && <LoadWaterfall locale={locale} />}
+          {station.metric === 'page-lookup' && <PageLookup locale={locale} />}
+          {station.metric === 'rolling-deployment' && <RollingDeployment locale={locale} />}
+          {station.metric === 'agent-review' && <AgentReview locale={locale} />}
+        </li>
+      ))}
     </ol>
     <div class="ground" aria-hidden="true" data-route-ground>
       <ol class="ticks">
-        {
-          stations.map((station, stationIndex) => (
-            <li
-              class:list={['tick', { 'is-reached': stationIndex === 0 }]}
-              style={`--tick-ratio: ${tickRatio(stationIndex)};`}
-              data-route-tick
-            >
-              {station.label !== undefined && <span class="tick-label">{station.label}</span>}
-            </li>
-          ))
-        }
+        {stations.map((station, stationIndex) => (
+          <li
+            class:list={['tick', { 'is-reached': stationIndex === 0 }]}
+            style={`--tick-ratio: ${tickRatio(stationIndex)};`}
+            data-route-tick
+          >
+            {station.label !== undefined && <span class="tick-label">{station.label}</span>}
+          </li>
+        ))}
       </ol>
     </div>
   </div>
@@ -358,12 +352,29 @@ const tickRatio = (index: number): number =>
   }
 
   @media (prefers-reduced-motion: no-preference) and (min-height: 34rem) and (max-height: 38rem) and (max-width: 48rem) {
-    :global(.js) .route--with-metric .stage { padding-top: calc(var(--space-16) + var(--space-2)); }
-    :global(.js) .route--with-metric .route-title { font-size: var(--font-size-lead); }
-    :global(.js) .route--with-metric .stations { margin-top: var(--space-2); }
-    :global(.js) .route--with-metric .station-title { font-size: var(--font-size-heading-2); }
-    :global(.js) .route--with-metric .items { margin-top: var(--space-2); font-size: var(--font-size-small); line-height: 1.35; }
-    :global(.js) .route--with-metric .tags { margin-top: var(--space-2); }
-    :global(.js) .route--with-metric .tags li { padding: 0.0625rem 0.375rem; font-size: 0.6875rem; }
+    :global(.js) .route--with-metric .stage {
+      padding-top: calc(var(--space-16) + var(--space-2));
+    }
+    :global(.js) .route--with-metric .route-title {
+      font-size: var(--font-size-lead);
+    }
+    :global(.js) .route--with-metric .stations {
+      margin-top: var(--space-2);
+    }
+    :global(.js) .route--with-metric .station-title {
+      font-size: var(--font-size-heading-2);
+    }
+    :global(.js) .route--with-metric .items {
+      margin-top: var(--space-2);
+      font-size: var(--font-size-small);
+      line-height: 1.35;
+    }
+    :global(.js) .route--with-metric .tags {
+      margin-top: var(--space-2);
+    }
+    :global(.js) .route--with-metric .tags li {
+      padding: 0.0625rem 0.375rem;
+      font-size: 0.6875rem;
+    }
   }
 </style>

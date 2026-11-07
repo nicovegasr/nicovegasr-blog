@@ -1,12 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { queueLabels } from '../queue/labels';
 import { workerStepsLabels } from '../worker-steps/labels';
-import {
-  restoreAchievements,
-  restoreLabels,
-  saveAchievements,
-  saveLabel,
-} from './session';
+import { restoreAchievements, restoreLabels, saveAchievements, saveLabel } from './session';
 
 const useStorage = () => {
   const entries = new Map<string, string>();

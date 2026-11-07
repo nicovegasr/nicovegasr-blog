@@ -73,7 +73,10 @@ const readLines = (build: Build): CodeLine[] => {
 export const codeLines = (build: Build): readonly CodeLine[] => [
   code(0, 'void analyzeLogs(String id) {'),
   ...(build.write === 'batches'
-    ? [{ kind: 'batch-size', indent: 1 } as const, code(1, 'List<RunSummary> batch = new ArrayList<>(batchSize);', 'batches')]
+    ? [
+        { kind: 'batch-size', indent: 1 } as const,
+        code(1, 'List<RunSummary> batch = new ArrayList<>(batchSize);', 'batches'),
+      ]
     : []),
   code(1, 'LogAnalyzer analyzer = new LogAnalyzer();'),
   ...readLines(build),

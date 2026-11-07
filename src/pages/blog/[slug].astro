@@ -5,11 +5,7 @@ import PostTitle from '@/features/posts/components/PostTitle.astro';
 import RelatedPosts from '@/features/posts/components/RelatedPosts.astro';
 import CopyableCode from '@/features/posts/components/CopyableCode.astro';
 import { buildBlogPostPath } from '@/i18n/routes';
-import {
-  findHostedPosts,
-  findRelatedPosts,
-  findRenderablePost,
-} from '@/features/posts/post-repository';
+import { findHostedPosts, findRelatedPosts, findRenderablePost } from '@/features/posts/post-repository';
 
 const locale = 'es';
 
@@ -26,9 +22,7 @@ if (renderable === null) {
 
 const { post, markdown, Content } = renderable;
 const relatedPosts = await findRelatedPosts(locale, post.slug);
-const alternatePaths = post.translationSlug
-  ? { en: buildBlogPostPath('en', post.translationSlug) }
-  : {};
+const alternatePaths = post.translationSlug ? { en: buildBlogPostPath('en', post.translationSlug) } : {};
 ---
 
 <BaseLayout

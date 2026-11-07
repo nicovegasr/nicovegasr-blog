@@ -6,7 +6,16 @@ const attempt = (read: ReadCard, write: WriteCard, batchSize: BatchSize = 1_000,
   build: { read, write },
   batchSize,
   stars,
-  outcome: { killedBy: null, diedDuring: null, peakMegabytes: 200, longestConnectionSeconds: 1, seconds: 1, queries: 1, writeTrips: 1, logsAnalyzed: 1 },
+  outcome: {
+    killedBy: null,
+    diedDuring: null,
+    peakMegabytes: 200,
+    longestConnectionSeconds: 1,
+    seconds: 1,
+    queries: 1,
+    writeTrips: 1,
+    logsAnalyzed: 1,
+  },
 });
 
 describe('recordAttempt', () => {
@@ -16,14 +25,19 @@ describe('recordAttempt', () => {
   });
 
   it('replaces the row when the same choice is repeated', () => {
-    const attempts = recordAttempt([attempt('cursor', 'one-by-one', 1_000, 1)], attempt('cursor', 'one-by-one', 1_000, 3));
+    const attempts = recordAttempt(
+      [attempt('cursor', 'one-by-one', 1_000, 1)],
+      attempt('cursor', 'one-by-one', 1_000, 3),
+    );
     expect(attempts).toHaveLength(1);
     expect(attempts[0]?.stars).toBe(3);
   });
 
   it('treats another batch size as another choice, but only when batching', () => {
     expect(recordAttempt([attempt('cursor', 'batches', 1_000)], attempt('cursor', 'batches', 5_000))).toHaveLength(2);
-    expect(recordAttempt([attempt('cursor', 'one-by-one', 1_000)], attempt('cursor', 'one-by-one', 5_000))).toHaveLength(1);
+    expect(
+      recordAttempt([attempt('cursor', 'one-by-one', 1_000)], attempt('cursor', 'one-by-one', 5_000)),
+    ).toHaveLength(1);
   });
 
   it('keeps only the rows that fit the table', () => {

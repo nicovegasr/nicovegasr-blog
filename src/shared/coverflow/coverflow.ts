@@ -17,7 +17,7 @@ export interface CoverflowLabels {
   readonly swipeHint: string;
 }
 
-export const wrap = (value: number, count: number): number => count > 0 ? ((value % count) + count) % count : 0;
+export const wrap = (value: number, count: number): number => (count > 0 ? ((value % count) + count) % count : 0);
 
 /** Signed distance from one position to another around the circle, never more than half a lap. */
 export const shortestDelta = (from: number, to: number, count: number): number => {

@@ -3,7 +3,10 @@ import { labPath } from './shared/links';
 
 type Geometry = { height: number; footerTop: number };
 
-for (const viewport of [{ width: 360, height: 640 }, { width: 1280, height: 800 }]) {
+for (const viewport of [
+  { width: 360, height: 640 },
+  { width: 1280, height: 800 },
+]) {
   test.describe(`initial lab layout at ${viewport.width}px`, () => {
     test.use({ viewport });
 
@@ -26,8 +29,8 @@ for (const viewport of [{ width: 360, height: 640 }, { width: 1280, height: 800 
       for (const locale of ['es', 'en'] as const) {
         for (const level of [1, 2, 3] as const) {
           await page.goto(labPath(locale, level));
-          const mount = await page.evaluate(() =>
-            (window as Window & { labMount?: { before: Geometry; after: Geometry } }).labMount!,
+          const mount = await page.evaluate(
+            () => (window as Window & { labMount?: { before: Geometry; after: Geometry } }).labMount!,
           );
           expect(mount.before.height).toBeGreaterThanOrEqual(viewport.height);
           expect(mount.before.footerTop).toBeGreaterThanOrEqual(viewport.height);

@@ -28,7 +28,14 @@ export const CHALLENGES: readonly Challenge[] = [
   },
   {
     id: 2,
-    scenario: { logs: 200_000_000, runs: 20_000, memoryLimitMegabytes: 512, querySeconds: 0.005, incidents: [], steps: 150 },
+    scenario: {
+      logs: 200_000_000,
+      runs: 20_000,
+      memoryLimitMegabytes: 512,
+      querySeconds: 0.005,
+      incidents: [],
+      steps: 150,
+    },
     cards: ['load-all', 'cursor', 'pages', 'one-by-one'],
     newCards: ['pages'],
     objectives: [{ kind: 'survive' }, { kind: 'megabytes', max: 256 }, { kind: 'connection', max: 60 }],

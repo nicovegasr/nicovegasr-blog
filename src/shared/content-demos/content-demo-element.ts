@@ -45,7 +45,14 @@ class ContentDemo extends HTMLElement {
       const retry = document.createElement('button');
       retry.type = 'button';
       retry.textContent = RELOAD_LABEL[locale];
-      retry.addEventListener('click', () => { retry.remove(); void this.load(); }, { once: true });
+      retry.addEventListener(
+        'click',
+        () => {
+          retry.remove();
+          void this.load();
+        },
+        { once: true },
+      );
       this.append(retry);
     } finally {
       this.loading = false;

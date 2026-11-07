@@ -28,9 +28,7 @@ const tick = () => {
 const updateTip = () => {
   const tip = document.querySelector<HTMLElement>('[data-reader-keyboard-tip]');
   const visible = tip !== null && !dismissed;
-  document
-    .querySelector('[data-pill-reader]')
-    ?.toggleAttribute('data-navigation-hint-visible', visible);
+  document.querySelector('[data-pill-reader]')?.toggleAttribute('data-navigation-hint-visible', visible);
   if (tip) {
     tip.hidden = !visible;
     const seconds = tip.querySelector('[data-keyboard-tip-seconds]');

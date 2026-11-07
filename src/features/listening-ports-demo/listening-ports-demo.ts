@@ -42,10 +42,14 @@ export const mount = (host: HTMLElement, locale: Locale): (() => void) => {
       document.body.append(dialog);
       enlarged = dialog.querySelector<SVGSVGElement>('svg')!;
       dialog.querySelector('button')!.addEventListener('click', () => dialog?.close(), { signal: events.signal });
-      dialog.addEventListener('close', () => {
-        if (enlarged) graphic.setCurrentTime(enlarged.getCurrentTime());
-        syncMotion();
-      }, { signal: events.signal });
+      dialog.addEventListener(
+        'close',
+        () => {
+          if (enlarged) graphic.setCurrentTime(enlarged.getCurrentTime());
+          syncMotion();
+        },
+        { signal: events.signal },
+      );
     }
     enlarged!.pauseAnimations();
     enlarged!.setCurrentTime(graphic.getCurrentTime());
@@ -53,15 +57,22 @@ export const mount = (host: HTMLElement, locale: Locale): (() => void) => {
     syncMotion();
   };
 
-  host.addEventListener('click', (event) => {
-    if (!(event.target instanceof Element)) return;
-    if (event.target.closest('[data-enlarge]')) openIllustration();
-  }, { signal: events.signal });
+  host.addEventListener(
+    'click',
+    (event) => {
+      if (!(event.target instanceof Element)) return;
+      if (event.target.closest('[data-enlarge]')) openIllustration();
+    },
+    { signal: events.signal },
+  );
 
-  const observer = new IntersectionObserver(([entry]) => {
-    visible = entry?.isIntersecting ?? false;
-    syncMotion();
-  }, { threshold: 0.08 });
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      visible = entry?.isIntersecting ?? false;
+      syncMotion();
+    },
+    { threshold: 0.08 },
+  );
   observer.observe(host);
   document.addEventListener('visibilitychange', syncMotion, { signal: events.signal });
   reducedMotion.addEventListener('change', syncMotion, { signal: events.signal });

@@ -30,18 +30,20 @@ export const createMascotAtlases = (mascot: HTMLElement, signal: AbortSignal) =>
       const key = role ?? age;
       if (requestedKey === key) return;
       requestedKey = key;
-      void load(key).then(() => {
-        if (signal.aborted || requestedKey !== key) return;
-        const atlas = pairFor(key);
-        mascot.style.setProperty('--walking-atlas', `url(${atlas.walking})`);
-        mascot.style.setProperty('--reactions-atlas', `url(${atlas.reactions})`);
-        mascot.dataset.mascotAge = age;
-        mascot.dataset.mascotRole = role ?? '';
-        mascot.dataset.mascotLayout = atlas.layout ?? '3x2';
-      }).catch(() => {
-        // Keep the currently decoded character if the next atlas cannot load.
-        if (requestedKey === key) requestedKey = mascot.dataset.mascotRole || mascot.dataset.mascotAge!;
-      });
+      void load(key)
+        .then(() => {
+          if (signal.aborted || requestedKey !== key) return;
+          const atlas = pairFor(key);
+          mascot.style.setProperty('--walking-atlas', `url(${atlas.walking})`);
+          mascot.style.setProperty('--reactions-atlas', `url(${atlas.reactions})`);
+          mascot.dataset.mascotAge = age;
+          mascot.dataset.mascotRole = role ?? '';
+          mascot.dataset.mascotLayout = atlas.layout ?? '3x2';
+        })
+        .catch(() => {
+          // Keep the currently decoded character if the next atlas cannot load.
+          if (requestedKey === key) requestedKey = mascot.dataset.mascotRole || mascot.dataset.mascotAge!;
+        });
     },
   };
 };

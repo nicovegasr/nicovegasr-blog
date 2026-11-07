@@ -1,5 +1,10 @@
-out-of-memory-lab { display: block; }
-main:has(> out-of-memory-lab) { padding-top: var(--space-3); max-width: 1320px; }
+out-of-memory-lab {
+  display: block;
+}
+main:has(> out-of-memory-lab) {
+  padding-top: var(--space-3);
+  max-width: 1320px;
+}
 
 .oom-visually-hidden {
   position: absolute;
@@ -40,7 +45,10 @@ main:has(> out-of-memory-lab) { padding-top: var(--space-3); max-width: 1320px; 
   min-height: 72px;
   box-sizing: border-box;
 }
-.oom-levels { display: flex; gap: 6px; }
+.oom-levels {
+  display: flex;
+  gap: 6px;
+}
 .oom-levels button {
   width: 48px;
   height: 48px;
@@ -54,15 +62,43 @@ main:has(> out-of-memory-lab) { padding-top: var(--space-3); max-width: 1320px; 
   cursor: pointer;
   padding: 0;
 }
-.oom-levels b { font: 600 15px/1 var(--font-family-mono); }
-.oom-levels small { font: 500 11px/1 system-ui, sans-serif; letter-spacing: 0.02em; }
-.oom-levels button[aria-current='step'] { background: var(--color-ink); color: var(--color-paper); }
-.oom-heading { flex: 1; min-width: 0; }
-.oom-heading p { margin: 0; }
-.oom-heading-title { font: 600 1.05rem/1.2 var(--font-family-display); }
+.oom-levels b {
+  font: 600 15px/1 var(--font-family-mono);
+}
+.oom-levels small {
+  font:
+    500 11px/1 system-ui,
+    sans-serif;
+  letter-spacing: 0.02em;
+}
+.oom-levels button[aria-current='step'] {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+.oom-heading {
+  flex: 1;
+  min-width: 0;
+}
+.oom-heading p {
+  margin: 0;
+}
+.oom-heading-title {
+  font: 600 1.05rem/1.2 var(--font-family-display);
+}
 /* Two lines reserved: changing challenge must not move the board. */
-.oom-heading-mission { font: 400 var(--font-size-small)/1.35 var(--font-family-body); color: var(--color-text-soft); min-height: 2lh; }
-.oom-objectives { list-style: none; margin: 0; padding: 0; display: flex; flex: none; gap: 6px; }
+.oom-heading-mission {
+  font: 400 var(--font-size-small)/1.35 var(--font-family-body);
+  color: var(--color-text-soft);
+  min-height: 2lh;
+}
+.oom-objectives {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex: none;
+  gap: 6px;
+}
 .oom-objectives li {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -76,11 +112,27 @@ main:has(> out-of-memory-lab) { padding-top: var(--space-3); max-width: 1320px; 
   white-space: nowrap;
   transition: background 150ms;
 }
-.oom-objective-mark { grid-row: span 2; font: 500 20px/1 system-ui, sans-serif; }
-.oom-objective-label { font: 500 11px/1 var(--font-family-mono); }
-.oom-objective-value { font: 700 13px/1 var(--font-family-mono); font-variant-numeric: tabular-nums; }
-.oom-objectives li.is-failing { background: var(--oom-red); color: #0a0a0a; }
-.oom-objectives li.is-won { background: var(--color-accent); color: #0a0a0a; }
+.oom-objective-mark {
+  grid-row: span 2;
+  font:
+    500 20px/1 system-ui,
+    sans-serif;
+}
+.oom-objective-label {
+  font: 500 11px/1 var(--font-family-mono);
+}
+.oom-objective-value {
+  font: 700 13px/1 var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+}
+.oom-objectives li.is-failing {
+  background: var(--oom-red);
+  color: #0a0a0a;
+}
+.oom-objectives li.is-won {
+  background: var(--color-accent);
+  color: #0a0a0a;
+}
 .oom-help {
   height: 40px;
   flex: none;
@@ -91,10 +143,17 @@ main:has(> out-of-memory-lab) { padding-top: var(--space-3); max-width: 1320px; 
   font: 600 13px/1 var(--font-family-mono);
   cursor: pointer;
 }
-.oom-help:hover { background: var(--color-accent); color: #0a0a0a; }
+.oom-help:hover {
+  background: var(--color-accent);
+  color: #0a0a0a;
+}
 
 /* Board */
-.oom-board { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); min-height: 0; }
+.oom-board {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  min-height: 0;
+}
 
 .oom-code {
   background: var(--oom-code-bg);
@@ -103,9 +162,25 @@ main:has(> out-of-memory-lab) { padding-top: var(--space-3); max-width: 1320px; 
   overflow: auto;
   font: 500 14px/1.5 var(--font-family-mono);
 }
-.oom-file { margin: 0 0 var(--space-2); font: 500 10px/1 var(--font-family-mono); letter-spacing: 0.1em; text-transform: uppercase; color: #8a8a8a; }
-.oom-line { position: relative; padding-left: calc(var(--indent) * 1.6em); white-space: pre; }
-.oom-line.is-card { border-left: 3px solid var(--color-accent); margin-left: calc(var(--indent) * 1.6em - 10px); padding-left: 7px; padding-right: 30px; background: rgba(216, 255, 62, 0.07); }
+.oom-file {
+  margin: 0 0 var(--space-2);
+  font: 500 10px/1 var(--font-family-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8a8a8a;
+}
+.oom-line {
+  position: relative;
+  padding-left: calc(var(--indent) * 1.6em);
+  white-space: pre;
+}
+.oom-line.is-card {
+  border-left: 3px solid var(--color-accent);
+  margin-left: calc(var(--indent) * 1.6em - 10px);
+  padding-left: 7px;
+  padding-right: 30px;
+  background: rgba(216, 255, 62, 0.07);
+}
 .oom-line.is-hole {
   margin: 6px 0 6px calc(var(--indent) * 1.6em);
   padding: 10px 12px;
@@ -114,7 +189,11 @@ main:has(> out-of-memory-lab) { padding-top: var(--space-3); max-width: 1320px; 
   white-space: normal;
 }
 .oom-code.is-dragging.drags-read .is-hole[data-hole='read'],
-.oom-code.is-dragging.drags-write .is-hole[data-hole='write'] { border-color: var(--color-accent); color: var(--color-accent); background: rgba(216, 255, 62, 0.1); }
+.oom-code.is-dragging.drags-write .is-hole[data-hole='write'] {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: rgba(216, 255, 62, 0.1);
+}
 .oom-remove {
   position: absolute;
   right: 0;
@@ -128,12 +207,43 @@ main:has(> out-of-memory-lab) { padding-top: var(--space-3); max-width: 1320px; 
   font: 500 11px/1 var(--font-family-mono);
   cursor: pointer;
 }
-.oom-remove:hover { color: var(--color-accent); border-color: var(--color-accent); }
-.oom-dial { display: inline-flex; align-items: center; gap: 2px; background: var(--color-accent); color: #0a0a0a; padding: 2px; vertical-align: middle; box-shadow: 0 0 0 4px rgba(216, 255, 62, 0.2); }
-.oom-dial button { width: 26px; height: 26px; border: 0; background: #0a0a0a; color: var(--color-accent); font: 600 14px/1 var(--font-family-mono); cursor: pointer; }
-.oom-dial.is-locked { background: #6a6a6a; box-shadow: none; }
-.oom-dial.is-locked button { color: #9a9a9a; cursor: not-allowed; }
-.oom-dial b { padding: 0 8px; font-weight: 600; min-width: 4.5em; text-align: center; }
+.oom-remove:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+.oom-dial {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--color-accent);
+  color: #0a0a0a;
+  padding: 2px;
+  vertical-align: middle;
+  box-shadow: 0 0 0 4px rgba(216, 255, 62, 0.2);
+}
+.oom-dial button {
+  width: 26px;
+  height: 26px;
+  border: 0;
+  background: #0a0a0a;
+  color: var(--color-accent);
+  font: 600 14px/1 var(--font-family-mono);
+  cursor: pointer;
+}
+.oom-dial.is-locked {
+  background: #6a6a6a;
+  box-shadow: none;
+}
+.oom-dial.is-locked button {
+  color: #9a9a9a;
+  cursor: not-allowed;
+}
+.oom-dial b {
+  padding: 0 8px;
+  font-weight: 600;
+  min-width: 4.5em;
+  text-align: center;
+}
 
 /* Stage */
 .oom-stage {
@@ -158,10 +268,29 @@ main:has(> out-of-memory-lab) { padding-top: var(--space-3); max-width: 1320px; 
   font: 600 13px/1 var(--font-family-mono);
   text-transform: uppercase;
 }
-.oom-memory-bar { position: relative; height: 24px; border: 2px solid var(--color-ink); background: var(--color-paper); overflow: hidden; }
-.oom-memory-bar u { position: absolute; top: 0; bottom: 0; width: 0; border-left: 2px dashed var(--color-ink); }
-.oom-memory-bar u[hidden] { display: none; }
-.oom-memory-bar i { position: absolute; inset: 0 auto 0 0; background: var(--color-accent); transition: width 90ms linear; }
+.oom-memory-bar {
+  position: relative;
+  height: 24px;
+  border: 2px solid var(--color-ink);
+  background: var(--color-paper);
+  overflow: hidden;
+}
+.oom-memory-bar u {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 2px dashed var(--color-ink);
+}
+.oom-memory-bar u[hidden] {
+  display: none;
+}
+.oom-memory-bar i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--color-accent);
+  transition: width 90ms linear;
+}
 .oom-memory-bar b {
   position: absolute;
   inset: 0 0 0 auto;
@@ -169,9 +298,15 @@ main:has(> out-of-memory-lab) { padding-top: var(--space-3); max-width: 1320px; 
   background: repeating-linear-gradient(135deg, var(--color-ink) 0 4px, transparent 4px 8px);
   transition: width 300ms ease;
 }
-.oom-memory.is-warm .oom-memory-bar i { background: var(--oom-amber); }
-.oom-memory.is-danger .oom-memory-bar i { background: var(--oom-red); }
-.oom-memory.is-danger .oom-memory-bar { animation: oom-shake 0.16s linear infinite; }
+.oom-memory.is-warm .oom-memory-bar i {
+  background: var(--oom-amber);
+}
+.oom-memory.is-danger .oom-memory-bar i {
+  background: var(--oom-red);
+}
+.oom-memory.is-danger .oom-memory-bar {
+  animation: oom-shake 0.16s linear infinite;
+}
 
 .oom-incident {
   position: absolute;
@@ -187,12 +322,22 @@ main:has(> out-of-memory-lab) { padding-top: var(--space-3); max-width: 1320px; 
   color: #0a0a0a;
   font: 500 12px/1.35 var(--font-family-mono);
 }
-.oom-incident[hidden] { display: none; }
-.oom-incident b { font: 700 14px/1.2 var(--font-family-display); }
-.oom-incident.is-warning { background: var(--oom-amber); animation: oom-blink 0.6s steps(2) infinite; }
-.oom-incident.is-active { background: var(--oom-red); }
+.oom-incident[hidden] {
+  display: none;
+}
+.oom-incident b {
+  font: 700 14px/1.2 var(--font-family-display);
+}
+.oom-incident.is-warning {
+  background: var(--oom-amber);
+  animation: oom-blink 0.6s steps(2) infinite;
+}
+.oom-incident.is-active {
+  background: var(--oom-red);
+}
 
-.oom-shelf, .oom-cabinet {
+.oom-shelf,
+.oom-cabinet {
   position: absolute;
   bottom: var(--oom-floor);
   height: 62%;
@@ -206,11 +351,27 @@ main:has(> out-of-memory-lab) { padding-top: var(--space-3); max-width: 1320px; 
   flex-direction: column;
   gap: 4px;
 }
-.oom-shelf { left: 3%; }
-.oom-cabinet { right: 3%; }
-.oom-shelf b, .oom-cabinet b { font: 600 clamp(9px, 2.1cqw, 12px)/1.1 var(--font-family-mono); }
-.oom-shelf small { font: 500 11px/1.2 var(--font-family-mono); color: var(--color-text-soft); }
-.oom-rows { flex: 1; min-height: 0; display: flex; align-items: flex-end; margin-top: 4px; }
+.oom-shelf {
+  left: 3%;
+}
+.oom-cabinet {
+  right: 3%;
+}
+.oom-shelf b,
+.oom-cabinet b {
+  font: 600 clamp(9px, 2.1cqw, 12px)/1.1 var(--font-family-mono);
+}
+.oom-shelf small {
+  font: 500 11px/1.2 var(--font-family-mono);
+  color: var(--color-text-soft);
+}
+.oom-rows {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: flex-end;
+  margin-top: 4px;
+}
 .oom-rows span {
   width: 100%;
   height: 100%;
@@ -218,10 +379,30 @@ main:has(> out-of-memory-lab) { padding-top: var(--space-3); max-width: 1320px; 
   background-position: bottom;
   transition: height 120ms linear;
 }
-.oom-stage.is-loading .oom-rows span { animation: oom-blink 0.4s steps(2) infinite; }
-.oom-drawer { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-wrap: wrap-reverse; align-content: flex-start; gap: 3px; }
-.oom-drawer .is-note { width: 9px; height: 7px; background: var(--color-accent); border: 1px solid var(--color-ink); }
-.oom-drawer .is-box { width: 20px; height: 15px; background: var(--color-accent); border: 2px solid var(--color-ink); }
+.oom-stage.is-loading .oom-rows span {
+  animation: oom-blink 0.4s steps(2) infinite;
+}
+.oom-drawer {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-wrap: wrap-reverse;
+  align-content: flex-start;
+  gap: 3px;
+}
+.oom-drawer .is-note {
+  width: 9px;
+  height: 7px;
+  background: var(--color-accent);
+  border: 1px solid var(--color-ink);
+}
+.oom-drawer .is-box {
+  width: 20px;
+  height: 15px;
+  background: var(--color-accent);
+  border: 2px solid var(--color-ink);
+}
 
 .oom-belt {
   position: absolute;
@@ -233,5 +414,10 @@ main:has(> out-of-memory-lab) { padding-top: var(--space-3); max-width: 1320px; 
   background: repeating-linear-gradient(90deg, var(--color-ink) 0 8px, transparent 8px 18px);
   opacity: 0;
 }
-.oom-stage.is-streaming .oom-belt { opacity: 1; animation: oom-belt 0.3s linear infinite; }
-.oom-stage.is-paused .oom-belt { animation-play-state: paused; }
+.oom-stage.is-streaming .oom-belt {
+  opacity: 1;
+  animation: oom-belt 0.3s linear infinite;
+}
+.oom-stage.is-paused .oom-belt {
+  animation-play-state: paused;
+}

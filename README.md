@@ -14,6 +14,7 @@ npm run dev
 ## Verificación
 
 ```bash
+npm run format     # Prettier; `lint` falla si algo está sin formatear
 npm run lint
 npm run typecheck
 npm run test:run

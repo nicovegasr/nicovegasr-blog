@@ -32,7 +32,10 @@ export const placeBubble = (target: Box, bubble: Size, game: Size, preferred: Si
     left: { left: target.left - GAP - bubble.width, top: centredTop },
   };
   const fits = ({ left, top }: { left: number; top: number }) =>
-    left >= MARGIN && top >= MARGIN && left + bubble.width <= game.width - MARGIN && top + bubble.height <= game.height - MARGIN;
+    left >= MARGIN &&
+    top >= MARGIN &&
+    left + bubble.width <= game.width - MARGIN &&
+    top + bubble.height <= game.height - MARGIN;
   const side = [preferred, ...ALL_SIDES].find((candidate) => fits(positions[candidate]));
   return side === undefined
     ? { left: game.width - MARGIN - bubble.width, top: game.height - MARGIN - bubble.height }

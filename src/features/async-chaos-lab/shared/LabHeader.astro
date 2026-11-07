@@ -1,27 +1,33 @@
 ---
 import type { Locale } from '@/i18n/locale';
 import { labPath } from './links';
-interface Props { locale: Locale; level: 1 | 2 | 3; title: string }
+interface Props {
+  locale: Locale;
+  level: 1 | 2 | 3;
+  title: string;
+}
 const { locale, level, title } = Astro.props;
 const es = locale === 'es';
 ---
-  <header class="lab-heading">
-    <h1>{title}</h1>
-    <nav class="lab-levels" aria-label={es ? 'Laboratorios' : 'Labs'}>
-      <span class="lab-levels-caption">{es ? 'Tres niveles para experimentar' : 'Three levels to explore'}</span>
-      <a
-        href={labPath(locale, 1)}
-        aria-current={level === 1 ? 'page' : undefined}
-        ><span class="lab-level-number">01</span><span class="lab-level-name">{es ? 'La cola' : 'The queue'}</span></a
-      ><a
-        href={labPath(locale, 2)}
-        aria-current={level === 2 ? 'page' : undefined}
-        ><span class="lab-level-number">02</span><span class="lab-level-name">{es ? 'El worker' : 'The worker'}</span></a>
-      <a href={labPath(locale, 3)} aria-current={level === 3 ? 'page' : undefined}>
-        <span class="lab-level-number">03</span><span class="lab-level-name">{es ? 'Escalar' : 'Scale'}</span>
-      </a>
-    </nav>
-  </header>
+
+<header class="lab-heading">
+  <h1>{title}</h1>
+  <nav class="lab-levels" aria-label={es ? 'Laboratorios' : 'Labs'}>
+    <span class="lab-levels-caption">{es ? 'Tres niveles para experimentar' : 'Three levels to explore'}</span>
+    <a href={labPath(locale, 1)} aria-current={level === 1 ? 'page' : undefined}>
+      <span class="lab-level-number">01</span>
+      <span class="lab-level-name">{es ? 'La cola' : 'The queue'}</span>
+    </a>
+    <a href={labPath(locale, 2)} aria-current={level === 2 ? 'page' : undefined}>
+      <span class="lab-level-number">02</span>
+      <span class="lab-level-name">{es ? 'El worker' : 'The worker'}</span>
+    </a>
+    <a href={labPath(locale, 3)} aria-current={level === 3 ? 'page' : undefined}>
+      <span class="lab-level-number">03</span>
+      <span class="lab-level-name">{es ? 'Escalar' : 'Scale'}</span>
+    </a>
+  </nav>
+</header>
 <style>
   .lab-heading {
     display: flex;
@@ -91,7 +97,11 @@ const es = locale === 'es';
     color: var(--color-ink);
   }
   @media (max-width: 950px) {
-    .lab-heading { align-items: flex-start; flex-direction: column; gap: 1.1rem; }
+    .lab-heading {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 1.1rem;
+    }
   }
   @media (max-width: 580px) {
     .lab-heading {
@@ -105,6 +115,10 @@ const es = locale === 'es';
     .lab-levels {
       align-self: flex-start;
     }
-    .lab-levels a { padding: 0.5rem 0.4rem; font-size: 0.72rem; gap: 0.3rem; }
+    .lab-levels a {
+      padding: 0.5rem 0.4rem;
+      font-size: 0.72rem;
+      gap: 0.3rem;
+    }
   }
 </style>

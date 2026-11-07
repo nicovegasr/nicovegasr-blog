@@ -9,7 +9,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "typecheck": "astro check && tsc --noEmit",
-    "lint": "eslint . && node scripts/check-css-file-length.mjs",
+    "lint": "prettier --check . && eslint . && node scripts/check-css-file-length.mjs",
+    "format": "prettier --write .",
     "test": "vitest",
     "test:run": "vitest run",
     "test:e2e": "playwright test"
@@ -28,6 +29,8 @@
     "@playwright/test": "1.64.1",
     "eslint": "10.14.0",
     "eslint-plugin-astro": "3.2.1",
+    "prettier": "3.9.10",
+    "prettier-plugin-astro": "1.1.2",
     "typescript": "5.9.3",
     "typescript-eslint": "8.72.1",
     "vitest": "4.1.12"

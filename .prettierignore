@@ -1,0 +1,11 @@
+dist
+.astro
+poc
+studio
+assets
+playwright-report
+test-results
+.claude
+package-lock.json
+public
+src/content

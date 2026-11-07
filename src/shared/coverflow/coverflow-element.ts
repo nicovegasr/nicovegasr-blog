@@ -13,7 +13,15 @@ const HOVER_INTENT_MILLISECONDS = 220;
 const SPEED_EASING_MILLISECONDS = 350;
 
 type Glide = { from: number; delta: number; start: number; length: number };
-type Drag = { pointerId: number; startX: number; startOffset: number; lastX: number; lastTime: number; velocity: number; moved: boolean };
+type Drag = {
+  pointerId: number;
+  startX: number;
+  startOffset: number;
+  lastX: number;
+  lastTime: number;
+  velocity: number;
+  moved: boolean;
+};
 
 class CoverflowCarousel extends HTMLElement {
   private playback: { offset: number; playing: boolean } | undefined;
@@ -34,7 +42,10 @@ class CoverflowCarousel extends HTMLElement {
     const stage = this.querySelector<HTMLElement>('.coverflow-stage')!;
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     const requestedDuration = Number(this.dataset.duration);
-    const duration = Number.isFinite(requestedDuration) && requestedDuration >= 1000 ? requestedDuration : DEFAULT_MILLISECONDS_PER_ITEM;
+    const duration =
+      Number.isFinite(requestedDuration) && requestedDuration >= 1000
+        ? requestedDuration
+        : DEFAULT_MILLISECONDS_PER_ITEM;
 
     let offset = wrap(this.playback?.offset ?? (Math.round(Number(this.dataset.initialIndex)) || 0), count);
     let target = wrap(Math.round(offset), count);
@@ -80,7 +91,8 @@ class CoverflowCarousel extends HTMLElement {
       });
     };
 
-    const needsFrames = () => visible && !document.hidden && !drag && (!!glide || (playing && (!hovering || speed > 0.001)));
+    const needsFrames = () =>
+      visible && !document.hidden && !drag && (!!glide || (playing && (!hovering || speed > 0.001)));
     const schedule = () => {
       cancelAnimationFrame(frame);
       if (signal.aborted) return;
@@ -150,91 +162,161 @@ class CoverflowCarousel extends HTMLElement {
 
     play.addEventListener('click', () => setPlaying(!playing), { signal });
     dots.forEach((dot, index) => dot.addEventListener('click', () => choose(index), { signal }));
-    slides.forEach((slide, index) => slide.addEventListener('click', (event) => {
-      if (suppressNextClick) { suppressNextClick = false; event.preventDefault(); return; }
-      // Modified clicks and keyboard activation keep their native link behavior.
-      if (event.detail === 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-      if (index !== target) { event.preventDefault(); choose(index); }
-    }, { signal }));
-    this.addEventListener('keydown', (event) => {
-      if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
-      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
-      event.preventDefault();
-      const fromSlide = event.target instanceof Element && !!event.target.closest('[data-slide]');
-      choose(target + (event.key === 'ArrowLeft' ? -1 : 1));
-      if (fromSlide) slides[target]!.focus({ preventScroll: true });
-    }, { signal });
-    this.addEventListener('focusin', (event) => {
-      if (playing && event.target instanceof Element && event.target.matches('[data-slide]:focus-visible')) setPlaying(false);
-    }, { signal });
-    this.addEventListener('focusout', () => {
-      queueMicrotask(() => { if (!signal.aborted) { renderedTarget = -1; renderSelection(); } });
-    }, { signal });
+    slides.forEach((slide, index) =>
+      slide.addEventListener(
+        'click',
+        (event) => {
+          if (suppressNextClick) {
+            suppressNextClick = false;
+            event.preventDefault();
+            return;
+          }
+          // Modified clicks and keyboard activation keep their native link behavior.
+          if (event.detail === 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+          if (index !== target) {
+            event.preventDefault();
+            choose(index);
+          }
+        },
+        { signal },
+      ),
+    );
+    this.addEventListener(
+      'keydown',
+      (event) => {
+        if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+        if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+        event.preventDefault();
+        const fromSlide = event.target instanceof Element && !!event.target.closest('[data-slide]');
+        choose(target + (event.key === 'ArrowLeft' ? -1 : 1));
+        if (fromSlide) slides[target]!.focus({ preventScroll: true });
+      },
+      { signal },
+    );
+    this.addEventListener(
+      'focusin',
+      (event) => {
+        if (playing && event.target instanceof Element && event.target.matches('[data-slide]:focus-visible'))
+          setPlaying(false);
+      },
+      { signal },
+    );
+    this.addEventListener(
+      'focusout',
+      () => {
+        queueMicrotask(() => {
+          if (!signal.aborted) {
+            renderedTarget = -1;
+            renderSelection();
+          }
+        });
+      },
+      { signal },
+    );
 
-    stage.addEventListener('pointerleave', (event) => {
-      if (event.pointerType !== 'mouse') return;
-      hovering = false;
-      pointer = undefined;
-      hoveredSlide = undefined;
-      clearTimeout(hoverIntent);
-      schedule();
-    }, { signal });
+    stage.addEventListener(
+      'pointerleave',
+      (event) => {
+        if (event.pointerType !== 'mouse') return;
+        hovering = false;
+        pointer = undefined;
+        hoveredSlide = undefined;
+        clearTimeout(hoverIntent);
+        schedule();
+      },
+      { signal },
+    );
     // Only a mouse the visitor actually moves onto a card holds the drift; content scrolling or
     // drifting under a resting mouse fires synthetic moves without movement and must not freeze it.
     // The card the mouse settles on comes to the centre; the drift resumes from it on leaving.
-    stage.addEventListener('pointermove', (event) => {
-      if (event.pointerType !== 'mouse' || drag || (event.movementX === 0 && event.movementY === 0)) return;
-      pointer = { x: event.clientX, y: event.clientY };
-      const slide = slideUnderPointer();
-      if (hovering !== !!slide) { hovering = !!slide; schedule(); }
-      if (slide === hoveredSlide) return;
-      hoveredSlide = slide;
-      clearTimeout(hoverIntent);
-      const index = slides.indexOf(slide as HTMLAnchorElement);
-      if (index >= 0 && index !== target) hoverIntent = window.setTimeout(() => glideTo(index), HOVER_INTENT_MILLISECONDS);
-    }, { signal });
+    stage.addEventListener(
+      'pointermove',
+      (event) => {
+        if (event.pointerType !== 'mouse' || drag || (event.movementX === 0 && event.movementY === 0)) return;
+        pointer = { x: event.clientX, y: event.clientY };
+        const slide = slideUnderPointer();
+        if (hovering !== !!slide) {
+          hovering = !!slide;
+          schedule();
+        }
+        if (slide === hoveredSlide) return;
+        hoveredSlide = slide;
+        clearTimeout(hoverIntent);
+        const index = slides.indexOf(slide as HTMLAnchorElement);
+        if (index >= 0 && index !== target)
+          hoverIntent = window.setTimeout(() => glideTo(index), HOVER_INTENT_MILLISECONDS);
+      },
+      { signal },
+    );
 
     function slideUnderPointer() {
-      return pointer ? document.elementFromPoint(pointer.x, pointer.y)?.closest('[data-slide]') ?? undefined : undefined;
+      return pointer
+        ? (document.elementFromPoint(pointer.x, pointer.y)?.closest('[data-slide]') ?? undefined)
+        : undefined;
     }
     const stepWidth = () => Math.max(1, slides[0]!.offsetWidth * 0.82);
-    stage.addEventListener('pointerdown', (event) => {
-      if (event.button !== 0 || drag) return;
-      drag = { pointerId: event.pointerId, startX: event.clientX, startOffset: offset, lastX: event.clientX, lastTime: event.timeStamp, velocity: 0, moved: false };
-    }, { signal });
-    stage.addEventListener('pointermove', (event) => {
-      if (!drag || event.pointerId !== drag.pointerId) return;
-      const distance = event.clientX - drag.startX;
-      if (!drag.moved) {
-        if (Math.abs(distance) < DRAG_THRESHOLD_PIXELS) return;
-        drag.moved = true;
-        clearTimeout(hoverIntent);
-        // Grab the cards where they are, even mid-glide.
-        glide = undefined;
-        drag.startOffset = offset;
-        drag.startX = event.clientX;
-        stage.setPointerCapture(event.pointerId);
-        this.classList.add('is-dragging', 'has-dragged');
-        try { localStorage.setItem(DRAG_LEARNED_STORAGE_KEY, '1'); } catch { /* storage may be unavailable */ }
-        if (playing) setPlaying(false);
-        schedule();
-        return;
-      }
-      const elapsed = Math.max(1, event.timeStamp - drag.lastTime);
-      drag.velocity = drag.velocity * 0.6 + ((event.clientX - drag.lastX) / elapsed) * 0.4;
-      drag.lastX = event.clientX;
-      drag.lastTime = event.timeStamp;
-      offset = wrap(drag.startOffset - distance / stepWidth(), count);
-      target = wrap(Math.round(offset), count);
-      paint();
-    }, { signal });
+    stage.addEventListener(
+      'pointerdown',
+      (event) => {
+        if (event.button !== 0 || drag) return;
+        drag = {
+          pointerId: event.pointerId,
+          startX: event.clientX,
+          startOffset: offset,
+          lastX: event.clientX,
+          lastTime: event.timeStamp,
+          velocity: 0,
+          moved: false,
+        };
+      },
+      { signal },
+    );
+    stage.addEventListener(
+      'pointermove',
+      (event) => {
+        if (!drag || event.pointerId !== drag.pointerId) return;
+        const distance = event.clientX - drag.startX;
+        if (!drag.moved) {
+          if (Math.abs(distance) < DRAG_THRESHOLD_PIXELS) return;
+          drag.moved = true;
+          clearTimeout(hoverIntent);
+          // Grab the cards where they are, even mid-glide.
+          glide = undefined;
+          drag.startOffset = offset;
+          drag.startX = event.clientX;
+          stage.setPointerCapture(event.pointerId);
+          this.classList.add('is-dragging', 'has-dragged');
+          try {
+            localStorage.setItem(DRAG_LEARNED_STORAGE_KEY, '1');
+          } catch {
+            /* storage may be unavailable */
+          }
+          if (playing) setPlaying(false);
+          schedule();
+          return;
+        }
+        const elapsed = Math.max(1, event.timeStamp - drag.lastTime);
+        drag.velocity = drag.velocity * 0.6 + ((event.clientX - drag.lastX) / elapsed) * 0.4;
+        drag.lastX = event.clientX;
+        drag.lastTime = event.timeStamp;
+        offset = wrap(drag.startOffset - distance / stepWidth(), count);
+        target = wrap(Math.round(offset), count);
+        paint();
+      },
+      { signal },
+    );
     const release = (event: PointerEvent) => {
       if (!drag || event.pointerId !== drag.pointerId) return;
       const { moved, velocity, lastTime } = drag;
       drag = undefined;
-      if (!moved) { schedule(); return; }
+      if (!moved) {
+        schedule();
+        return;
+      }
       suppressNextClick = true;
-      setTimeout(() => { suppressNextClick = false; }, 0);
+      setTimeout(() => {
+        suppressNextClick = false;
+      }, 0);
       this.classList.remove('is-dragging');
       // A pause before letting go cancels the flick.
       const flick = event.timeStamp - lastTime > 80 ? 0 : velocity;
@@ -248,14 +330,24 @@ class CoverflowCarousel extends HTMLElement {
     stage.addEventListener('dragstart', (event) => event.preventDefault(), { signal });
 
     document.addEventListener('visibilitychange', schedule, { signal });
-    addEventListener('scroll', () => {
-      if (!hovering) return;
-      hovering = false;
-      hoveredSlide = undefined;
-      clearTimeout(hoverIntent);
-      schedule();
-    }, { passive: true, signal });
-    reducedMotion.addEventListener('change', () => { if (reducedMotion.matches) setPlaying(false); }, { signal });
+    addEventListener(
+      'scroll',
+      () => {
+        if (!hovering) return;
+        hovering = false;
+        hoveredSlide = undefined;
+        clearTimeout(hoverIntent);
+        schedule();
+      },
+      { passive: true, signal },
+    );
+    reducedMotion.addEventListener(
+      'change',
+      () => {
+        if (reducedMotion.matches) setPlaying(false);
+      },
+      { signal },
+    );
     const observer = new IntersectionObserver(([entry]) => {
       visible = entry?.isIntersecting ?? false;
       schedule();
@@ -269,15 +361,31 @@ class CoverflowCarousel extends HTMLElement {
       observer.disconnect();
       events.abort();
       this.classList.remove('is-interactive', 'is-dragging', 'has-dragged');
-      this.querySelectorAll<HTMLElement>('[data-controls], .coverflow-dots, [data-hint], .coverflow-captions').forEach((element) => { element.hidden = true; });
-      slides.forEach((slide) => { slide.inert = false; slide.removeAttribute('tabindex'); slide.removeAttribute('style'); });
+      this.querySelectorAll<HTMLElement>('[data-controls], .coverflow-dots, [data-hint], .coverflow-captions').forEach(
+        (element) => {
+          element.hidden = true;
+        },
+      );
+      slides.forEach((slide) => {
+        slide.inert = false;
+        slide.removeAttribute('tabindex');
+        slide.removeAttribute('style');
+      });
     };
-    this.querySelectorAll<HTMLElement>('[hidden]').forEach((element) => { element.hidden = false; });
+    this.querySelectorAll<HTMLElement>('[hidden]').forEach((element) => {
+      element.hidden = false;
+    });
     // Once a visitor has dragged, the hint has done its job on every later visit too.
-    try { if (localStorage.getItem(DRAG_LEARNED_STORAGE_KEY)) this.classList.add('has-dragged'); } catch { /* storage may be unavailable */ }
+    try {
+      if (localStorage.getItem(DRAG_LEARNED_STORAGE_KEY)) this.classList.add('has-dragged');
+    } catch {
+      /* storage may be unavailable */
+    }
     this.classList.add('is-interactive');
     // Cards beyond the visible three enter mid-motion; loading them late would pop them in.
-    slides.forEach((slide) => { slide.querySelector('img')!.loading = 'eager'; });
+    slides.forEach((slide) => {
+      slide.querySelector('img')!.loading = 'eager';
+    });
     paint();
     renderControls();
     schedule();

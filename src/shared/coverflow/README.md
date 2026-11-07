@@ -8,16 +8,26 @@ mouse and touch dragging, and static links without JavaScript. It has no depende
 ---
 import Coverflow from '@/shared/coverflow/Coverflow.astro';
 const items = [
-  { title: 'First site', href: 'https://example.com/blog',
-    image: '/images/first.webp', imageAlt: 'First site homepage' },
+  {
+    title: 'First site',
+    href: 'https://example.com/blog',
+    image: '/images/first.webp',
+    imageAlt: 'First site homepage',
+  },
   // Add more items; three or more enable the moving gallery.
 ];
 ---
+
 <Coverflow
   title="More to explore"
   {items}
-  labels={{ pause: 'Pause', resume: 'Resume',
-    choose: 'Choose a website', visit: 'Visit website', carousel: 'carousel' }}
+  labels={{
+    pause: 'Pause',
+    resume: 'Resume',
+    choose: 'Choose a website',
+    visit: 'Visit website',
+    carousel: 'carousel',
+  }}
 />
 ```
 
@@ -71,6 +81,7 @@ The blog uses a small adapter:
 ---
 import FriendBlogs from '@/features/friend-blogs/components/FriendBlogs.astro';
 ---
+
 <FriendBlogs locale="es" />
 ```
 

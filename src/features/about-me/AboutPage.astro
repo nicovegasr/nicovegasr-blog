@@ -35,11 +35,7 @@ const skillStations = findSkillAreas(locale).map((area) => ({
 }));
 ---
 
-<BaseLayout
-  locale={locale}
-  title={translate('site.title')}
-  description={translate('about.metaDescription')}
->
+<BaseLayout locale={locale} title={translate('site.title')} description={translate('about.metaDescription')}>
   <section class="hero reveal">
     <div class="hero-copy">
       <div class="hero-heading">
@@ -51,7 +47,8 @@ const skillStations = findSkillAreas(locale).map((area) => ({
             target="_blank"
             rel="noopener noreferrer"
           >
-            {translate('about.projectsLink')}<span aria-hidden="true">&nbsp;↗</span>
+            {translate('about.projectsLink')}
+            <span aria-hidden="true">&nbsp;↗</span>
           </a>
           <RepoStar locale={locale} showPrompt={false} class="hero-stars" />
         </p>

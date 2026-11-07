@@ -36,15 +36,22 @@ class TerminalPreview extends HTMLElement {
     let stopped = false;
 
     // Each step waits its time and, while the terminal is offscreen or the tab hidden, waits for it to return.
-    const tick = (milliseconds: number) => new Promise<void>((resolve) => {
-      const timer = window.setTimeout(() => {
-        timers.delete(timer);
-        if (visible && !document.hidden) resolve();
-        else resume = resolve;
-      }, milliseconds);
-      timers.add(timer);
-    });
-    const wake = () => { if (visible && !document.hidden && resume) { const next = resume; resume = undefined; next(); } };
+    const tick = (milliseconds: number) =>
+      new Promise<void>((resolve) => {
+        const timer = window.setTimeout(() => {
+          timers.delete(timer);
+          if (visible && !document.hidden) resolve();
+          else resume = resolve;
+        }, milliseconds);
+        timers.add(timer);
+      });
+    const wake = () => {
+      if (visible && !document.hidden && resume) {
+        const next = resume;
+        resume = undefined;
+        next();
+      }
+    };
     const show = (value: number) => {
       megabytes.textContent = number(value);
       gauge.style.width = `${(value / LIMIT_MEGABYTES) * 100}%`;
@@ -58,7 +65,10 @@ class TerminalPreview extends HTMLElement {
       while (!stopped) {
         mode.textContent = 'all-at-once';
         log.textContent = text.loading(number(TOTAL_LOGS));
-        for (let value = 0; value <= LIMIT_MEGABYTES; value += 16) { show(value); await tick(28); }
+        for (let value = 0; value <= LIMIT_MEGABYTES; value += 16) {
+          show(value);
+          await tick(28);
+        }
         log.replaceChildren(
           Object.assign(document.createElement('span'), { className: 'is-killed', textContent: '[1]    4242 killed' }),
           '     java -jar LogAnalyzerJob.jar\nOOM Killed · exit code 137',
@@ -76,7 +86,10 @@ class TerminalPreview extends HTMLElement {
       }
     };
 
-    const observer = new IntersectionObserver(([entry]) => { visible = entry?.isIntersecting ?? false; wake(); });
+    const observer = new IntersectionObserver(([entry]) => {
+      visible = entry?.isIntersecting ?? false;
+      wake();
+    });
     observer.observe(this);
     document.addEventListener('visibilitychange', wake);
     void loop();

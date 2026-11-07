@@ -16,18 +16,16 @@ const currentLanguageLabel = getTranslator(locale)('language.current');
 ---
 
 <ul class="language-switcher">
-  {
-    localesOtherThan(locale).map((target) => {
-      const href = alternatePaths[target] ?? buildAlternateLocalePath(currentPathname, locale, target);
-      return (
-        <li>
-          <a href={href} lang={target}>
-            {currentLanguageLabel}
-          </a>
-        </li>
-      );
-    })
-  }
+  {localesOtherThan(locale).map((target) => {
+    const href = alternatePaths[target] ?? buildAlternateLocalePath(currentPathname, locale, target);
+    return (
+      <li>
+        <a href={href} lang={target}>
+          {currentLanguageLabel}
+        </a>
+      </li>
+    );
+  })}
 </ul>
 
 <style>

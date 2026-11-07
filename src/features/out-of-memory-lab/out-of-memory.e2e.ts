@@ -9,7 +9,14 @@ const skipTips = (page: Page) =>
   page.addInitScript(() => {
     window.localStorage.setItem(
       'oom-lab-tips',
-      JSON.stringify(['tutorial', 'dial', 'card-pages', 'card-batches', 'incident-restart-loop', 'incident-memory-squeeze']),
+      JSON.stringify([
+        'tutorial',
+        'dial',
+        'card-pages',
+        'card-batches',
+        'incident-restart-loop',
+        'incident-memory-squeeze',
+      ]),
     );
   });
 
@@ -100,11 +107,13 @@ test('the tutorial frame follows the hole when the code scrolls', async ({ page 
     panel.scrollTop = 30;
   });
   await page.waitForFunction(() => document.querySelector('[data-code-panel]')!.scrollTop === 30);
-  await expect.poll(async () => {
-    const frame = (await spotlight.boundingBox())!;
-    const target = (await hole.boundingBox())!;
-    return Math.abs(frame.y - target.y) <= 8;
-  }).toBe(true);
+  await expect
+    .poll(async () => {
+      const frame = (await spotlight.boundingBox())!;
+      const target = (await hole.boundingBox())!;
+      return Math.abs(frame.y - target.y) <= 8;
+    })
+    .toBe(true);
 
   await page.locator('[data-code-panel]').evaluate((panel) => {
     panel.style.height = '100px';
@@ -113,7 +122,9 @@ test('the tutorial frame follows the hole when the code scrolls', async ({ page 
   await expect(spotlight).toBeHidden();
 });
 
-test('retrying keeps the challenge, every challenge is open, and a reload starts over at challenge 1', async ({ page }) => {
+test('retrying keeps the challenge, every challenge is open, and a reload starts over at challenge 1', async ({
+  page,
+}) => {
   await skipTips(page);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto(URL);
@@ -135,7 +146,10 @@ test('retrying keeps the challenge, every challenge is open, and a reload starts
 test('cards do not cut their text, overlap or change the layout at any width', async ({ page }) => {
   await skipTips(page);
   await page.addInitScript(() => {
-    window.localStorage.setItem('oom-lab-progress', JSON.stringify({ stars: {}, survived: { 1: true, 2: true, 3: true } }));
+    window.localStorage.setItem(
+      'oom-lab-progress',
+      JSON.stringify({ stars: {}, survived: { 1: true, 2: true, 3: true } }),
+    );
   });
   await page.goto(URL);
   await begin(page);
@@ -156,7 +170,10 @@ test('cards do not cut their text, overlap or change the layout at any width', a
   for (const width of [1400, 1180, 1000]) {
     await page.setViewportSize({ width, height: 800 });
     const front = await inspectCards();
-    expect(front.some(({ cut }) => cut), `no card is cut at ${width}`).toBe(false);
+    expect(
+      front.some(({ cut }) => cut),
+      `no card is cut at ${width}`,
+    ).toBe(false);
     front.slice(1).forEach(({ left }, index) => expect(left).toBeGreaterThanOrEqual(front[index]!.right));
     const handRight = await page.locator('[data-hand]').evaluate((hand) => hand.getBoundingClientRect().right);
     expect(front.at(-1)!.right, `every card is in view at ${width}`).toBeLessThanOrEqual(handRight);
@@ -165,7 +182,10 @@ test('cards do not cut their text, overlap or change the layout at any width', a
     for (const flip of await flips.all()) await flip.click();
     await page.mouse.move(0, 0);
     const back = await inspectCards();
-    expect(back.map(({ height }) => height), `flipping keeps the height at ${width}`).toEqual(front.map(({ height }) => height));
+    expect(
+      back.map(({ height }) => height),
+      `flipping keeps the height at ${width}`,
+    ).toEqual(front.map(({ height }) => height));
     for (const flip of await flips.all()) await flip.click();
   }
 });
@@ -218,7 +238,10 @@ test('loading everything dies with months of history', async ({ page }) => {
 test('the batch size dial changes the code and progress survives a reload', async ({ page }) => {
   await skipTips(page);
   await page.addInitScript(() => {
-    window.localStorage.setItem('oom-lab-progress', JSON.stringify({ stars: { 1: 3, 2: 3, 3: 3 }, survived: { 1: true, 2: true, 3: true } }));
+    window.localStorage.setItem(
+      'oom-lab-progress',
+      JSON.stringify({ stars: { 1: 3, 2: 3, 3: 3 }, survived: { 1: true, 2: true, 3: true } }),
+    );
   });
   await page.goto(URL);
   await begin(page);
@@ -260,12 +283,18 @@ test('each challenge of the catalogue opens straight on its sheet', async ({ pag
   await expect(page.getByRole('dialog', { name: 'La consulta pesada' })).toBeVisible();
 });
 
-test('a first visit opens on the challenge sheet, with its volume and requirements, before the tutorial', async ({ page }) => {
+test('a first visit opens on the challenge sheet, with its volume and requirements, before the tutorial', async ({
+  page,
+}) => {
   await page.goto(URL);
   const sheet = page.getByRole('dialog', { name: 'Una semana de logs' });
   await expect(sheet).toBeVisible();
   await expect(sheet).toContainText('20.000 logs · una semana');
-  await expect(sheet.locator('[data-briefing-objectives] li')).toHaveText(['☆ Sin OOM Killed', '☆ Menos de 1 s', '☆ Menos de 512 MB']);
+  await expect(sheet.locator('[data-briefing-objectives] li')).toHaveText([
+    '☆ Sin OOM Killed',
+    '☆ Menos de 1 s',
+    '☆ Menos de 512 MB',
+  ]);
   await sheet.getByRole('button', { name: 'Empezar' }).click();
   await expect(sheet).toBeHidden();
   await expect(page.locator('[data-bubble-step]')).toHaveText('Paso 1 de 6');

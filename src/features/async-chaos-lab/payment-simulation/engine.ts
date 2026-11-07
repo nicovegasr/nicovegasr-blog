@@ -1,8 +1,7 @@
 export const JOB_COUNT = 3;
 export const TICK_MILLISECONDS = 650;
 export const PLAYBACK_SPEEDS = [1, 2, 3, 4] as const;
-export type ActionKind =
-  'check' | 'external' | 'set-state' | 'notify' | 'append';
+export type ActionKind = 'check' | 'external' | 'set-state' | 'notify' | 'append';
 export type StepConfig = {
   kind: ActionKind;
   // Persist successful progress so a later attempt can skip this action.
@@ -18,10 +17,8 @@ export type SimulationConfig = {
   // Engine-only regression scenarios: external effect happened, local mark did not.
   gap: 'none' | 'charge' | 'email';
 };
-export const isExternal = (kind: ActionKind) =>
-  kind === 'external' || kind === 'notify';
-export const isSafeToRepeat = (kind: ActionKind) =>
-  kind === 'check' || kind === 'set-state';
+export const isExternal = (kind: ActionKind) => kind === 'external' || kind === 'notify';
+export const isSafeToRepeat = (kind: ActionKind) => kind === 'check' || kind === 'set-state';
 export type StepProgress = {
   // Includes an attempt interrupted before producing a result.
   executions: number;
@@ -91,8 +88,7 @@ export type SimulationRules = {
   interruptBeforeAcknowledge(state: SimulationState, job: Job): boolean;
 };
 export function initialState(config: SimulationConfig): SimulationState {
-  if (config.steps.length < 1 || config.steps.length > 6)
-    throw new Error('Invalid step count');
+  if (config.steps.length < 1 || config.steps.length > 6) throw new Error('Invalid step count');
   return {
     config: structuredClone(config),
     tick: 0,
@@ -141,9 +137,7 @@ export function moveToNextStep(state: SimulationState) {
   state.step++;
   state.cursor = state.step >= state.config.steps.length ? 'ack' : 'execute';
 }
-export function continueAfterIncident(
-  previous: SimulationState,
-): SimulationState {
+export function continueAfterIncident(previous: SimulationState): SimulationState {
   if (previous.phase !== 'incident') return previous;
   const state = structuredClone(previous);
   state.phase = 'running';
@@ -152,16 +146,13 @@ export function continueAfterIncident(
   return state;
 }
 export function advance(previous: SimulationState, rules: SimulationRules): SimulationState {
-  if (['incident', 'lost', 'duplicate', 'won'].includes(previous.phase))
-    return previous;
+  if (['incident', 'lost', 'duplicate', 'won'].includes(previous.phase)) return previous;
   const state = structuredClone(previous);
   state.phase = 'running';
   state.tick++;
   const config = state.config;
   if (state.cursor === 'claim') {
-    state.active = state.jobs.findIndex(
-      (job) => job.status === 'pending' || job.status === 'retrying',
-    );
+    state.active = state.jobs.findIndex((job) => job.status === 'pending' || job.status === 'retrying');
     if (state.active < 0) {
       state.phase = 'won';
       return state;
@@ -193,11 +184,7 @@ export function advance(previous: SimulationState, rules: SimulationRules): Simu
       recordEvent(state, 'wasted');
     }
     const nonrepeatable = !isSafeToRepeat(stepConfig.kind);
-    if (
-      repeated &&
-      isExternal(stepConfig.kind) &&
-      stepConfig.providerDeduplication
-    ) {
+    if (repeated && isExternal(stepConfig.kind) && stepConfig.providerDeduplication) {
       recordEvent(state, 'provider-dedup');
     } else {
       stepProgress.effects = nonrepeatable ? stepProgress.effects + 1 : 1;
@@ -233,10 +220,7 @@ export function run(config: SimulationConfig, rules: SimulationRules) {
   // Test/reproduction helper. The UI uses explicit user retries instead.
   let state = initialState(config);
   for (let index = 0; index < 500; index++) {
-    state =
-      state.phase === 'incident'
-        ? continueAfterIncident(state)
-        : advance(state, rules);
+    state = state.phase === 'incident' ? continueAfterIncident(state) : advance(state, rules);
     if (['lost', 'duplicate', 'won'].includes(state.phase)) return state;
   }
   throw new Error('Scenario did not terminate');
@@ -245,17 +229,13 @@ export const totals = (state: SimulationState) => ({
   done: state.jobs.filter((job) => job.status === 'done').length,
   lost: state.jobs.filter((job) => job.status === 'lost').length,
   attempts: state.jobs.reduce((total, job) => total + job.attempt, 0),
-  executions: state.jobs.reduce(
-    (total, job) => total + job.steps.reduce((sum, step) => sum + step.executions, 0),
-    0,
-  ),
+  executions: state.jobs.reduce((total, job) => total + job.steps.reduce((sum, step) => sum + step.executions, 0), 0),
   skipped: state.skipped,
   wasted: state.wasted,
 });
 
 export const recordCount = (state: SimulationState, job: Job) =>
   job.steps.reduce(
-    (total, step, index) =>
-      total + (state.config.steps[index]?.kind === 'append' ? step.effects : 0),
+    (total, step, index) => total + (state.config.steps[index]?.kind === 'append' ? step.effects : 0),
     0,
   );

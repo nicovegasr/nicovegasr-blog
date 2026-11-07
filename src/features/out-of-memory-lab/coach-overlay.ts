@@ -57,7 +57,10 @@ export class CoachOverlay {
     const bubble = this.one('[data-bubble]');
     const docked = this.isNarrow();
     // On a phone the game is taller than the screen: the bubble docks and what to touch comes to it.
-    const focus = coach.alsoHighlight === undefined ? targetElement : (this.root.querySelector(coach.alsoHighlight) ?? targetElement);
+    const focus =
+      coach.alsoHighlight === undefined
+        ? targetElement
+        : (this.root.querySelector(coach.alsoHighlight) ?? targetElement);
     if (docked) focus.scrollIntoView({ block: 'center', behavior: 'instant' });
     else this.bringIntoCodePanel(targetElement);
 
@@ -75,7 +78,12 @@ export class CoachOverlay {
     bubble.classList.remove('is-docked-top');
     // The height depends on the width, so the width goes first.
     bubble.style.width = `${Math.min(340, game.width - 32)}px`;
-    const { left, top } = placeBubble(target, { width: bubble.offsetWidth, height: bubble.offsetHeight }, game, coach.side);
+    const { left, top } = placeBubble(
+      target,
+      { width: bubble.offsetWidth, height: bubble.offsetHeight },
+      game,
+      coach.side,
+    );
     Object.assign(bubble.style, { left: `${left}px`, top: `${top}px` });
   };
 
@@ -106,7 +114,10 @@ export class CoachOverlay {
     const dim = this.one('[data-dim]');
     const holes = [this.one('[data-spotlight]'), this.one('[data-spotlight-also]')]
       .filter((frame) => !frame.hidden)
-      .map((frame) => `M${frame.offsetLeft} ${frame.offsetTop}h${frame.offsetWidth}v${frame.offsetHeight}h${-frame.offsetWidth}z`);
+      .map(
+        (frame) =>
+          `M${frame.offsetLeft} ${frame.offsetTop}h${frame.offsetWidth}v${frame.offsetHeight}h${-frame.offsetWidth}z`,
+      );
     dim.style.clipPath = `path(evenodd, "M0 0H${dim.offsetWidth}V${dim.offsetHeight}H0z${holes.join('')}")`;
   }
 
@@ -127,7 +138,12 @@ export class CoachOverlay {
     // Scrolled out of its panel: a frame here would mark something else.
     if (right <= left || bottom <= top) return null;
     spotlight.hidden = false;
-    Object.assign(spotlight.style, { left: `${left}px`, top: `${top}px`, width: `${right - left}px`, height: `${bottom - top}px` });
+    Object.assign(spotlight.style, {
+      left: `${left}px`,
+      top: `${top}px`,
+      width: `${right - left}px`,
+      height: `${bottom - top}px`,
+    });
     return { left, top, width: right - left, height: bottom - top };
   }
 }

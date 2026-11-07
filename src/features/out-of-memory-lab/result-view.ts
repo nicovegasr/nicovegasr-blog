@@ -7,11 +7,18 @@ import type { LabText } from './lab-text';
 
 export const starsText = (stars: number) => '★'.repeat(stars) + '☆'.repeat(3 - stars);
 
-const liveValue = ({ copy, format }: LabText, objective: Objective, run: RunState): { value: string; failing: boolean } => {
+const liveValue = (
+  { copy, format }: LabText,
+  objective: Objective,
+  run: RunState,
+): { value: string; failing: boolean } => {
   switch (objective.kind) {
     case 'survive': {
       const dead = run.phase === 'dead';
-      return { value: dead ? copy.live.dead : copy.live.full(Math.round((run.megabytes / run.limitMegabytes) * 100)), failing: dead };
+      return {
+        value: dead ? copy.live.dead : copy.live.full(Math.round((run.megabytes / run.limitMegabytes) * 100)),
+        failing: dead,
+      };
     }
     case 'seconds':
       return { value: format.seconds(run.seconds), failing: run.seconds > objective.max };
@@ -20,7 +27,10 @@ const liveValue = ({ copy, format }: LabText, objective: Objective, run: RunStat
     case 'write-trips':
       return { value: format.count(Math.round(run.writeTrips)), failing: run.writeTrips > objective.max };
     case 'connection':
-      return { value: format.seconds(run.longestConnectionSeconds), failing: run.longestConnectionSeconds > objective.max };
+      return {
+        value: format.seconds(run.longestConnectionSeconds),
+        failing: run.longestConnectionSeconds > objective.max,
+      };
   }
 };
 
@@ -48,16 +58,26 @@ interface Result {
 }
 
 /** Fills the result dialog: stars, each objective, one hint and every attempt side by side. */
-export const renderResult = (text: LabText, root: HTMLElement, { challenge, build, outcome, stars, attempts, hasNext }: Result) => {
+export const renderResult = (
+  text: LabText,
+  root: HTMLElement,
+  { challenge, build, outcome, stars, attempts, hasNext }: Result,
+) => {
   const { copy, format } = text;
   const part = (selector: string) => root.querySelector<HTMLElement>(selector)!;
   const survived = outcome.killedBy === null;
   const words = copy.challenges[challenge.id];
   part('[data-result-kicker]').textContent = copy.challengeHeading(challenge.id, words?.title ?? '');
   part('[data-result-stars]').textContent = starsText(stars);
-  part('[data-result-title]').textContent = !survived ? copy.result.killed : stars === 3 ? copy.result.perfect : copy.result.partial;
+  part('[data-result-title]').textContent = !survived
+    ? copy.result.killed
+    : stars === 3
+      ? copy.result.perfect
+      : copy.result.partial;
   const values: Record<Objective['kind'], string> = {
-    survive: survived ? copy.result.peak(format.megabytes(outcome.peakMegabytes)) : copy.result.logsReviewed(format.count(outcome.logsAnalyzed)),
+    survive: survived
+      ? copy.result.peak(format.megabytes(outcome.peakMegabytes))
+      : copy.result.logsReviewed(format.count(outcome.logsAnalyzed)),
     seconds: format.seconds(outcome.seconds),
     megabytes: format.megabytes(outcome.peakMegabytes),
     'write-trips': copy.result.trips(format.count(outcome.writeTrips)),
@@ -85,7 +105,8 @@ export const renderResult = (text: LabText, root: HTMLElement, { challenge, buil
 const renderComparison = ({ copy, format }: LabText, body: HTMLElement, attempts: readonly Attempt[]) => {
   body.replaceChildren(
     ...attempts.map(({ build, batchSize, stars, outcome }, index) => {
-      const write = build.write === 'batches' ? copy.result.batchesOf(format.count(batchSize)) : copy.cards[build.write].shortLabel;
+      const write =
+        build.write === 'batches' ? copy.result.batchesOf(format.count(batchSize)) : copy.cards[build.write].shortLabel;
       const died = outcome.killedBy !== null;
       const row = document.createElement('tr');
       row.classList.toggle('is-latest', index === 0);

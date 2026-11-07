@@ -37,14 +37,8 @@ describe('Inside a worker: checkpoints and external effects', () => {
     config.steps.forEach((step) => (step.remember = true));
 
     let interrupted = initialState(config);
-    while (
-      interrupted.phase !== 'incident' ||
-      interrupted.incident !== 'email-uncertain'
-    ) {
-      interrupted =
-        interrupted.phase === 'incident'
-          ? continueAfterIncident(interrupted)
-          : advance(interrupted);
+    while (interrupted.phase !== 'incident' || interrupted.incident !== 'email-uncertain') {
+      interrupted = interrupted.phase === 'incident' ? continueAfterIncident(interrupted) : advance(interrupted);
     }
 
     expect(interrupted.jobs[2]!.steps[3]!.effects).toBe(1);
@@ -59,19 +53,16 @@ describe('Inside a worker: checkpoints and external effects', () => {
     expect(state.jobs[2]!.steps[3]!.effects).toBe(2);
     expect(totals(state).done).toBe(2);
   });
-  it.each(['charge', 'email'] as const)(
-    'a crash after %s effect defeats a local checkpoint alone',
-    (gap) => {
-      const config = workerStepsConfig();
-      config.gap = gap;
-      config.steps.forEach((step) => (step.remember = true));
-      const state = run(config);
-      const index = gap === 'charge' ? 1 : 3;
-      expect(state.phase).toBe('duplicate');
-      expect(state.active).toBe(0);
-      expect(state.jobs[0]!.steps[index]!.effects).toBe(2);
-    },
-  );
+  it.each(['charge', 'email'] as const)('a crash after %s effect defeats a local checkpoint alone', (gap) => {
+    const config = workerStepsConfig();
+    config.gap = gap;
+    config.steps.forEach((step) => (step.remember = true));
+    const state = run(config);
+    const index = gap === 'charge' ? 1 : 3;
+    expect(state.phase).toBe('duplicate');
+    expect(state.active).toBe(0);
+    expect(state.jobs[0]!.steps[index]!.effects).toBe(2);
+  });
   it.each(['charge', 'email'] as const)(
     'a receiver supporting stable identity reconciles the uncertain %s effect',
     (gap) => {
@@ -83,8 +74,7 @@ describe('Inside a worker: checkpoints and external effects', () => {
       const state = run(config);
       expect(state.phase).toBe('won');
       expect(state.events.some((event) => event.kind === 'provider-dedup')).toBe(true);
-      for (const job of state.jobs)
-        for (const step of job.steps) expect(step.effects).toBe(1);
+      for (const job of state.jobs) for (const step of job.steps) expect(step.effects).toBe(1);
     },
   );
   it('customizing a repeatable step to an external action changes replay safety', () => {
@@ -123,11 +113,7 @@ describe('Inside a worker: checkpoints and external effects', () => {
 
     expect(state.phase).toBe('won');
     expect(state.jobs[2]!.steps[3]!.effects).toBe(1);
-    expect(
-      state.events.some(
-        (event) => event.job === 3 && event.kind === 'provider-dedup',
-      ),
-    ).toBe(true);
+    expect(state.events.some((event) => event.job === 3 && event.kind === 'provider-dedup')).toBe(true);
     expect(totals(state).done).toBe(3);
   });
   it('incidents pause until an explicit retry, without mutating the previous state', () => {

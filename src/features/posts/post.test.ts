@@ -75,8 +75,6 @@ describe('searchableText', () => {
       tags: ['Performance', 'SSR'],
     });
 
-    expect(searchableText(post)).toBe(
-      'astro islands partial hydration performance ssr',
-    );
+    expect(searchableText(post)).toBe('astro islands partial hydration performance ssr');
   });
 });

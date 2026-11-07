@@ -47,18 +47,14 @@ export const buildBlogPostPath = (locale: Locale, slug: string): string =>
 export const buildPillSeriesPath = (locale: Locale, series: string): string =>
   joinLocalePath(locale, PILLS_DETAIL_SEGMENT[locale], series);
 
-export const buildPillPath = (
-  locale: Locale,
-  series: string,
-  pill: string,
-): string => joinLocalePath(locale, PILLS_DETAIL_SEGMENT[locale], series, pill);
+export const buildPillPath = (locale: Locale, series: string, pill: string): string =>
+  joinLocalePath(locale, PILLS_DETAIL_SEGMENT[locale], series, pill);
 
 export const buildLabPath = (locale: Locale, lab: string): string =>
   joinLocalePath(locale, LABS_DETAIL_SEGMENT[locale], lab);
 
 // RSS endpoints keep their explicit extension, so no trailing slash here.
-export const buildRssFeedPath = (locale: Locale): string =>
-  `${joinLocalePath(locale)}rss.xml`;
+export const buildRssFeedPath = (locale: Locale): string => `${joinLocalePath(locale)}rss.xml`;
 
 const pathSegments = (pathname: string): readonly string[] => pathname.split('/').filter(Boolean);
 

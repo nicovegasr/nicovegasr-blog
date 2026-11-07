@@ -57,7 +57,8 @@ const paintRoute = (route: HTMLElement, state: RouteState) => {
 };
 
 const isTypingTarget = (target: EventTarget | null): boolean =>
-  target instanceof HTMLElement && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName));
+  target instanceof HTMLElement &&
+  (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName));
 
 const currentStationPose = (route: HTMLElement, state: RouteState): MascotPoseName => {
   const pose = route.querySelectorAll<HTMLElement>('[data-route-station]')[state.currentIndex]?.dataset.pose;
@@ -92,22 +93,25 @@ const trackMascotJourney = () => {
   const { signal } = stopTracking;
   const walker = createMascotWalker(mascot);
   const atlases = createMascotAtlases(mascot, signal);
-  const atlasObserver = new IntersectionObserver((entries) => {
-    for (const entry of entries) {
-      if (!entry.isIntersecting) continue;
-      const age = entry.target === lastRoute ? '2026' : (entry.target as HTMLElement).dataset.startYear;
-      if (age) atlases.preload(age);
-      if (entry.target === lastRoute) atlases.preload('backend');
-      if (entry.target === lastRoute) {
-        atlases.preload('frontend');
-        atlases.preload('skills');
-        atlases.preload('database');
-        atlases.preload('infrastructure');
-        atlases.preload('artificial-intelligence');
+  const atlasObserver = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const age = entry.target === lastRoute ? '2026' : (entry.target as HTMLElement).dataset.startYear;
+        if (age) atlases.preload(age);
+        if (entry.target === lastRoute) atlases.preload('backend');
+        if (entry.target === lastRoute) {
+          atlases.preload('frontend');
+          atlases.preload('skills');
+          atlases.preload('database');
+          atlases.preload('infrastructure');
+          atlases.preload('artificial-intelligence');
+        }
+        atlasObserver.unobserve(entry.target);
       }
-      atlasObserver.unobserve(entry.target);
-    }
-  }, { rootMargin: '100% 0px' });
+    },
+    { rootMargin: '100% 0px' },
+  );
   stops.forEach((stop) => atlasObserver.observe(stop));
   atlasObserver.observe(lastRoute);
   signal.addEventListener('abort', () => atlasObserver.disconnect());
@@ -194,7 +198,9 @@ const trackMascotJourney = () => {
     atlases.show(
       visibleAge({ isOnFirstRoute, isOnLastRoute, activeStopYear: activeStop?.dataset.startYear }),
       isOnLastRoute
-        ? (['backend', 'frontend', 'database', 'infrastructure', 'artificial-intelligence'] as const)[last.currentIndex] ?? 'skills'
+        ? ((['backend', 'frontend', 'database', 'infrastructure', 'artificial-intelligence'] as const)[
+            last.currentIndex
+          ] ?? 'skills')
         : undefined,
     );
     mascot.classList.toggle('is-arrived', last.ratio >= 1);
@@ -216,7 +222,14 @@ const trackMascotJourney = () => {
 
   // Mientras la flecha esté pulsada anda hacia donde apunta; al soltarla se para donde esté.
   let heldWalk:
-    | { route: HTMLElement; stage: HTMLElement; key: string; direction: WalkDirection; position: number; previousFrameAt: number }
+    | {
+        route: HTMLElement;
+        stage: HTMLElement;
+        key: string;
+        direction: WalkDirection;
+        position: number;
+        previousFrameAt: number;
+      }
     | undefined;
   let heldWalkFrame = 0;
 
@@ -289,7 +302,6 @@ const trackMascotJourney = () => {
       stopHeldWalk();
     }
   };
-
 
   window.addEventListener('keydown', startWalkingWithArrowKey, { signal });
   window.addEventListener('keyup', stopWalkingWithArrowKey, { signal });

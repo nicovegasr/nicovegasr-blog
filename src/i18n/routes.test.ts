@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  buildAlternateLocalePath,
-  buildLabPath,
-  buildPagePath,
-  buildPillPath,
-  contentSectionOf,
-} from '@/i18n/routes';
+import { buildAlternateLocalePath, buildLabPath, buildPagePath, buildPillPath, contentSectionOf } from '@/i18n/routes';
 
 describe('page paths', () => {
   it('serves the home at the locale root and the content sections under it', () => {

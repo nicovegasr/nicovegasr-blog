@@ -35,9 +35,13 @@ export const renderBriefing = (text: LabText, sheet: HTMLElement, challenge: Cha
   part('[data-briefing-title]').textContent = words?.title ?? '';
   part('[data-briefing-mission]').textContent = words?.mission ?? '';
   part('[data-briefing-facts]').replaceChildren(
-    ...challengeFacts(text, challenge).map((fact) => Object.assign(document.createElement('li'), { textContent: fact })),
+    ...challengeFacts(text, challenge).map((fact) =>
+      Object.assign(document.createElement('li'), { textContent: fact }),
+    ),
   );
   part('[data-briefing-objectives]').replaceChildren(
-    ...challenge.objectives.map((objective) => Object.assign(document.createElement('li'), { textContent: `☆ ${objectiveLabel(text, objective)}` })),
+    ...challenge.objectives.map((objective) =>
+      Object.assign(document.createElement('li'), { textContent: `☆ ${objectiveLabel(text, objective)}` }),
+    ),
   );
 };

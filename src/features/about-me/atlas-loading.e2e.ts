@@ -6,9 +6,9 @@ test('age atlases are fetched near the timeline rather than on arrival', async (
     if (/age-\d{4}.*\.webp/.test(request.url())) requests.push(request.url());
   });
   await page.goto('/');
-  await expect.poll(() => page.locator('[data-walkway-thread]').evaluate((element) =>
-    (element as HTMLElement).style.height,
-  )).not.toBe('');
+  await expect
+    .poll(() => page.locator('[data-walkway-thread]').evaluate((element) => (element as HTMLElement).style.height))
+    .not.toBe('');
   expect(requests).toEqual([]);
 
   const studentRequest = page.waitForRequest(/age-2019.*\.webp/);
@@ -23,9 +23,13 @@ test('age atlases are fetched near the timeline rather than on arrival', async (
 });
 
 for (const returnToTop of [false, true]) {
-  test(`a delayed atlas ${returnToTop ? 'cannot overwrite a newer age request' : 'keeps the current character visible until decoded'}`, async ({ page }) => {
+  test(`a delayed atlas ${returnToTop ? 'cannot overwrite a newer age request' : 'keeps the current character visible until decoded'}`, async ({
+    page,
+  }) => {
     let release!: () => void;
-    const held = new Promise<void>((resolve) => { release = resolve; });
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
     await page.route(/age-2019.*\.webp/, async (route) => {
       await held;
       await route.continue();

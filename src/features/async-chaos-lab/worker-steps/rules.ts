@@ -1,9 +1,4 @@
-import {
-  injectFaultOnce,
-  moveToNextStep,
-  pauseForIncident,
-  recordEvent,
-} from '../payment-simulation/engine';
+import { injectFaultOnce, moveToNextStep, pauseForIncident, recordEvent } from '../payment-simulation/engine';
 import type { ActionKind, SimulationConfig, SimulationRules } from '../payment-simulation/engine';
 
 const stepKinds: ActionKind[] = ['check', 'external', 'set-state', 'notify'];
@@ -29,12 +24,7 @@ export const workerStepsRules: SimulationRules = {
   afterStep(state, job, step) {
     // The effect exists before the consumer can persist its local checkpoint.
     const gapStep = state.config.gap === 'charge' ? 1 : 3;
-    if (
-      state.config.gap !== 'none' &&
-      job.id === 1 &&
-      state.step === gapStep &&
-      injectFaultOnce(state, 'gap-1')
-    ) {
+    if (state.config.gap !== 'none' && job.id === 1 && state.step === gapStep && injectFaultOnce(state, 'gap-1')) {
       recordEvent(state, 'gap');
       pauseForIncident(state, 'effect-uncertain');
       return;

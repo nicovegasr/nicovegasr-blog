@@ -1,7 +1,9 @@
 ---
 import type { Locale } from '@/i18n/locale';
 import PaymentLabPage from '../payment-simulation/PaymentLabPage.astro';
-interface Props { locale: Locale }
+interface Props {
+  locale: Locale;
+}
 const { locale } = Astro.props;
 ---
 

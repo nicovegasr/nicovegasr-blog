@@ -12,16 +12,11 @@ export function restoreLabels(defaults: Labels, stepNamesKey: string, es: boolea
   try {
     const saved = JSON.parse(sessionStorage.getItem(namesKey(es)) ?? '{}');
     for (const key of ['api', 'storage', 'worker'] as const)
-      if (typeof saved[key] === 'string')
-        labels[key] = cleanLabel(saved[key], defaults[key]);
+      if (typeof saved[key] === 'string') labels[key] = cleanLabel(saved[key], defaults[key]);
     if (Array.isArray(saved.jobs))
-      labels.jobs = defaults.jobs.map((fallback, index) =>
-        cleanLabel(saved.jobs[index], fallback),
-      );
+      labels.jobs = defaults.jobs.map((fallback, index) => cleanLabel(saved.jobs[index], fallback));
     if (Array.isArray(saved[stepNamesKey]))
-      labels.steps = defaults.steps.map((fallback, index) =>
-        cleanLabel(saved[stepNamesKey][index], fallback),
-      );
+      labels.steps = defaults.steps.map((fallback, index) => cleanLabel(saved[stepNamesKey][index], fallback));
   } catch {
     return labels;
   }
@@ -31,8 +26,7 @@ export function restoreLabels(defaults: Labels, stepNamesKey: string, es: boolea
 export function saveLabel(key: string, labels: Labels, stepNamesKey: string, es: boolean) {
   try {
     const saved = JSON.parse(sessionStorage.getItem(namesKey(es)) ?? '{}');
-    if (key === 'api' || key === 'storage' || key === 'worker')
-      saved[key] = labels[key];
+    if (key === 'api' || key === 'storage' || key === 'worker') saved[key] = labels[key];
     if (key.startsWith('job-')) saved.jobs = labels.jobs;
     if (key.startsWith('step-')) saved[stepNamesKey] = labels.steps;
     sessionStorage.setItem(namesKey(es), JSON.stringify(saved));
@@ -45,9 +39,7 @@ export function restoreAchievements(): Set<AchievementId> {
   const unlocked = new Set<AchievementId>();
   try {
     const saved = JSON.parse(sessionStorage.getItem(achievementsKey) ?? '[]');
-    if (Array.isArray(saved))
-      for (const { id } of achievements)
-        if (saved.includes(id)) unlocked.add(id);
+    if (Array.isArray(saved)) for (const { id } of achievements) if (saved.includes(id)) unlocked.add(id);
   } catch {
     return unlocked;
   }

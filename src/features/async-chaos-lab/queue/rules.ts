@@ -23,8 +23,7 @@ export const queueRules: SimulationRules = {
     if (job.id !== 2 || !injectFaultOnce(state, 'worker-2')) return false;
     recordEvent(state, 'worker-crash');
     if (state.config.storage === 'ram') {
-      for (const pending of state.jobs)
-        if (pending.status !== 'done') pending.status = 'lost';
+      for (const pending of state.jobs) if (pending.status !== 'done') pending.status = 'lost';
       state.phase = 'lost';
       state.incident = 'ram-lost';
     } else pauseForIncident(state, 'worker-retry');

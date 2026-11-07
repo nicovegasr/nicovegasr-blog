@@ -1,5 +1,4 @@
 import type { APIContext } from 'astro';
 import { buildPostsRssFeed } from '@/features/posts/post-feed';
 
-export const GET = (context: APIContext): Promise<Response> =>
-  buildPostsRssFeed('en', context.site);
+export const GET = (context: APIContext): Promise<Response> => buildPostsRssFeed('en', context.site);

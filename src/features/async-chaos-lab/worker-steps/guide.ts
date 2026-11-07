@@ -9,23 +9,20 @@ export function workerStepsGuideBeat(context: GuideContext): GuideBeat {
     return beat(
       4,
       translate('Los tres pagos terminaron.', 'All three payments finished.'),
-      state.events.some(
-        (event) =>
-          event.kind === 'provider-dedup' && event.job === 3 && event.step === 3,
-      )
+      state.events.some((event) => event.kind === 'provider-dedup' && event.job === 3 && event.step === 3)
         ? translate(
             'El proveedor reconoció el mismo ID y evitó volver a enviar el email. Guardar avances locales no bastaba para esa caída.',
             'The provider recognized the same ID and avoided sending the email again. Saving local progress was not enough for that crash.',
           )
         : state.wasted
-        ? translate(
-            'El cobro no se duplicó. Algunas acciones seguras se repitieron: puedes comparar si compensa guardar también su avance.',
-            'The charge was not duplicated. Some safe actions ran again: compare whether saving their progress is worthwhile.',
-          )
-        : translate(
-            'El worker retomó lo pendiente y saltó las acciones que ya tenía guardadas.',
-            'The worker resumed pending work and skipped actions whose progress was saved.',
-          ),
+          ? translate(
+              'El cobro no se duplicó. Algunas acciones seguras se repitieron: puedes comparar si compensa guardar también su avance.',
+              'The charge was not duplicated. Some safe actions ran again: compare whether saving their progress is worthwhile.',
+            )
+          : translate(
+              'El worker retomó lo pendiente y saltó las acciones que ya tenía guardadas.',
+              'The worker resumed pending work and skipped actions whose progress was saved.',
+            ),
       translate(
         'Puedes terminar el recorrido y conservar esta configuración.',
         'Finish the walkthrough and keep this configuration.',
@@ -108,10 +105,7 @@ export function workerStepsGuideBeat(context: GuideContext): GuideBeat {
   if (stage === 'optimize')
     return beat(
       4,
-      translate(
-        'Repetirlo es seguro. ¿Compensa hacerlo?',
-        'Repeating it is safe. Is it worth it?',
-      ),
+      translate('Repetirlo es seguro. ¿Compensa hacerlo?', 'Repeating it is safe. Is it worth it?'),
       translate(
         'Validar los mismos datos o fijar el mismo estado puede repetirse aquí. Recordar su avance ahorra trabajo a cambio de guardar más información.',
         'Checking the same data or setting the same state can repeat here. Saving progress saves work at the cost of more stored information.',
@@ -135,10 +129,7 @@ export function workerStepsGuideBeat(context: GuideContext): GuideBeat {
   if (stage === 'safe')
     return beat(
       3,
-      translate(
-        'Esta vez reconocerá el cobro.',
-        'This time it will recognize the charge.',
-      ),
+      translate('Esta vez reconocerá el cobro.', 'This time it will recognize the charge.'),
       translate(
         'Guardará la marca cuando termine el cobro. Tras la caída de este escenario, podrá saltarlo y seguir con lo que falte.',
         'It will save a marker once the charge finishes. After this scenario’s crash, it can skip it and continue with the remaining work.',
@@ -147,10 +138,7 @@ export function workerStepsGuideBeat(context: GuideContext): GuideBeat {
     );
   return beat(
     1,
-    translate(
-      'Un pago. Cuatro acciones distintas.',
-      'One payment. Four different actions.',
-    ),
+    translate('Un pago. Cuatro acciones distintas.', 'One payment. Four different actions.'),
     translate(
       'El worker valida, cobra, activa la cuenta y envía un email. Algunas acciones cambian algo que sigue existiendo aunque el worker se pare.',
       'The worker validates, charges, activates the account and sends an email. Some actions change something that remains even if the worker stops.',
