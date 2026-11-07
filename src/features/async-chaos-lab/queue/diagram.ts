@@ -1,9 +1,9 @@
-import type { PaymentLab } from '../payment-simulation/controller';
+import type { PaymentLabView } from '../payment-simulation/lab-view';
 import { editor, jobRows, namingControl, workerJourney } from '../payment-simulation/markup';
 import { labFigure } from '../shared/figures';
 import { queueCopy } from './copy';
 
-export function queueDiagram(lab: PaymentLab) {
+export function queueDiagram(lab: PaymentLabView) {
   return /* HTML */ `<div class="lab-diagram">
     <div class="lab-api-stack">
       ${namingControl(lab)}

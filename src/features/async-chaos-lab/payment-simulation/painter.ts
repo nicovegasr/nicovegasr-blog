@@ -1,6 +1,6 @@
 import { JOB_COUNT, PLAYBACK_SPEEDS, TICK_MILLISECONDS, totals } from './engine';
 import type { SimulationState } from './engine';
-import type { PaymentLab } from './controller';
+import type { PaintedPaymentLab, PaymentLabView } from './lab-view';
 
 // Paint the current engine snapshot. Animation and DOM state cannot commit work.
 const jobIcons = {
@@ -12,11 +12,11 @@ const jobIcons = {
   failed: '×',
 } satisfies Record<SimulationState['jobs'][number]['status'], string>;
 
-function shownJobIndex(lab: PaymentLab) {
+function shownJobIndex(lab: PaymentLabView) {
   return lab.inspected >= 0 ? lab.inspected : Math.max(0, lab.state.active);
 }
 
-function statusLabel(lab: PaymentLab, status: SimulationState['jobs'][number]['status']) {
+function statusLabel(lab: PaymentLabView, status: SimulationState['jobs'][number]['status']) {
   return {
     pending: lab.copy.pending,
     working: lab.copy.processing,
@@ -27,7 +27,7 @@ function statusLabel(lab: PaymentLab, status: SimulationState['jobs'][number]['s
   }[status];
 }
 
-export function paintStatus(lab: PaymentLab) {
+export function paintStatus(lab: PaintedPaymentLab) {
   const state = lab.state,
     counts = totals(state);
   lab.dataset.phase = state.phase;
@@ -45,7 +45,7 @@ export function paintStatus(lab: PaymentLab) {
   lab.element('[data-score]').textContent = `${counts.done}/${JOB_COUNT}`;
 }
 
-export function paintControls(lab: PaymentLab) {
+export function paintControls(lab: PaintedPaymentLab) {
   const state = lab.state,
     terminal = ['won', 'lost', 'duplicate'].includes(state.phase);
   for (const play of lab.querySelectorAll<HTMLButtonElement>('[data-action=play]'))
@@ -70,7 +70,7 @@ export function paintControls(lab: PaymentLab) {
     .setAttribute('aria-label', lab.personalizing ? lab.copy.finishEditing : lab.copy.editNames);
 }
 
-export function paintNames(lab: PaymentLab) {
+export function paintNames(lab: PaintedPaymentLab) {
   for (const display of lab.querySelectorAll<HTMLElement>('[data-display-label]')) {
     const key = display.dataset.displayLabel!;
     display.textContent = key.startsWith('job-')
@@ -81,7 +81,7 @@ export function paintNames(lab: PaymentLab) {
   }
 }
 
-export function paintJobs(lab: PaymentLab) {
+export function paintJobs(lab: PaintedPaymentLab) {
   for (const job of lab.state.jobs) {
     const index = job.id - 1;
     lab.element(`[data-progress="${index}"]`).className = `is-${job.status}`;
@@ -92,7 +92,7 @@ export function paintJobs(lab: PaymentLab) {
   }
 }
 
-export function paintActiveJob(lab: PaymentLab) {
+export function paintActiveJob(lab: PaintedPaymentLab) {
   const state = lab.state,
     shown = shownJobIndex(lab),
     job = state.jobs[shown]!;
@@ -103,7 +103,7 @@ export function paintActiveJob(lab: PaymentLab) {
       : `${lab.inspected >= 0 ? lab.copy.inspecting : ''}${lab.job(shown)} · ID ${String(shown + 1).padStart(2, '0')}${job.status === 'working' && state.active === shown ? ' → ' + (state.cursor === 'ack' ? lab.copy.confirmCompletion : lab.step(state.step)) : ''}`;
 }
 
-export function paintSteps(lab: PaymentLab) {
+export function paintSteps(lab: PaintedPaymentLab) {
   const state = lab.state,
     shown = shownJobIndex(lab),
     job = state.jobs[shown]!;

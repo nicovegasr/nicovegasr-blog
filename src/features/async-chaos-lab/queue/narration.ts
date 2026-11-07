@@ -1,8 +1,8 @@
-import type { PaymentLab } from '../payment-simulation/controller';
+import type { PaymentLabView } from '../payment-simulation/lab-view';
 import { totals } from '../payment-simulation/engine';
 import { escapeHtml } from '../shared/text';
 
-export function queueFeedback(lab: PaymentLab): [string, string] {
+export function queueFeedback(lab: PaymentLabView): [string, string] {
   const state = lab.state,
     job = escapeHtml(lab.job(Math.max(state.active, 0)));
   if (state.phase === 'lost')
@@ -89,7 +89,7 @@ export function queueFeedback(lab: PaymentLab): [string, string] {
   ];
 }
 
-export const queueTutorial = (lab: PaymentLab) => ({
+export const queueTutorial = (lab: PaymentLabView) => ({
   title: lab.inLocale('Tenemos tres pagos. ¿Los ponemos en marcha?', 'Three payments. Shall we get them moving?'),
   lines: [
     lab.inLocale(
@@ -107,7 +107,7 @@ export const queueTutorial = (lab: PaymentLab) => ({
   ],
 });
 
-export function queueIncidentCall(lab: PaymentLab): { title: string; report: string } {
+export function queueIncidentCall(lab: PaymentLabView): { title: string; report: string } {
   const state = lab.state,
     job = lab.job(Math.max(0, state.active));
   if (state.phase === 'lost')

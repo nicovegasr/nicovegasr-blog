@@ -1,4 +1,4 @@
-import type { PaymentLab } from '../payment-simulation/controller';
+import type { PaymentLabView } from '../payment-simulation/lab-view';
 import { editor, jobRows, namingControl, workerJourney } from '../payment-simulation/markup';
 import type { ActionKind, StepConfig } from '../payment-simulation/engine';
 import { isExternal, isSafeToRepeat } from '../payment-simulation/engine';
@@ -6,7 +6,7 @@ import { labFigure } from '../shared/figures';
 import { escapeHtml } from '../shared/text';
 import { workerStepsCopy } from './copy';
 
-export function workerStepsDiagram(lab: PaymentLab) {
+export function workerStepsDiagram(lab: PaymentLabView) {
   return /* HTML */ `<div class="lab-ready-queue">
       <span>✓ ${workerStepsCopy(lab.es).paymentsInIndependentDatabaseRecovery}</span>
       <div class="lab-extra-names">
@@ -31,7 +31,7 @@ export function workerStepsDiagram(lab: PaymentLab) {
     </section>`;
 }
 
-function actionNature(lab: PaymentLab, kind: ActionKind) {
+function actionNature(lab: PaymentLabView, kind: ActionKind) {
   return lab.inLocale(
     {
       check: 'Validación pura · sin efectos externos',
@@ -50,7 +50,7 @@ function actionNature(lab: PaymentLab, kind: ActionKind) {
   );
 }
 
-function kindLabel(lab: PaymentLab, kind: ActionKind) {
+function kindLabel(lab: PaymentLabView, kind: ActionKind) {
   return lab.inLocale(
     {
       check: 'Comprobar datos (repetible)',
@@ -69,12 +69,12 @@ function kindLabel(lab: PaymentLab, kind: ActionKind) {
   );
 }
 
-export const stepNature = (lab: PaymentLab, step: StepConfig) =>
+export const stepNature = (lab: PaymentLabView, step: StepConfig) =>
   /* HTML */ `<p class="lab-step-nature ${isExternal(step.kind) ? 'has-external' : ''}">
     ${actionNature(lab, step.kind)}
   </p>`;
 
-export const stepOptions = (lab: PaymentLab, step: StepConfig, index: number) =>
+export const stepOptions = (lab: PaymentLabView, step: StepConfig, index: number) =>
   /* HTML */ `<div class="lab-step-options">
     <label
       ><input type="checkbox" data-setting="remember-${index}" ${step.remember ? 'checked' : ''} />

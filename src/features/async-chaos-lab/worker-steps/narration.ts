@@ -1,15 +1,15 @@
-import type { PaymentLab } from '../payment-simulation/controller';
+import type { PaymentLabView } from '../payment-simulation/lab-view';
 import { isExternal } from '../payment-simulation/engine';
 import { escapeHtml } from '../shared/text';
 import { workerStepsConfig } from './rules';
 
-export const usesCustomSteps = (lab: PaymentLab) =>
+export const usesCustomSteps = (lab: PaymentLabView) =>
   lab.config.steps.some(
     (step, index) =>
       lab.step(index) !== lab.defaults.steps[index] || step.kind !== workerStepsConfig().steps[index]?.kind,
   );
 
-export function workerStepsFeedback(lab: PaymentLab): [string, string] {
+export function workerStepsFeedback(lab: PaymentLabView): [string, string] {
   const state = lab.state,
     job = escapeHtml(lab.job(Math.max(state.active, 0))),
     step = escapeHtml(lab.step(state.step)),
@@ -141,7 +141,7 @@ export function workerStepsFeedback(lab: PaymentLab): [string, string] {
   ];
 }
 
-export const workerStepsTutorial = (lab: PaymentLab) => ({
+export const workerStepsTutorial = (lab: PaymentLabView) => ({
   title: lab.inLocale('El pago está guardado. Falta terminarlo.', 'The payment is saved. Now finish it.'),
   lines: [
     lab.inLocale(
@@ -159,7 +159,7 @@ export const workerStepsTutorial = (lab: PaymentLab) => ({
   ],
 });
 
-export function workerStepsIncidentCall(lab: PaymentLab): { title: string; report: string } {
+export function workerStepsIncidentCall(lab: PaymentLabView): { title: string; report: string } {
   const state = lab.state,
     job = lab.job(Math.max(0, state.active)),
     step = lab.step(state.step);

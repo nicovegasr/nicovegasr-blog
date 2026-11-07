@@ -1,5 +1,5 @@
 import type { AchievementId } from '../payment-simulation/achievements';
-import type { PaymentLab } from '../payment-simulation/controller';
+import type { PaymentLabView } from '../payment-simulation/lab-view';
 import type { PaymentLabDefinition } from '../payment-simulation/definition';
 import type { SimulationState } from '../payment-simulation/engine';
 import { totals } from '../payment-simulation/engine';
@@ -12,7 +12,7 @@ import { queueFeedback, queueIncidentCall, queueTutorial } from './narration';
 import { queueConfig, queueRules } from './rules';
 import { queueCopy } from './copy';
 
-function resultLabel(lab: PaymentLab, index: number, count: number) {
+function resultLabel(lab: PaymentLabView, index: number, count: number) {
   const kind = lab.config.steps[index]?.kind ?? 'append';
   if (kind === 'check')
     return count ? (index === 0 ? queueCopy(lab.es).validated : queueCopy(lab.es).prepared) : queueCopy(lab.es).pending;

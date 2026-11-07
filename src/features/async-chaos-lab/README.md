@@ -81,7 +81,9 @@ shared/              What all three share: outcome shell, figures, links, styles
    templates and text.
 5. **`payment-simulation/controller.ts`**: the custom element handles clicks and
    schedules `advance` every 650 ms, and delegates what differs to the definition.
-   `markup.ts` builds the shell, diagram pieces and achievements, `painter.ts` paints each
+   Views never receive the element itself: templates and narration get a read-only
+   `PaymentLabView`, painters a `PaintedPaymentLab` and settings a `PaymentLabSettings`
+   (`lab-view.ts`). `markup.ts` builds the shell, diagram pieces and achievements, `painter.ts` paints each
    engine snapshot, and `dialogs.ts` and `guide-panel.ts` build the HTML of the calls, outcomes and
    walkthrough; the controller owns their timers, focus and modal state. None of them
    decides whether a charge, record or checkpoint exists.

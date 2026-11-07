@@ -1,12 +1,12 @@
 import { achievements } from './achievements';
-import type { PaymentLab } from './controller';
+import type { PaymentLabView } from './lab-view';
 import { totals } from './engine';
 import { labFigure } from '../shared/figures';
 import { button } from '../shared/lab-ui';
 import { outcomeShell } from '../shared/outcome-shell';
 import { escapeHtml } from '../shared/text';
 
-export function tutorialCall(lab: PaymentLab, introduction: boolean) {
+export function tutorialCall(lab: PaymentLabView, introduction: boolean) {
   const { title, lines } = lab.definition.tutorial(lab);
   return /* HTML */ `<div class="lab-call-shell">
     <header class="lab-call-top">
@@ -29,7 +29,7 @@ export function tutorialCall(lab: PaymentLab, introduction: boolean) {
   </div>`;
 }
 
-export function incidentCall(lab: PaymentLab) {
+export function incidentCall(lab: PaymentLabView) {
   const ack = lab.state.incident === 'ack-retry',
     call = lab.definition.incidentCall(lab);
   return /* HTML */ `<div class="lab-call-shell">
@@ -52,7 +52,7 @@ export function incidentCall(lab: PaymentLab) {
   </div>`;
 }
 
-function outcomeTicket(lab: PaymentLab, index: number, lost = false) {
+function outcomeTicket(lab: PaymentLabView, index: number, lost = false) {
   return /* HTML */ `<article class="lab-ticket ${lost ? 'is-lost' : 'is-kept'}">
     <header><span>ID ${String(index + 1).padStart(2, '0')}</span><span>${lost ? '×' : '✓'}</span></header>
     <strong>${escapeHtml(lab.job(index))}</strong><span class="lab-ticket-lines" aria-hidden="true"></span>
@@ -60,7 +60,7 @@ function outcomeTicket(lab: PaymentLab, index: number, lost = false) {
   </article>`;
 }
 
-function outcomeEvidence(lab: PaymentLab) {
+function outcomeEvidence(lab: PaymentLabView) {
   const state = lab.state,
     counts = totals(state),
     job = state.jobs[Math.max(0, state.active)]!;
@@ -91,9 +91,9 @@ function outcomeEvidence(lab: PaymentLab) {
   return lab.definition.interruptedEvidence(lab);
 }
 
-export const isFatalOutcome = (lab: PaymentLab) => lab.state.phase === 'lost' || lab.state.phase === 'duplicate';
+export const isFatalOutcome = (lab: PaymentLabView) => lab.state.phase === 'lost' || lab.state.phase === 'duplicate';
 
-export function outcomeScene(lab: PaymentLab) {
+export function outcomeScene(lab: PaymentLabView) {
   const state = lab.state,
     fatal = isFatalOutcome(lab),
     won = state.phase === 'won';

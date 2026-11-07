@@ -13,9 +13,10 @@ import { workerFrame, WorkerActor } from './worker-actor';
 import { achievementList, achievementToast, labShell, stepCards } from './markup';
 import { paintActiveJob, paintControls, paintJobs, paintNames, paintStatus, paintSteps } from './painter';
 import { inLanguage, isSpanishLab } from '../shared/lab-ui';
+import type { PaymentLabSettings, PaymentLabView, RetryStage } from './lab-view';
 import { restoreAchievements, restoreLabels, saveAchievements, saveLabel } from './session';
 
-export abstract class PaymentLab extends HTMLElement {
+export abstract class PaymentLab extends HTMLElement implements PaymentLabView, PaymentLabSettings {
   abstract readonly definition: PaymentLabDefinition;
   config!: SimulationConfig;
   state!: SimulationState;
@@ -23,7 +24,7 @@ export abstract class PaymentLab extends HTMLElement {
   defaults!: Labels;
   private timer: ReturnType<typeof setInterval> | undefined;
   private retryTimer: ReturnType<typeof setTimeout> | undefined;
-  retryStage: 'failure' | 'restart' | undefined;
+  retryStage: RetryStage | undefined;
   private actor: WorkerActor | undefined;
   private outcomeTimer: ReturnType<typeof setTimeout> | undefined;
   playing = false;

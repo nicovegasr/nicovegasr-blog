@@ -1,9 +1,9 @@
-import type { PaymentLab } from './controller';
+import type { PaymentLabView } from './lab-view';
 import type { GuideBeat } from './guide';
 import { button } from '../shared/lab-ui';
 import { escapeHtml } from '../shared/text';
 
-export function guidePanel(lab: PaymentLab, beat: GuideBeat) {
+export function guidePanel(lab: PaymentLabView, beat: GuideBeat) {
   let action = '';
   if (beat.target) action = button('guide-focus', lab.copy.showThisChoice);
   else if (lab.state.phase === 'won') action = button('guide-finish', lab.copy.keepExperimenting);

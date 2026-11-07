@@ -1,5 +1,5 @@
 import type { AchievementId } from '../payment-simulation/achievements';
-import type { PaymentLab } from '../payment-simulation/controller';
+import type { PaymentLabView } from '../payment-simulation/lab-view';
 import type { PaymentLabDefinition } from '../payment-simulation/definition';
 import type { ActionKind, SimulationState } from '../payment-simulation/engine';
 import { isExternal, isSafeToRepeat, totals } from '../payment-simulation/engine';
@@ -12,7 +12,7 @@ import { usesCustomSteps, workerStepsFeedback, workerStepsIncidentCall, workerSt
 import { workerStepsConfig, workerStepsRules } from './rules';
 import { workerStepsCopy } from './copy';
 
-function resultLabel(lab: PaymentLab, index: number, count: number) {
+function resultLabel(lab: PaymentLabView, index: number, count: number) {
   const kind = lab.config.steps[index]?.kind ?? 'append';
   if (kind === 'append')
     return `${count} ${lab.inLocale(count === 1 ? 'registro' : 'registros', count === 1 ? 'record' : 'records')}`;

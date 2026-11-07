@@ -4,10 +4,10 @@ import { button } from '../shared/lab-ui';
 import { actorMarkup } from './worker-actor';
 import { achievements } from './achievements';
 import type { AchievementId } from './achievements';
-import type { PaymentLab } from './controller';
+import type { PaymentLabView } from './lab-view';
 
 // Templates render data and never advance the engine.
-export function labShell(lab: PaymentLab) {
+export function labShell(lab: PaymentLabView) {
   return /* HTML */ ` <aside class="lab-feedback" data-feedback role="status" aria-live="polite"></aside>
     <div class="lab-stage">
       <div class="lab-system">${lab.definition.diagram(lab)}</div>
@@ -76,7 +76,7 @@ export function editor(key: string, value: string, label: string) {
   /></span>`;
 }
 
-export function jobRows(lab: PaymentLab) {
+export function jobRows(lab: PaymentLabView) {
   return lab.labels.jobs
     .map(
       (value, index) =>
@@ -93,7 +93,7 @@ export function jobRows(lab: PaymentLab) {
     .join('');
 }
 
-export function namingControl(lab: PaymentLab) {
+export function namingControl(lab: PaymentLabView) {
   return /* HTML */ `<div class="lab-edit-controls">
     <button
       type="button"
@@ -108,7 +108,7 @@ export function namingControl(lab: PaymentLab) {
   </div>`;
 }
 
-export function workerJourney(lab: PaymentLab) {
+export function workerJourney(lab: PaymentLabView) {
   return /* HTML */ `<div class="lab-worker-journey" data-worker-journey>
     <div class="lab-actor-track">
       <div class="lab-actor-stations" aria-hidden="true">
@@ -120,7 +120,7 @@ export function workerJourney(lab: PaymentLab) {
   </div>`;
 }
 
-export function stepCards(lab: PaymentLab) {
+export function stepCards(lab: PaymentLabView) {
   return lab.config.steps
     .map(
       (step, index) =>
@@ -140,7 +140,7 @@ export function stepCards(lab: PaymentLab) {
     .join('');
 }
 
-export function achievementList(lab: PaymentLab, unlocked: ReadonlySet<AchievementId>) {
+export function achievementList(lab: PaymentLabView, unlocked: ReadonlySet<AchievementId>) {
   return achievements
     .map((achievement) => {
       const [title, description] = lab.es ? achievement.es : achievement.en;
@@ -157,7 +157,7 @@ export function achievementList(lab: PaymentLab, unlocked: ReadonlySet<Achieveme
     .join('');
 }
 
-export function achievementToast(lab: PaymentLab) {
+export function achievementToast(lab: PaymentLabView) {
   if (!lab.notices.length) return '';
   return /* HTML */ `<span class="lab-eyebrow">✦ ${lab.copy.achievementUnlockedToast}</span>${lab.notices
       .map((id) => {
