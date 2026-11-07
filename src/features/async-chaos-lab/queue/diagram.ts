@@ -9,8 +9,8 @@ export function queueDiagram(lab: PaymentLabView) {
       ${namingControl(lab)}
       <section class="lab-api">
         ${labFigure('api')}<span class="lab-eyebrow">API</span
-        >${editor('api', lab.labels.api, queueCopy(lab.es).intakeName)}<strong>202</strong>
-        <p>${queueCopy(lab.es).receivedStillToBeRecorded}</p>
+        >${editor('api', lab.labels.api, queueCopy(lab.locale).intakeName)}<strong>202</strong>
+        <p>${queueCopy(lab.locale).receivedStillToBeRecorded}</p>
       </section>
     </div>
     <span class="lab-arrow" aria-hidden="true">→</span>
@@ -20,15 +20,15 @@ export function queueDiagram(lab: PaymentLabView) {
         <div class="lab-node-heading">
           <span data-store-figure>${labFigure(lab.config.storage === 'ram' ? 'ram' : 'db')}</span>
           <div>
-            <span class="lab-eyebrow">${queueCopy(lab.es).pendingPayments}</span
-            >${editor('storage', lab.labels.storage, queueCopy(lab.es).storageName)}
+            <span class="lab-eyebrow">${queueCopy(lab.locale).pendingPayments}</span
+            >${editor('storage', lab.labels.storage, queueCopy(lab.locale).storageName)}
           </div>
         </div>
         <label class="lab-node-setting"
-          ><span class="lab-setting-title">${queueCopy(lab.es).whereTheyWait}</span
+          ><span class="lab-setting-title">${queueCopy(lab.locale).whereTheyWait}</span
           ><select data-setting="storage">
-            <option value="ram">${queueCopy(lab.es).workerRam}</option>
-            <option value="db">${queueCopy(lab.es).database}</option>
+            <option value="ram">${queueCopy(lab.locale).workerRam}</option>
+            <option value="db">${queueCopy(lab.locale).database}</option>
           </select></label
         >
         <p class="lab-choice-note" data-storage-note></p>
@@ -39,14 +39,15 @@ export function queueDiagram(lab: PaymentLabView) {
         <div class="lab-node-heading">
           ${labFigure('worker')}
           <div>
-            <span class="lab-eyebrow">WORKER</span>${editor('worker', lab.labels.worker, queueCopy(lab.es).workerName)}
+            <span class="lab-eyebrow">WORKER</span
+            >${editor('worker', lab.labels.worker, queueCopy(lab.locale).workerName)}
           </div>
         </div>
         <label class="lab-node-setting"
-          ><span class="lab-setting-title">${queueCopy(lab.es).ifThePaymentReturns}</span
+          ><span class="lab-setting-title">${queueCopy(lab.locale).ifThePaymentReturns}</span
           ><select data-setting="protect">
-            <option value="off">${queueCopy(lab.es).doNotCheckItsId}</option>
-            <option value="on">${queueCopy(lab.es).checkItsId}</option>
+            <option value="off">${queueCopy(lab.locale).doNotCheckItsId}</option>
+            <option value="on">${queueCopy(lab.locale).checkItsId}</option>
           </select></label
         >
         <p class="lab-choice-note" data-protection-note></p>

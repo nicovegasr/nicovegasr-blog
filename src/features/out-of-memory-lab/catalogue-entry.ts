@@ -2,11 +2,11 @@ import type { Locale } from '@/i18n/locale';
 import type { LabEntry } from '@/features/labs/lab-entry';
 import { buildLabPath } from '@/i18n/routes';
 import { CHALLENGES, CHALLENGE_QUERY_PARAMETER } from './challenges';
-import { copyFor } from './copy';
+import { outOfMemoryLabCopy } from './copy';
 
 export function exit137Entry(locale: Locale): LabEntry {
   const es = locale === 'es';
-  const copy = copyFor(locale);
+  const copy = outOfMemoryLabCopy(locale);
   return {
     id: 'exit-137',
     title: 'Exit 137',

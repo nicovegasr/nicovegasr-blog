@@ -16,8 +16,9 @@ function resultLabel(lab: PaymentLabView, index: number, count: number) {
   const kind = lab.config.steps[index]?.kind ?? 'append';
   if (kind === 'append')
     return `${count} ${lab.inLocale(count === 1 ? 'registro' : 'registros', count === 1 ? 'record' : 'records')}`;
-  if (kind === 'check') return count ? workerStepsCopy(lab.es).validationOk : workerStepsCopy(lab.es).notValidated;
-  if (kind === 'set-state') return count ? workerStepsCopy(lab.es).stateSet : workerStepsCopy(lab.es).unchanged;
+  if (kind === 'check')
+    return count ? workerStepsCopy(lab.locale).validationOk : workerStepsCopy(lab.locale).notValidated;
+  if (kind === 'set-state') return count ? workerStepsCopy(lab.locale).stateSet : workerStepsCopy(lab.locale).unchanged;
   return `${count} ${lab.inLocale(count === 1 ? 'efecto externo' : 'efectos externos', count === 1 ? 'external effect' : 'external effects')}`;
 }
 
@@ -44,18 +45,18 @@ export const workerStepsLab: PaymentLabDefinition = {
   stepState(lab, index, { progress: progress, active, restarting, uncertain, failed }) {
     const state = lab.state;
     return restarting
-      ? workerStepsCopy(lab.es).restartingBackToFirstStep
+      ? workerStepsCopy(lab.locale).restartingBackToFirstStep
       : uncertain
-        ? workerStepsCopy(lab.es).stepUnconfirmedTimeoutAfterRequesting(index + 1)
+        ? workerStepsCopy(lab.locale).stepUnconfirmedTimeoutAfterRequesting(index + 1)
         : failed
-          ? workerStepsCopy(lab.es).stepFailedDidNotComplete(index + 1)
+          ? workerStepsCopy(lab.locale).stepFailedDidNotComplete(index + 1)
           : active
             ? state.cursor === 'save'
-              ? workerStepsCopy(lab.es).actionDoneSavingProgress
-              : workerStepsCopy(lab.es).runningNow
+              ? workerStepsCopy(lab.locale).actionDoneSavingProgress
+              : workerStepsCopy(lab.locale).runningNow
             : progress.executions === 0
-              ? workerStepsCopy(lab.es).pending
-              : `${progress.executions} ${lab.inLocale(progress.executions === 1 ? 'intento' : 'intentos', progress.executions === 1 ? 'attempt' : 'attempts')} · ${resultLabel(lab, index, progress.effects)}${progress.checkpoint ? ' · ✓ ' + workerStepsCopy(lab.es).saved : ''}${progress.skipped ? ' · ' + progress.skipped + ' ↷' : ''}`;
+              ? workerStepsCopy(lab.locale).pending
+              : `${progress.executions} ${lab.inLocale(progress.executions === 1 ? 'intento' : 'intentos', progress.executions === 1 ? 'attempt' : 'attempts')} · ${resultLabel(lab, index, progress.effects)}${progress.checkpoint ? ' · ✓ ' + workerStepsCopy(lab.locale).saved : ''}${progress.skipped ? ' · ' + progress.skipped + ' ↷' : ''}`;
   },
   lessonStage(lab) {
     if (lab.state.phase === 'won') return 'optimize';
@@ -111,10 +112,10 @@ export const workerStepsLab: PaymentLabDefinition = {
           ),
         0,
       );
-    return /* HTML */ `<span><b>${external}</b> ${workerStepsCopy(lab.es).externalEffects}</span
-      ><span><b>${counts.attempts}</b> ${workerStepsCopy(lab.es).attempts}</span
-      ><span><b>${counts.skipped}</b> ${workerStepsCopy(lab.es).skippedSteps}</span
-      ><span><b>${counts.wasted}</b> ${workerStepsCopy(lab.es).repeatedSteps}</span>`;
+    return /* HTML */ `<span><b>${external}</b> ${workerStepsCopy(lab.locale).externalEffects}</span
+      ><span><b>${counts.attempts}</b> ${workerStepsCopy(lab.locale).attempts}</span
+      ><span><b>${counts.skipped}</b> ${workerStepsCopy(lab.locale).skippedSteps}</span
+      ><span><b>${counts.wasted}</b> ${workerStepsCopy(lab.locale).repeatedSteps}</span>`;
   },
   feedback: workerStepsFeedback,
   tutorial: workerStepsTutorial,
@@ -122,21 +123,21 @@ export const workerStepsLab: PaymentLabDefinition = {
   guideBeat: workerStepsGuideBeat,
   guideOptionalAction: (lab) =>
     lab.state.phase === 'won' && lab.guide !== 'optimize' && !lab.config.steps.every((step) => step.remember)
-      ? button('lesson', workerStepsCopy(lab.es).compareRepeatedWork)
+      ? button('lesson', workerStepsCopy(lab.locale).compareRepeatedWork)
       : '',
   wonOptionalAction: (lab) =>
     lab.guide !== 'off' && !lab.config.steps.every((step) => step.remember)
-      ? button('lesson', workerStepsCopy(lab.es).optionalSaveRepeatedWork)
+      ? button('lesson', workerStepsCopy(lab.locale).optionalSaveRepeatedWork)
       : '',
   duplicateTitle: (lab) =>
     !usesCustomSteps(lab) && lab.state.step === 1
-      ? workerStepsCopy(lab.es).youChargedThemTwice
-      : workerStepsCopy(lab.es).onePaymentTwoEffects,
+      ? workerStepsCopy(lab.locale).youChargedThemTwice
+      : workerStepsCopy(lab.locale).onePaymentTwoEffects,
   wonCaption: (lab) => {
     const counts = totals(lab.state);
-    return workerStepsCopy(lab.es).attemptsSkippedStepsNoDuplicate(counts.attempts, counts.skipped);
+    return workerStepsCopy(lab.locale).attemptsSkippedStepsNoDuplicate(counts.attempts, counts.skipped);
   },
-  duplicateFooters: (lab) => [workerStepsCopy(lab.es).firstEffect, workerStepsCopy(lab.es).repeatedEffect],
+  duplicateFooters: (lab) => [workerStepsCopy(lab.locale).firstEffect, workerStepsCopy(lab.locale).repeatedEffect],
   interruptedEvidence(lab) {
     const state = lab.state,
       job = state.jobs[Math.max(0, state.active)]!;
@@ -154,7 +155,7 @@ export const workerStepsLab: PaymentLabDefinition = {
                   ></span
                 ><strong>${escapeHtml(lab.step(index))}</strong
                 ><small
-                  >${index === state.step && state.incident === 'email-uncertain' ? workerStepsCopy(lab.es).unconfirmedTimeout : resultLabel(lab, index, progress.effects)}</small
+                  >${index === state.step && state.incident === 'email-uncertain' ? workerStepsCopy(lab.locale).unconfirmedTimeout : resultLabel(lab, index, progress.effects)}</small
                 >
               </article>`,
           )
@@ -162,7 +163,7 @@ export const workerStepsLab: PaymentLabDefinition = {
       </div>
       <p class="lab-evidence-caption">
         ${escapeHtml(lab.job(job.id - 1))} · ID ${String(job.id).padStart(2, '0')} ·
-        ${workerStepsCopy(lab.es).whatAlreadyHappenedStillExists}
+        ${workerStepsCopy(lab.locale).whatAlreadyHappenedStillExists}
       </p>`;
   },
   earnedAchievements,

@@ -1,3 +1,4 @@
+import { defineCopy } from '@/i18n/copy';
 const es = {
   paymentsInIndependentDatabaseRecovery: 'Pagos en BDD independiente · recuperación preparada',
   intakeName: 'Nombre de la entrada',
@@ -45,7 +46,7 @@ const es = {
   whatAlreadyHappenedStillExists: 'lo que ya ocurrió sigue existiendo',
 };
 
-const en: typeof es = {
+const en = {
   paymentsInIndependentDatabaseRecovery: 'Payments in independent DB · recovery ready',
   intakeName: 'Intake name',
   storageName: 'Storage name',
@@ -91,4 +92,4 @@ const en: typeof es = {
   whatAlreadyHappenedStillExists: 'what already happened still exists',
 };
 
-export const workerStepsCopy = (spanish: boolean) => (spanish ? es : en);
+export const workerStepsCopy = defineCopy({ es, en });

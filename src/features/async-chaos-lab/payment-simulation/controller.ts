@@ -12,7 +12,7 @@ import type { AchievementId } from './achievements';
 import { workerFrame, WorkerActor } from './worker-actor';
 import { achievementList, achievementToast, labShell, stepCards } from './markup';
 import { paintActiveJob, paintControls, paintJobs, paintNames, paintStatus, paintSteps } from './painter';
-import { inLanguage, isSpanishLab } from '../shared/lab-ui';
+import { inLanguage, isSpanishLab, labLocale } from '../shared/lab-ui';
 import type { PaymentLabSettings, PaymentLabView, RetryStage } from './lab-view';
 import { restoreAchievements, restoreLabels, saveAchievements, saveLabel } from './session';
 
@@ -45,11 +45,14 @@ export abstract class PaymentLab extends HTMLElement implements PaymentLabView, 
   private lastOutcome = '';
   private unlocked = new Set<AchievementId>();
   notices: AchievementId[] = [];
+  get locale() {
+    return labLocale(this);
+  }
   get es() {
     return isSpanishLab(this);
   }
   get copy() {
-    return paymentCopy(this.es);
+    return paymentCopy(this.locale);
   }
   inLocale(es: string, en: string) {
     return inLanguage(this.es, es, en);

@@ -18,7 +18,7 @@ const trial = (overrides: Partial<Trial> = {}): Trial => ({
 describe('Scaling dialogs', () => {
   it('escapes names typed by the player', () => {
     const names = scalingNames(true);
-    const dialog = namesDialog(true, names, () => '"><script>');
+    const dialog = namesDialog('es', names, () => '"><script>');
 
     expect(dialog).not.toContain('"><script>');
     expect(dialog).toContain('&quot;&gt;&lt;script&gt;');
@@ -26,25 +26,25 @@ describe('Scaling dialogs', () => {
 
   it('offers one field per step and per payment', () => {
     const names = scalingNames(true);
-    const dialog = namesDialog(true, names, (key) => key);
+    const dialog = namesDialog('es', names, (key) => key);
 
     expect(dialog).toContain('data-rename="step-3"');
     expect(dialog).toContain('data-rename="job-23"');
   });
 
   it('adds up what each worker reserves', () => {
-    const dialog = costDialog(false, createScaling(), scalingDefaults());
+    const dialog = costDialog('en', createScaling(), scalingDefaults());
 
     expect(dialog).toContain('1 × 0 s = 0 u');
     expect(dialog).toContain('teaching units');
   });
 
   it('asks to finish a trial before comparing', () => {
-    expect(comparisonDialog(false, [])).toContain('Finish a trial');
+    expect(comparisonDialog('en', [])).toContain('Finish a trial');
   });
 
   it('lists every trial, marking wins and rejected runs', () => {
-    const dialog = comparisonDialog(false, [trial({ won: true }), trial({ rateLimitedStep: 1 })]);
+    const dialog = comparisonDialog('en', [trial({ won: true }), trial({ rateLimitedStep: 1 })]);
 
     expect(dialog).toContain('data-action="replay:0"');
     expect(dialog).toContain('data-action="replay:1"');

@@ -15,7 +15,11 @@ import { queueCopy } from './copy';
 function resultLabel(lab: PaymentLabView, index: number, count: number) {
   const kind = lab.config.steps[index]?.kind ?? 'append';
   if (kind === 'check')
-    return count ? (index === 0 ? queueCopy(lab.es).validated : queueCopy(lab.es).prepared) : queueCopy(lab.es).pending;
+    return count
+      ? index === 0
+        ? queueCopy(lab.locale).validated
+        : queueCopy(lab.locale).prepared
+      : queueCopy(lab.locale).pending;
   return `${count} ${lab.inLocale(count === 1 ? 'registro' : 'registros', count === 1 ? 'record' : 'records')}`;
 }
 
@@ -39,7 +43,7 @@ export const queueLab: PaymentLabDefinition = {
   diagram: queueDiagram,
   stepDescription: (lab, step) =>
     /* HTML */ `<p class="lab-step-contract">
-      ${step.kind === 'append' ? queueCopy(lab.es).onlyOneRecordPerId : queueCopy(lab.es).safeToRepeat}
+      ${step.kind === 'append' ? queueCopy(lab.locale).onlyOneRecordPerId : queueCopy(lab.locale).safeToRepeat}
     </p>`,
   stepOptions: () => '',
   stepState: (lab, index, { progress, shown, active }) =>
@@ -64,18 +68,18 @@ export const queueLab: PaymentLabDefinition = {
     lab.element('[data-process]').className = `lab-process ${lab.config.storage === 'ram' ? 'is-ram' : 'is-durable'}`;
     lab.element('[data-boundary]').textContent =
       lab.config.storage === 'ram'
-        ? queueCopy(lab.es).sameProcessSharedFate
-        : queueCopy(lab.es).independentDatabaseSurvivesWorker;
+        ? queueCopy(lab.locale).sameProcessSharedFate
+        : queueCopy(lab.locale).independentDatabaseSurvivesWorker;
     lab.replace('[data-store-figure]', labFigure(lab.config.storage === 'ram' ? 'ram' : 'db'));
     lab.element<HTMLSelectElement>('[data-setting=storage]').value = lab.config.storage;
     lab.element<HTMLSelectElement>('[data-setting=protect]').value = lab.config.protectLocalRecord ? 'on' : 'off';
     lab.element('[data-storage-note]').textContent =
       lab.config.storage === 'ram'
-        ? queueCopy(lab.es).pendingWorkInsideTheWorker
-        : queueCopy(lab.es).pendingWorkSurvivesTheWorker;
+        ? queueCopy(lab.locale).pendingWorkInsideTheWorker
+        : queueCopy(lab.locale).pendingWorkSurvivesTheWorker;
     lab.element('[data-protection-note]').textContent = lab.config.protectLocalRecord
-      ? queueCopy(lab.es).keepOneRowPerId
-      : queueCopy(lab.es).eachAttemptCanCreateAnotherRow;
+      ? queueCopy(lab.locale).keepOneRowPerId
+      : queueCopy(lab.locale).eachAttemptCanCreateAnotherRow;
   },
   metrics(lab) {
     const state = lab.state,
@@ -90,8 +94,8 @@ export const queueLab: PaymentLabDefinition = {
           ),
         0,
       );
-    return /* HTML */ `<span><b>${repeatedDeliveries}</b> ${queueCopy(lab.es).redeliveries}</span
-      ><span><b>${extraRecords}</b> ${queueCopy(lab.es).extraRecords}</span>`;
+    return /* HTML */ `<span><b>${repeatedDeliveries}</b> ${queueCopy(lab.locale).redeliveries}</span
+      ><span><b>${extraRecords}</b> ${queueCopy(lab.locale).extraRecords}</span>`;
   },
   feedback: queueFeedback,
   tutorial: queueTutorial,
@@ -99,27 +103,29 @@ export const queueLab: PaymentLabDefinition = {
   guideBeat: queueGuideBeat,
   guideOptionalAction: () => '',
   wonOptionalAction: () => '',
-  duplicateTitle: (lab) => queueCopy(lab.es).onePaymentTwoRecords,
+  duplicateTitle: (lab) => queueCopy(lab.locale).onePaymentTwoRecords,
   wonCaption: (lab) => {
     const counts = totals(lab.state);
-    return queueCopy(lab.es).attemptsThreeRecordsOnePerId(counts.attempts);
+    return queueCopy(lab.locale).attemptsThreeRecordsOnePerId(counts.attempts);
   },
-  duplicateFooters: (lab) => [queueCopy(lab.es).firstRecord, queueCopy(lab.es).secondRecord],
+  duplicateFooters: (lab) => [queueCopy(lab.locale).firstRecord, queueCopy(lab.locale).secondRecord],
   interruptedEvidence(lab) {
     const state = lab.state,
       job = state.jobs[Math.max(0, state.active)]!;
     return /* HTML */ `<div class="lab-ack-evidence">
       <div>
-        <span>${queueCopy(lab.es).paymentId}</span
+        <span>${queueCopy(lab.locale).paymentId}</span
         ><strong>${String(job.id).padStart(2, '0')} · ${escapeHtml(lab.job(job.id - 1))}</strong>
       </div>
       <div>
-        <span>${queueCopy(lab.es).itsRecord}</span
+        <span>${queueCopy(lab.locale).itsRecord}</span
         ><strong
-          >${state.incident === 'ack-retry' ? '✓ ' + queueCopy(lab.es).oneRowAlreadyExists : '— ' + queueCopy(lab.es).notRecordedYet}</strong
+          >${state.incident === 'ack-retry' ? '✓ ' + queueCopy(lab.locale).oneRowAlreadyExists : '— ' + queueCopy(lab.locale).notRecordedYet}</strong
         >
       </div>
-      <div><span>${queueCopy(lab.es).inTheDatabase}</span><strong>↻ ${queueCopy(lab.es).availableToRetry}</strong></div>
+      <div>
+        <span>${queueCopy(lab.locale).inTheDatabase}</span><strong>↻ ${queueCopy(lab.locale).availableToRetry}</strong>
+      </div>
     </div>`;
   },
   earnedAchievements,

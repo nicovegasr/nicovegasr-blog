@@ -1,3 +1,4 @@
+import { defineCopy } from '@/i18n/copy';
 const es = {
   step: 'Paso',
   guidedWalkthrough: 'Recorrido guiado',
@@ -91,7 +92,7 @@ const es = {
   now: 'AHORA',
 };
 
-const en: typeof es = {
+const en = {
   step: 'Step',
   guidedWalkthrough: 'Guided walkthrough',
   simulationControls: 'Simulation controls',
@@ -183,4 +184,4 @@ const en: typeof es = {
   now: 'NOW',
 };
 
-export const paymentCopy = (spanish: boolean) => (spanish ? es : en);
+export const paymentCopy = defineCopy({ es, en });

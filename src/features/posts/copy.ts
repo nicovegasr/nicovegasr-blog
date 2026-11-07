@@ -1,5 +1,4 @@
-import type { Locale } from '@/i18n/locale';
-
+import { defineCopy } from '@/i18n/copy';
 const es = {
   readMore: 'Leer →',
   readOn: 'Leer en',
@@ -14,7 +13,7 @@ const es = {
   lead: 'Notas sobre arquitectura, rendimiento y sistemas distribuidos.',
 };
 
-const en: typeof es = {
+const en = {
   readMore: 'Read →',
   readOn: 'Read on',
   empty: 'No articles published yet.',
@@ -28,4 +27,4 @@ const en: typeof es = {
   lead: 'Notes on architecture, performance and distributed systems.',
 };
 
-export const postsCopy = (locale: Locale) => (locale === 'es' ? es : en);
+export const postsCopy = defineCopy({ es, en });

@@ -84,7 +84,7 @@ Below the articles, the friends' blogs section renders the shared Coverflow comp
 - `routes.ts` builds and translates logical routes.
 - `entry-identifier.ts` extracts locale and slug from content entry identifiers.
 
-Text that belongs to one feature lives in that feature's `copy.ts`, which exports a `<feature>Copy(locale)` returning the Spanish or English object; the English object is typed as the Spanish one, so a missing text fails the build. The shell uses `getTranslator(locale)`. Do not hard-code localized route segments in feature UI. Technical identifiers, proper nouns, and authored Markdown remain separate from interface translations.
+Text that belongs to one feature lives in that feature's `copy.ts`: `export const <feature>Copy = defineCopy({ es, en })`, from `i18n/copy.ts`, gives a `(locale) => text` function. Spanish sets the shape and English must match it, so a missing text fails the build. Copy functions take a `Locale`, never a boolean. The shell uses `getTranslator(locale)`. Do not hard-code localized route segments in feature UI. Technical identifiers, proper nouns, and authored Markdown remain separate from interface translations.
 
 ## Presentation and static navigation
 

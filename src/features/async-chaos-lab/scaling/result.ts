@@ -1,3 +1,4 @@
+import type { Locale } from '@/i18n/locale';
 import { button } from '../shared/lab-ui';
 import { outcomeShell } from '../shared/outcome-shell';
 import { escapeHtml } from '../shared/text';
@@ -9,7 +10,7 @@ import { number, stepWithMostWaiting, teamLabel } from './format';
 import type { Trial } from './session';
 
 export type ResultContext = {
-  es: boolean;
+  locale: Locale;
   state: ScalingState;
   config: ScalingConfig;
   names: Names;
@@ -18,14 +19,14 @@ export type ResultContext = {
 };
 
 export function rateLimitScene(
-  { es, state, config, names, history }: ResultContext,
+  { locale, state, config, names, history }: ResultContext,
   rejection: NonNullable<ScalingState['rateLimit']>,
 ) {
-  const copy = scalingCopy(es);
+  const copy = scalingCopy(locale);
   const metrics = scalingMetrics(state),
     step = rejection.step;
   return outcomeShell({
-    es: es,
+    es: locale === 'es',
     trial: history.length,
     fatal: true,
     kicker: copy.trialStoppedHttp429,
@@ -38,8 +39,8 @@ export function rateLimitScene(
   });
 }
 
-export function trialResult({ es, state, config, names, history, awards }: ResultContext) {
-  const copy = scalingCopy(es);
+export function trialResult({ locale, state, config, names, history, awards }: ResultContext) {
+  const copy = scalingCopy(locale);
   const metrics = scalingMetrics(state),
     verdict = scalingVerdict(state);
   const title = verdict.won

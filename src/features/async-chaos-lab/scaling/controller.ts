@@ -30,7 +30,7 @@ import type { Names } from './content';
 import { cleanLabel, escapeHtml } from '../shared/text';
 import { labFigure } from '../shared/figures';
 import { paintSteps, paintWorkers } from './painter';
-import { button, isSpanishLab } from '../shared/lab-ui';
+import { button, isSpanishLab, labLocale } from '../shared/lab-ui';
 import { MAXIMUM_RESTORED_TRIALS, restoreAchievements, restoreSession, saveAchievements, saveSession } from './session';
 import type { Trial } from './session';
 
@@ -47,11 +47,14 @@ class QueueScaling extends HTMLElement {
   private selectedJob = 0;
   private modalAction: (() => void) | undefined;
   private packets: HTMLButtonElement[] = [];
+  private get locale() {
+    return labLocale(this);
+  }
   private get es() {
     return isSpanishLab(this);
   }
   private get copy() {
-    return scalingCopy(this.es);
+    return scalingCopy(this.locale);
   }
   private element<T extends HTMLElement = HTMLElement>(selector: string) {
     return this.querySelector<T>(selector)!;
@@ -60,7 +63,7 @@ class QueueScaling extends HTMLElement {
   connectedCallback() {
     ({ names: this.names, history: this.history } = restoreSession(scalingNames(this.es), this.es));
     this.unlocked = restoreAchievements();
-    this.innerHTML = scalingDiagram(this.es, this.speed);
+    this.innerHTML = scalingDiagram(this.locale, this.speed);
     const pending = this.element('[data-location=pending]');
     this.packets = this.state.jobs.map((job) => {
       const packet = document.createElement('button');
@@ -466,7 +469,7 @@ class QueueScaling extends HTMLElement {
   }
   private resultContext(): ResultContext {
     return {
-      es: this.es,
+      locale: this.locale,
       state: this.state,
       config: this.config,
       names: this.names,
@@ -477,15 +480,19 @@ class QueueScaling extends HTMLElement {
   private showNames() {
     this.modal(
       this.copy.makeItYourSystem,
-      namesDialog(this.es, this.names, (key) => this.name(key)),
+      namesDialog(this.locale, this.names, (key) => this.name(key)),
       this.copy.done,
     );
   }
   private showCost() {
-    this.modal(this.copy.payingForReservedCapacity, costDialog(this.es, this.state, this.config), this.copy.gotIt);
+    this.modal(this.copy.payingForReservedCapacity, costDialog(this.locale, this.state, this.config), this.copy.gotIt);
   }
   private showComparison() {
-    this.modal(this.copy.sameWorkDifferentTeams, comparisonDialog(this.es, this.history), this.copy.keepExperimenting);
+    this.modal(
+      this.copy.sameWorkDifferentTeams,
+      comparisonDialog(this.locale, this.history),
+      this.copy.keepExperimenting,
+    );
   }
 }
 

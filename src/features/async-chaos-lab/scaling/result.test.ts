@@ -7,7 +7,7 @@ import type { ResultContext } from './result';
 import type { Trial } from './session';
 
 const contextFor = (config: ScalingConfig, history: Trial[] = []): ResultContext => ({
-  es: true,
+  locale: 'es',
   state: runScaling(config),
   config,
   names: scalingNames(true),

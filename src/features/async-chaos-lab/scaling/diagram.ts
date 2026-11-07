@@ -1,12 +1,13 @@
+import type { Locale } from '@/i18n/locale';
 import { labFigure } from '../shared/figures';
 import { button } from '../shared/lab-ui';
 import { stepControlsCopy } from './content';
 import { scalingCopy } from './copy';
 import { PLAYBACK_SPEEDS, AVAILABLE_WORKERS, isHttpStep, TARGET_COST, TARGET_SECONDS } from './engine';
 
-function stepCard(es: boolean, step: number) {
-  const copy = stepControlsCopy(es);
-  const resources = ['CPU · 1 s', 'HTTP · 3 s', `${scalingCopy(es).database} · 1 s`, 'HTTP · 1 s'];
+function stepCard(locale: Locale, step: number) {
+  const copy = stepControlsCopy(locale === 'es');
+  const resources = ['CPU · 1 s', 'HTTP · 3 s', `${scalingCopy(locale).database} · 1 s`, 'HTTP · 1 s'];
   return `<article class="scaling-step" data-step="${step}">
     <div class="scaling-step-heading"><small>0${step + 1} <span>${resources[step]}</span></small><strong data-name="step-${step}"></strong></div>
     <div class="scaling-resource"><span data-status="${step}"></span><b data-capacity="${step}"></b></div>
@@ -18,8 +19,8 @@ function stepCard(es: boolean, step: number) {
   </article>`;
 }
 
-export function scalingDiagram(es: boolean, speed: number) {
-  const copy = scalingCopy(es);
+export function scalingDiagram(locale: Locale, speed: number) {
+  const copy = scalingCopy(locale);
   return `
       <div class="scaling-mission"><span class="scaling-mission-mark" aria-hidden="true">↗</span><p><strong>${copy.twentyFourPaymentsLessWaiting}</strong><span>${copy.yourMissionFinishWithinTargets(TARGET_SECONDS, TARGET_COST)}</span></p></div>
       <section class="scaling-board" aria-label="${copy.paymentFlow}">
@@ -33,7 +34,7 @@ export function scalingDiagram(es: boolean, speed: number) {
             <div class="scaling-team-heading">${labFigure('worker')}<div><small data-team-summary>${copy.teamUpTo8Workers}</small><strong data-name="worker"></strong></div><div class="scaling-hire"><span>Workers</span>${button('less', '−', `aria-label="${copy.removeOneWorker}" data-config`)}<output data-workers>1</output>${button('more', '+', `aria-label="${copy.addOneWorker}" data-config`)}</div><div class="scaling-hire"><span>${copy.paymentsAtOncePerWorker}</span>${button('concurrency-less', '−', `aria-label="${copy.reducePaymentsAtOncePerWorker}" data-config`)}<output data-concurrency>1</output>${button('concurrency-more', '+', `aria-label="${copy.increasePaymentsAtOncePerWorker}" data-config`)}</div></div>
             <div class="scaling-worker-rack" data-worker-rack>${Array.from({ length: AVAILABLE_WORKERS }, (_, index) => button(`worker:${index + 1}`, `<span class="scaling-worker-name">W${String(index + 1).padStart(2, '0')}</span><span class="scaling-worker-character" aria-hidden="true"><span class="scaling-worker-sprite"></span><span class="scaling-worker-signal" data-worker-signal></span></span><b>—</b><small data-worker-status></small>`, `data-worker="${index + 1}" class="scaling-worker" hidden`)).join('')}</div>
           </div>
-          <div class="scaling-flow">${[0, 1, 2, 3].map((step) => stepCard(es, step)).join('')}</div>
+          <div class="scaling-flow">${[0, 1, 2, 3].map((step) => stepCard(locale, step)).join('')}</div>
           <div class="scaling-delivered"><span>✓ ${copy.completed}</span><div data-location="done"></div><b data-done>0/24</b></div>
         </div>
       </section>

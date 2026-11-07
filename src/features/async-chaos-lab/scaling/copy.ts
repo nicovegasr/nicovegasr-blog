@@ -1,3 +1,4 @@
+import { defineCopy } from '@/i18n/copy';
 const es = {
   twentyFourPaymentsLessWaiting: '24 pagos. Menos espera.',
   yourMissionFinishWithinTargets: (targetSeconds: string | number, targetCost: string | number) =>
@@ -152,7 +153,7 @@ const es = {
     'Busca dónde se acumula la espera. Sin esperas, cada worker puede llevar más pagos a la vez. Si esperan CPU, hace falta otro worker. Si esperan a un servicio, más workers no lo aceleran: le faltan plazas.',
 };
 
-const en: typeof es = {
+const en = {
   twentyFourPaymentsLessWaiting: '24 payments. Less waiting.',
   yourMissionFinishWithinTargets: (targetSeconds: string | number, targetCost: string | number) =>
     `Your mission: finish within ${targetSeconds} s and a cost ≤ ${targetCost} u. Full slots mean waiting; exceeding the HTTP quota means a 429.`,
@@ -306,4 +307,4 @@ const en: typeof es = {
     'Find where waiting builds up. With no waiting, each worker can hold more payments. If they wait for CPU, you need another worker. If they wait for a service, more workers will not speed it up: it needs more slots.',
 };
 
-export const scalingCopy = (spanish: boolean) => (spanish ? es : en);
+export const scalingCopy = defineCopy({ es, en });

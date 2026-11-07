@@ -1,5 +1,4 @@
-import type { Locale } from '@/i18n/locale';
-
+import { defineCopy } from '@/i18n/copy';
 const es = {
   metaDescription: 'Nicolás Vegas, ingeniero informático: lo que conozco y mi trayectoria.',
   portraitAlt: 'Foto de Nicolás Vegas',
@@ -14,7 +13,7 @@ const es = {
   organizationWebsite: 'Visitar la web de',
 };
 
-const en: typeof es = {
+const en = {
   metaDescription: 'Nicolás Vegas, software engineer: what I know and my journey.',
   portraitAlt: 'Photo of Nicolás Vegas',
   heroStatement: 'Nicolás Vegas',
@@ -28,4 +27,4 @@ const en: typeof es = {
   organizationWebsite: 'Visit the website of',
 };
 
-export const aboutMeCopy = (locale: Locale) => (locale === 'es' ? es : en);
+export const aboutMeCopy = defineCopy({ es, en });

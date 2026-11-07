@@ -1,5 +1,4 @@
-import type { Locale } from '@/i18n/locale';
-
+import { defineCopy } from '@/i18n/copy';
 const es = {
   metaDescription:
     'Píldoras de Nicolás Vegas sobre Docker, APIs y diseño de sistemas: conceptos concretos explicados en pequeño.',
@@ -27,7 +26,7 @@ const es = {
   lead: 'Conceptos reducidos al mínimo para ver cómo funcionan, sin perder rigor.',
 };
 
-const en: typeof es = {
+const en = {
   metaDescription:
     "Nicolás Vegas's learning pills on Docker, APIs and system design: concrete concepts explained in small pieces.",
   upcoming: 'Under construction 🚧',
@@ -54,4 +53,4 @@ const en: typeof es = {
   lead: 'Concepts reduced to the minimum to see how they work, without losing rigor.',
 };
 
-export const pillsCopy = (locale: Locale) => (locale === 'es' ? es : en);
+export const pillsCopy = defineCopy({ es, en });

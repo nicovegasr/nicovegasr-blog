@@ -1,11 +1,10 @@
-import type { Locale } from '@/i18n/locale';
-
+import { defineCopy } from '@/i18n/copy';
 const es = {
   minutesOfReading: 'min de lectura',
 };
 
-const en: typeof es = {
+const en = {
   minutesOfReading: 'min read',
 };
 
-export const readingTimeCopy = (locale: Locale) => (locale === 'es' ? es : en);
+export const readingTimeCopy = defineCopy({ es, en });

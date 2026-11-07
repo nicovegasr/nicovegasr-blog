@@ -1,3 +1,4 @@
+import { defineCopy } from '@/i18n/copy';
 const es = {
   intakeName: 'Nombre de la entrada',
   receivedStillToBeRecorded: 'Recibido. Falta registrarlo.',
@@ -35,7 +36,7 @@ const es = {
   availableToRetry: 'Disponible para reintentar',
 };
 
-const en: typeof es = {
+const en = {
   intakeName: 'Intake name',
   receivedStillToBeRecorded: 'Received. Still to be recorded.',
   pendingPayments: 'PENDING PAYMENTS',
@@ -72,4 +73,4 @@ const en: typeof es = {
   availableToRetry: 'Available to retry',
 };
 
-export const queueCopy = (spanish: boolean) => (spanish ? es : en);
+export const queueCopy = defineCopy({ es, en });

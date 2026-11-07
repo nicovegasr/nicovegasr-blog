@@ -1,5 +1,4 @@
-import type { Locale } from '@/i18n/locale';
-
+import { defineCopy } from '@/i18n/copy';
 const es = {
   title: 'Blogs relacionados',
   lead: 'Más gente con la que seguir aprendiendo.',
@@ -13,7 +12,7 @@ const es = {
   swipeHint: 'Desliza para explorar',
 };
 
-const en: typeof es = {
+const en = {
   title: 'Related blogs',
   lead: 'More people to keep learning from.',
   pause: 'Pause',
@@ -26,4 +25,4 @@ const en: typeof es = {
   swipeHint: 'Swipe to explore',
 };
 
-export const friendBlogsCopy = (locale: Locale) => (locale === 'es' ? es : en);
+export const friendBlogsCopy = defineCopy({ es, en });

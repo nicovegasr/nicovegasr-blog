@@ -2,7 +2,7 @@
 import type { Locale } from '@/i18n/locale';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { CHALLENGES } from './challenges';
-import { copyFor } from './copy';
+import { outOfMemoryLabCopy } from './copy';
 import { READ_CARDS, WRITE_CARDS } from './engine';
 import './out-of-memory.css';
 import './out-of-memory-mascot.css';
@@ -16,7 +16,7 @@ interface Props {
 }
 
 const { locale } = Astro.props;
-const copy = copyFor(locale);
+const copy = outOfMemoryLabCopy(locale);
 const { page, cards: cardCopy } = copy;
 const title = 'Exit 137';
 ---

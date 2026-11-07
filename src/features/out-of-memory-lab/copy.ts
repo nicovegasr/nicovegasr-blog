@@ -1,4 +1,4 @@
-import type { Locale } from '@/i18n/locale';
+import { defineCopy } from '@/i18n/copy';
 import type { Card, IncidentKind } from './engine';
 import type { HintKey } from './guide';
 import { englishCopy } from './copy-en';
@@ -120,6 +120,4 @@ export interface LabCopy {
   };
 }
 
-const COPY_BY_LOCALE: Readonly<Record<Locale, LabCopy>> = { es: spanishCopy, en: englishCopy };
-
-export const copyFor = (locale: Locale): LabCopy => COPY_BY_LOCALE[locale];
+export const outOfMemoryLabCopy = defineCopy<LabCopy>({ es: spanishCopy, en: englishCopy });

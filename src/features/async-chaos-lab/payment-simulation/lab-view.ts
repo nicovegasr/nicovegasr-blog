@@ -1,3 +1,4 @@
+import type { Locale } from '@/i18n/locale';
 import type { AchievementId } from './achievements';
 import type { paymentCopy } from './copy';
 import type { PaymentLabDefinition } from './definition';
@@ -10,6 +11,7 @@ export type RetryStage = 'failure' | 'restart';
 /** What templates and narration may read. They cannot change the lab. */
 export interface PaymentLabView {
   readonly definition: PaymentLabDefinition;
+  readonly locale: Locale;
   readonly es: boolean;
   readonly copy: ReturnType<typeof paymentCopy>;
   readonly config: Readonly<SimulationConfig>;
@@ -39,6 +41,7 @@ export type PaintedPaymentLab = PaymentLabView &
 
 /** What a lab's own settings may change. */
 export interface PaymentLabSettings {
+  readonly locale: Locale;
   readonly es: boolean;
   readonly config: SimulationConfig;
   guide: GuideStage;
