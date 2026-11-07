@@ -2,6 +2,7 @@
    Later sections override earlier ones, so this order is part of the cascade. */
 @import './stories/foundation.css';
 @import './stories/outcome-scene.css';
+@import './stories/outcome-scene-responsive.css';
 @import './stories/first-lab.css';
 @import './stories/component-roles.css';
 @import './stories/outcome-overlay.css';

@@ -1,0 +1,114 @@
+/* Keep admission decisions on the diagram, with the consequence in plain sight. */
+scaling-lab .scaling-radio [data-radio] > button {
+  border: 0;
+  background: none;
+  color: inherit;
+  margin-left: 0.6rem;
+  font-size: 0.8rem;
+}
+scaling-lab .scaling-job {
+  white-space: nowrap;
+}
+
+scaling-lab .scaling-first-result {
+  grid-template-columns: 1fr;
+}
+scaling-lab .scaling-first-trial {
+  color: var(--color-text-soft);
+  font-size: 0.75rem;
+}
+
+scaling-lab * {
+  box-sizing: border-box;
+}
+
+scaling-lab .scaling-step-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.65rem;
+}
+scaling-lab .scaling-capacity-control {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+scaling-lab .scaling-capacity-control button {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--scaling-blue);
+  border-radius: 4px;
+  color: var(--scaling-blue);
+  background: var(--scaling-wash);
+}
+scaling-lab .scaling-capacity-control output {
+  min-width: 1.2rem;
+  font-weight: 600;
+  text-align: center;
+}
+scaling-lab .scaling-capacity-cost {
+  display: block;
+  min-height: 1em;
+  margin-top: 0.3rem;
+  color: var(--color-text-soft);
+  font-size: 0.5rem;
+}
+scaling-lab .scaling-rate-controls {
+  border-top: 1px dashed var(--color-rule);
+  margin-top: 0.45rem;
+  padding-top: 0.45rem;
+}
+scaling-lab .scaling-rate-usage {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--color-text-soft);
+  font: 0.5rem/1.4 var(--font-family-mono);
+}
+scaling-lab .scaling-step.is-rejected .scaling-rate-usage {
+  color: var(--scaling-coral);
+}
+scaling-lab .scaling-rate-evidence strong {
+  display: block;
+  font: 600 2.4rem/1 var(--font-family-display);
+}
+scaling-lab .scaling-rate-evidence p {
+  font: 0.7rem/1.5 var(--font-family-mono);
+  margin-top: 0.8rem;
+}
+scaling-lab .scaling-rejected-result {
+  display: block;
+  color: var(--scaling-coral);
+  margin-top: 0.2rem;
+}
+
+/* Share the existing award vocabulary without adding another board panel. */
+scaling-lab .scaling-dialog {
+  --lab-wash: var(--scaling-wash);
+  --lab-scene-rule: var(--color-rule);
+  --lab-scene-soft: var(--color-text-soft);
+}
+scaling-lab .scaling-result-awards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
+  gap: 0 1rem;
+}
+
+scaling-lab .scaling-result-awards .lab-earned {
+  margin-top: 1rem;
+  gap: 0.5rem;
+}
+scaling-lab .scaling-result-awards .lab-earned p {
+  font-size: 0.65rem;
+  line-height: 1.5;
+}
+
+/* Four cards stay in one row down to 701px, too narrow for a label beside its stepper. */
+@media (min-width: 701px) and (max-width: 950px) {
+  scaling-lab .scaling-step-controls {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+  }
+}

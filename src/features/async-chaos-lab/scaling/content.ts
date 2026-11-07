@@ -17,7 +17,7 @@ export function scalingNames(es: boolean): Names {
   };
 }
 export function callCopy(_scene: 'intro', names: Names, es: boolean) {
-  const translate = (spanish: string, english: string) => es ? spanish : english;
+  const translate = (spanish: string, english: string) => (es ? spanish : english);
   return {
     title: translate('Todo funciona. Demasiado despacio.', 'It works. Too slowly.'),
     report: translate(
@@ -32,7 +32,7 @@ export function callCopy(_scene: 'intro', names: Names, es: boolean) {
   };
 }
 export function stepControlsCopy(es: boolean) {
-  const translate = (spanish: string, english: string) => es ? spanish : english;
+  const translate = (spanish: string, english: string) => (es ? spanish : english);
   return {
     waiting: translate('Esperando turno', 'Waiting for a slot'),
     concurrentSlots: translate('Plazas simultáneas', 'Concurrent slots'),

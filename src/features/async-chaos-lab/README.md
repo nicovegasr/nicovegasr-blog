@@ -13,8 +13,8 @@ npm install
 npm run dev -- --host 127.0.0.1 --port 4328
 ```
 
-| Experience               | Spanish                       | English                      |
-| ------------------------ | ----------------------------- | ---------------------------- |
+| Experience               | Spanish                          | English                     |
+| ------------------------ | -------------------------------- | --------------------------- |
 | Catalogue                | `/contenido/laboratorios/`       | `/en/content/labs/`         |
 | Protect pending payments | `/laboratorios/async-chaos-lab/` | `/en/labs/async-chaos-lab/` |
 | Inside the worker        | `/laboratorios/worker-steps/`    | `/en/labs/worker-steps/`    |
@@ -81,7 +81,8 @@ shared/              What all three share: outcome shell, figures, links, styles
    templates and text.
 5. **`payment-simulation/controller.ts`**: the custom element handles clicks and
    schedules `advance` every 650 ms, and delegates what differs to the definition.
-   `dialogs.ts` and `guide-panel.ts` build the HTML of the calls, outcomes and
+   `markup.ts` builds the shell, diagram pieces and achievements, `painter.ts` paints each
+   engine snapshot, and `dialogs.ts` and `guide-panel.ts` build the HTML of the calls, outcomes and
    walkthrough; the controller owns their timers, focus and modal state. None of them
    decides whether a charge, record or checkpoint exists.
 6. **`queue/QueuePage.astro`, `worker-steps/WorkerStepsPage.astro`, `scaling/ScalingPage.astro`,

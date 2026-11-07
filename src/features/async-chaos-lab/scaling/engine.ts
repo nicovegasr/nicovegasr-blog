@@ -76,12 +76,17 @@ export function createScaling(config = scalingDefaults()): ScalingState {
     config.concurrencyPerWorker > MAXIMUM_CONCURRENCY_PER_WORKER ||
     untrusted.capacities.length !== 4 ||
     untrusted.durations.length !== 4 ||
-    config.capacities.some((capacity) => !Number.isInteger(capacity) || capacity < 1 || capacity > MAXIMUM_STEP_CAPACITY) ||
-    config.durations.some(
-      (ticks) => !Number.isInteger(ticks) || ticks < 1 || ticks > 120,
+    config.capacities.some(
+      (capacity) => !Number.isInteger(capacity) || capacity < 1 || capacity > MAXIMUM_STEP_CAPACITY,
     ) ||
+    config.durations.some((ticks) => !Number.isInteger(ticks) || ticks < 1 || ticks > 120) ||
     !untrusted.rateLimits ||
-    ([1, 3] as const).some((step) => !Number.isInteger(config.rateLimits[step]) || config.rateLimits[step] < 1 || config.rateLimits[step] > MAXIMUM_RATE_LIMIT)
+    ([1, 3] as const).some(
+      (step) =>
+        !Number.isInteger(config.rateLimits[step]) ||
+        config.rateLimits[step] < 1 ||
+        config.rateLimits[step] > MAXIMUM_RATE_LIMIT,
+    )
   )
     throw new Error('Invalid scaling configuration');
   return {
@@ -133,9 +138,7 @@ function schedule(state: ScalingState) {
   );
   const capacities = resourceCapacities(state.config);
   for (let step = 0; step < 4; step++) {
-    let active = state.jobs.filter(
-      (job) => job.step === step && job.status === 'running',
-    ).length;
+    let active = state.jobs.filter((job) => job.step === step && job.status === 'running').length;
     const waiting = state.jobs
       .filter((job) => job.step === step && job.status === 'waiting')
       .sort((job, otherJob) => job.waitingSince - otherJob.waitingSince || job.id - otherJob.id);
@@ -155,7 +158,9 @@ function schedule(state: ScalingState) {
           job.status = 'rejected';
           state.phase = 'rate-limited';
           state.rateLimit = {
-            step, job: job.id, limit,
+            step,
+            job: job.id,
+            limit,
             retryAfterSeconds: ((window + 1) * RATE_WINDOW_TICKS - state.tick) * TICK_SECONDS,
           };
           event(state, job, 'rate-limit');
@@ -173,24 +178,20 @@ function schedule(state: ScalingState) {
   }
 }
 export function playScaling(previous: ScalingState): ScalingState {
-  if (previous.phase !== 'ready' && previous.phase !== 'paused')
-    return previous;
+  if (previous.phase !== 'ready' && previous.phase !== 'paused') return previous;
   const state = structuredClone(previous);
   state.phase = 'running';
   if (previous.phase === 'ready') schedule(state);
   return state;
 }
 export function pauseScaling(previous: ScalingState): ScalingState {
-  return previous.phase === 'running'
-    ? { ...previous, phase: 'paused' }
-    : previous;
+  return previous.phase === 'running' ? { ...previous, phase: 'paused' } : previous;
 }
 export function tickScaling(previous: ScalingState): ScalingState {
   if (previous.phase !== 'running') return previous;
   const state = structuredClone(previous);
   for (const job of state.jobs) {
-    if (job.status === 'waiting')
-      state.waitTicks[job.step]!++;
+    if (job.status === 'waiting') state.waitTicks[job.step]!++;
     if (job.status === 'running') state.busyTicks[job.step]!++;
   }
   state.tick++;
@@ -210,19 +211,22 @@ export function tickScaling(previous: ScalingState): ScalingState {
     }
   }
   schedule(state);
-  if (state.jobs.every((job) => job.status === 'done'))
-    state.phase = 'complete';
+  if (state.jobs.every((job) => job.status === 'done')) state.phase = 'complete';
   return state;
 }
 export function scalingMetrics(state: ScalingState) {
   const seconds = state.tick * TICK_SECONDS;
   const completed = state.jobs.filter((job) => job.status === 'done').length;
   const workerCost = seconds * state.config.workers;
-  const extraCapacity = state.config.capacities.reduce((total, capacity, step) =>
-    total + Math.max(0, capacity - BASE_CAPACITIES[step]!), 0);
+  const extraCapacity = state.config.capacities.reduce(
+    (total, capacity, step) => total + Math.max(0, capacity - BASE_CAPACITIES[step]!),
+    0,
+  );
   const extraServiceCost = seconds * extraCapacity;
-  const extraQuota = ([1, 3] as const).reduce((sum, step) =>
-    sum + Math.max(0, state.config.rateLimits[step] - BASE_RATE_LIMITS[step]), 0);
+  const extraQuota = ([1, 3] as const).reduce(
+    (sum, step) => sum + Math.max(0, state.config.rateLimits[step] - BASE_RATE_LIMITS[step]),
+    0,
+  );
   const extraRateCost = seconds * extraQuota;
   return {
     seconds,
@@ -230,9 +234,7 @@ export function scalingMetrics(state: ScalingState) {
     pending: state.jobs.filter((job) => job.status === 'pending').length,
     occupied: new Set(state.jobs.flatMap((job) => job.worker ?? [])).size,
     inFlight: state.jobs.filter((job) => job.worker !== null).length,
-    waiting: state.jobs.filter(
-      (job) => job.status === 'waiting',
-    ).length,
+    waiting: state.jobs.filter((job) => job.status === 'waiting').length,
     waitingSeconds: state.waitTicks.reduce((sum, ticks) => sum + ticks, 0) * TICK_SECONDS,
     throughput: seconds ? completed / seconds : 0,
     workerCost,
@@ -241,31 +243,19 @@ export function scalingMetrics(state: ScalingState) {
     cost: workerCost + extraServiceCost + extraRateCost,
     // Completed payments per unit reserved. No hidden score or arbitrary penalty.
     efficiency:
-      workerCost + extraServiceCost + extraRateCost
-        ? completed / (workerCost + extraServiceCost + extraRateCost)
-        : 0,
+      workerCost + extraServiceCost + extraRateCost ? completed / (workerCost + extraServiceCost + extraRateCost) : 0,
     steps: [0, 1, 2, 3].map((step) => ({
-      active: state.jobs.filter(
-        (job) => job.step === step && job.status === 'running',
-      ),
-      waiting: state.jobs.filter(
-        (job) =>
-          job.step === step &&
-          (job.status === 'waiting'),
-      ),
+      active: state.jobs.filter((job) => job.step === step && job.status === 'running'),
+      waiting: state.jobs.filter((job) => job.step === step && job.status === 'waiting'),
       capacity: resourceCapacities(state.config)[step]!,
       rejected: state.jobs.filter((job) => job.step === step && job.status === 'rejected'),
-      utilization: state.tick
-        ? state.busyTicks[step]! /
-          (state.tick * resourceCapacities(state.config)[step]!)
-        : 0,
+      utilization: state.tick ? state.busyTicks[step]! / (state.tick * resourceCapacities(state.config)[step]!) : 0,
     })),
   };
 }
 export function scalingVerdict(state: ScalingState) {
   const metrics = scalingMetrics(state);
-  const safe =
-    state.rateLimit === null && state.jobs.every((job) => job.effects.every((count) => count === 1));
+  const safe = state.rateLimit === null && state.jobs.every((job) => job.effects.every((count) => count === 1));
   return {
     fast: metrics.seconds <= TARGET_SECONDS,
     economical: metrics.cost <= TARGET_COST,
@@ -280,9 +270,7 @@ export function scalingVerdict(state: ScalingState) {
 }
 export function runScaling(config: ScalingConfig): ScalingState {
   let state = playScaling(createScaling(config));
-  for (let ticks = 0; ticks < 10_000 && state.phase === 'running'; ticks++)
-    state = tickScaling(state);
-  if (state.phase === 'running')
-    throw new Error('Simulation did not terminate');
+  for (let ticks = 0; ticks < 10_000 && state.phase === 'running'; ticks++) state = tickScaling(state);
+  if (state.phase === 'running') throw new Error('Simulation did not terminate');
   return state;
 }

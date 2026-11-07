@@ -5,9 +5,9 @@ import { rateLimitScene, trialResult } from './result';
 import type { ResultContext } from './result';
 import {
   createScaling,
-  BASE_CAPACITIES,
-  BASE_RATE_LIMITS,
   isHttpStep,
+  MAXIMUM_RATE_LIMIT,
+  MAXIMUM_STEP_CAPACITY,
   PAYMENT_COUNT,
   pauseScaling,
   playScaling,
@@ -17,8 +17,6 @@ import {
   tickScaling,
   AVAILABLE_WORKERS,
   MAXIMUM_CONCURRENCY_PER_WORKER,
-  MAXIMUM_RATE_LIMIT,
-  MAXIMUM_STEP_CAPACITY,
   PLAYBACK_SPEEDS,
   TICK_MILLISECONDS,
   WORKER_TEMPO_MILLISECONDS,
@@ -31,10 +29,7 @@ import { comparisonDialog, costDialog, namesDialog } from './dialogs';
 import type { Names } from './content';
 import { cleanLabel, escapeHtml } from '../shared/text';
 import { labFigure } from '../shared/figures';
-import walkingAtlas from '@/shared/mascot/worker-walk-atlas.webp?url';
-import reactionsAtlas from '@/shared/mascot/worker-reactions.webp?url';
-import { teamWorkerFrame } from './team-actors';
-import type { TeamPose } from './team-actors';
+import { paintSteps, paintWorkers } from './painter';
 import { button, isSpanishLab } from '../shared/lab-ui';
 import { MAXIMUM_RESTORED_TRIALS, restoreAchievements, restoreSession, saveAchievements, saveSession } from './session';
 import type { Trial } from './session';
@@ -79,10 +74,7 @@ class QueueScaling extends HTMLElement {
     });
     this.addEventListener('click', this.onClick);
     this.addEventListener('input', this.onInput);
-    this.element<HTMLDialogElement>('dialog').addEventListener(
-      'close',
-      this.onDialogClosed,
-    );
+    this.element<HTMLDialogElement>('dialog').addEventListener('close', this.onDialogClosed);
     document.addEventListener('visibilitychange', this.onVisibility);
     this.render();
     this.showCall('intro');
@@ -95,24 +87,29 @@ class QueueScaling extends HTMLElement {
     document.removeEventListener('visibilitychange', this.onVisibility);
   }
   private checkAchievements() {
-    this.newAwards = eligibleAchievements(this.state)
-      .filter((id) => !this.unlocked.has(id));
+    this.newAwards = eligibleAchievements(this.state).filter((id) => !this.unlocked.has(id));
     this.newAwards.forEach((id) => this.unlocked.add(id));
     saveAchievements(this.unlocked);
   }
   private renderNewAwards() {
-    return `<div class="scaling-result-awards">${scalingAchievements.filter(({ id }) => this.newAwards.includes(id)).map((award) => {
-      const [title, description] = this.es ? award.es : award.en;
-      return `<div class="lab-earned" data-earned="${award.id}"><span aria-hidden="true">✦</span><div><small class="lab-award-label">${this.copy.achievementUnlocked}</small><strong>${escapeHtml(title)}</strong><p>${escapeHtml(description)}</p></div></div>`;
-    }).join('')}</div>`;
+    return `<div class="scaling-result-awards">${scalingAchievements
+      .filter(({ id }) => this.newAwards.includes(id))
+      .map((award) => {
+        const [title, description] = this.es ? award.es : award.en;
+        return `<div class="lab-earned" data-earned="${award.id}"><span aria-hidden="true">✦</span><div><small class="lab-award-label">${this.copy.achievementUnlocked}</small><strong>${escapeHtml(title)}</strong><p>${escapeHtml(description)}</p></div></div>`;
+      })
+      .join('')}</div>`;
   }
   private renderAchievements() {
-    this.element('[data-achievement-summary]').textContent = `✦ ${this.copy.sessionAchievements} · ${this.unlocked.size}/${scalingAchievements.length}`;
-    this.element('[data-achievements]').innerHTML = scalingAchievements.map((award) => {
-      const unlocked = this.unlocked.has(award.id);
-      const [title, description] = this.es ? award.es : award.en;
-      return `<article class="${unlocked ? 'is-unlocked' : ''}" data-achievement="${award.id}"><span aria-hidden="true">${unlocked ? '✦' : '◇'}</span><div><h3>${escapeHtml(title)}${unlocked ? ` <small>· ${this.copy.unlocked}</small>` : ''}</h3><p>${escapeHtml(description)}</p></div></article>`;
-    }).join('');
+    this.element('[data-achievement-summary]').textContent =
+      `✦ ${this.copy.sessionAchievements} · ${this.unlocked.size}/${scalingAchievements.length}`;
+    this.element('[data-achievements]').innerHTML = scalingAchievements
+      .map((award) => {
+        const unlocked = this.unlocked.has(award.id);
+        const [title, description] = this.es ? award.es : award.en;
+        return `<article class="${unlocked ? 'is-unlocked' : ''}" data-achievement="${award.id}"><span aria-hidden="true">${unlocked ? '✦' : '◇'}</span><div><h3>${escapeHtml(title)}${unlocked ? ` <small>· ${this.copy.unlocked}</small>` : ''}</h3><p>${escapeHtml(description)}</p></div></article>`;
+      })
+      .join('');
   }
   private name(key: string) {
     if (key.startsWith('step-')) return this.names.steps[Number(key.slice(5))]!;
@@ -121,13 +118,7 @@ class QueueScaling extends HTMLElement {
   }
   private highlight(text: string) {
     const names = [
-      ...new Set([
-        this.names.api,
-        this.names.queue,
-        this.names.worker,
-        ...this.names.steps,
-        ...this.names.jobs,
-      ]),
+      ...new Set([this.names.api, this.names.queue, this.names.worker, ...this.names.steps, ...this.names.jobs]),
     ].sort((name, otherName) => otherName.length - name.length);
     const expression = new RegExp(
       `(${names.map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`,
@@ -135,9 +126,7 @@ class QueueScaling extends HTMLElement {
     );
     return text
       .split(expression)
-      .map((part) =>
-        names.includes(part) ? `<strong>${escapeHtml(part)}</strong>` : escapeHtml(part),
-      )
+      .map((part) => (names.includes(part) ? `<strong>${escapeHtml(part)}</strong>` : escapeHtml(part)))
       .join('');
   }
   private stopTimer() {
@@ -199,9 +188,7 @@ class QueueScaling extends HTMLElement {
     this.modalAction = undefined;
   };
   private onClick = (event: Event) => {
-    const target = (event.target as HTMLElement).closest<HTMLButtonElement>(
-      'button[data-action]',
-    );
+    const target = (event.target as HTMLElement).closest<HTMLButtonElement>('button[data-action]');
     if (!target || target.disabled) return;
     const [action, value] = target.dataset.action!.split(':');
     if (action === 'play') {
@@ -216,10 +203,7 @@ class QueueScaling extends HTMLElement {
     }
     if (action === 'more' || action === 'less')
       this.configure((config) => {
-        config.workers = Math.min(
-          AVAILABLE_WORKERS,
-          Math.max(1, config.workers + (action === 'more' ? 1 : -1)),
-        );
+        config.workers = Math.min(AVAILABLE_WORKERS, Math.max(1, config.workers + (action === 'more' ? 1 : -1)));
       });
     if (action === 'concurrency-more' || action === 'concurrency-less')
       this.configure((config) => {
@@ -236,15 +220,19 @@ class QueueScaling extends HTMLElement {
     if (action === 'grow' || action === 'shrink') {
       const step = Number(value);
       this.configure((config) => {
-        config.capacities[step] = Math.max(1, Math.min(MAXIMUM_STEP_CAPACITY,
-          config.capacities[step]! + (action === 'grow' ? 1 : -1)));
+        config.capacities[step] = Math.max(
+          1,
+          Math.min(MAXIMUM_STEP_CAPACITY, config.capacities[step]! + (action === 'grow' ? 1 : -1)),
+        );
       });
     }
     if ((action === 'rate-more' || action === 'rate-less') && isHttpStep(Number(value))) {
       const step = Number(value) as 1 | 3;
       this.configure((config) => {
-        config.rateLimits[step] = Math.max(1, Math.min(MAXIMUM_RATE_LIMIT,
-          config.rateLimits[step] + (action === 'rate-more' ? 1 : -1)));
+        config.rateLimits[step] = Math.max(
+          1,
+          Math.min(MAXIMUM_RATE_LIMIT, config.rateLimits[step] + (action === 'rate-more' ? 1 : -1)),
+        );
       });
     }
     if (action === 'job') {
@@ -252,8 +240,7 @@ class QueueScaling extends HTMLElement {
       this.renderRadio();
     }
     if (action === 'worker') {
-      this.selectedJob =
-        this.state.jobs.find((job) => job.worker === Number(value))?.id ?? 0;
+      this.selectedJob = this.state.jobs.find((job) => job.worker === Number(value))?.id ?? 0;
       this.renderRadio();
     }
     if (action === 'names') this.showNames();
@@ -262,9 +249,7 @@ class QueueScaling extends HTMLElement {
       const trial = this.history[Number(value)];
       if (trial) {
         this.element<HTMLDialogElement>('dialog').close();
-        this.configure((config) =>
-          Object.assign(config, structuredClone(trial.config)),
-        );
+        this.configure((config) => Object.assign(config, structuredClone(trial.config)));
       }
     }
     if (action === 'cost') this.showCost();
@@ -281,8 +266,7 @@ class QueueScaling extends HTMLElement {
     if (!key) return;
     const value = cleanLabel(input.value, this.name(key));
     if (key.startsWith('step-')) this.names.steps[Number(key.slice(5))] = value;
-    else if (key.startsWith('job-'))
-      this.names.jobs[Number(key.slice(4))] = value;
+    else if (key.startsWith('job-')) this.names.jobs[Number(key.slice(4))] = value;
     else this.names[key as 'api' | 'queue' | 'worker'] = value;
     saveSession(this.names, this.history, this.es);
     this.render();
@@ -302,14 +286,10 @@ class QueueScaling extends HTMLElement {
     this.element('[data-concurrency]').textContent = String(this.config.concurrencyPerWorker);
     this.element('[data-done]').textContent = `${metrics.completed}/${PAYMENT_COUNT}`;
     this.element('[data-time]').textContent = `${number(metrics.seconds, 1)} s`;
-    this.element('[data-throughput]').textContent =
-      `${number(metrics.throughput, 2)} ${this.copy.paymentsPerSecond}`;
-    this.element('[data-occupied]').textContent =
-      `${metrics.occupied}/${this.config.workers} ${this.copy.busy}`;
-    this.element('[data-waiting]').textContent =
-      `${metrics.waiting} ${this.copy.waitingForSlotStatus}`;
-    this.element('[data-cost]').textContent =
-      `${this.copy.cost} ${number(metrics.cost)} u`;
+    this.element('[data-throughput]').textContent = `${number(metrics.throughput, 2)} ${this.copy.paymentsPerSecond}`;
+    this.element('[data-occupied]').textContent = `${metrics.occupied}/${this.config.workers} ${this.copy.busy}`;
+    this.element('[data-waiting]').textContent = `${metrics.waiting} ${this.copy.waitingForSlotStatus}`;
+    this.element('[data-cost]').textContent = `${this.copy.cost} ${number(metrics.cost)} u`;
     this.element('[data-action=play]').textContent = playing
       ? this.copy.pause
       : state.phase === 'paused'
@@ -317,13 +297,12 @@ class QueueScaling extends HTMLElement {
         : state.phase === 'complete' || state.phase === 'rate-limited'
           ? this.copy.tryAgain
           : this.copy.processPaymentsAction;
-    this.querySelectorAll<HTMLButtonElement | HTMLInputElement | HTMLSelectElement>(
-      '[data-config]',
-    ).forEach((control) => {
-      control.disabled = playing;
-    });
-    this.element<HTMLButtonElement>('[data-action=less]').disabled =
-      playing || this.config.workers === 1;
+    this.querySelectorAll<HTMLButtonElement | HTMLInputElement | HTMLSelectElement>('[data-config]').forEach(
+      (control) => {
+        control.disabled = playing;
+      },
+    );
+    this.element<HTMLButtonElement>('[data-action=less]').disabled = playing || this.config.workers === 1;
     this.element<HTMLButtonElement>('[data-action=more]').disabled =
       playing || this.config.workers === AVAILABLE_WORKERS;
     this.element<HTMLButtonElement>('[data-action=concurrency-less]').disabled =
@@ -331,86 +310,17 @@ class QueueScaling extends HTMLElement {
     this.element<HTMLButtonElement>('[data-action=concurrency-more]').disabled =
       playing || this.config.concurrencyPerWorker === MAXIMUM_CONCURRENCY_PER_WORKER;
     for (const speed of PLAYBACK_SPEEDS)
-      this.element(`[data-action="speed:${speed}"]`).setAttribute(
-        'aria-pressed',
-        String(this.speed === speed),
-      );
+      this.element(`[data-action="speed:${speed}"]`).setAttribute('aria-pressed', String(this.speed === speed));
     this.renderJobs();
-    this.querySelectorAll<HTMLElement>('[data-worker]').forEach((worker) => {
-      const id = Number(worker.dataset.worker),
-        frame = teamWorkerFrame(state, id),
-        job = frame.job === null ? undefined : state.jobs[frame.job - 1];
-      worker.hidden = id > this.config.workers;
-      worker.classList.toggle('is-busy', !!job);
-      worker.classList.toggle('is-waiting', frame.pose.startsWith('waiting'));
-      worker.dataset.pose = frame.pose;
-      const labels: Record<TeamPose, string> = {
-        idle: this.copy.idle,
-        working: this.copy.validating,
-        'waiting-cpu': this.copy.waitingForCpuLabel,
-        'waiting-service': this.copy.awaitingReply,
-        'waiting-slot': this.copy.waitingForSlotLabel,
-        rejected: this.copy.rejected429,
-        paused: this.copy.paused,
-        done: this.copy.completeLabel,
-      };
-      worker.title = `${this.names.worker} ${id} · ${labels[frame.pose]}${job ? ` · ${this.names.jobs[job.id - 1]} · ${this.names.steps[job.step]}` : ''}`;
-      worker.setAttribute('aria-label', worker.title);
-      worker.querySelector('b')!.textContent = job ? `#${job.id} · P${job.step + 1}${frame.load > 1 ? ` +${frame.load - 1}` : ''}` : '—';
-      worker.querySelector('[data-worker-status]')!.textContent = labels[frame.pose];
-      worker.querySelector('[data-worker-signal]')!.textContent = {
-        idle: '', working: '⚙', 'waiting-cpu': '◷', 'waiting-slot': '◷', 'waiting-service': '◷',
-        rejected: '429', paused: 'Ⅱ', done: '✓',
-      }[frame.pose];
-      const reaction = frame.pose === 'done' || frame.pose === 'rejected',
-        pose = frame.pose === 'rejected' ? 2 : frame.pose === 'done' ? 5 : frame.pose.startsWith('waiting') ? 4 : 3,
-        sprite = worker.querySelector<HTMLElement>('.scaling-worker-sprite')!;
-      sprite.style.backgroundImage = `url('${reaction ? reactionsAtlas : walkingAtlas}')`;
-      sprite.style.backgroundPosition = `${(pose % 3) * 50}% ${Math.floor(pose / 3) * 100}%`;
-    });
-    this.element('[data-team-summary]').textContent = this.copy.teamOccupancy(metrics.occupied, this.config.workers, metrics.inFlight, this.config.workers * this.config.concurrencyPerWorker);
-    metrics.steps.forEach((step, index) => {
-      const node = this.element(`[data-step="${index}"]`);
-      node.classList.toggle('is-working', step.active.length > 0);
-      node.classList.toggle('is-rejected', state.rateLimit?.step === index);
-      node.classList.toggle('is-congested', step.waiting.length > 0);
-      node.style.setProperty(
-        '--load',
-        `${(step.active.length / step.capacity) * 100}%`,
-      );
-      this.element(`[data-capacity="${index}"]`).textContent =
-        `${step.active.length}/${step.capacity} ${this.copy.inUse}`;
-      this.element(`[data-status="${index}"]`).textContent = state.rateLimit?.step === index
-        ? this.copy.http429QuotaExhausted
-        : state.phase === 'rate-limited'
-        ? this.copy.trialStopped
-        : step.waiting.length
-        ? index === 0 && step.active.length < step.capacity
-          ? this.copy.eachWorkerValidatesOneAtATime
-          : this.copy.fullWaitingLocally
-        : step.active.length
-        ? this.copy.working
-        : this.copy.available;
-      this.element(`[data-wait-label="${index}"]`).textContent = `${step.waiting.length} ${index === 0 ? this.copy.waitingForCpuStatus : this.copy.waitingForSlotStatus}${step.rejected.length ? this.copy.oneRejected429 : ''}`;
-      this.element(`[data-resource-size="${index}"]`).textContent = String(step.capacity);
-      this.element<HTMLButtonElement>(`[data-action="grow:${index}"]`).disabled = playing || step.capacity === MAXIMUM_STEP_CAPACITY;
-      this.element<HTMLButtonElement>(`[data-action="shrink:${index}"]`).disabled = playing || step.capacity === 1;
-      const extra = Math.max(0, step.capacity - BASE_CAPACITIES[index]!);
-      this.element(`[data-resource-cost="${index}"]`).textContent = extra
-        ? `+${extra} ${this.copy.capacityUnitsPerSecond}`
-        : this.copy.includedCapacity;
-      if (isHttpStep(index)) {
-        const limit = this.config.rateLimits[index];
-        this.element(`[data-rate-limit="${index}"]`).textContent = String(limit);
-        this.element(`[data-rate-usage="${index}"]`).textContent = this.copy.requestsInThisWindow(state.requestsInWindow[index], limit);
-        this.element<HTMLButtonElement>(`[data-action="rate-more:${index}"]`).disabled = playing || limit === MAXIMUM_RATE_LIMIT;
-        this.element<HTMLButtonElement>(`[data-action="rate-less:${index}"]`).disabled = playing || limit === 1;
-        const quotaExtra = Math.max(0, limit - BASE_RATE_LIMITS[index]);
-        this.element(`[data-rate-cost="${index}"]`).textContent = quotaExtra
-          ? this.copy.quotaUnitsPerSecond(quotaExtra)
-          : this.copy.includedQuota;
-      }
-    });
+    const scene = { root: this, state, config: this.config, names: this.names, copy: this.copy, playing };
+    paintWorkers(scene);
+    this.element('[data-team-summary]').textContent = this.copy.teamOccupancy(
+      metrics.occupied,
+      this.config.workers,
+      metrics.inFlight,
+      this.config.workers * this.config.concurrencyPerWorker,
+    );
+    paintSteps(scene);
     this.renderRadio();
     this.renderTrials();
   }
@@ -447,9 +357,7 @@ class QueueScaling extends HTMLElement {
       packet.title = `${this.names.jobs[job.id - 1]!} · ${job.status === 'done' ? this.copy.completeLabel : (this.names.steps[job.step] ?? '')}`;
       packet.setAttribute('aria-label', packet.title);
       const progress =
-        job.status === 'running'
-          ? 1 - (job.until - this.state.tick) / this.config.durations[job.step]!
-          : 0;
+        job.status === 'running' ? 1 - (job.until - this.state.tick) / this.config.durations[job.step]! : 0;
       packet.style.setProperty('--progress', `${progress * 100}%`);
     }
     if (this.state.phase === 'ready') {
@@ -465,35 +373,28 @@ class QueueScaling extends HTMLElement {
       text = this.copy.http429QuotaExhaustedAtStep(this.names.steps[state.rateLimit.step]!, state.rateLimit.limit);
     else if (this.selectedJob) {
       const job = state.jobs[this.selectedJob - 1]!;
-      text = `${this.names.jobs[job.id - 1]!} · ${job.status === 'done' ? this.copy.completeStatus : job.status === 'pending' ? this.copy.storedWaitingForWorker : `${this.names.steps[job.step]!} · ${job.status === 'waiting' ? job.step === 0 ? this.copy.waitingForCpuWorkerValidatesOneAtATime : this.copy.waitingForSlotBeforeSending : this.copy.runningNow}`}`;
+      text = `${this.names.jobs[job.id - 1]!} · ${job.status === 'done' ? this.copy.completeStatus : job.status === 'pending' ? this.copy.storedWaitingForWorker : `${this.names.steps[job.step]!} · ${job.status === 'waiting' ? (job.step === 0 ? this.copy.waitingForCpuWorkerValidatesOneAtATime : this.copy.waitingForSlotBeforeSending) : this.copy.runningNow}`}`;
     } else if (state.phase === 'ready')
       text =
         this.config.workers === 1 && this.config.concurrencyPerWorker === 1
           ? this.copy.customersWaitingForSingleWorker
           : this.copy.teamReadyPaymentsAtOnce(this.config.workers, this.config.concurrencyPerWorker);
-    else if (state.phase === 'paused')
-      text = this.copy.playbackPausedResumeWhereYouLeft;
+    else if (state.phase === 'paused') text = this.copy.playbackPausedResumeWhereYouLeft;
     else if (metrics.steps.some((step) => step.waiting.length)) {
       const busiest = metrics.steps.reduce(
-        (best, step, index) =>
-          step.waiting.length > metrics.steps[best]!.waiting.length
-            ? index
-            : best,
+        (best, step, index) => (step.waiting.length > metrics.steps[best]!.waiting.length ? index : best),
         0,
       );
-      text = busiest === 0
-        ? this.copy.hasPaymentsWaitingForCpu(this.names.steps[0]!, metrics.steps[0]!.waiting.length)
-        : this.copy.hasPaymentsWaitingForSlots(this.names.steps[busiest]!, metrics.steps[busiest]!.waiting.length);
+      text =
+        busiest === 0
+          ? this.copy.hasPaymentsWaitingForCpu(this.names.steps[0]!, metrics.steps[0]!.waiting.length)
+          : this.copy.hasPaymentsWaitingForSlots(this.names.steps[busiest]!, metrics.steps[busiest]!.waiting.length);
     } else if (state.phase === 'complete')
-      text = scalingVerdict(state).won
-        ? this.copy.all24CompleteOnTime
-        : this.copy.allArrivedCompareTimeAndCost;
+      text = scalingVerdict(state).won ? this.copy.all24CompleteOnTime : this.copy.allArrivedCompareTimeAndCost;
     else if (this.config.workers * this.config.concurrencyPerWorker > 1 && metrics.completed >= 2)
       text = this.copy.thatsBetterTheQueueIsShrinking;
     else {
-      const current = state.events.findLast(
-        (event) => event.kind === 'started',
-      );
+      const current = state.events.findLast((event) => event.kind === 'started');
       text = current
         ? this.copy.jobIsAtStepGreenShowsRunning(this.names.jobs[current.job - 1]!, this.names.steps[current.step]!)
         : '';
@@ -516,13 +417,7 @@ class QueueScaling extends HTMLElement {
           .join('')
       : `<small>${this.copy.yourResultsWillAppearHere}</small>`;
   }
-  private modal(
-    title: string,
-    body: string,
-    label: string,
-    callback?: () => void,
-    tone = 'call',
-  ) {
+  private modal(title: string, body: string, label: string, callback?: () => void, tone = 'call') {
     this.pause();
     const dialog = this.element<HTMLDialogElement>('dialog');
     this.modalAction = callback;
@@ -533,15 +428,15 @@ class QueueScaling extends HTMLElement {
     dialog.innerHTML = `<header><span>${labFigure('phone')}${this.copy.onCallAsyncChaosLab}</span>${button('close', '×', `aria-label="${this.copy.close}"`)}</header><h2 id="scaling-dialog-title">${escapeHtml(title)}</h2><div id="scaling-dialog-text">${body}</div><footer>${button('modal-primary', label, 'class="scaling-primary"')}${button('close', this.copy.backToDiagram)}</footer>`;
     if (!dialog.open) dialog.showModal();
     dialog.scrollTop = 0;
-    dialog
-      .querySelector<HTMLButtonElement>('[data-action=modal-primary]')
-      ?.focus({ preventScroll: true });
+    dialog.querySelector<HTMLButtonElement>('[data-action=modal-primary]')?.focus({ preventScroll: true });
   }
   private showCall(scene: 'intro') {
     const copy = callCopy(scene, this.names, this.es);
-    this.modal(copy.title,
+    this.modal(
+      copy.title,
       `<p>${this.highlight(copy.report)}</p><p class="scaling-call-hint">${this.highlight(copy.hint)}</p>`,
-      copy.action);
+      copy.action,
+    );
   }
   private showResult() {
     const rejection = this.state.rateLimit;
@@ -563,7 +458,9 @@ class QueueScaling extends HTMLElement {
       title,
       body,
       this.copy.backToMySystem,
-      () => { this.element('[data-action=play]').focus({ preventScroll: true }); },
+      () => {
+        this.element('[data-action=play]').focus({ preventScroll: true });
+      },
       tone,
     );
   }
@@ -585,20 +482,11 @@ class QueueScaling extends HTMLElement {
     );
   }
   private showCost() {
-    this.modal(
-      this.copy.payingForReservedCapacity,
-      costDialog(this.es, this.state, this.config),
-      this.copy.gotIt,
-    );
+    this.modal(this.copy.payingForReservedCapacity, costDialog(this.es, this.state, this.config), this.copy.gotIt);
   }
   private showComparison() {
-    this.modal(
-      this.copy.sameWorkDifferentTeams,
-      comparisonDialog(this.es, this.history),
-      this.copy.keepExperimenting,
-    );
+    this.modal(this.copy.sameWorkDifferentTeams, comparisonDialog(this.es, this.history), this.copy.keepExperimenting);
   }
 }
 
-if (!customElements.get('scaling-lab'))
-  customElements.define('scaling-lab', QueueScaling);
+if (!customElements.get('scaling-lab')) customElements.define('scaling-lab', QueueScaling);

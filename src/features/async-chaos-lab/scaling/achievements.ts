@@ -1,5 +1,9 @@
 import {
-  BASE_CAPACITIES, BASE_RATE_LIMITS, PAYMENT_COUNT, TARGET_SECONDS, TICK_SECONDS,
+  BASE_CAPACITIES,
+  BASE_RATE_LIMITS,
+  PAYMENT_COUNT,
+  TARGET_SECONDS,
+  TICK_SECONDS,
   scalingVerdict,
 } from './engine';
 import type { ScalingConfig, ScalingState } from './engine';
@@ -19,16 +23,24 @@ export const scalingAchievements: {
   es: [string, string];
   en: [string, string];
 }[] = [
-  { id: 'pods-only',
+  {
+    id: 'pods-only',
     es: ['Échale más pods', 'Prueba a escalar añadiendo solo workers.'],
-    en: ['Just add more pods', 'Try scaling by adding only workers.'] },
-  { id: 'on-time',
+    en: ['Just add more pods', 'Try scaling by adding only workers.'],
+  },
+  {
+    id: 'on-time',
     es: ['Justo a tiempo', `Completaste los 24 pagos en ${TARGET_SECONDS} segundos o menos, sin duplicar sus efectos.`],
-    en: ['Right on time', `You completed all 24 payments in at most ${TARGET_SECONDS} seconds without duplicate effects.`] },
-  { id: 'minimum-team',
+    en: [
+      'Right on time',
+      `You completed all 24 payments in at most ${TARGET_SECONDS} seconds without duplicate effects.`,
+    ],
+  },
+  {
+    id: 'minimum-team',
     es: ['Con lo justo', 'Completa el nivel con el mínimo de workers.'],
-    en: ['Just enough', 'Complete the level with the minimum number of workers.'] },
-
+    en: ['Just enough', 'Complete the level with the minimum number of workers.'],
+  },
 ];
 
 /** Evaluate completed runs, never configuration clicks or unfinished playback. */
@@ -36,7 +48,11 @@ export function eligibleAchievements(state: ScalingState): ScalingAchievementId[
   if (state.phase !== 'complete') return [];
   const verdict = scalingVerdict(state);
   const conditions: Record<ScalingAchievementId, boolean> = {
-    'pods-only': state.config.workers > 1 && state.config.concurrencyPerWorker === 1 && state.config.capacities.every((capacity, index) => capacity === BASE_CAPACITIES[index]) && ([1, 3] as const).every((step) => state.config.rateLimits[step] === BASE_RATE_LIMITS[step]),
+    'pods-only':
+      state.config.workers > 1 &&
+      state.config.concurrencyPerWorker === 1 &&
+      state.config.capacities.every((capacity, index) => capacity === BASE_CAPACITIES[index]) &&
+      ([1, 3] as const).every((step) => state.config.rateLimits[step] === BASE_RATE_LIMITS[step]),
     'on-time': verdict.fast && verdict.safe,
     'minimum-team': verdict.won && state.config.workers === minimumWorkers(state.config),
   };

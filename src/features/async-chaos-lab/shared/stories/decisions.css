@@ -125,4 +125,3 @@ payment-lab .lab-phone-conversation .lab-phone-aside {
 :is(payment-lab, scaling-lab) .lab-outcome .lab-fatal-caller + #lab-outcome-text {
   margin-top: 0.5rem;
 }
-

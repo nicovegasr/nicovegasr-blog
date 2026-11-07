@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import {
-  createScaling, pauseScaling, playScaling, runScaling, scalingDefaults,
-  scalingMetrics, scalingVerdict, tickScaling, PAYMENT_COUNT,
+  createScaling,
+  pauseScaling,
+  playScaling,
+  runScaling,
+  scalingDefaults,
+  scalingMetrics,
+  scalingVerdict,
+  tickScaling,
+  PAYMENT_COUNT,
 } from './engine';
 import type { ScalingConfig, ScalingState } from './engine';
 
@@ -50,7 +57,9 @@ describe('Scaling actual resource capacity', () => {
     state = tickScaling(state);
     expect(state.jobs[3]).toMatchObject({ worker: 4, step: 1, status: 'running' });
     expect(state.jobs[3]!.effects[1]).toBe(0);
-    expect(state.events.filter((event) => event.job === 4 && event.step === 1 && event.kind === 'started')).toHaveLength(1);
+    expect(
+      state.events.filter((event) => event.job === 4 && event.step === 1 && event.kind === 'started'),
+    ).toHaveLength(1);
     expect(state.waitTicks[1]).toBeGreaterThan(0);
   });
   it.each([
@@ -132,7 +141,12 @@ describe('Scaling actual resource capacity', () => {
   });
   it('never wins by adding workers without concurrency: reserving them costs too much', () => {
     for (let workers = 1; workers <= 8; workers++) {
-      const result = runScaling({ ...scalingDefaults(), workers, capacities: [8, 8, 8, 8], rateLimits: { 1: 8, 3: 8 } });
+      const result = runScaling({
+        ...scalingDefaults(),
+        workers,
+        capacities: [8, 8, 8, 8],
+        rateLimits: { 1: 8, 3: 8 },
+      });
       expect(scalingVerdict(result).won, `${workers} workers`).toBe(false);
     }
   });
@@ -143,7 +157,13 @@ describe('Scaling actual resource capacity', () => {
     invariants(result);
   });
   it('lets a larger team win if it pays for slots and quota within the budget', () => {
-    const result = runScaling({ ...scalingDefaults(), workers: 3, concurrencyPerWorker: 6, capacities: [4, 6, 2, 5], rateLimits: { 1: 3, 3: 2 } });
+    const result = runScaling({
+      ...scalingDefaults(),
+      workers: 3,
+      concurrencyPerWorker: 6,
+      capacities: [4, 6, 2, 5],
+      rateLimits: { 1: 3, 3: 2 },
+    });
     expect(scalingMetrics(result)).toMatchObject({ seconds: 17, cost: 119 });
     expect(scalingVerdict(result).won).toBe(true);
     invariants(result);
@@ -174,9 +194,12 @@ describe('Scaling actual resource capacity', () => {
   });
   it('restarts identical four-worker attempts with the same four payments', () => {
     const settings = config(4);
-    const first = runScaling(settings), second = runScaling(settings);
+    const first = runScaling(settings),
+      second = runScaling(settings);
     expect(second).toEqual(first);
-    expect(first.events.filter((event) => event.tick === 0 && event.kind === 'started').map((event) => event.job)).toEqual([1, 2, 3, 4]);
+    expect(
+      first.events.filter((event) => event.tick === 0 && event.kind === 'started').map((event) => event.job),
+    ).toEqual([1, 2, 3, 4]);
     expect(first.jobs).toHaveLength(24);
     expect(tickScaling(first)).toBe(first);
     expect(playScaling(first)).toBe(first);
@@ -197,8 +220,10 @@ describe('Scaling actual resource capacity', () => {
     expect(state).toEqual(runScaling(settings));
   });
   it('does not mutate previous states or configuration', () => {
-    const settings = config(4), initial = createScaling(settings);
-    const before = structuredClone(initial), configBefore = structuredClone(settings);
+    const settings = config(4),
+      initial = createScaling(settings);
+    const before = structuredClone(initial),
+      configBefore = structuredClone(settings);
     tickScaling(playScaling(initial));
     expect(initial).toEqual(before);
     expect(settings).toEqual(configBefore);

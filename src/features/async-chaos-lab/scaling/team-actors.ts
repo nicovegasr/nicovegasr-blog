@@ -1,13 +1,16 @@
 import type { Payment, ScalingState } from './engine';
 
-export type TeamPose = 'idle' | 'working' | 'waiting-cpu' | 'waiting-slot' | 'waiting-service' | 'rejected' | 'paused' | 'done';
+export type TeamPose =
+  'idle' | 'working' | 'waiting-cpu' | 'waiting-slot' | 'waiting-service' | 'rejected' | 'paused' | 'done';
 
 /** The pose follows the payment that best explains what the worker is doing now. */
 function representativePayment(payments: Payment[]) {
-  return payments.find((job) => job.status === 'rejected')
-    ?? payments.find((job) => job.status === 'running' && job.step === 0)
-    ?? payments.find((job) => job.status === 'running')
-    ?? payments[0];
+  return (
+    payments.find((job) => job.status === 'rejected') ??
+    payments.find((job) => job.status === 'running' && job.step === 0) ??
+    payments.find((job) => job.status === 'running') ??
+    payments[0]
+  );
 }
 
 /** Waiting for admission and waiting for a reply both retain worker ownership. */

@@ -1,0 +1,375 @@
+---
+import type { Locale } from '@/i18n/locale';
+import { getTranslator } from '@/i18n/translator';
+import type { Pill, PillSeries } from '@/features/pills/pill';
+import PillIcon from './PillIcon.astro';
+
+interface Props {
+  locale: Locale;
+  series: PillSeries;
+  chapters: readonly (Pick<Pill, 'title' | 'subtitle' | 'icon'> & {
+    href: string;
+    isActive: boolean;
+    number: string;
+  })[];
+}
+
+const { locale, series, chapters } = Astro.props;
+const translate = getTranslator(locale);
+---
+
+<aside
+  id="pill-index"
+  class="contents"
+  transition:persist={`pill-index-${locale}-${series.slug}`}
+  transition:animate="none"
+>
+  <div class="contents-heading">
+    <span class="eyebrow">{series.title}</span>
+    <span class="count">
+      {String(chapters.length).padStart(2, '0')} {translate('pills.seriesCount')}
+    </span>
+    <button
+      type="button"
+      class="index-toggle"
+      data-pill-index-toggle
+      aria-controls="pill-index"
+      aria-expanded="true"
+      aria-label={translate('pills.reader.toggleIndex')}
+      title={translate('pills.reader.toggleIndex')}
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="3.5" y="4.5" width="17" height="15" rx="2" />
+        <path d="M9.5 4.5v15" />
+      </svg>
+    </button>
+    <button
+      type="button"
+      class="index-disclosure"
+      data-pill-index-disclosure
+      aria-controls="pill-index-navigation"
+      aria-expanded="false"
+      aria-label={translate('pills.reader.toggleIndex')}
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m6 9 6 6 6-6" />
+      </svg>
+    </button>
+  </div>
+  <nav id="pill-index-navigation" aria-label={translate('pills.reader.heading')}>
+    <ol class="journey">
+      {chapters.map((chapter) => (
+        <li>
+          <a
+            href={chapter.href}
+            data-pill-link
+            title={chapter.title}
+            aria-current={chapter.isActive ? 'page' : undefined}
+          >
+            <span class="station">
+              <PillIcon icon={chapter.icon} />
+            </span>
+            <span class="stop-copy">
+              <span class="stop-number">
+                {translate('pills.reader.chapter')} {chapter.number}
+              </span>
+              <strong>{chapter.title}</strong>
+              <span class="stop-description">{chapter.subtitle}</span>
+            </span>
+            <span class="stop-arrow" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M5 12h14m-6-6 6 6-6 6" />
+              </svg>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </nav>
+</aside>
+
+<style>
+  .contents {
+    position: sticky;
+    top: var(--space-24);
+    max-height: calc(100dvh - 8rem);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-text-muted) transparent;
+    padding: var(--space-8) var(--space-6) var(--space-6) 0;
+  }
+  .eyebrow,
+  .count,
+  .stop-number {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-meta);
+  }
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .contents-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .count {
+    color: var(--color-text-soft);
+    white-space: nowrap;
+    margin-left: auto;
+  }
+  .index-toggle {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-small);
+    background: var(--color-paper);
+    color: var(--color-text-soft);
+    cursor: pointer;
+    transition:
+      color var(--motion-duration-fast),
+      border-color var(--motion-duration-fast);
+  }
+  .index-toggle:hover {
+    color: var(--color-ink);
+    border-color: var(--color-ink);
+  }
+  .index-toggle svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linejoin: round;
+  }
+  .index-disclosure {
+    display: none;
+  }
+  /* The reader root owns the collapsed and disclosure states. */
+  @media (min-width: 801px) {
+    :global(.notebook[data-index-collapsed]) .contents {
+      padding-right: var(--space-4);
+    }
+    :global(.notebook[data-index-collapsed]) .contents-heading {
+      justify-content: center;
+    }
+    :global(.notebook[data-index-collapsed]) :is(.eyebrow, .count, .stop-arrow) {
+      display: none;
+    }
+    :global(.notebook[data-index-collapsed]) .journey a {
+      grid-template-columns: var(--station-size);
+    }
+    /* Keep chapter names as each link's accessible name while only icons show. */
+    :global(.notebook[data-index-collapsed]) .stop-copy {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+  .journey {
+    --station-size: 42px;
+    list-style: none;
+    padding: var(--space-1);
+    margin: var(--space-6) 0;
+  }
+  .journey li {
+    position: relative;
+  }
+  /* Each segment joins row centers, even when titles wrap to different heights. */
+  .journey li::before {
+    content: '';
+    position: absolute;
+    left: calc(var(--space-1) + var(--station-size) / 2 - 0.5px);
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--color-rule);
+  }
+  .journey li:first-child::before {
+    top: 50%;
+  }
+  .journey li:last-child::before {
+    bottom: 50%;
+  }
+  .journey a {
+    display: grid;
+    grid-template-columns: var(--station-size) minmax(0, 1fr) var(--space-6);
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-1);
+    text-decoration: none;
+    position: relative;
+    border-radius: var(--radius-small);
+  }
+  .station {
+    --pill-icon-signal: currentColor;
+    width: var(--station-size);
+    height: var(--station-size);
+    border: 1px solid var(--color-rule);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--color-paper);
+    z-index: 1;
+    transition:
+      background var(--motion-duration-fast),
+      border-color var(--motion-duration-fast),
+      transform var(--motion-duration-fast);
+  }
+  .station :global(svg) {
+    width: 20px;
+    height: 20px;
+  }
+  .stop-copy {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+  .stop-number {
+    font-size: 0.625rem;
+    color: var(--color-text-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .stop-copy strong {
+    font-family: var(--font-family-display);
+    font-size: 1rem;
+    line-height: 1.25;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+  .stop-description {
+    font-size: 0.75rem;
+    color: var(--color-text-soft);
+    line-height: 1.5;
+  }
+  .stop-arrow {
+    display: grid;
+    place-items: center;
+    width: var(--space-6);
+    height: var(--space-6);
+    color: var(--color-text-soft);
+    transition: transform var(--motion-duration-fast) var(--motion-easing);
+  }
+  .stop-arrow svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .journey a[aria-current] {
+    background: color-mix(in srgb, var(--color-accent) 7%, var(--color-paper));
+    color: var(--color-ink);
+    box-shadow: inset 3px 0 0 var(--color-accent);
+  }
+  .journey a[aria-current] .station {
+    --pill-icon-signal: var(--color-accent-ink);
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+    border-color: var(--color-accent-ink);
+  }
+  .journey a[aria-current] .stop-number,
+  .journey a[aria-current] .stop-arrow {
+    color: var(--color-ink);
+  }
+  @media (hover: hover) {
+    .journey a:not([aria-current]):hover .station {
+      transform: scale(1.08);
+      border-color: var(--color-ink);
+    }
+    .journey a:hover .stop-arrow {
+      transform: translateX(3px);
+    }
+  }
+  @media (max-width: 800px) {
+    .index-toggle {
+      display: none;
+    }
+    .contents {
+      position: static;
+      max-height: none;
+      overflow: visible;
+      padding: 0;
+    }
+    .contents-heading {
+      position: relative;
+      padding-block: var(--space-4);
+    }
+    :global(.notebook[data-index-disclosure]) .index-disclosure {
+      display: grid;
+      place-items: center;
+      width: var(--space-6);
+      height: var(--space-6);
+      padding: 0;
+      border: 0;
+      background: none;
+      color: var(--color-ink);
+      cursor: pointer;
+    }
+    /* The whole line opens the index, not only the chevron. */
+    .index-disclosure::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+    }
+    .index-disclosure svg {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: transform var(--motion-duration-fast) var(--motion-easing);
+    }
+    .index-disclosure[aria-expanded='true'] svg {
+      transform: rotate(180deg);
+    }
+    :global(.notebook[data-index-disclosure='closed']) .contents nav {
+      display: none;
+    }
+    .contents nav {
+      padding-bottom: var(--space-4);
+    }
+    .journey {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 var(--space-4);
+      margin-bottom: 0;
+    }
+    .journey li::before {
+      display: none;
+    }
+  }
+  @media (max-width: 480px) {
+    .journey {
+      --station-size: 36px;
+      grid-template-columns: 1fr;
+    }
+    .journey a {
+      padding-block: var(--space-2);
+    }
+    .journey li::before {
+      display: block;
+    }
+    .stop-number {
+      display: none;
+    }
+    .stop-copy strong {
+      font-size: var(--font-size-small);
+    }
+    .stop-description {
+      font-size: 0.6875rem;
+    }
+  }
+</style>

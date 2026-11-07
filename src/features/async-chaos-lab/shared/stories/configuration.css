@@ -32,12 +32,57 @@ payment-lab .lab-step-editor {
   background: var(--color-paper);
   box-shadow: 0 12px 48px rgb(0 0 0 / 0.18);
 }
-payment-lab .lab-step-editor::backdrop { background: rgb(0 0 0 / 0.25); }
-payment-lab .lab-step-editor header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
-payment-lab .lab-step-editor header > button { border: 0; background: none; color: inherit; font-size: 1.2rem; padding: 0.15rem; }
-payment-lab .lab-step-editor label { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.75rem; line-height: 1.4; }
-payment-lab .lab-step-editor label.lab-kind-label { display: grid; gap: 0.4rem; margin-block: 0.75rem; }
-payment-lab .lab-step-editor select { width: 100%; min-height: 40px; box-sizing: border-box; font: inherit; color: inherit; background: var(--color-paper); border: 1px solid var(--color-text-soft); border-radius: 5px; padding: 0.45rem; }
-payment-lab .lab-step-editor input[type='checkbox'] { margin: 0.1rem 0 0; width: 18px; height: 18px; flex-shrink: 0; accent-color: var(--lab-api); }
-payment-lab .lab-step-editor p, payment-lab .lab-step-editor small { display: block; margin: 0.5rem 0 0; font: 0.68rem/1.5 var(--font-family-body); color: var(--color-text-soft); }
-
+payment-lab .lab-step-editor::backdrop {
+  background: rgb(0 0 0 / 0.25);
+}
+payment-lab .lab-step-editor header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+payment-lab .lab-step-editor header > button {
+  border: 0;
+  background: none;
+  color: inherit;
+  font-size: 1.2rem;
+  padding: 0.15rem;
+}
+payment-lab .lab-step-editor label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+payment-lab .lab-step-editor label.lab-kind-label {
+  display: grid;
+  gap: 0.4rem;
+  margin-block: 0.75rem;
+}
+payment-lab .lab-step-editor select {
+  width: 100%;
+  min-height: 40px;
+  box-sizing: border-box;
+  font: inherit;
+  color: inherit;
+  background: var(--color-paper);
+  border: 1px solid var(--color-text-soft);
+  border-radius: 5px;
+  padding: 0.45rem;
+}
+payment-lab .lab-step-editor input[type='checkbox'] {
+  margin: 0.1rem 0 0;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  accent-color: var(--lab-api);
+}
+payment-lab .lab-step-editor p,
+payment-lab .lab-step-editor small {
+  display: block;
+  margin: 0.5rem 0 0;
+  font: 0.68rem/1.5 var(--font-family-body);
+  color: var(--color-text-soft);
+}

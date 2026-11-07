@@ -70,13 +70,9 @@ payment-lab .lab-job.is-failed .lab-job-icon {
   color: var(--lab-fault);
 }
 payment-lab.is-worker-down .lab-worker > .lab-figure-worker,
-payment-lab.is-worker-down
-  .lab-worker-interior
-  > header
-  > .lab-figure-worker {
+payment-lab.is-worker-down .lab-worker-interior > header > .lab-figure-worker {
   color: var(--lab-fault);
 }
 payment-lab .lab-led {
   fill: currentColor;
 }
-

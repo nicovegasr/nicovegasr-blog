@@ -5,16 +5,32 @@ import LabHeader from '../shared/LabHeader.astro';
 import { labPath } from '../shared/links';
 import '../shared/stories.css';
 import './scaling.css';
-interface Props { locale: Locale }
+import './scaling-flow.css';
+import './scaling-dialogs.css';
+import './scaling-responsive.css';
+import './scaling-admission.css';
+interface Props {
+  locale: Locale;
+}
 const { locale } = Astro.props;
 const es = locale === 'es';
 const title = es ? 'Tu sistema se queda pequeño.' : 'Your system is growing.';
 ---
-<BaseLayout locale={locale} title={`${title} · Async Chaos Lab`}
-  description={es ? '24 pagos. Un worker. Equilibra workers, plazas simultáneas y cuotas HTTP: espera por capacidad o descubre un rechazo 429.' : '24 payments. One worker. Balance workers, concurrent slots and HTTP quotas: wait for capacity or discover a 429 rejection.'}
-  alternatePaths={{ es: labPath('es', 3), en: labPath('en', 3) }}>
+
+<BaseLayout
+  locale={locale}
+  title={`${title} · Async Chaos Lab`}
+  description={
+    es
+      ? '24 pagos. Un worker. Equilibra workers, plazas simultáneas y cuotas HTTP: espera por capacidad o descubre un rechazo 429.'
+      : '24 payments. One worker. Balance workers, concurrent slots and HTTP quotas: wait for capacity or discover a 429 rejection.'
+  }
+  alternatePaths={{ es: labPath('es', 3), en: labPath('en', 3) }}
+>
   <LabHeader locale={locale} level={3} title={title} />
   <scaling-lab data-locale={locale}></scaling-lab>
   <noscript>{es ? 'Activa JavaScript para probar el laboratorio.' : 'Enable JavaScript to try the lab.'}</noscript>
 </BaseLayout>
-<script>import './controller';</script>
+<script>
+  import './controller';
+</script>

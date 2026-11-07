@@ -1,12 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { scalingNames } from './content';
 import { scalingDefaults } from './engine';
-import {
-  restoreAchievements,
-  restoreSession,
-  saveAchievements,
-  saveSession,
-} from './session';
+import { restoreAchievements, restoreSession, saveAchievements, saveSession } from './session';
 import type { Trial } from './session';
 
 const trial = (overrides: Partial<Trial> = {}): Trial => ({
@@ -53,10 +48,15 @@ describe('scaling session', () => {
   });
 
   it('restores only the latest eight trials', () => {
-    saveSession(scalingNames(true), Array.from({ length: 10 }, (_, seconds) => trial({ seconds })), true);
+    saveSession(
+      scalingNames(true),
+      Array.from({ length: 10 }, (_, seconds) => trial({ seconds })),
+      true,
+    );
 
-    expect(restoreSession(scalingNames(true), true).history.map(({ seconds }) => seconds))
-      .toEqual([2, 3, 4, 5, 6, 7, 8, 9]);
+    expect(restoreSession(scalingNames(true), true).history.map(({ seconds }) => seconds)).toEqual([
+      2, 3, 4, 5, 6, 7, 8, 9,
+    ]);
   });
 
   it('discards trials with invalid data', () => {

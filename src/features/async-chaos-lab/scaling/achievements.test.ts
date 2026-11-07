@@ -1,11 +1,22 @@
 import { describe, expect, it } from 'vitest';
 import { eligibleAchievements, minimumWorkers, scalingAchievements } from './achievements';
-import { createScaling, pauseScaling, playScaling, runScaling, scalingDefaults, scalingMetrics, scalingVerdict } from './engine';
+import {
+  createScaling,
+  pauseScaling,
+  playScaling,
+  runScaling,
+  scalingDefaults,
+  scalingMetrics,
+  scalingVerdict,
+} from './engine';
 import type { ScalingConfig } from './engine';
 
-const run = (workers: number, capacities: ScalingConfig['capacities']) => runScaling({ ...scalingDefaults(), workers, capacities, rateLimits: { 1: capacities[1], 3: capacities[3] } });
-const twoWorkerWin = () => runScaling({ ...scalingDefaults(), workers: 2, concurrencyPerWorker: 4, capacities: [4, 4, 2, 5] });
-const awards = (workers: number, capacities: ScalingConfig['capacities']) => eligibleAchievements(run(workers, capacities));
+const run = (workers: number, capacities: ScalingConfig['capacities']) =>
+  runScaling({ ...scalingDefaults(), workers, capacities, rateLimits: { 1: capacities[1], 3: capacities[3] } });
+const twoWorkerWin = () =>
+  runScaling({ ...scalingDefaults(), workers: 2, concurrencyPerWorker: 4, capacities: [4, 4, 2, 5] });
+const awards = (workers: number, capacities: ScalingConfig['capacities']) =>
+  eligibleAchievements(run(workers, capacities));
 
 describe('Scaling achievements', () => {
   it('does not reward configuration clicks or interrupted playback', () => {
@@ -25,9 +36,15 @@ describe('Scaling achievements', () => {
   });
   it('only awards adding pods when all original resources are unchanged', () => {
     expect(eligibleAchievements(runScaling({ ...scalingDefaults(), workers: 2 }))).toContain('pods-only');
-    expect(eligibleAchievements(runScaling({ ...scalingDefaults(), workers: 3 })), 'the third worker exceeds the included quota').toEqual([]);
+    expect(
+      eligibleAchievements(runScaling({ ...scalingDefaults(), workers: 3 })),
+      'the third worker exceeds the included quota',
+    ).toEqual([]);
     expect(awards(4, [4, 4, 2, 5])).not.toContain('pods-only');
-    expect(eligibleAchievements(runScaling({ ...scalingDefaults(), workers: 2, concurrencyPerWorker: 2 })), 'holding more payments is not adding only workers').not.toContain('pods-only');
+    expect(
+      eligibleAchievements(runScaling({ ...scalingDefaults(), workers: 2, concurrencyPerWorker: 2 })),
+      'holding more payments is not adding only workers',
+    ).not.toContain('pods-only');
     expect(awards(1, [4, 3, 2, 5])).not.toContain('pods-only');
   });
   it('distinguishes timely completion from an affordable victory', () => {
@@ -38,14 +55,25 @@ describe('Scaling achievements', () => {
   });
   it('proves the two-worker minimum with a lower bound and feasible witness', () => {
     expect(minimumWorkers(scalingDefaults())).toBe(2);
-    const oneWorker = runScaling({ ...scalingDefaults(), concurrencyPerWorker: 8, capacities: [8, 8, 8, 8], rateLimits: { 1: 8, 3: 8 } });
+    const oneWorker = runScaling({
+      ...scalingDefaults(),
+      concurrencyPerWorker: 8,
+      capacities: [8, 8, 8, 8],
+      rateLimits: { 1: 8, 3: 8 },
+    });
     expect(scalingMetrics(oneWorker).seconds, 'its CPU validates one payment per second').toBe(29);
     expect(eligibleAchievements(oneWorker)).not.toContain('minimum-team');
     const result = twoWorkerWin();
     expect(scalingMetrics(result)).toMatchObject({ seconds: 22, cost: 66 });
     expect(scalingVerdict(result).won).toBe(true);
     expect(eligibleAchievements(result)).toContain('minimum-team');
-    const largerTeam = runScaling({ ...scalingDefaults(), workers: 3, concurrencyPerWorker: 6, capacities: [4, 6, 2, 5], rateLimits: { 1: 3, 3: 2 } });
+    const largerTeam = runScaling({
+      ...scalingDefaults(),
+      workers: 3,
+      concurrencyPerWorker: 6,
+      capacities: [4, 6, 2, 5],
+      rateLimits: { 1: 3, 3: 2 },
+    });
     expect(scalingVerdict(largerTeam).won).toBe(true);
     expect(eligibleAchievements(largerTeam)).not.toContain('minimum-team');
   });

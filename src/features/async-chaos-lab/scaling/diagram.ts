@@ -6,12 +6,7 @@ import { PLAYBACK_SPEEDS, AVAILABLE_WORKERS, isHttpStep, TARGET_COST, TARGET_SEC
 
 function stepCard(es: boolean, step: number) {
   const copy = stepControlsCopy(es);
-  const resources = [
-    'CPU · 1 s',
-    'HTTP · 3 s',
-    `${scalingCopy(es).database} · 1 s`,
-    'HTTP · 1 s',
-  ];
+  const resources = ['CPU · 1 s', 'HTTP · 3 s', `${scalingCopy(es).database} · 1 s`, 'HTTP · 1 s'];
   return `<article class="scaling-step" data-step="${step}">
     <div class="scaling-step-heading"><small>0${step + 1} <span>${resources[step]}</span></small><strong data-name="step-${step}"></strong></div>
     <div class="scaling-resource"><span data-status="${step}"></span><b data-capacity="${step}"></b></div>

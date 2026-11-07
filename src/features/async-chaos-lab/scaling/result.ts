@@ -25,14 +25,17 @@ export function rateLimitScene(
   const metrics = scalingMetrics(state),
     step = rejection.step;
   return outcomeShell({
-  es: es, trial: history.length, fatal: true,
-  kicker: copy.trialStoppedHttp429,
-  title: copy.slotsWereFreeQuotaRanOut,
-  evidence: `<div class="scaling-rate-evidence"><strong>HTTP 429</strong><p>${escapeHtml(names.steps[step]!)} · ${escapeHtml(names.jobs[rejection.job - 1]!)}</p><p>${copy.requestsAcceptedInThisSecond(state.requestsInWindow[step], rejection.limit, metrics.steps[step]!.active.length, config.capacities[step])}</p></div>`,
-  text: copy.theProviderRejectedThisRequest(rejection.limit, number(rejection.retryAfterSeconds, 1)),
-  actions: button('close', copy.reviewMySystem, 'data-primary'),
-  dismissAction: 'close', awards: '',
-});
+    es: es,
+    trial: history.length,
+    fatal: true,
+    kicker: copy.trialStoppedHttp429,
+    title: copy.slotsWereFreeQuotaRanOut,
+    evidence: `<div class="scaling-rate-evidence"><strong>HTTP 429</strong><p>${escapeHtml(names.steps[step]!)} · ${escapeHtml(names.jobs[rejection.job - 1]!)}</p><p>${copy.requestsAcceptedInThisSecond(state.requestsInWindow[step], rejection.limit, metrics.steps[step]!.active.length, config.capacities[step])}</p></div>`,
+    text: copy.theProviderRejectedThisRequest(rejection.limit, number(rejection.retryAfterSeconds, 1)),
+    actions: button('close', copy.reviewMySystem, 'data-primary'),
+    dismissAction: 'close',
+    awards: '',
+  });
 }
 
 export function trialResult({ es, state, config, names, history, awards }: ResultContext) {

@@ -2,14 +2,7 @@ import { scalingAchievements } from './achievements';
 import type { ScalingAchievementId } from './achievements';
 import { cleanLabel } from '../shared/text';
 import type { Names } from './content';
-import {
-  AVAILABLE_WORKERS,
-  createScaling,
-  isHttpStep,
-  PAYMENT_COUNT,
-  TARGET_COST,
-  TARGET_SECONDS,
-} from './engine';
+import { AVAILABLE_WORKERS, createScaling, isHttpStep, PAYMENT_COUNT, TARGET_COST, TARGET_SECONDS } from './engine';
 import type { ScalingConfig } from './engine';
 
 export type Trial = {
@@ -37,11 +30,7 @@ const isRestorableTrial = (trial: Trial): boolean => {
     trial.config.workers <= AVAILABLE_WORKERS &&
     (trial.rateLimitedStep === null || isHttpStep(trial.rateLimitedStep)) &&
     [trial.seconds, trial.cost, trial.completed, trial.waitingSeconds].every(
-      (value) =>
-        typeof value === 'number' &&
-        Number.isFinite(value) &&
-        value >= 0 &&
-        value <= 100_000,
+      (value) => typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 100_000,
     )
   );
 };
@@ -65,18 +54,12 @@ export function restoreSession(defaults: Names, es: boolean): { names: Names; hi
     // Keep customized names; runs where a worker held a single payment are not comparable.
     const saved = JSON.parse(current ?? sessionStorage.getItem(previousSessionKey(es)) ?? '{}');
     if (saved.names && typeof saved.names === 'object') {
-      for (const key of ['api', 'queue', 'worker'] as const)
-        names[key] = cleanLabel(saved.names[key], names[key]);
+      for (const key of ['api', 'queue', 'worker'] as const) names[key] = cleanLabel(saved.names[key], names[key]);
       for (const key of ['steps', 'jobs'] as const)
-        names[key] = names[key].map((fallback, index) =>
-          cleanLabel(saved.names[key]?.[index], fallback),
-        );
+        names[key] = names[key].map((fallback, index) => cleanLabel(saved.names[key]?.[index], fallback));
     }
     if (current && Array.isArray(saved.history))
-      history = saved.history
-        .slice(-MAXIMUM_RESTORED_TRIALS)
-        .filter(isRestorableTrial)
-        .map(withCurrentVerdict);
+      history = saved.history.slice(-MAXIMUM_RESTORED_TRIALS).filter(isRestorableTrial).map(withCurrentVerdict);
   } catch {
     return { names, history };
   }
@@ -95,9 +78,7 @@ export function restoreAchievements(): Set<ScalingAchievementId> {
   try {
     const saved = JSON.parse(sessionStorage.getItem(achievementsKey) ?? '{}');
     if (Array.isArray(saved.ids))
-      return new Set(
-        scalingAchievements.filter(({ id }) => saved.ids.includes(id)).map(({ id }) => id),
-      );
+      return new Set(scalingAchievements.filter(({ id }) => saved.ids.includes(id)).map(({ id }) => id));
   } catch {
     return new Set();
   }

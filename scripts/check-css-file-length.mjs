@@ -2,10 +2,6 @@ import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 
 const MAXIMUM_LINES_PER_FILE = 500;
-const FILES_PENDING_SPLIT = new Set([
-  'src/features/async-chaos-lab/scaling/scaling.css',
-  'src/features/async-chaos-lab/shared/stories/outcome-scene.css',
-]);
 
 const stylesheetEntries = (await readdir('src', { recursive: true }))
   .filter((path) => path.endsWith('.css'))
@@ -17,7 +13,7 @@ const countNonBlankLines = async (path) =>
 const oversizedFiles = [];
 for (const path of stylesheetEntries) {
   const lines = await countNonBlankLines(path);
-  if (lines > MAXIMUM_LINES_PER_FILE && !FILES_PENDING_SPLIT.has(path)) {
+  if (lines > MAXIMUM_LINES_PER_FILE) {
     oversizedFiles.push(`${path}: ${lines} lines (maximum ${MAXIMUM_LINES_PER_FILE})`);
   }
 }

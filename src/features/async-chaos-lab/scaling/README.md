@@ -12,10 +12,11 @@ Functions or new dependencies.
 - `achievements.ts` / `achievements.test.ts`: actual-run rewards and minimum-team proof.
 - `engine.test.ts`: repeatability, capacity, FIFO waiting, HTTP 429, effects and mission rules.
 - `controller.ts`: playback, diagram, introductions and session comparison.
+- `painter.ts`: paints the workers and each step from the current state.
 - `diagram.ts`, `dialogs.ts`, `result.ts`: the HTML of the board, its dialogs and a finished or rejected trial.
 - `format.ts`: number and team labels; `copy.ts`: the interface text.
 - `content.ts`: bilingual names and introductory call.
-- `scaling.css`: feature-scoped layout and signals.
+- `scaling.css`, `scaling-flow.css`, `scaling-dialogs.css`, `scaling-responsive.css`, `scaling-admission.css`: feature-scoped layout and signals, imported in this cascade order.
 - `scaling.e2e.ts`: Playwright browser tests and review screenshots.
 - `../shared/outcome-shell.ts`: the same outcome scene used by all three levels.
 
@@ -134,23 +135,23 @@ real provider prices or CPU/RAM measurements.
 
 Examples from the engine:
 
-| Workers × payments | CPU / Stripe / DB / Email slots | Charge / email quota (req/s) | Result |
-| ------------------ | ------------------------------ | --------------------------- | ------ |
-| 1 × 1 | 4 / 3 / 2 / 5 | 2 / 2 | Complete in 144 s, 144 units |
-| 2 × 1 | 4 / 3 / 2 / 5 | 2 / 2 | Complete in 72 s, 144 units |
-| 3 × 1 | 4 / 3 / 2 / 5 | 2 / 2 | HTTP 429 at charging after 1 s, with a free slot |
-| 1 × 4 | 4 / 3 / 2 / 5 | 2 / 2 | Complete in 39 s, 39 units |
-| 1 × 6 | 4 / 3 / 2 / 5 | 2 / 2 | Complete in 29 s, 29 units: the CPU of one worker |
-| 1 × 8 | 4 / 4 / 2 / 5 | 2 / 2 | Complete in 29 s, 58 units: the extra slot changes nothing |
-| 2 × 6 | 4 / 3 / 2 / 5 | 2 / 2 | Complete in 28 s, 56 units: the wait moves to Stripe |
-| 2 × 3 | 4 / 4 / 2 / 5 | 2 / 2 | Complete in 27 s, 81 units: too few payments to use the slot |
-| 2 × 4 | 4 / 4 / 2 / 5 | 2 / 2 | Win in 22 s, 66 units |
-| 2 × 6 | 4 / 6 / 2 / 5 | 2 / 2 | Win in 17 s, 85 units |
-| 3 × 6 | 4 / 4 / 2 / 5 | 2 / 2 | HTTP 429 at charging after 1 s, with a free slot |
-| 3 × 6 | 4 / 6 / 2 / 5 | 3 / 2 | Win in 17 s, 119 units |
-| 3 × 6 | 4 / 6 / 3 / 5 | 3 / 2 | HTTP 429 at email after 5 s: the wider database moved it |
-| 3 × 6 | 4 / 6 / 3 / 5 | 3 / 3 | Complete in 16 s, but 144 units exceeds the budget |
-| 6 × 1 | 6 / 6 / 6 / 6 | 6 / 6 | Complete in 24 s, but 576 units exceeds the budget |
+| Workers × payments | CPU / Stripe / DB / Email slots | Charge / email quota (req/s) | Result                                                       |
+| ------------------ | ------------------------------- | ---------------------------- | ------------------------------------------------------------ |
+| 1 × 1              | 4 / 3 / 2 / 5                   | 2 / 2                        | Complete in 144 s, 144 units                                 |
+| 2 × 1              | 4 / 3 / 2 / 5                   | 2 / 2                        | Complete in 72 s, 144 units                                  |
+| 3 × 1              | 4 / 3 / 2 / 5                   | 2 / 2                        | HTTP 429 at charging after 1 s, with a free slot             |
+| 1 × 4              | 4 / 3 / 2 / 5                   | 2 / 2                        | Complete in 39 s, 39 units                                   |
+| 1 × 6              | 4 / 3 / 2 / 5                   | 2 / 2                        | Complete in 29 s, 29 units: the CPU of one worker            |
+| 1 × 8              | 4 / 4 / 2 / 5                   | 2 / 2                        | Complete in 29 s, 58 units: the extra slot changes nothing   |
+| 2 × 6              | 4 / 3 / 2 / 5                   | 2 / 2                        | Complete in 28 s, 56 units: the wait moves to Stripe         |
+| 2 × 3              | 4 / 4 / 2 / 5                   | 2 / 2                        | Complete in 27 s, 81 units: too few payments to use the slot |
+| 2 × 4              | 4 / 4 / 2 / 5                   | 2 / 2                        | Win in 22 s, 66 units                                        |
+| 2 × 6              | 4 / 6 / 2 / 5                   | 2 / 2                        | Win in 17 s, 85 units                                        |
+| 3 × 6              | 4 / 4 / 2 / 5                   | 2 / 2                        | HTTP 429 at charging after 1 s, with a free slot             |
+| 3 × 6              | 4 / 6 / 2 / 5                   | 3 / 2                        | Win in 17 s, 119 units                                       |
+| 3 × 6              | 4 / 6 / 3 / 5                   | 3 / 2                        | HTTP 429 at email after 5 s: the wider database moved it     |
+| 3 × 6              | 4 / 6 / 3 / 5                   | 3 / 3                        | Complete in 16 s, but 144 units exceeds the budget           |
+| 6 × 1              | 6 / 6 / 6 / 6                   | 6 / 6                        | Complete in 24 s, but 576 units exceeds the budget           |
 
 With all four resources at one slot and the included quotas, both four-worker
 and eight-worker teams finish in 75 seconds. The larger team increases cumulative

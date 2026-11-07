@@ -1,8 +1,15 @@
 import type { Locator, Page } from '@playwright/test';
 import type { Locale } from '@/i18n/locale';
 import {
-  blockSessionStorage, captureForReview, expect, expectFullyInViewport, expectNoHorizontalOverflow,
-  labUrl, setSimulationInterval, test, useDarkTheme,
+  blockSessionStorage,
+  captureForReview,
+  expect,
+  expectFullyInViewport,
+  expectNoHorizontalOverflow,
+  labUrl,
+  setSimulationInterval,
+  test,
+  useDarkTheme,
 } from '../shared/lab-test';
 
 class ScalingLab {
@@ -67,13 +74,28 @@ test.describe('Level 3 · scaling', () => {
     await expect(page.locator('[data-achievement]')).toHaveCount(3);
     await expect(page.locator('[data-achievement].is-unlocked')).toHaveCount(0);
     await page.locator('.lab-achievements summary').click();
-    await expect(page.locator('[data-limit], [data-admission], [data-protect], [data-inspector], [data-action^=crash]'), 'no separate admission fields or manual failures').toHaveCount(0);
+    await expect(
+      page.locator('[data-limit], [data-admission], [data-protect], [data-inspector], [data-action^=crash]'),
+      'no separate admission fields or manual failures',
+    ).toHaveCount(0);
     await expect(page.locator('.scaling-step [data-resource-size]'), 'one concurrency control per step').toHaveCount(4);
-    await expect(page.locator('.scaling-step [data-rate-limit]'), 'an HTTP quota only on the two HTTP steps').toHaveCount(2);
+    await expect(
+      page.locator('.scaling-step [data-rate-limit]'),
+      'an HTTP quota only on the two HTTP steps',
+    ).toHaveCount(2);
     await expect(page.locator('[data-concurrency]'), 'a worker starts with one payment at a time').toHaveText('1');
     await expect(page.locator('[data-action=concurrency-less]')).toBeDisabled();
-    expect(await page.locator('.scaling-step').first().evaluate((step) => getComputedStyle(step, '::after').content), 'no arrows between steps').toBe('none');
-    expect(await page.locator('.scaling-queue').evaluate((queue) => getComputedStyle(queue, '::after').content), 'no queue arrow').toBe('none');
+    expect(
+      await page
+        .locator('.scaling-step')
+        .first()
+        .evaluate((step) => getComputedStyle(step, '::after').content),
+      'no arrows between steps',
+    ).toBe('none');
+    expect(
+      await page.locator('.scaling-queue').evaluate((queue) => getComputedStyle(queue, '::after').content),
+      'no queue arrow',
+    ).toBe('none');
   });
 
   test('pausing and changing speed never move the simulated clock', async ({ page }) => {
@@ -175,7 +197,9 @@ test.describe('Level 3 · scaling', () => {
       await expect(lab.dialog).toContainText('MISIÓN SUPERADA');
       await expect(lab.dialog).toContainText('22 s');
       await expect(lab.dialog).toContainText('66 u');
-      expect(await lab.earnedAwards.evaluateAll((awards) => awards.map((award) => (award as HTMLElement).dataset.earned))).toEqual(['on-time', 'minimum-team']);
+      expect(
+        await lab.earnedAwards.evaluateAll((awards) => awards.map((award) => (award as HTMLElement).dataset.earned)),
+      ).toEqual(['on-time', 'minimum-team']);
       await captureForReview(page, 'scaling-win');
       await lab.close();
     });
@@ -300,8 +324,11 @@ test.describe('Level 3 · scaling', () => {
     await expect(page.locator('[data-name=api]')).toHaveText(hostile);
     await lab.action('job:1');
     await expect(page.locator('[data-radio]')).toContainText('Pedido de Ana');
-    const injected = await page.evaluate(() =>
-      (window as Window & { scalingXss?: number }).scalingXss !== undefined || !!document.querySelector('scaling-lab img'));
+    const injected = await page.evaluate(
+      () =>
+        (window as Window & { scalingXss?: number }).scalingXss !== undefined ||
+        !!document.querySelector('scaling-lab img'),
+    );
     expect(injected).toBe(false);
 
     await lab.open();
@@ -355,7 +382,10 @@ test.describe('Level 3 · scaling', () => {
       await lab.playToOutcome();
       await lab.expectPhase('rate-limited');
       await expect(lab.dialog).toContainText('HTTP 429');
-      expect(await lab.dialog.evaluate((dialog) => dialog.getBoundingClientRect().width <= innerWidth), 'the ticket fits the screen').toBe(true);
+      expect(
+        await lab.dialog.evaluate((dialog) => dialog.getBoundingClientRect().width <= innerWidth),
+        'the ticket fits the screen',
+      ).toBe(true);
       await captureForReview(page, 'scaling-mobile-incident-ticket');
     });
   });
