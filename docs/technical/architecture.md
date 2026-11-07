@@ -48,7 +48,7 @@ Pages and components consume repositories instead of importing `astro:content` d
 
 `about-me` owns the personal journey, told as life chapters where work is a secondary credit, because it is the localized home page. The underlying content collection remains named `timeline`: content storage and feature ownership need not have identical directory names.
 
-`shared/` contains focused pieces used by more than one feature. Reading-time calculation and presentation belong together there because posts and pills both use them. The mascot sprite atlases live there too, because the labs and the home page both animate them. Shared code must not depend on feature modules. Do not use this directory as a catch-all for code with unclear ownership.
+`shared/` contains focused pieces used by more than one feature. Reading-time calculation and presentation belong together there because posts and pills both use them. The mascot sprite atlases live there too, because the labs and the home page both animate them. Shared code must not depend on feature modules. Do not use this directory as a catch-all for code with unclear ownership. ESLint enforces the direction: `shared/` cannot import `@/features/`, and a feature can import another only through the doors listed in `FEATURE_DOORS` in `eslint.config.js` (the labs catalogue reading each lab's entry and preview, and the blog index showing the friend blogs). The rule checks `@/` imports, so cross-feature imports must use that alias.
 
 Feature-specific page composition stays in the feature. `PillNotebook.astro`, for example, composes the pills experience using the site-wide `BaseLayout.astro`; it is not part of the global shell.
 
