@@ -1,16 +1,17 @@
-import { achievements } from './achievements';
+import type { Locale } from '@/i18n/locale';
+import { achievementIds } from './achievements';
 import type { AchievementId } from './achievements';
 import { cleanLabel } from '../shared/text';
 import type { Labels } from './labels';
 
 const achievementsKey = 'queue-story-achievements';
-const namesKey = (es: boolean) => `queue-story-names-${es ? 'es' : 'en'}`;
+const namesKey = (locale: Locale) => `queue-story-names-${locale}`;
 
 // Browser storage is optional: every function works, without persisting, when it is blocked.
-export function restoreLabels(defaults: Labels, stepNamesKey: string, es: boolean): Labels {
+export function restoreLabels(defaults: Labels, stepNamesKey: string, locale: Locale): Labels {
   const labels = structuredClone(defaults);
   try {
-    const saved = JSON.parse(sessionStorage.getItem(namesKey(es)) ?? '{}');
+    const saved = JSON.parse(sessionStorage.getItem(namesKey(locale)) ?? '{}');
     for (const key of ['api', 'storage', 'worker'] as const)
       if (typeof saved[key] === 'string') labels[key] = cleanLabel(saved[key], defaults[key]);
     if (Array.isArray(saved.jobs))
@@ -23,13 +24,13 @@ export function restoreLabels(defaults: Labels, stepNamesKey: string, es: boolea
   return labels;
 }
 
-export function saveLabel(key: string, labels: Labels, stepNamesKey: string, es: boolean) {
+export function saveLabel(key: string, labels: Labels, stepNamesKey: string, locale: Locale) {
   try {
-    const saved = JSON.parse(sessionStorage.getItem(namesKey(es)) ?? '{}');
+    const saved = JSON.parse(sessionStorage.getItem(namesKey(locale)) ?? '{}');
     if (key === 'api' || key === 'storage' || key === 'worker') saved[key] = labels[key];
     if (key.startsWith('job-')) saved.jobs = labels.jobs;
     if (key.startsWith('step-')) saved[stepNamesKey] = labels.steps;
-    sessionStorage.setItem(namesKey(es), JSON.stringify(saved));
+    sessionStorage.setItem(namesKey(locale), JSON.stringify(saved));
   } catch {
     return;
   }
@@ -39,7 +40,7 @@ export function restoreAchievements(): Set<AchievementId> {
   const unlocked = new Set<AchievementId>();
   try {
     const saved = JSON.parse(sessionStorage.getItem(achievementsKey) ?? '[]');
-    if (Array.isArray(saved)) for (const { id } of achievements) if (saved.includes(id)) unlocked.add(id);
+    if (Array.isArray(saved)) for (const id of achievementIds) if (saved.includes(id)) unlocked.add(id);
   } catch {
     return unlocked;
   }

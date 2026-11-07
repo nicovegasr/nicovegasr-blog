@@ -1,4 +1,4 @@
-import { eligibleAchievements, scalingAchievements } from './achievements';
+import { eligibleAchievements, scalingAchievementCopy, scalingAchievementIds } from './achievements';
 import type { ScalingAchievementId } from './achievements';
 import { number, teamLabel } from './format';
 import { rateLimitScene, trialResult } from './result';
@@ -30,7 +30,7 @@ import type { Names } from './content';
 import { cleanLabel, escapeHtml } from '../shared/text';
 import { labFigure } from '../shared/figures';
 import { paintSteps, paintWorkers } from './painter';
-import { button, isSpanishLab, labLocale } from '../shared/lab-ui';
+import { button, labLocale } from '../shared/lab-ui';
 import { MAXIMUM_RESTORED_TRIALS, restoreAchievements, restoreSession, saveAchievements, saveSession } from './session';
 import type { Trial } from './session';
 
@@ -50,9 +50,6 @@ class QueueScaling extends HTMLElement {
   private get locale() {
     return labLocale(this);
   }
-  private get es() {
-    return isSpanishLab(this);
-  }
   private get copy() {
     return scalingCopy(this.locale);
   }
@@ -61,7 +58,7 @@ class QueueScaling extends HTMLElement {
   }
 
   connectedCallback() {
-    ({ names: this.names, history: this.history } = restoreSession(scalingNames(this.es), this.es));
+    ({ names: this.names, history: this.history } = restoreSession(scalingNames(this.locale), this.locale));
     this.unlocked = restoreAchievements();
     this.innerHTML = scalingDiagram(this.locale, this.speed);
     const pending = this.element('[data-location=pending]');
@@ -95,22 +92,22 @@ class QueueScaling extends HTMLElement {
     saveAchievements(this.unlocked);
   }
   private renderNewAwards() {
-    return `<div class="scaling-result-awards">${scalingAchievements
-      .filter(({ id }) => this.newAwards.includes(id))
-      .map((award) => {
-        const [title, description] = this.es ? award.es : award.en;
-        return `<div class="lab-earned" data-earned="${award.id}"><span aria-hidden="true">✦</span><div><small class="lab-award-label">${this.copy.achievementUnlocked}</small><strong>${escapeHtml(title)}</strong><p>${escapeHtml(description)}</p></div></div>`;
+    return `<div class="scaling-result-awards">${scalingAchievementIds
+      .filter((id) => this.newAwards.includes(id))
+      .map((id) => {
+        const [title, description] = scalingAchievementCopy(this.locale)[id];
+        return `<div class="lab-earned" data-earned="${id}"><span aria-hidden="true">✦</span><div><small class="lab-award-label">${this.copy.achievementUnlocked}</small><strong>${escapeHtml(title)}</strong><p>${escapeHtml(description)}</p></div></div>`;
       })
       .join('')}</div>`;
   }
   private renderAchievements() {
     this.element('[data-achievement-summary]').textContent =
-      `✦ ${this.copy.sessionAchievements} · ${this.unlocked.size}/${scalingAchievements.length}`;
-    this.element('[data-achievements]').innerHTML = scalingAchievements
-      .map((award) => {
-        const unlocked = this.unlocked.has(award.id);
-        const [title, description] = this.es ? award.es : award.en;
-        return `<article class="${unlocked ? 'is-unlocked' : ''}" data-achievement="${award.id}"><span aria-hidden="true">${unlocked ? '✦' : '◇'}</span><div><h3>${escapeHtml(title)}${unlocked ? ` <small>· ${this.copy.unlocked}</small>` : ''}</h3><p>${escapeHtml(description)}</p></div></article>`;
+      `✦ ${this.copy.sessionAchievements} · ${this.unlocked.size}/${scalingAchievementIds.length}`;
+    this.element('[data-achievements]').innerHTML = scalingAchievementIds
+      .map((id) => {
+        const unlocked = this.unlocked.has(id);
+        const [title, description] = scalingAchievementCopy(this.locale)[id];
+        return `<article class="${unlocked ? 'is-unlocked' : ''}" data-achievement="${id}"><span aria-hidden="true">${unlocked ? '✦' : '◇'}</span><div><h3>${escapeHtml(title)}${unlocked ? ` <small>· ${this.copy.unlocked}</small>` : ''}</h3><p>${escapeHtml(description)}</p></div></article>`;
       })
       .join('');
   }
@@ -168,7 +165,7 @@ class QueueScaling extends HTMLElement {
         won: verdict.won,
       });
       this.history = this.history.slice(-MAXIMUM_RESTORED_TRIALS);
-      saveSession(this.names, this.history, this.es);
+      saveSession(this.names, this.history, this.locale);
       this.render();
       this.showResult();
       return;
@@ -271,7 +268,7 @@ class QueueScaling extends HTMLElement {
     if (key.startsWith('step-')) this.names.steps[Number(key.slice(5))] = value;
     else if (key.startsWith('job-')) this.names.jobs[Number(key.slice(4))] = value;
     else this.names[key as 'api' | 'queue' | 'worker'] = value;
-    saveSession(this.names, this.history, this.es);
+    saveSession(this.names, this.history, this.locale);
     this.render();
   };
   private render() {
@@ -434,7 +431,7 @@ class QueueScaling extends HTMLElement {
     dialog.querySelector<HTMLButtonElement>('[data-action=modal-primary]')?.focus({ preventScroll: true });
   }
   private showCall(scene: 'intro') {
-    const copy = callCopy(scene, this.names, this.es);
+    const copy = callCopy(scene, this.names, this.locale);
     this.modal(
       copy.title,
       `<p>${this.highlight(copy.report)}</p><p class="scaling-call-hint">${this.highlight(copy.hint)}</p>`,

@@ -30,6 +30,11 @@ export interface LabCopy {
   readonly thousandsSeparator: string;
   readonly millions: string;
   readonly underATenthOfASecond: string;
+  readonly catalogue: {
+    readonly label: string;
+    readonly caption: string;
+    readonly levelCount: (count: number) => string;
+  };
   readonly page: {
     readonly description: string;
     readonly challenges: string;

@@ -1,4 +1,5 @@
 ---
+import { otherLocale } from '@/i18n/locale';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import type { Locale } from '@/i18n/locale';
 import { buildBlogPostPath } from '@/i18n/routes';
@@ -21,7 +22,7 @@ if (renderable === null) {
 
 const { post, markdown, Content } = renderable;
 const relatedPosts = await findRelatedPosts(locale, post.slug);
-const translationLocale: Locale = locale === 'es' ? 'en' : 'es';
+const translationLocale = otherLocale(locale);
 const alternatePaths = post.translationSlug
   ? { [translationLocale]: buildBlogPostPath(translationLocale, post.translationSlug) }
   : {};

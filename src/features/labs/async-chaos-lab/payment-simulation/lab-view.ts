@@ -12,7 +12,6 @@ export type RetryStage = 'failure' | 'restart';
 export interface PaymentLabView {
   readonly definition: PaymentLabDefinition;
   readonly locale: Locale;
-  readonly es: boolean;
   readonly copy: ReturnType<typeof paymentCopy>;
   readonly config: Readonly<SimulationConfig>;
   readonly state: Readonly<SimulationState>;
@@ -26,7 +25,6 @@ export interface PaymentLabView {
   readonly inspected: number;
   readonly personalizing: boolean;
   readonly notices: readonly AchievementId[];
-  inLocale(es: string, en: string): string;
   name(key: 'api' | 'storage' | 'worker'): string;
   job(index: number): string;
   step(index: number): string;
@@ -42,7 +40,6 @@ export type PaintedPaymentLab = PaymentLabView &
 /** What a lab's own settings may change. */
 export interface PaymentLabSettings {
   readonly locale: Locale;
-  readonly es: boolean;
   readonly config: SimulationConfig;
   guide: GuideStage;
   syncStorageName(): void;

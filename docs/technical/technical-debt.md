@@ -18,38 +18,38 @@ Known issues and what has already been resolved. Fix an item when its area is ne
 | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | The header needs at least 344px, so it overflows on narrower screens                    | Those widths do not justify the work                                                                                                                                                                                  |
 | `--walk-line-inset` is set by JavaScript, which shifts the home layout slightly on load | Home CLS is well below the 0.1 threshold: at most 0.0225 locally (390×844) and 0.0054 in production (Lighthouse, mobile, 412×823). Deriving it in CSS would have to duplicate the centered gutter and the mascot size |
-| State-dependent lab text uses `inLocale` in `narration.ts` and `guide.ts`               | Those files are the catalogue for text that depends on the simulation state                                                                                                                                           |
 | Existing source comments mix Spanish and English                                        | New comments are written in English; existing ones change only when their code does                                                                                                                                   |
 
 ## Resolved
 
-|     | Item                                                                                                                                                                   |
-| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ✅  | Circular portraits and an ordered home header at every width                                                                                                           |
-| ✅  | Mobile spacing, and a mascot that is no longer clipped near the screen edge                                                                                            |
-| ✅  | Clearer career headings in both languages                                                                                                                              |
-| ✅  | Compact typography on the pill-series cards                                                                                                                            |
-| ✅  | Shared single-row footer with larger tap targets (`edc16c3`)                                                                                                           |
-| ✅  | Deferred mascot atlas loading, reserved lab height and immutable caching for hashed assets                                                                             |
-| ✅  | Pills index meta description no longer says "coming soon"                                                                                                              |
-| ✅  | Browser tests build the current checkout; reusing a server is explicit                                                                                                 |
-| ✅  | Browser journeys for reader history, language switching, reduced motion and no JavaScript                                                                              |
-| ✅  | Lab session persistence and small helpers extracted from the controllers                                                                                               |
-| ✅  | Each lab has its own folder, with shared code in `payment-simulation/` and `shared/`                                                                                   |
-| ✅  | Tutorial, incident and result rendering extracted from the controllers                                                                                                 |
-| ✅  | The engine no longer knows about levels: each lab declares its own rules, configuration and names                                                                      |
-| ✅  | Controller copy moved to typed catalogues                                                                                                                              |
-| ✅  | The lab 3 diagram and dialogs extracted, and abbreviated identifiers replaced across the labs                                                                          |
-| ✅  | `stories.css` split into ordered sections                                                                                                                              |
-| ✅  | Mascot calculations extracted into pure functions with unit tests                                                                                                      |
-| ✅  | Hero tests no longer depend on the live shields.io badge                                                                                                               |
-| ✅  | Dead props, keys and declarations removed; one accent underline and one storage key; visible hover on the star badge                                                   |
-| ✅  | Production measured on mobile (2026-10-31): Lighthouse 86-99, CLS at most 0.060, and immutable caching confirmed on hashed assets                                      |
-| ✅  | Each feature owns its interface text in `copy.ts`; the global dictionary keeps only site-wide text                                                                     |
-| ✅  | Async Chaos Lab views receive narrow contracts (`lab-view.ts`): a read-only view, a painted surface or the settings they may change                                    |
-| ✅  | Article routes are thin in both locales; `posts/PostPage.astro` owns the composition                                                                                   |
-| ✅  | ESLint enforces the dependency direction: `shared/` cannot import features, and features meet only through the doors in `FEATURE_DOORS`                                |
-| ✅  | The labs catalogue is its own `labs` feature; each lab supplies its entry and preview                                                                                  |
-| ✅  | The only interactive Markdown demo became an animated WebP (ES/EN, with a still for reduced motion), so the shell no longer loads a demo mechanism                     |
-| ✅  | No file exceeds 500 lines: lab controllers delegate markup and painting, `PillReaderIndex.astro` owns the index, and both large stylesheets are split in cascade order |
-| ✅  | Prettier formats the repository and `npm run lint` checks it                                                                                                           |
+|     | Item                                                                                                                                                                               |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ✅  | Circular portraits and an ordered home header at every width                                                                                                                       |
+| ✅  | Mobile spacing, and a mascot that is no longer clipped near the screen edge                                                                                                        |
+| ✅  | Clearer career headings in both languages                                                                                                                                          |
+| ✅  | Compact typography on the pill-series cards                                                                                                                                        |
+| ✅  | Shared single-row footer with larger tap targets (`edc16c3`)                                                                                                                       |
+| ✅  | Deferred mascot atlas loading, reserved lab height and immutable caching for hashed assets                                                                                         |
+| ✅  | Pills index meta description no longer says "coming soon"                                                                                                                          |
+| ✅  | Browser tests build the current checkout; reusing a server is explicit                                                                                                             |
+| ✅  | Browser journeys for reader history, language switching, reduced motion and no JavaScript                                                                                          |
+| ✅  | Lab session persistence and small helpers extracted from the controllers                                                                                                           |
+| ✅  | Each lab has its own folder, with shared code in `payment-simulation/` and `shared/`                                                                                               |
+| ✅  | Tutorial, incident and result rendering extracted from the controllers                                                                                                             |
+| ✅  | The engine no longer knows about levels: each lab declares its own rules, configuration and names                                                                                  |
+| ✅  | Controller copy moved to typed catalogues                                                                                                                                          |
+| ✅  | The lab 3 diagram and dialogs extracted, and abbreviated identifiers replaced across the labs                                                                                      |
+| ✅  | `stories.css` split into ordered sections                                                                                                                                          |
+| ✅  | Mascot calculations extracted into pure functions with unit tests                                                                                                                  |
+| ✅  | Hero tests no longer depend on the live shields.io badge                                                                                                                           |
+| ✅  | Dead props, keys and declarations removed; one accent underline and one storage key; visible hover on the star badge                                                               |
+| ✅  | Production measured on mobile (2026-10-31): Lighthouse 86-99, CLS at most 0.060, and immutable caching confirmed on hashed assets                                                  |
+| ✅  | Every interface text goes through `defineCopy` and a `Locale`: no `inLocale`, no `es ? … : …`, no language booleans; texts that depend on the state are functions in the catalogue |
+| ✅  | Each feature owns its interface text in `copy.ts`; the global dictionary keeps only site-wide text                                                                                 |
+| ✅  | Async Chaos Lab views receive narrow contracts (`lab-view.ts`): a read-only view, a painted surface or the settings they may change                                                |
+| ✅  | Article routes are thin in both locales; `posts/PostPage.astro` owns the composition                                                                                               |
+| ✅  | ESLint enforces the dependency direction: `shared/` cannot import features, and features meet only through the doors in `FEATURE_DOORS`                                            |
+| ✅  | The labs catalogue is its own `labs` feature; each lab supplies its entry and preview                                                                                              |
+| ✅  | The only interactive Markdown demo became an animated WebP (ES/EN, with a still for reduced motion), so the shell no longer loads a demo mechanism                                 |
+| ✅  | No file exceeds 500 lines: lab controllers delegate markup and painting, `PillReaderIndex.astro` owns the index, and both large stylesheets are split in cascade order             |
+| ✅  | Prettier formats the repository and `npm run lint` checks it                                                                                                                       |

@@ -1,4 +1,5 @@
-import { scalingAchievements } from './achievements';
+import type { Locale } from '@/i18n/locale';
+import { scalingAchievementIds } from './achievements';
 import type { ScalingAchievementId } from './achievements';
 import { cleanLabel } from '../shared/text';
 import type { Names } from './content';
@@ -17,8 +18,8 @@ export type Trial = {
 
 export const MAXIMUM_RESTORED_TRIALS = 8;
 const achievementsKey = 'async-scaling-achievements-v1';
-const sessionKey = (es: boolean) => `async-scaling-v7-${es ? 'es' : 'en'}`;
-const previousSessionKey = (es: boolean) => `async-scaling-v6-${es ? 'es' : 'en'}`;
+const sessionKey = (locale: Locale) => `async-scaling-v7-${locale}`;
+const previousSessionKey = (locale: Locale) => `async-scaling-v6-${locale}`;
 
 const isRestorableTrial = (trial: Trial): boolean => {
   try {
@@ -46,13 +47,13 @@ const withCurrentVerdict = (trial: Trial): Trial => ({
 });
 
 // Browser storage is optional: every function works, without persisting, when it is blocked.
-export function restoreSession(defaults: Names, es: boolean): { names: Names; history: Trial[] } {
+export function restoreSession(defaults: Names, locale: Locale): { names: Names; history: Trial[] } {
   const names = structuredClone(defaults);
   let history: Trial[] = [];
   try {
-    const current = sessionStorage.getItem(sessionKey(es));
+    const current = sessionStorage.getItem(sessionKey(locale));
     // Keep customized names; runs where a worker held a single payment are not comparable.
-    const saved = JSON.parse(current ?? sessionStorage.getItem(previousSessionKey(es)) ?? '{}');
+    const saved = JSON.parse(current ?? sessionStorage.getItem(previousSessionKey(locale)) ?? '{}');
     if (saved.names && typeof saved.names === 'object') {
       for (const key of ['api', 'queue', 'worker'] as const) names[key] = cleanLabel(saved.names[key], names[key]);
       for (const key of ['steps', 'jobs'] as const)
@@ -66,9 +67,9 @@ export function restoreSession(defaults: Names, es: boolean): { names: Names; hi
   return { names, history };
 }
 
-export function saveSession(names: Names, history: Trial[], es: boolean) {
+export function saveSession(names: Names, history: Trial[], locale: Locale) {
   try {
-    sessionStorage.setItem(sessionKey(es), JSON.stringify({ names, history }));
+    sessionStorage.setItem(sessionKey(locale), JSON.stringify({ names, history }));
   } catch {
     return;
   }
@@ -77,8 +78,7 @@ export function saveSession(names: Names, history: Trial[], es: boolean) {
 export function restoreAchievements(): Set<ScalingAchievementId> {
   try {
     const saved = JSON.parse(sessionStorage.getItem(achievementsKey) ?? '{}');
-    if (Array.isArray(saved.ids))
-      return new Set(scalingAchievements.filter(({ id }) => saved.ids.includes(id)).map(({ id }) => id));
+    if (Array.isArray(saved.ids)) return new Set(scalingAchievementIds.filter((id) => saved.ids.includes(id)));
   } catch {
     return new Set();
   }

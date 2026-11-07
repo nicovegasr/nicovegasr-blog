@@ -1,3 +1,4 @@
+import type { Locale } from '@/i18n/locale';
 import type { AchievementId } from './achievements';
 import type { PaintedPaymentLab, PaymentLabSettings, PaymentLabView } from './lab-view';
 import type { SimulationConfig, SimulationRules, SimulationState, StepConfig, StepProgress } from './engine';
@@ -17,7 +18,7 @@ export type StepPaint = {
 export type PaymentLabDefinition = {
   defaultConfig(): SimulationConfig;
   rules: SimulationRules;
-  defaultLabels(es: boolean): Labels;
+  defaultLabels(locale: Locale): Labels;
   /** Stored under this key so each lab keeps its own step names. */
   stepNamesKey: string;
   firstGuideStage: GuideStage;

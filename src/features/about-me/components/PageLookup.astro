@@ -1,11 +1,12 @@
 ---
+import { aboutMeCopy } from '../copy';
 import type { Locale } from '@/i18n/locale';
 
 interface Props {
   locale: Locale;
 }
 const { locale } = Astro.props;
-const es = locale === 'es';
+const text = aboutMeCopy(locale).pageLookup;
 // Measured with EXPLAIN (ANALYZE, BUFFERS) on PostgreSQL 18 with 10 million rows: 123,457 pages without an index;
 // with one, three index levels plus one table page.
 const PAGES_WITHOUT_INDEX = '+100K';
@@ -28,22 +29,18 @@ const indexLevels = Array.from({ length: INDEX_LEVELS }, (_, level) => level);
   <p class="result">
     <strong>
       {PAGES_WITHOUT_INDEX} <span aria-hidden="true">→</span>
-      <span class="sr-only">{es ? 'a' : 'to'}</span> {PAGES_WITH_INDEX}
+      <span class="sr-only">{text.to}</span> {PAGES_WITH_INDEX}
     </strong>
-    <span>
-      {es
-        ? 'páginas de PostgreSQL leídas para encontrar 1 fila entre 10 millones'
-        : 'PostgreSQL pages read to find 1 row among 10 million'}
-    </span>
+    <span>{text.postgresqlPagesReadTo}</span>
   </p>
   <div class="lookups" aria-hidden="true">
     <div class="lookup headings">
       <span></span>
-      <span class="heading index-heading">{es ? 'Índice' : 'Index'}</span>
-      <span class="heading">{es ? 'Páginas de la tabla' : 'Table pages'}</span>
+      <span class="heading index-heading">{text.index}</span>
+      <span class="heading">{text.tablePages}</span>
     </div>
     <div class="lookup">
-      <span class="lookup-label">{es ? 'Sin índice' : 'No index'}</span>
+      <span class="lookup-label">{text.noIndex}</span>
       <span></span>
       <div class="table-pages">
         {tablePages.map((page) => (
@@ -56,7 +53,7 @@ const indexLevels = Array.from({ length: INDEX_LEVELS }, (_, level) => level);
       </div>
     </div>
     <div class="lookup">
-      <span class="lookup-label">{es ? 'Con índice' : 'With index'}</span>
+      <span class="lookup-label">{text.withIndex}</span>
       <div class="index-levels">
         {indexLevels.map((level) => (
           <span
@@ -83,11 +80,7 @@ const indexLevels = Array.from({ length: INDEX_LEVELS }, (_, level) => level);
       </div>
     </div>
   </div>
-  <figcaption class="sr-only">
-    {es
-      ? 'Sin índice, la consulta lee todas las páginas de la tabla. Con índice, recorre tres niveles del índice hasta la página donde está la fila, lee esa página y toma la fila dentro de ella.'
-      : 'Without an index, the query reads every table page. With one, it walks three index levels to the page that holds the row, reads that page and takes the row from it.'}
-  </figcaption>
+  <figcaption class="sr-only">{text.withoutIndexQueryReads}</figcaption>
 </figure>
 
 <style>

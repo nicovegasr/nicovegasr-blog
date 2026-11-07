@@ -20,7 +20,7 @@ function resultLabel(lab: PaymentLabView, index: number, count: number) {
         ? queueCopy(lab.locale).validated
         : queueCopy(lab.locale).prepared
       : queueCopy(lab.locale).pending;
-  return `${count} ${lab.inLocale(count === 1 ? 'registro' : 'registros', count === 1 ? 'record' : 'records')}`;
+  return queueCopy(lab.locale).records(count);
 }
 
 export function earnedAchievements(state: SimulationState): AchievementId[] {

@@ -1,4 +1,5 @@
 ---
+import { momentsCopy } from './moments-copy';
 import type { Locale } from '@/i18n/locale';
 import type { MomentStage } from './moment-stage';
 import { momentFor } from './moments';
@@ -11,7 +12,7 @@ interface Props {
 const { locale, stage } = Astro.props;
 const moment = momentFor(stage, locale);
 const initial = moment?.frames[0];
-const reset = locale === 'es' ? 'Volver a empezar' : 'Start again';
+const reset = momentsCopy(locale).startAgain;
 ---
 
 {moment && initial && (
@@ -46,6 +47,7 @@ const reset = locale === 'es' ? 'Volver a empezar' : 'Start again';
 )}
 
 <script>
+  import { localeFrom } from '@/i18n/locale';
   import { momentFor } from './moments';
   import { isMomentStage } from './moment-stage';
 
@@ -53,7 +55,7 @@ const reset = locale === 'es' ? 'Volver a empezar' : 'Start again';
     connectedCallback() {
       const stage = this.dataset.stage;
       if (!stage || !isMomentStage(stage)) return;
-      const moment = momentFor(stage, this.dataset.locale === 'en' ? 'en' : 'es');
+      const moment = momentFor(stage, localeFrom(this.dataset.locale));
       if (!moment) return;
       this.hidden = false;
       this.onclick = (event) => {

@@ -6,7 +6,7 @@ import { queueGuideBeat } from './guide';
 import { queueConfig, queueRules } from './rules';
 
 const context = (state: SimulationState, stage: GuideStage) => ({
-  es: true,
+  locale: 'es' as const,
   stage,
   state,
   playing: false,

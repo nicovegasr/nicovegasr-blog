@@ -1,30 +1,31 @@
 ---
 import type { Locale } from '@/i18n/locale';
 import { labPath } from './links';
+import { labPagesCopy } from './lab-pages-copy';
 interface Props {
   locale: Locale;
   level: 1 | 2 | 3;
   title: string;
 }
 const { locale, level, title } = Astro.props;
-const es = locale === 'es';
+const text = labPagesCopy(locale);
 ---
 
 <header class="lab-heading">
   <h1>{title}</h1>
-  <nav class="lab-levels" aria-label={es ? 'Laboratorios' : 'Labs'}>
-    <span class="lab-levels-caption">{es ? 'Tres niveles para experimentar' : 'Three levels to explore'}</span>
+  <nav class="lab-levels" aria-label={text.labs}>
+    <span class="lab-levels-caption">{text.levelsCaption}</span>
     <a href={labPath(locale, 1)} aria-current={level === 1 ? 'page' : undefined}>
       <span class="lab-level-number">01</span>
-      <span class="lab-level-name">{es ? 'La cola' : 'The queue'}</span>
+      <span class="lab-level-name">{text.queueLevel}</span>
     </a>
     <a href={labPath(locale, 2)} aria-current={level === 2 ? 'page' : undefined}>
       <span class="lab-level-number">02</span>
-      <span class="lab-level-name">{es ? 'El worker' : 'The worker'}</span>
+      <span class="lab-level-name">{text.workerLevel}</span>
     </a>
     <a href={labPath(locale, 3)} aria-current={level === 3 ? 'page' : undefined}>
       <span class="lab-level-number">03</span>
-      <span class="lab-level-name">{es ? 'Escalar' : 'Scale'}</span>
+      <span class="lab-level-name">{text.scaleLevel}</span>
     </a>
   </nav>
 </header>

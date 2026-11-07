@@ -1,4 +1,5 @@
 ---
+import { aboutMeCopy } from '../copy';
 import type { Locale } from '@/i18n/locale';
 import claudeMark from '@/features/about-me/assets/claude-mark.svg?raw';
 import codexMark from '@/features/about-me/assets/codex-mark.svg?raw';
@@ -7,7 +8,7 @@ interface Props {
   locale: Locale;
 }
 const { locale } = Astro.props;
-const es = locale === 'es';
+const text = aboutMeCopy(locale).agentReview;
 const LANE_COLUMNS = 18;
 const MILLISECONDS_PER_BLOCK = 110;
 // Illustrative amounts of work; only the two agents and the single review are literal.
@@ -20,15 +21,11 @@ const reviewDelay = Math.max(...agents.map(({ blocks }) => blocks)) * MILLISECON
 
 <figure class="agent-review" style={`--lane-columns: ${LANE_COLUMNS}; --review-delay: ${reviewDelay}ms;`}>
   <p class="result">
-    <strong>{es ? 'Guardarraíles' : 'Guardrails'}</strong>
-    <span>
-      {es
-        ? 'en la memoria de cada agente, no solo en un repositorio'
-        : "in every agent's memory, not just in one repository"}
-    </span>
+    <strong>{text.guardrails}</strong>
+    <span>{text.inEveryAgentS}</span>
   </p>
   <div class="work" aria-hidden="true">
-    <span class="gate rules">{es ? 'Mis reglas' : 'My rules'}</span>
+    <span class="gate rules">{text.myRules}</span>
     {agents.map(({ name, mark, blocks }, agentIndex) => (
       <>
         <span class="agent" style={`grid-row: ${agentIndex + 1};`}>
@@ -42,13 +39,9 @@ const reviewDelay = Math.max(...agents.map(({ blocks }) => blocks)) * MILLISECON
         </div>
       </>
     ))}
-    <span class="gate review">{es ? 'Mi revisión' : 'My review'}</span>
+    <span class="gate review">{text.myReview}</span>
   </div>
-  <figcaption class="sr-only">
-    {es
-      ? 'Esquema ilustrativo: Claude Code y Codex parten de mis reglas, trabajan a la vez y su trabajo termina en mi revisión.'
-      : 'Illustrative diagram: Claude Code and Codex start from my rules, work at the same time and their work ends in my review.'}
-  </figcaption>
+  <figcaption class="sr-only">{text.illustrativeDiagramClaudeCode}</figcaption>
 </figure>
 
 <style>

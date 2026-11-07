@@ -2,7 +2,7 @@ import { PLAYBACK_SPEEDS, TICK_MILLISECONDS, advance, continueAfterIncident, ini
 import type { SimulationConfig, SimulationState } from './engine';
 import { cleanLabel, escapeHtml } from '../shared/text';
 import type { Labels } from './labels';
-import { achievements } from './achievements';
+import { achievementIds } from './achievements';
 import { paymentCopy } from './copy';
 import { incidentCall, isFatalOutcome, outcomeScene, tutorialCall } from './dialogs';
 import { guidePanel } from './guide-panel';
@@ -12,7 +12,7 @@ import type { AchievementId } from './achievements';
 import { workerFrame, WorkerActor } from './worker-actor';
 import { achievementList, achievementToast, labShell, stepCards } from './markup';
 import { paintActiveJob, paintControls, paintJobs, paintNames, paintStatus, paintSteps } from './painter';
-import { inLanguage, isSpanishLab, labLocale } from '../shared/lab-ui';
+import { labLocale } from '../shared/lab-ui';
 import type { PaymentLabSettings, PaymentLabView, RetryStage } from './lab-view';
 import { restoreAchievements, restoreLabels, saveAchievements, saveLabel } from './session';
 
@@ -48,14 +48,8 @@ export abstract class PaymentLab extends HTMLElement implements PaymentLabView, 
   get locale() {
     return labLocale(this);
   }
-  get es() {
-    return isSpanishLab(this);
-  }
   get copy() {
     return paymentCopy(this.locale);
-  }
-  inLocale(es: string, en: string) {
-    return inLanguage(this.es, es, en);
   }
   element<T extends HTMLElement = HTMLElement>(selector: string) {
     return this.querySelector<T>(selector)!;
@@ -73,8 +67,8 @@ export abstract class PaymentLab extends HTMLElement implements PaymentLabView, 
   connectedCallback() {
     this.config = this.definition.defaultConfig();
     this.state = initialState(this.config);
-    this.defaults = this.definition.defaultLabels(this.es);
-    this.labels = restoreLabels(this.defaults, this.definition.stepNamesKey, this.es);
+    this.defaults = structuredClone(this.definition.defaultLabels(this.locale));
+    this.labels = restoreLabels(this.defaults, this.definition.stepNamesKey, this.locale);
     this.unlocked = restoreAchievements();
     this.syncStorageName();
     this.innerHTML = labShell(this);
@@ -287,7 +281,7 @@ export abstract class PaymentLab extends HTMLElement implements PaymentLabView, 
     if (key === 'api' || key === 'storage' || key === 'worker') this.labels[key] = value;
     else if (key.startsWith('job-')) this.labels.jobs[Number(key.slice(4))] = value;
     else if (key.startsWith('step-')) this.labels.steps[Number(key.slice(5))] = value;
-    saveLabel(key, this.labels, this.definition.stepNamesKey, this.es);
+    saveLabel(key, this.labels, this.definition.stepNamesKey, this.locale);
     this.update();
   };
   syncStorageName() {
@@ -321,7 +315,7 @@ export abstract class PaymentLab extends HTMLElement implements PaymentLabView, 
       return;
     }
     const beat = this.definition.guideBeat({
-      es: this.es,
+      locale: this.locale,
       stage: this.guide,
       state: this.state,
       playing: this.playing,
@@ -415,7 +409,7 @@ export abstract class PaymentLab extends HTMLElement implements PaymentLabView, 
     for (const id of this.definition.earnedAchievements(this.state)) this.award(id);
     this.replace(
       '[data-achievement-summary]',
-      `✦ ${this.copy.sessionAchievements} · ${this.unlocked.size}/${achievements.length}`,
+      `✦ ${this.copy.sessionAchievements} · ${this.unlocked.size}/${achievementIds.length}`,
     );
     this.replace('[data-achievements]', achievementList(this, this.unlocked));
     this.replace('[data-toast]', achievementToast(this));

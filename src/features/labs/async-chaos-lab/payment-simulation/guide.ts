@@ -1,4 +1,6 @@
+import type { Locale } from '@/i18n/locale';
 import type { SimulationState } from './engine';
+import { paymentGuideCopy } from './guide-copy';
 
 export type GuideStage =
   | 'off'
@@ -14,7 +16,7 @@ export type GuideStage =
   | 'efficient';
 export type GuideTarget = 'storage' | 'identity' | 'charge' | 'provider' | 'steps' | null;
 export type GuideContext = {
-  es: boolean;
+  locale: Locale;
   stage: GuideStage;
   state: SimulationState;
   playing: boolean;
@@ -34,17 +36,9 @@ export type GuideBeat = {
 };
 
 export function guideHelpers(context: GuideContext) {
-  const translate = (es: string, en: string) => (context.es ? es : en);
-  const start =
-    context.state.phase === 'running'
-      ? translate('Pulsa «Continuar».', 'Press “Resume”.')
-      : translate('Pulsa «Iniciar».', 'Press “Start”.');
-  const follow = context.playing
-    ? translate(
-        'Sigue el pago verde y la acción que se está ejecutando.',
-        'Follow the green payment and the action currently running.',
-      )
-    : start;
+  const text = paymentGuideCopy(context.locale);
+  const start = context.state.phase === 'running' ? text.pressResume : text.pressStart;
+  const follow = context.playing ? text.followGreenPaymentAndAction : start;
   const beat = (
     chapter: number,
     title: string,
@@ -52,5 +46,5 @@ export function guideHelpers(context: GuideContext) {
     task: string,
     target: GuideTarget = null,
   ): GuideBeat => ({ chapter, title, story, task, target });
-  return { t: translate, follow, beat };
+  return { follow, beat };
 }

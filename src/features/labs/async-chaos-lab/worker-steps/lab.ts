@@ -14,12 +14,11 @@ import { workerStepsCopy } from './copy';
 
 function resultLabel(lab: PaymentLabView, index: number, count: number) {
   const kind = lab.config.steps[index]?.kind ?? 'append';
-  if (kind === 'append')
-    return `${count} ${lab.inLocale(count === 1 ? 'registro' : 'registros', count === 1 ? 'record' : 'records')}`;
+  if (kind === 'append') return workerStepsCopy(lab.locale).records(count);
   if (kind === 'check')
     return count ? workerStepsCopy(lab.locale).validationOk : workerStepsCopy(lab.locale).notValidated;
   if (kind === 'set-state') return count ? workerStepsCopy(lab.locale).stateSet : workerStepsCopy(lab.locale).unchanged;
-  return `${count} ${lab.inLocale(count === 1 ? 'efecto externo' : 'efectos externos', count === 1 ? 'external effect' : 'external effects')}`;
+  return workerStepsCopy(lab.locale).externalEffectCount(count);
 }
 
 export function earnedAchievements(state: SimulationState): AchievementId[] {
@@ -56,7 +55,7 @@ export const workerStepsLab: PaymentLabDefinition = {
               : workerStepsCopy(lab.locale).runningNow
             : progress.executions === 0
               ? workerStepsCopy(lab.locale).pending
-              : `${progress.executions} ${lab.inLocale(progress.executions === 1 ? 'intento' : 'intentos', progress.executions === 1 ? 'attempt' : 'attempts')} · ${resultLabel(lab, index, progress.effects)}${progress.checkpoint ? ' · ✓ ' + workerStepsCopy(lab.locale).saved : ''}${progress.skipped ? ' · ' + progress.skipped + ' ↷' : ''}`;
+              : `${workerStepsCopy(lab.locale).attemptCount(progress.executions)} · ${resultLabel(lab, index, progress.effects)}${progress.checkpoint ? ' · ✓ ' + workerStepsCopy(lab.locale).saved : ''}${progress.skipped ? ' · ' + progress.skipped + ' ↷' : ''}`;
   },
   lessonStage(lab) {
     if (lab.state.phase === 'won') return 'optimize';

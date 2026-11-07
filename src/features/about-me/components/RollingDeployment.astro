@@ -1,11 +1,12 @@
 ---
+import { aboutMeCopy } from '../copy';
 import type { Locale } from '@/i18n/locale';
 
 interface Props {
   locale: Locale;
 }
 const { locale } = Astro.props;
-const es = locale === 'es';
+const text = aboutMeCopy(locale).rollingDeployment;
 // Each new pod has to be healthy before an old one is terminated.
 const replacements = [
   { newPodStartsAt: 1000, oldPodEndsAt: 2600 },
@@ -16,7 +17,7 @@ const replacements = [
 <figure class="rolling-deployment">
   <p class="result">
     <strong>0 downtime</strong>
-    <span>{es ? 'al desplegar una nueva versión' : 'when deploying a new version'}</span>
+    <span>{text.whenDeployingNewVersion}</span>
   </p>
   <div class="resource-tree" aria-hidden="true">
     <span class="resource deployment">Deployment</span>
@@ -40,11 +41,7 @@ const replacements = [
       ))}
     </div>
   </div>
-  <figcaption class="sr-only">
-    {es
-      ? 'Un Deployment de dos réplicas pasa de la versión 1 a la 2: cada pod nuevo arranca y, solo cuando está sano, se elimina uno antiguo.'
-      : 'A two-replica Deployment moves from version 1 to version 2: each new pod starts and, only once it is healthy, an old one is removed.'}
-  </figcaption>
+  <figcaption class="sr-only">{text.twoReplicaDeploymentMoves}</figcaption>
 </figure>
 
 <style>

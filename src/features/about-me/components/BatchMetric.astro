@@ -1,11 +1,12 @@
 ---
+import { aboutMeCopy } from '../copy';
 import type { Locale } from '@/i18n/locale';
 
 interface Props {
   locale: Locale;
 }
 const { locale } = Astro.props;
-const es = locale === 'es';
+const text = aboutMeCopy(locale).batchMetric;
 const number = new Intl.NumberFormat(locale, { useGrouping: 'always' });
 // An illustrative pattern of records, not a measured distribution or one square per record.
 const heights = [
@@ -21,11 +22,11 @@ const heights = [
 <figure class="batch-metric" data-batch-metric style="--batch-position: 41.6667%;">
   <p class="result">
     <strong>{number.format(1_000_000)}</strong>
-    <span>{es ? 'registros en 5 minutos' : 'records in 5 minutes'}</span>
+    <span>{text.recordsIn5Minutes}</span>
   </p>
   <div class="field" aria-hidden="true">
     <span class="batch-pointer" data-batch-pointer>
-      {es ? 'Lotes de' : 'Batches of'} {number.format(1_000)}
+      {text.batchesOf} {number.format(1_000)}
       <svg viewBox="0 0 12 12" width="12" height="12">
         <path d="M6 1v9M2 6l4 4 4-4" />
       </svg>
@@ -42,11 +43,7 @@ const heights = [
       ))}
     </svg>
   </div>
-  <figcaption class="sr-only">
-    {es
-      ? 'Lectura de archivo y escritura selectiva, en lotes de 1.000 registros. La trama ilustra el procesamiento por lotes.'
-      : 'File reading and selective writes, in batches of 1,000 records. The pattern illustrates batch processing.'}
-  </figcaption>
+  <figcaption class="sr-only">{text.fileReadingAndSelective}</figcaption>
 </figure>
 
 <script>

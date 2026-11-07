@@ -34,6 +34,7 @@ const es = {
   notRecordedYet: 'Todavía sin registrar',
   inTheDatabase: 'EN LA BASE DE DATOS',
   availableToRetry: 'Disponible para reintentar',
+  records: (count: number) => `${count} ${count === 1 ? 'registro' : 'registros'}`,
 };
 
 const en = {
@@ -71,6 +72,7 @@ const en = {
   notRecordedYet: 'Not recorded yet',
   inTheDatabase: 'IN THE DATABASE',
   availableToRetry: 'Available to retry',
+  records: (count: number) => `${count} ${count === 1 ? 'record' : 'records'}`,
 };
 
 export const queueCopy = defineCopy({ es, en });

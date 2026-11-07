@@ -10,7 +10,7 @@ const contextFor = (config: ScalingConfig, history: Trial[] = []): ResultContext
   locale: 'es',
   state: runScaling(config),
   config,
-  names: scalingNames(true),
+  names: scalingNames('es'),
   history,
   awards: '<aside>award</aside>',
 });

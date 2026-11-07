@@ -5,6 +5,11 @@ export const englishCopy: LabCopy = {
   thousandsSeparator: ',',
   millions: 'million',
   underATenthOfASecond: 'under 0.1 s',
+  catalogue: {
+    label: 'Without running out of memory',
+    caption: 'memory climbs',
+    levelCount: (count) => `${count} challenges`,
+  },
   page: {
     description: 'Build a script that goes through months of logs without running out of memory.',
     challenges: 'Challenges',

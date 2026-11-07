@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { eligibleAchievements, minimumWorkers, scalingAchievements } from './achievements';
+import { eligibleAchievements, minimumWorkers, scalingAchievementCopy, scalingAchievementIds } from './achievements';
 import {
   createScaling,
   pauseScaling,
@@ -32,7 +32,7 @@ describe('Scaling achievements', () => {
       awards(8, [1, 8, 8, 8]),
       awards(8, [8, 8, 8, 8]),
     ].flat();
-    expect(new Set(fixtures)).toEqual(new Set(scalingAchievements.map(({ id }) => id)));
+    expect(new Set(fixtures)).toEqual(new Set(scalingAchievementIds));
   });
   it('only awards adding pods when all original resources are unchanged', () => {
     expect(eligibleAchievements(runScaling({ ...scalingDefaults(), workers: 2 }))).toContain('pods-only');
@@ -83,9 +83,8 @@ describe('Scaling achievements', () => {
     expect(eligibleAchievements(state)).toEqual([]);
   });
   it('keeps the catalogue focused without revealing the winning worker count', () => {
-    expect(scalingAchievements.map(({ id }) => id)).toEqual(['pods-only', 'on-time', 'minimum-team']);
-    const award = scalingAchievements.find(({ id }) => id === 'minimum-team')!;
-    expect(award.es[1]).toBe('Completa el nivel con el mínimo de workers.');
-    expect(award.en[1]).not.toMatch(/\d/);
+    expect(scalingAchievementIds).toEqual(['pods-only', 'on-time', 'minimum-team']);
+    expect(scalingAchievementCopy('es')['minimum-team'][1]).toBe('Completa el nivel con el mínimo de workers.');
+    expect(scalingAchievementCopy('en')['minimum-team'][1]).not.toMatch(/\d/);
   });
 });

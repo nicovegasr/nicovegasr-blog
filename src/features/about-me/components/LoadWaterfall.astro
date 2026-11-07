@@ -1,20 +1,21 @@
 ---
+import { aboutMeCopy } from '../copy';
 import type { Locale } from '@/i18n/locale';
 
 interface Props {
   locale: Locale;
 }
 const { locale } = Astro.props;
-const es = locale === 'es';
+const text = aboutMeCopy(locale).loadWaterfall;
 const COLUMNS_PER_SECOND = 2;
 const TIMELINE_COLUMNS = 10 * COLUMNS_PER_SECOND;
 const MILLISECONDS_PER_BLOCK = 70;
 const PAUSE_BETWEEN_VISITS = 250;
 // Blocks keep the proportion of the recalled result; they are not a measurement of each visit.
 const visits = [
-  { label: es ? 'Primera visita' : 'First visit', blocks: 10 * COLUMNS_PER_SECOND, isFirst: true },
-  { label: es ? 'Segunda visita' : 'Second visit', blocks: 2 * COLUMNS_PER_SECOND, isFirst: false },
-  { label: es ? 'Tercera visita' : 'Third visit', blocks: 2 * COLUMNS_PER_SECOND, isFirst: false },
+  { label: text.firstVisit, blocks: 10 * COLUMNS_PER_SECOND, isFirst: true },
+  { label: text.secondVisit, blocks: 2 * COLUMNS_PER_SECOND, isFirst: false },
+  { label: text.thirdVisit, blocks: 2 * COLUMNS_PER_SECOND, isFirst: false },
 ];
 const startOfVisit = (visitIndex: number): number =>
   visits
@@ -26,9 +27,9 @@ const startOfVisit = (visitIndex: number): number =>
   <p class="result">
     <strong>
       ≈10 s <span aria-hidden="true">→</span>
-      <span class="sr-only">{es ? 'a' : 'to'}</span> ≈2 s
+      <span class="sr-only">{text.to}</span> ≈2 s
     </strong>
-    <span>{es ? 'menos espera al cargar' : 'less waiting for pages to load'}</span>
+    <span>{text.lessWaitingForPages}</span>
   </p>
   <div class="visits" aria-hidden="true">
     {visits.map(({ label, blocks, isFirst }, visitIndex) => (
@@ -45,11 +46,7 @@ const startOfVisit = (visitIndex: number): number =>
       </div>
     ))}
   </div>
-  <figcaption class="sr-only">
-    {es
-      ? 'Esquema ilustrativo: la primera visita a una pantalla espera a que se resuelvan sus peticiones; las siguientes reutilizan las respuestas guardadas y tardan menos.'
-      : 'Illustrative diagram: the first visit to a screen waits for its requests; later visits reuse the saved responses and take less time.'}
-  </figcaption>
+  <figcaption class="sr-only">{text.illustrativeDiagramFirstVisit}</figcaption>
 </figure>
 
 <style>

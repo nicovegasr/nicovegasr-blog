@@ -1,3 +1,4 @@
+import { localeFrom } from '@/i18n/locale';
 import { recordAttempt, type Attempt } from './attempts';
 import { renderBriefing } from './briefing';
 import { CHALLENGES, INCIDENT_WARNING, requestedChallengeId, starsFor, type Challenge } from './challenges';
@@ -47,7 +48,7 @@ class Exit137Lab extends HTMLElement {
   private readonly animator = new StageAnimator(this, () => this.reducedMotion);
 
   connectedCallback() {
-    this.text = labTextFor(this.dataset.locale === 'en' ? 'en' : 'es');
+    this.text = labTextFor(localeFrom(this.dataset.locale));
     this.progress = loadProgress();
     this.seen = loadSeenTips();
     this.listen();

@@ -1,17 +1,14 @@
 ---
 import type { Locale } from '@/i18n/locale';
 import PaymentLabPage from '../payment-simulation/PaymentLabPage.astro';
+import { labPagesCopy } from '../shared/lab-pages-copy';
 interface Props {
   locale: Locale;
 }
 const { locale } = Astro.props;
 ---
 
-<PaymentLabPage
-  locale={locale}
-  level={2}
-  title={locale === 'es' ? 'Un pago. Cuatro pasos.' : 'One payment. Four steps.'}
-/>
+<PaymentLabPage locale={locale} level={2} title={labPagesCopy(locale).workerStepsTitle} />
 <script>
   import './index';
 </script>

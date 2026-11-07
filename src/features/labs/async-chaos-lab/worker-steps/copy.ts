@@ -44,6 +44,23 @@ const es = {
   repeatedEffect: 'Efecto repetido',
   unconfirmedTimeout: 'Sin confirmar · timeout',
   whatAlreadyHappenedStillExists: 'lo que ya ocurrió sigue existiendo',
+  records: (count: number) => `${count} ${count === 1 ? 'registro' : 'registros'}`,
+  externalEffectCount: (count: number) => `${count} ${count === 1 ? 'efecto externo' : 'efectos externos'}`,
+  attemptCount: (count: number) => `${count} ${count === 1 ? 'intento' : 'intentos'}`,
+  actionNature: {
+    check: 'Validación pura · sin efectos externos',
+    'set-state': 'Estado local · repetible',
+    append: 'Registro local · no debe duplicarse',
+    external: 'Efecto externo · no debe duplicarse',
+    notify: 'Notificación externa · no debe duplicarse',
+  },
+  kindLabel: {
+    check: 'Comprobar datos (repetible)',
+    external: 'Crear un efecto externo',
+    'set-state': 'Fijar el mismo estado local (repetible)',
+    append: 'Añadir un registro local (no repetible)',
+    notify: 'Enviar una notificación externa',
+  },
 };
 
 const en = {
@@ -90,6 +107,23 @@ const en = {
   repeatedEffect: 'Repeated effect',
   unconfirmedTimeout: 'Unconfirmed · timeout',
   whatAlreadyHappenedStillExists: 'what already happened still exists',
+  records: (count: number) => `${count} ${count === 1 ? 'record' : 'records'}`,
+  externalEffectCount: (count: number) => `${count} ${count === 1 ? 'external effect' : 'external effects'}`,
+  attemptCount: (count: number) => `${count} ${count === 1 ? 'attempt' : 'attempts'}`,
+  actionNature: {
+    check: 'Pure check · no external effects',
+    'set-state': 'Local state · repeatable',
+    append: 'Local record · must not duplicate',
+    external: 'External effect · must not duplicate',
+    notify: 'External notification · must not duplicate',
+  },
+  kindLabel: {
+    check: 'Check data (repeatable)',
+    external: 'Create an external effect',
+    'set-state': 'Set the same local state (repeatable)',
+    append: 'Append a local record (not repeatable)',
+    notify: 'Send an external notification',
+  },
 };
 
 export const workerStepsCopy = defineCopy({ es, en });

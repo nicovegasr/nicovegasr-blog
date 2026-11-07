@@ -1,21 +1,8 @@
+import { localeFrom } from '@/i18n/locale';
+import { terminalCopy } from './terminal-copy';
 const LIMIT_MEGABYTES = 1024;
 const DANGER_MEGABYTES = 800;
 const TOTAL_LOGS = 20_000;
-
-const TEXT = {
-  es: {
-    numbers: 'es',
-    loading: (logs: string) => `cargando ${logs} logs en memoria…`,
-    processed: (done: string, total: string) => `procesados ${done} / ${total}`,
-    finished: (logs: string) => `✓ ${logs} logs · 64 MB pico · exit code 0`,
-  },
-  en: {
-    numbers: 'en',
-    loading: (logs: string) => `loading ${logs} logs into memory…`,
-    processed: (done: string, total: string) => `processed ${done} / ${total}`,
-    finished: (logs: string) => `✓ ${logs} logs · 64 MB peak · exit code 0`,
-  },
-} as const;
 
 class TerminalPreview extends HTMLElement {
   private dispose: (() => void) | undefined;
@@ -24,7 +11,7 @@ class TerminalPreview extends HTMLElement {
     if (this.dispose) return;
     // Reduced motion keeps the server-rendered finished streaming run.
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const text = TEXT[this.dataset.locale === 'en' ? 'en' : 'es'];
+    const text = terminalCopy(localeFrom(this.dataset.locale));
     const number = (value: number) => value.toLocaleString(text.numbers);
     const mode = this.querySelector('[data-mode]')!;
     const megabytes = this.querySelector('[data-megabytes]')!;

@@ -1,4 +1,4 @@
-import { achievements } from './achievements';
+import { achievementCopy } from './achievements';
 import type { PaymentLabView } from './lab-view';
 import { totals } from './engine';
 import { labFigure } from '../shared/figures';
@@ -123,8 +123,7 @@ export function outcomeScene(lab: PaymentLabView) {
   }
   const awards = lab.notices
     .map((id) => {
-      const achievement = achievements.find((candidate) => candidate.id === id)!,
-        [name, description] = lab.es ? achievement.es : achievement.en;
+      const [name, description] = achievementCopy(lab.locale)[id];
       return /* HTML */ `<div class="lab-earned">
         <span aria-hidden="true">✦</span>
         <div>
@@ -135,7 +134,7 @@ export function outcomeScene(lab: PaymentLabView) {
     })
     .join('');
   return outcomeShell({
-    es: lab.es,
+    locale: lab.locale,
     trial: lab.runId + 1,
     fatal,
     kicker,

@@ -17,7 +17,7 @@ const trial = (overrides: Partial<Trial> = {}): Trial => ({
 
 describe('Scaling dialogs', () => {
   it('escapes names typed by the player', () => {
-    const names = scalingNames(true);
+    const names = scalingNames('es');
     const dialog = namesDialog('es', names, () => '"><script>');
 
     expect(dialog).not.toContain('"><script>');
@@ -25,7 +25,7 @@ describe('Scaling dialogs', () => {
   });
 
   it('offers one field per step and per payment', () => {
-    const names = scalingNames(true);
+    const names = scalingNames('es');
     const dialog = namesDialog('es', names, (key) => key);
 
     expect(dialog).toContain('data-rename="step-3"');

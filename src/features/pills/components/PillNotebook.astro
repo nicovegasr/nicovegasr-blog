@@ -1,4 +1,5 @@
 ---
+import { otherLocale } from '@/i18n/locale';
 import { pillsCopy } from '../copy';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PillReader from '@/features/pills/components/PillReader.astro';
@@ -21,11 +22,11 @@ const { series, pills } = renderable;
 const activePill = pills.find((pill) => pillLeafSlugOf(pill.slug) === activePillSlug);
 if (activePillSlug && !activePill) throw new Error(`Pill not found: ${activePillSlug}`);
 const copy = pillsCopy(locale);
-const otherLocale = locale === 'es' ? 'en' : 'es';
+const translationLocale = otherLocale(locale);
 const alternatePaths = {
-  [otherLocale]: activePillSlug
-    ? buildPillPath(otherLocale, series.slug, activePillSlug)
-    : buildPillSeriesPath(otherLocale, series.slug),
+  [translationLocale]: activePillSlug
+    ? buildPillPath(translationLocale, series.slug, activePillSlug)
+    : buildPillSeriesPath(translationLocale, series.slug),
 };
 ---
 

@@ -2,7 +2,7 @@ import { JOB_COUNT, PLAYBACK_SPEEDS } from './engine';
 import { escapeHtml } from '../shared/text';
 import { button } from '../shared/lab-ui';
 import { actorMarkup } from './worker-actor';
-import { achievements } from './achievements';
+import { achievementCopy, achievementIds } from './achievements';
 import type { AchievementId } from './achievements';
 import type { PaymentLabView } from './lab-view';
 
@@ -141,15 +141,13 @@ export function stepCards(lab: PaymentLabView) {
 }
 
 export function achievementList(lab: PaymentLabView, unlocked: ReadonlySet<AchievementId>) {
-  return achievements
-    .map((achievement) => {
-      const [title, description] = lab.es ? achievement.es : achievement.en;
-      return /* HTML */ `<article class="${unlocked.has(achievement.id) ? 'is-unlocked' : ''}">
-        <span aria-hidden="true">${unlocked.has(achievement.id) ? '✦' : '◇'}</span>
+  return achievementIds
+    .map((id) => {
+      const [title, description] = achievementCopy(lab.locale)[id];
+      return /* HTML */ `<article class="${unlocked.has(id) ? 'is-unlocked' : ''}">
+        <span aria-hidden="true">${unlocked.has(id) ? '✦' : '◇'}</span>
         <div>
-          <h3>
-            ${escapeHtml(title)}${unlocked.has(achievement.id) ? /* HTML */ ` <small>· ${lab.copy.unlocked}</small>` : ''}
-          </h3>
+          <h3>${escapeHtml(title)}${unlocked.has(id) ? /* HTML */ ` <small>· ${lab.copy.unlocked}</small>` : ''}</h3>
           <p>${escapeHtml(description)}</p>
         </div>
       </article>`;
@@ -161,8 +159,7 @@ export function achievementToast(lab: PaymentLabView) {
   if (!lab.notices.length) return '';
   return /* HTML */ `<span class="lab-eyebrow">✦ ${lab.copy.achievementUnlockedToast}</span>${lab.notices
       .map((id) => {
-        const achievement = achievements.find((candidate) => candidate.id === id)!;
-        const [title, description] = lab.es ? achievement.es : achievement.en;
+        const [title, description] = achievementCopy(lab.locale)[id];
         return /* HTML */ `<strong>${escapeHtml(title)}</strong><small>${escapeHtml(description)}</small>`;
       })
       .join('')}${button('toast-close', lab.copy.gotIt)}`;

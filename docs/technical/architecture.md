@@ -83,7 +83,7 @@ Below the articles, the friends' blogs section renders the Coverflow gallery (`s
 - `routes.ts` builds and translates logical routes.
 - `entry-identifier.ts` extracts locale and slug from content entry identifiers.
 
-Text that belongs to one feature lives in that feature's `copy.ts`: `export const <feature>Copy = defineCopy({ es, en })`, from `i18n/copy.ts`, gives a `(locale) => text` function. Spanish sets the shape and English must match it, so a missing text fails the build. Copy functions take a `Locale`, never a boolean. The shell uses `getTranslator(locale)`. Do not hard-code localized route segments in feature UI. Technical identifiers, proper nouns, and authored Markdown remain separate from interface translations.
+Text that belongs to one feature lives in that feature's `copy.ts`: `export const <feature>Copy = defineCopy({ es, en })`, from `i18n/copy.ts`, gives a `(locale) => text` function. Spanish sets the shape and English must match it, so a missing text fails the build. Copy functions take a `Locale`, never a boolean, and there are no exceptions: text that depends on the state is a function in the catalogue (`processing(job)`, `records(count)`), and nothing chooses between two literals with `es ? … : …`. `localeFrom(value)` reads a locale from a `data-locale` attribute and `otherLocale(locale)` names the translation of a page. The shell uses `getTranslator(locale)`. Do not hard-code localized route segments in feature UI. Technical identifiers, proper nouns, and authored Markdown remain separate from interface translations.
 
 ## Presentation and static navigation
 

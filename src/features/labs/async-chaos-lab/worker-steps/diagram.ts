@@ -32,41 +32,11 @@ export function workerStepsDiagram(lab: PaymentLabView) {
 }
 
 function actionNature(lab: PaymentLabView, kind: ActionKind) {
-  return lab.inLocale(
-    {
-      check: 'Validación pura · sin efectos externos',
-      'set-state': 'Estado local · repetible',
-      append: 'Registro local · no debe duplicarse',
-      external: 'Efecto externo · no debe duplicarse',
-      notify: 'Notificación externa · no debe duplicarse',
-    }[kind],
-    {
-      check: 'Pure check · no external effects',
-      'set-state': 'Local state · repeatable',
-      append: 'Local record · must not duplicate',
-      external: 'External effect · must not duplicate',
-      notify: 'External notification · must not duplicate',
-    }[kind],
-  );
+  return workerStepsCopy(lab.locale).actionNature[kind];
 }
 
 function kindLabel(lab: PaymentLabView, kind: ActionKind) {
-  return lab.inLocale(
-    {
-      check: 'Comprobar datos (repetible)',
-      external: 'Crear un efecto externo',
-      'set-state': 'Fijar el mismo estado local (repetible)',
-      append: 'Añadir un registro local (no repetible)',
-      notify: 'Enviar una notificación externa',
-    }[kind],
-    {
-      check: 'Check data (repeatable)',
-      external: 'Create an external effect',
-      'set-state': 'Set the same local state (repeatable)',
-      append: 'Append a local record (not repeatable)',
-      notify: 'Send an external notification',
-    }[kind],
-  );
+  return workerStepsCopy(lab.locale).kindLabel[kind];
 }
 
 export const stepNature = (lab: PaymentLabView, step: StepConfig) =>

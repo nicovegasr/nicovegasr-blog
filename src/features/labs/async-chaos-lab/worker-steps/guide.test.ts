@@ -6,7 +6,7 @@ import { workerStepsGuideBeat } from './guide';
 import { workerStepsConfig, workerStepsRules } from './rules';
 
 const context = (state: SimulationState, stage: GuideStage) => ({
-  es: true,
+  locale: 'es' as const,
   stage,
   state,
   playing: false,

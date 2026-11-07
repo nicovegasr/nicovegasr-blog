@@ -6,7 +6,7 @@ import { scalingCopy } from './copy';
 import { PLAYBACK_SPEEDS, AVAILABLE_WORKERS, isHttpStep, TARGET_COST, TARGET_SECONDS } from './engine';
 
 function stepCard(locale: Locale, step: number) {
-  const copy = stepControlsCopy(locale === 'es');
+  const copy = stepControlsCopy(locale);
   const resources = ['CPU · 1 s', 'HTTP · 3 s', `${scalingCopy(locale).database} · 1 s`, 'HTTP · 1 s'];
   return `<article class="scaling-step" data-step="${step}">
     <div class="scaling-step-heading"><small>0${step + 1} <span>${resources[step]}</span></small><strong data-name="step-${step}"></strong></div>

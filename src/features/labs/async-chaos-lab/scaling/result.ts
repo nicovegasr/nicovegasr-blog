@@ -26,7 +26,7 @@ export function rateLimitScene(
   const metrics = scalingMetrics(state),
     step = rejection.step;
   return outcomeShell({
-    es: locale === 'es',
+    locale,
     trial: history.length,
     fatal: true,
     kicker: copy.trialStoppedHttp429,

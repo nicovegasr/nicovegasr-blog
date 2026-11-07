@@ -11,7 +11,7 @@ import type { Trial } from './session';
 
 export function namesDialog(locale: Locale, names: Names, currentName: (key: string) => string) {
   const copy = scalingCopy(locale),
-    defaults = scalingNames(locale === 'es');
+    defaults = scalingNames(locale);
   const field = (key: string, label: string) =>
     `<label>${escapeHtml(label)}<input data-rename="${key}" maxlength="64" value="${escapeHtml(currentName(key))}" /></label>`;
   return `<p>${copy.namesChangeTheStoryNotTheRules}</p><div class="scaling-name-fields">${field('api', 'API')}${field('queue', copy.queue)}${field('worker', 'Worker')}${names.steps.map((_, index) => field(`step-${index}`, `${copy.step} ${index + 1}`)).join('')}<details><summary>${copy.namesOfThe24Payments}</summary>${names.jobs.map((_, index) => field(`job-${index}`, defaults.jobs[index]!)).join('')}</details></div>`;

@@ -5,6 +5,7 @@ import AssemblyLinePreview from '@/features/labs/async-chaos-lab/catalogue-previ
 import { asyncChaosLabEntry } from '@/features/labs/async-chaos-lab/catalogue-entry';
 import MemoryTerminalPreview from '@/features/labs/exit-137/catalogue-preview/TerminalPreview.astro';
 import { exit137Entry } from '@/features/labs/exit-137/catalogue-entry';
+import { catalogueCopy } from './copy';
 import './labs-page.css';
 
 interface Props {
@@ -12,13 +13,7 @@ interface Props {
 }
 
 const { locale } = Astro.props;
-const es = locale === 'es';
-const title = es ? 'Laboratorios' : 'Labs';
-const description = es
-  ? 'Construye, experimenta y descubre cómo se comporta tu sistema.'
-  : 'Build, experiment and discover how your system behaves.';
-const start = es ? 'Empezar' : 'Start';
-const levelsLabel = es ? 'Niveles de' : 'Levels of';
+const { title, description, start, levelsOf: levelsLabel } = catalogueCopy(locale);
 const twoDigits = (value: number) => String(value).padStart(2, '0');
 const labs = [asyncChaosLabEntry(locale), exit137Entry(locale)];
 ---
