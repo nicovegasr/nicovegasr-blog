@@ -1,6 +1,6 @@
 ---
+import { pillsCopy } from '../copy';
 import type { Locale } from '@/i18n/locale';
-import { getTranslator } from '@/i18n/translator';
 import type { Pill, PillSeries } from '@/features/pills/pill';
 import PillIcon from './PillIcon.astro';
 
@@ -15,7 +15,7 @@ interface Props {
 }
 
 const { locale, series, chapters } = Astro.props;
-const translate = getTranslator(locale);
+const copy = pillsCopy(locale);
 ---
 
 <aside
@@ -27,7 +27,7 @@ const translate = getTranslator(locale);
   <div class="contents-heading">
     <span class="eyebrow">{series.title}</span>
     <span class="count">
-      {String(chapters.length).padStart(2, '0')} {translate('pills.seriesCount')}
+      {String(chapters.length).padStart(2, '0')} {copy.seriesCount}
     </span>
     <button
       type="button"
@@ -35,8 +35,8 @@ const translate = getTranslator(locale);
       data-pill-index-toggle
       aria-controls="pill-index"
       aria-expanded="true"
-      aria-label={translate('pills.reader.toggleIndex')}
-      title={translate('pills.reader.toggleIndex')}
+      aria-label={copy.readerToggleIndex}
+      title={copy.readerToggleIndex}
     >
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <rect x="3.5" y="4.5" width="17" height="15" rx="2" />
@@ -49,14 +49,14 @@ const translate = getTranslator(locale);
       data-pill-index-disclosure
       aria-controls="pill-index-navigation"
       aria-expanded="false"
-      aria-label={translate('pills.reader.toggleIndex')}
+      aria-label={copy.readerToggleIndex}
     >
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="m6 9 6 6 6-6" />
       </svg>
     </button>
   </div>
-  <nav id="pill-index-navigation" aria-label={translate('pills.reader.heading')}>
+  <nav id="pill-index-navigation" aria-label={copy.readerHeading}>
     <ol class="journey">
       {chapters.map((chapter) => (
         <li>
@@ -71,7 +71,7 @@ const translate = getTranslator(locale);
             </span>
             <span class="stop-copy">
               <span class="stop-number">
-                {translate('pills.reader.chapter')} {chapter.number}
+                {copy.readerChapter} {chapter.number}
               </span>
               <strong>{chapter.title}</strong>
               <span class="stop-description">{chapter.subtitle}</span>

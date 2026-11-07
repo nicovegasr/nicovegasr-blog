@@ -1,4 +1,5 @@
 ---
+import { postsCopy } from './copy';
 import type { Locale } from '@/i18n/locale';
 import { getTranslator } from '@/i18n/translator';
 import ContentLayout from '@/layouts/ContentLayout.astro';
@@ -15,6 +16,7 @@ interface Props {
 
 const { locale } = Astro.props;
 const translate = getTranslator(locale);
+const copy = postsCopy(locale);
 const posts = await findAllPosts(locale);
 const seriesPositions = findSeriesPositions(posts);
 ---
@@ -23,7 +25,7 @@ const seriesPositions = findSeriesPositions(posts);
   locale={locale}
   title={translate('content.blog')}
   description={translate('site.description')}
-  lead={translate('content.blogLead')}
+  lead={copy.lead}
 >
   {posts.length > 0 ? (
     <>
@@ -38,7 +40,7 @@ const seriesPositions = findSeriesPositions(posts);
       <PostPagination locale={locale} postCount={posts.length} />
     </>
   ) : (
-    <p class="lead">{translate('blog.empty')}</p>
+    <p class="lead">{copy.empty}</p>
   )}
   <FriendBlogs id="friend-blogs" slot="after-content" locale={locale} />
 </ContentLayout>

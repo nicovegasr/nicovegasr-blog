@@ -1,4 +1,5 @@
 ---
+import { aboutMeCopy } from './copy';
 import type { Locale } from '@/i18n/locale';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import SocialLinks from '@/layouts/SocialLinks.astro';
@@ -17,6 +18,7 @@ interface Props {
 
 const { locale } = Astro.props;
 const translate = getTranslator(locale);
+const copy = aboutMeCopy(locale);
 
 const timeline = await findAllTimelineEntries(locale);
 const contributionStations = findContributions(locale).map((contribution) => ({
@@ -35,11 +37,11 @@ const skillStations = findSkillAreas(locale).map((area) => ({
 }));
 ---
 
-<BaseLayout locale={locale} title={translate('site.title')} description={translate('about.metaDescription')}>
+<BaseLayout locale={locale} title={translate('site.title')} description={copy.metaDescription}>
   <section class="hero reveal">
     <div class="hero-copy">
       <div class="hero-heading">
-        <h1 class="statement">{translate('about.heroStatement')}</h1>
+        <h1 class="statement">{copy.heroStatement}</h1>
         <p class="hero-projects">
           <a
             class="projects-link accent-underline"
@@ -47,14 +49,14 @@ const skillStations = findSkillAreas(locale).map((area) => ({
             target="_blank"
             rel="noopener noreferrer"
           >
-            {translate('about.projectsLink')}
+            {copy.projectsLink}
             <span aria-hidden="true">&nbsp;↗</span>
           </a>
           <RepoStar locale={locale} showPrompt={false} class="hero-stars" />
         </p>
       </div>
-      <p class="hero-role">{translate('about.heroRole')}</p>
-      <p class="lead hero-intro">{translate('about.heroIntro')}</p>
+      <p class="hero-role">{copy.heroRole}</p>
+      <p class="lead hero-intro">{copy.heroIntro}</p>
       <div class="hero-links">
         <SocialLinks />
       </div>
@@ -65,7 +67,7 @@ const skillStations = findSkillAreas(locale).map((area) => ({
       width="480"
       height="480"
       loading="eager"
-      alt={translate('about.portraitAlt')}
+      alt={copy.portraitAlt}
     />
   </section>
 
@@ -75,24 +77,18 @@ const skillStations = findSkillAreas(locale).map((area) => ({
 
     <WalkRoute
       locale={locale}
-      title={translate('about.contributionsTitle')}
+      title={copy.contributionsTitle}
       stations={contributionStations}
       direction="left"
       titleSize="medium"
     />
 
     <section>
-      <h2 class="section-title">{translate('about.timelineTitle')}</h2>
+      <h2 class="section-title">{copy.timelineTitle}</h2>
       <Journey entries={timeline} />
     </section>
 
-    <WalkRoute
-      locale={locale}
-      title={translate('about.skillsTitle')}
-      stations={skillStations}
-      direction="right"
-      titleSize="large"
-    />
+    <WalkRoute locale={locale} title={copy.skillsTitle} stations={skillStations} direction="right" titleSize="large" />
   </div>
 </BaseLayout>
 

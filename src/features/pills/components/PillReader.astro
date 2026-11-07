@@ -1,7 +1,7 @@
 ---
+import { pillsCopy } from '../copy';
 import { collapsedIndexStorageKey } from '@/features/pills/reader-index-storage';
 import type { Locale } from '@/i18n/locale';
-import { getTranslator } from '@/i18n/translator';
 import type { Pill, PillSeries } from '@/features/pills/pill';
 import { pillLeafSlugOf } from '@/features/pills/pill';
 import { findNextPillSeries, findRenderablePill } from '@/features/pills/pill-repository';
@@ -18,7 +18,7 @@ interface Props {
 }
 
 const { locale, series, pills, activePillSlug } = Astro.props;
-const translate = getTranslator(locale);
+const copy = pillsCopy(locale);
 const chapters = pills.map((pill, index) => {
   const slug = pillLeafSlugOf(pill.slug);
   return {
@@ -68,13 +68,13 @@ const Content = rendered?.Content;
       >
         <div class="page-meta">
           <span>
-            {translate('pills.reader.chapter')} {selected.number}
+            {copy.readerChapter} {selected.number}
           </span>
           <span class="reading-time-slot">
             <ReadingTime minutes={rendered.readingTimeInMinutes} locale={locale} />
           </span>
           <span class="swipe-hint" data-swipe-hint>
-            {translate('pills.reader.swipeTip')}
+            {copy.readerSwipeTip}
           </span>
         </div>
         <header class="chapter-heading">
@@ -91,7 +91,7 @@ const Content = rendered?.Content;
           <span class="folio">
             {selected.number} <span>/ {String(pills.length).padStart(2, '0')}</span>
           </span>
-          <nav class="chapter-pagination" aria-label={translate('pills.reader.paginationLabel')}>
+          <nav class="chapter-pagination" aria-label={copy.readerPaginationLabel}>
             {previous && (
               <a class="previous-chapter" href={previous.href}>
                 <span class="pagination-arrow" aria-hidden="true">
@@ -100,7 +100,7 @@ const Content = rendered?.Content;
                   </svg>
                 </span>
                 <span class="pagination-copy">
-                  {translate('pills.reader.previous')}
+                  {copy.readerPrevious}
                   <strong>{previous.title}</strong>
                 </span>
               </a>
@@ -108,9 +108,7 @@ const Content = rendered?.Content;
             {forward ? (
               <a href={forward.href} class="next-chapter" data-pill-next-series={nextSeries ? true : undefined}>
                 <span class="pagination-copy">
-                  {nextSeries
-                    ? `${translate('pills.reader.nextSeries')}: ${nextSeries.series.title}`
-                    : translate('pills.reader.next')}
+                  {nextSeries ? `${copy.readerNextSeries}: ${nextSeries.series.title}` : copy.readerNext}
                   <strong>{forward.title}</strong>
                 </span>
                 <span class="pagination-arrow" aria-hidden="true">
@@ -121,7 +119,7 @@ const Content = rendered?.Content;
               </a>
             ) : (
               <a href={buildPagePath('pills', locale)} class="back-link">
-                {translate('pills.reader.allSeries')} →
+                {copy.readerAllSeries} →
               </a>
             )}
           </nav>

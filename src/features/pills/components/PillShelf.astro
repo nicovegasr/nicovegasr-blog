@@ -1,6 +1,6 @@
 ---
+import { pillsCopy } from '../copy';
 import type { Locale } from '@/i18n/locale';
-import { getTranslator } from '@/i18n/translator';
 import { pillLeafSlugOf, type PillSeriesCard } from '@/features/pills/pill';
 import PillIcon from '@/features/pills/components/PillIcon.astro';
 import { buildPillPath, buildPillSeriesPath } from '@/i18n/routes';
@@ -12,7 +12,7 @@ interface Props {
 }
 
 const { locale, series } = Astro.props;
-const translate = getTranslator(locale);
+const copy = pillsCopy(locale);
 const twoDigits = (value: number) => String(value).padStart(2, '0');
 // A longer series stands as a taller book, so the shelf shows its size at a glance.
 const spineHeight = (item: PillSeriesCard) => `${190 + item.pills.length * 11}px`;
@@ -20,7 +20,7 @@ const bookId = (item: PillSeriesCard) => `serie-${item.slug}`;
 ---
 
 <div class="pill-shelf" style={`--student-atlas: url(${studentAtlas});`} data-pill-shelf>
-  <nav class="shelf" aria-label={translate('pills.shelf.label')}>
+  <nav class="shelf" aria-label={copy.shelfLabel}>
     <ul class="spines">
       {series.map((item, index) => (
         <li>
@@ -47,11 +47,11 @@ const bookId = (item: PillSeriesCard) => `serie-${item.slug}`;
     {series.map((item, index) => (
       <article class:list={['book', { 'is-upcoming': item.draft }]} id={bookId(item)} data-book>
         <p class="book-kicker">
-          {translate('pills.shelf.series')} {twoDigits(index + 1)}
+          {copy.shelfSeries} {twoDigits(index + 1)}
           {!item.draft && (
             <>
               {' '}
-              · {item.pills.length} {translate('pills.seriesCount')}
+              · {item.pills.length} {copy.seriesCount}
             </>
           )}
         </p>
@@ -59,7 +59,7 @@ const bookId = (item: PillSeriesCard) => `serie-${item.slug}`;
         {!item.draft && <p class="book-summary">{item.summary}</p>}
         {item.draft ? (
           <div class="book-upcoming">
-            <span class="upcoming-tape">{translate('pills.upcoming')}</span>
+            <span class="upcoming-tape">{copy.upcoming}</span>
             <span class="book-mascot" aria-hidden="true"></span>
           </div>
         ) : (
@@ -75,7 +75,7 @@ const bookId = (item: PillSeriesCard) => `serie-${item.slug}`;
               ))}
             </ol>
             <a class="book-start" href={buildPillSeriesPath(locale, item.slug)}>
-              {translate('pills.shelf.start')} →
+              {copy.shelfStart} →
             </a>
           </>
         )}

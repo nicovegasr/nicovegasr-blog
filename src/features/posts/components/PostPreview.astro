@@ -1,7 +1,7 @@
 ---
+import { postsCopy } from '../copy';
 import { buildPostLink, type Post } from '@/features/posts/post';
 import type { SeriesPosition } from '@/features/posts/post-series';
-import { getTranslator } from '@/i18n/translator';
 import ReadingTime from '@/shared/reading-time/ReadingTime.astro';
 import TagList from '@/features/posts/components/TagList.astro';
 import LeanMindPostPreview from '@/features/posts/components/LeanMindPostPreview.astro';
@@ -14,13 +14,11 @@ interface Props {
 const VISIBLE_TAGS = 3;
 
 const { post, series } = Astro.props;
-const translate = getTranslator(post.locale);
+const copy = postsCopy(post.locale);
 const postLink = buildPostLink(post);
 const linkTarget = post.external ? '_blank' : undefined;
 const linkRelationship = post.external ? 'noopener' : undefined;
-const readMoreLabel = post.external
-  ? `${translate('blog.readOn')} ${post.external.publisher} ↗`
-  : translate('blog.readMore');
+const readMoreLabel = post.external ? `${copy.readOn} ${post.external.publisher} ↗` : copy.readMore;
 // Short months come with a trailing dot in Spanish ("sept."); the uppercase mono meta reads cleaner without it.
 const publicationDateLabel = new Intl.DateTimeFormat(post.locale, { day: 'numeric', month: 'short', year: 'numeric' })
   .formatToParts(post.publicationDate)

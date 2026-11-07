@@ -1,39 +1,32 @@
 ---
+import { friendBlogsCopy } from '../copy';
 import Coverflow from '@/shared/coverflow/Coverflow.astro';
 import { findAllFriendBlogs } from '@/features/friend-blogs/friend-blog-repository';
 import type { Locale } from '@/i18n/locale';
-import { getTranslator } from '@/i18n/translator';
 interface Props {
   locale: Locale;
   id?: string;
 }
 const { locale, id } = Astro.props;
-const translate = getTranslator(locale);
+const copy = friendBlogsCopy(locale);
 const blogs = await findAllFriendBlogs(locale);
 const items = blogs.map((blog) => ({
   title: blog.author,
   href: blog.url,
   image: blog.image,
-  imageAlt: `${translate('friendBlogs.preview')}: ${blog.author}`,
+  imageAlt: `${copy.preview}: ${blog.author}`,
   caption: blog.host,
   description: blog.description,
 }));
 const labels = {
-  pause: translate('friendBlogs.pause'),
-  resume: translate('friendBlogs.play'),
-  choose: translate('friendBlogs.choose'),
-  visit: translate('friendBlogs.visit'),
-  carousel: translate('friendBlogs.carousel'),
-  dragHint: translate('friendBlogs.dragHint'),
-  swipeHint: translate('friendBlogs.swipeHint'),
+  pause: copy.pause,
+  resume: copy.play,
+  choose: copy.choose,
+  visit: copy.visit,
+  carousel: copy.carousel,
+  dragHint: copy.dragHint,
+  swipeHint: copy.swipeHint,
 };
 ---
 
-<Coverflow
-  {...(id ? { id } : {})}
-  {items}
-  {labels}
-  initialIndex={1}
-  title={translate('friendBlogs.title')}
-  description={translate('friendBlogs.lead')}
-/>
+<Coverflow {...(id ? { id } : {})} {items} {labels} initialIndex={1} title={copy.title} description={copy.lead} />

@@ -25,7 +25,7 @@ src/
 │   ├── coverflow/          # Container-sized 3D gallery of website previews
 │   ├── mascot/             # Sprite atlases shared by the labs and the home page
 │   └── reading-time/       # Calculation, tests, and UI used by posts and pills
-├── i18n/                   # Locales, UI dictionaries, and route builders
+├── i18n/                   # Locales, site-wide dictionary, and route builders
 ├── layouts/                # Site-wide shell, navigation, footer, and controls
 ├── pages/                  # Astro routes, separated by locale
 └── styles/                 # Design tokens and global styles
@@ -79,12 +79,12 @@ Below the articles, the friends' blogs section renders the shared Coverflow comp
 `src/i18n/` is cross-cutting:
 
 - `locale.ts` defines supported locales and the default language.
-- `es.ts` and `en.ts` contain interface text; the English dictionary must implement the Spanish dictionary's keys.
+- `es.ts` and `en.ts` contain the site-wide interface text (shell, navigation, footer); the English dictionary must implement the Spanish dictionary's keys.
 - `translator.ts` provides typed dictionary access.
 - `routes.ts` builds and translates logical routes.
 - `entry-identifier.ts` extracts locale and slug from content entry identifiers.
 
-Use `getTranslator(locale)` in components. Do not embed parallel language dictionaries or localized route segments in feature UI. Technical identifiers, proper nouns, and authored Markdown remain separate from interface translations.
+Text that belongs to one feature lives in that feature's `copy.ts`, which exports a `<feature>Copy(locale)` returning the Spanish or English object; the English object is typed as the Spanish one, so a missing text fails the build. The shell uses `getTranslator(locale)`. Do not hard-code localized route segments in feature UI. Technical identifiers, proper nouns, and authored Markdown remain separate from interface translations.
 
 ## Presentation and static navigation
 

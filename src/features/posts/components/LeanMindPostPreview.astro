@@ -1,7 +1,7 @@
 ---
+import { postsCopy } from '../copy';
 import '@fontsource-variable/open-sans';
 import { buildPostLink, type Post } from '@/features/posts/post';
-import { getTranslator } from '@/i18n/translator';
 import leanMindLogo from '@/features/posts/assets/lean-mind-logo.webp?url';
 
 interface Props {
@@ -18,7 +18,7 @@ const KEYS = [
 ] as const;
 
 const { post } = Astro.props;
-const translate = getTranslator(post.locale);
+const copy = postsCopy(post.locale);
 const publisher = post.external?.publisher ?? 'Lean Mind';
 // Lean Mind writes dates as 09-10-2026.
 const publicationDateLabel = new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
@@ -42,7 +42,7 @@ const publicationDateMachine = post.publicationDate.toISOString().slice(0, 10);
       {post.title}
       <span class="visually-hidden">
         {' '}
-        — {translate('blog.readOn')} {publisher} ↗
+        — {copy.readOn} {publisher} ↗
       </span>
     </a>
   </h2>

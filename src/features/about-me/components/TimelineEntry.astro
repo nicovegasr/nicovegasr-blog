@@ -1,6 +1,6 @@
 ---
+import { aboutMeCopy } from '../copy';
 import type { TimelineEntry } from '@/features/about-me/timeline-entry';
-import { getTranslator } from '@/i18n/translator';
 import universitySymbol from '@/features/about-me/assets/ull-symbol.webp?url';
 import bitboxSymbol from '@/features/about-me/assets/bitbox-symbol.webp?url';
 import inetumSymbol from '@/features/about-me/assets/inetum-symbol.webp?url';
@@ -10,7 +10,7 @@ interface Props {
 }
 
 const { entry } = Astro.props;
-const translate = getTranslator(entry.locale);
+const copy = aboutMeCopy(entry.locale);
 const organizations: Record<string, { symbol: string; website: string }> = {
   'Universidad de La Laguna': { symbol: universitySymbol, website: 'https://www.ull.es/' },
   Bitbox: { symbol: bitboxSymbol, website: 'https://www.bitbox.es/' },
@@ -43,7 +43,7 @@ const credit = [entry.organization, entry.role, entry.sector].filter((part): par
           href={organization.website}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label={`${translate('about.organizationWebsite')}: ${entry.organization}`}
+          aria-label={`${copy.organizationWebsite}: ${entry.organization}`}
         >
           <img src={organization.symbol} alt="" width="26" height="26" loading="lazy" />
         </a>
@@ -64,7 +64,7 @@ const credit = [entry.organization, entry.role, entry.sector].filter((part): par
           <time datetime={startMachine}>{formatMonthYear(entry.startDate)}</time>
           {' – '}
           {entry.endDate === undefined ? (
-            <span>{translate('about.present')}</span>
+            <span>{copy.present}</span>
           ) : (
             <time datetime={endMachine}>{formatMonthYear(entry.endDate)}</time>
           )}
