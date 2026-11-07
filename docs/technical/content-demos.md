@@ -15,15 +15,15 @@ The demo inherits the nearest `lang` attribute, normally the page language.
 
 ## Add a demo
 
-1. Add an implementation under `src/features/<demo-name>/`. Export
+1. Add an implementation under `src/features/content-demos/<demo-name>/`. Export
    `mount(host, locale)`, returning a cleanup function for observers, timers,
    listeners and any other resources. Preserve and restore fallback nodes in
    cleanup. Import CSS with `?inline` and attach its style element during mount,
    so Astro does not hoist that stylesheet into pages that do not use the demo.
    Scope selectors to the demo's root and remove its style element in cleanup.
 2. Register an explicit dynamic import in
-   `src/shared/content-demos/registry.ts`, for example
-   `'your-demo': () => import('@/features/your-demo/your-demo')`.
+   `src/features/content-demos/registry.ts`, for example
+   `'your-demo': () => import('./your-demo/your-demo')`.
    The registry starts empty and lists supported names; Markdown supplies the
    name, never executable source or an import URL.
 3. Place the HTML block anywhere in the article or pill, in both languages.
