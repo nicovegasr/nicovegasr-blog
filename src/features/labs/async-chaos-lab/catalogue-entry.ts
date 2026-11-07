@@ -1,5 +1,5 @@
 import type { Locale } from '@/i18n/locale';
-import type { LabEntry } from '@/features/labs/lab-entry';
+import type { LabEntry } from '@/features/labs/catalogue/lab-entry';
 import { labPath } from './shared/links';
 
 export function asyncChaosLabEntry(locale: Locale): LabEntry {

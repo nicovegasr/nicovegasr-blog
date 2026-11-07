@@ -35,7 +35,7 @@ walkthroughs. The simulation engine and the site's shared layout are unchanged.
 
 ## Review evidence
 
-The Playwright tests in `src/features/async-chaos-lab/**/*.e2e.ts` check the real browser flow,
+The Playwright tests in `src/features/labs/async-chaos-lab/**/*.e2e.ts` check the real browser flow,
 including full-width diagram stability, readable explanation type, no transport
 occlusion, direct walkthrough entry, contextual field focus, naming placement,
 trial preservation, customer-facing calls, mobile navigation and reduced motion.

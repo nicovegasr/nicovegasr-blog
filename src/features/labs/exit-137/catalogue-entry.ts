@@ -1,5 +1,5 @@
 import type { Locale } from '@/i18n/locale';
-import type { LabEntry } from '@/features/labs/lab-entry';
+import type { LabEntry } from '@/features/labs/catalogue/lab-entry';
 import { buildLabPath } from '@/i18n/routes';
 import { CHALLENGES, CHALLENGE_QUERY_PARAMETER } from './challenges';
 import { outOfMemoryLabCopy } from './copy';

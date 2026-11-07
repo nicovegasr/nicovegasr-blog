@@ -189,7 +189,7 @@ alongside free concurrent capacity. Its content remains scrollable on small scre
 npm run test:run
 npm run typecheck
 npm run build
-npm run test:e2e -- src/features/async-chaos-lab/scaling
+npm run test:e2e -- src/features/labs/async-chaos-lab/scaling
 ```
 
 Test timer acceleration affects only the test browser. Screenshots are attached

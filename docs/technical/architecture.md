@@ -14,9 +14,10 @@ src/
 ├── content/                # Localized Markdown and editorial assets
 ├── features/
 │   ├── about-me/           # Personal journey: Home page, model, repository, contributions, skill areas, and the scroll-driven mascot walkway
-│   ├── async-chaos-lab/    # Interactive labs on queues, retries and scaling; see its own README
-│   ├── labs/               # Labs catalogue; each lab supplies its entry and preview
-│   ├── out-of-memory-lab/  # Exit 137: a card game about keeping a log job inside its memory
+│   ├── labs/               # Every lab and their catalogue
+│   │   ├── catalogue/      # Labs index; each lab supplies its entry and preview
+│   │   ├── async-chaos-lab/ # Queues, retries and scaling; see its own README
+│   │   └── exit-137/       # A card game about keeping a log job inside its memory
 │   ├── pills/              # Series, individual pills, and the notebook reader
 │   └── posts/              # Articles, listings, search, pagination, related posts, and feeds
 ├── shared/
@@ -48,7 +49,7 @@ Pages and components consume repositories instead of importing `astro:content` d
 
 `about-me` owns the personal journey, told as life chapters where work is a secondary credit, because it is the localized home page. The underlying content collection remains named `timeline`: content storage and feature ownership need not have identical directory names.
 
-`shared/` contains focused pieces used by more than one feature. Reading-time calculation and presentation belong together there because posts and pills both use them. The mascot sprite atlases live there too, because the labs and the home page both animate them. Shared code must not depend on feature modules. `shared/friend-blogs/` is the one shared block that reads its own content collection: it is a self-contained widget any page can drop in. Do not use this directory as a catch-all for code with unclear ownership. ESLint enforces the direction: `shared/` cannot import `@/features/`, and a feature can import another only through the doors listed in `FEATURE_DOORS` in `eslint.config.js` (the labs catalogue reading each lab's entry and preview). The rule checks `@/` imports, so cross-feature imports must use that alias.
+`shared/` contains focused pieces used by more than one feature. Reading-time calculation and presentation belong together there because posts and pills both use them. The mascot sprite atlases live there too, because the labs and the home page both animate them. Shared code must not depend on feature modules. `shared/friend-blogs/` is the one shared block that reads its own content collection: it is a self-contained widget any page can drop in. Do not use this directory as a catch-all for code with unclear ownership. ESLint enforces the direction: `shared/` cannot import `@/features/`, and a feature cannot import another unless a door is declared in `FEATURE_DOORS` in `eslint.config.js` (there are none today). The rule checks `@/` imports, so cross-feature imports must use that alias.
 
 Feature-specific page composition stays in the feature. `PillNotebook.astro`, for example, composes the pills experience using the site-wide `BaseLayout.astro`; it is not part of the global shell.
 
@@ -60,7 +61,7 @@ To withhold an entire pill series, set `draft: true` in its localized `overview.
 
 The pills index (`pills/components/PillShelf.astro`) stands each series as a book spine on a shelf, taller the more pills it holds. Selecting a spine opens that series beside it with its full index of pills (`pills/pill-shelf.ts`); the open series is kept in the URL fragment (`#serie-<slug>`), and a cursor over its spine moves with the left and right arrow keys. Every book shares one slot as tall as the tallest, so changing series never moves the page. Without JavaScript every series stays open and each spine jumps to its own. Remove the flag or set it to `false` when the series is ready.
 
-The labs index (`labs/LabsPage.astro`) shows each lab as a notebook page: its live, decorative preview taped on as a figure, and a list of its levels, each linking straight to that level (Exit 137 opens a challenge with `?reto=N`). Each lab builds its own entry in `catalogue-entry.ts`, typed by `labs/lab-entry.ts`. The previews are an assembly line of payments for Async Chaos Lab (`async-chaos-lab/catalogue-preview/`) and a terminal whose memory climbs to `exit code 137` for Exit 137 (`out-of-memory-lab/catalogue-preview/`). Both pause offscreen and stay still with reduced motion, and both keep a fixed size so their changing text never moves the page.
+The labs index (`labs/catalogue/LabsPage.astro`) shows each lab as a notebook page: its live, decorative preview taped on as a figure, and a list of its levels, each linking straight to that level (Exit 137 opens a challenge with `?reto=N`). Each lab builds its own entry in `catalogue-entry.ts`, typed by `labs/catalogue/lab-entry.ts`. The previews are an assembly line of payments for Async Chaos Lab (`labs/async-chaos-lab/catalogue-preview/`) and a terminal whose memory climbs to `exit code 137` for Exit 137 (`labs/exit-137/catalogue-preview/`). Both pause offscreen and stay still with reduced motion, and both keep a fixed size so their changing text never moves the page.
 
 Exit 137 (`/laboratorios/exit-137/`, `/en/labs/exit-137/`) is a pure engine (`engine.ts`, `challenges.ts`, `guide.ts`) driven by `controller.ts`, which only orchestrates focused views: `briefing.ts` (the sheet before each challenge), `hud-view.ts`, `code-view.ts`, `result-view.ts`, `stage-animator.ts` (the mascot) and `coach-overlay.ts` (tutorial and tips). The engine holds no words: every text lives in `copy-es.ts` and `copy-en.ts` behind the `LabCopy` type, and `lab-text.ts` pairs it with the number format of each language. `guide.ts` returns a hint key that the views translate. Numbers are deliberately round: the lab teaches orders of magnitude, not a benchmark.
 

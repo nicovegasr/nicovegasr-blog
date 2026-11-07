@@ -8,16 +8,8 @@ const FEATURES = readdirSync('src/features', { withFileTypes: true })
   .filter((entry) => entry.isDirectory())
   .map((entry) => entry.name);
 // A feature may import another only through these doors (path prefixes); anything else goes through shared/.
-const FEATURE_DOORS = {
-  labs: [
-    'async-chaos-lab/catalogue-entry',
-    'async-chaos-lab/catalogue-preview/',
-    'out-of-memory-lab/catalogue-entry',
-    'out-of-memory-lab/catalogue-preview/',
-  ],
-  'async-chaos-lab': ['labs/lab-entry'],
-  'out-of-memory-lab': ['labs/lab-entry'],
-};
+// Empty on purpose: add a door only when a dependency between features is justified.
+const FEATURE_DOORS = {};
 
 const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
