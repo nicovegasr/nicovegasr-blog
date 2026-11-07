@@ -158,6 +158,25 @@ test.describe('moving through the reader', () => {
 
     await expect(page.locator('[data-pill-reader]')).toHaveAttribute('data-index-collapsed', '');
   });
+
+  test('preserves the index preference when switching language', async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('pills.index.collapsed', 'true'));
+    await page.goto(firstPill);
+    const reader = page.locator('[data-pill-reader]');
+    const toggle = page.locator('[data-pill-index-toggle]');
+
+    await page.locator('.language-switcher a').first().click();
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    await expect(reader).toHaveAttribute('data-index-collapsed', '');
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    await page.locator('.language-switcher a').first().click();
+    await expect(page.locator('html')).toHaveAttribute('lang', 'es');
+    await expect(reader).not.toHaveAttribute('data-index-collapsed');
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  });
 });
 
 test.describe('with reduced motion', () => {

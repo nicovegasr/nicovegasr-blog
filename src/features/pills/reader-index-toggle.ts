@@ -34,7 +34,14 @@ document.addEventListener('click', (event) => {
 document.addEventListener('astro:page-load', () => {
   const reader = readerIn();
   if (!reader) return;
-  render(reader, reader.hasAttribute('data-index-collapsed'));
+  let collapsed = reader.hasAttribute('data-index-collapsed');
+  try {
+    const stored = localStorage.getItem(collapsedIndexStorageKey);
+    if (stored !== null) collapsed = stored === 'true';
+  } catch {
+    // Keep the rendered state when storage is unavailable.
+  }
+  render(reader, collapsed);
   // Same-series visits keep the index DOM, so choosing a pill must close it here.
   renderDisclosure(reader, false);
 });
