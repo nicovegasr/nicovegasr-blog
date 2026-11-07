@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>nicovegasr architecture</title>
+    <meta
+      name="description"
+      content="Layers, features and real dependencies of the nicovegasr blog, generated from its code."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap"
+    />
+    <style>
+      /* The blog's notebook look: ink frames, solid offset shadows, lime only as a block. */
+      :root {
+        --paper: #fbfbf8;
+        --sheet: #ffffff;
+        --ink: #141414;
+        --soft: #5c5f58;
+        --rule: #d9dad3;
+        --lime: #d8ff3e;
+        --lime-ink: #141414;
+        --inner: #7a8f00;
+        --flag: #c2410c;
+        --flag-wash: #fff1e8;
+        --edge: #9a9c94;
+        --shadow: #141414;
+        --display: 'Space Grotesk', 'Helvetica Neue', Arial, sans-serif;
+        --body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        --mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+        color-scheme: light;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --paper: #111210;
+          --sheet: #191a17;
+          --ink: #f1f1ea;
+          --soft: #a7a99f;
+          --rule: #34362f;
+          --inner: #c8ef2e;
+          --flag: #ff8a50;
+          --flag-wash: #2b1a10;
+          --edge: #6c6e66;
+          --shadow: #000000;
+          color-scheme: dark;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font: 15px/1.6 var(--body);
+      }
+      .page {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 32px max(16px, env(safe-area-inset-right, 0px)) 64px max(16px, env(safe-area-inset-left, 0px));
+        display: grid;
+        gap: 40px;
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: var(--display);
+        line-height: 1.1;
+        text-wrap: balance;
+        margin: 0;
+      }
+      h1 {
+        font-size: clamp(2rem, 5vw, 3.2rem);
+        letter-spacing: -0.03em;
+      }
+      h2 {
+        font-size: 1.6rem;
+        letter-spacing: -0.02em;
+      }
+      h3 {
+        font-size: 1.15rem;
+      }
+      p {
+        margin: 0;
+      }
+      code {
+        font-family: var(--mono);
+        font-size: 0.86em;
+      }
+      a {
+        color: inherit;
+      }
+      .eyebrow {
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--soft);
+      }
+      .lead {
+        max-width: 68ch;
+        color: var(--soft);
+      }
+      .masthead {
+        display: grid;
+        gap: 12px;
+      }
+      .stamp {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        font-family: var(--mono);
+        font-size: 0.78rem;
+      }
+      .stamp span {
+        border: 2px solid var(--ink);
+        padding: 2px 8px;
+        background: var(--sheet);
+      }
+      .stamp span.hot {
+        background: var(--lime);
+        color: var(--lime-ink);
+      }
+      .workbench {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 380px);
+        gap: 24px;
+        align-items: start;
+      }
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        font-family: var(--mono);
+        font-size: 0.75rem;
+        color: var(--soft);
+      }
+      .legend i {
+        display: inline-block;
+        width: 22px;
+        border-top: 2px solid var(--edge);
+        vertical-align: middle;
+        margin-right: 6px;
+      }
+      .legend i.inner {
+        border-top: 2px dotted var(--inner);
+      }
+      .legend i.flagged {
+        border-top: 3px solid var(--flag);
+      }
+      .diagram {
+        position: relative;
+        border: 2px solid var(--ink);
+        box-shadow: 6px 6px 0 var(--shadow);
+        background: var(--sheet);
+        padding: 20px;
+        display: grid;
+        gap: 22px;
+      }
+      .diagram svg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        overflow: visible;
+        z-index: 2;
+      }
+      .layer {
+        display: grid;
+        gap: 8px;
+      }
+      .layer-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: baseline;
+        flex-wrap: wrap;
+      }
+      .layer-head span {
+        font-family: var(--mono);
+        color: var(--soft);
+        font-size: 0.72rem;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: stretch;
+      }
+      .node {
+        all: unset;
+        box-sizing: border-box;
+        cursor: pointer;
+        display: grid;
+        gap: 2px;
+        align-content: start;
+        min-width: 0;
+        flex: 1 1 130px;
+        padding: 10px 12px;
+        background: var(--paper);
+        border: 2px solid var(--ink);
+        position: relative;
+        z-index: 1;
+        transition:
+          transform 120ms ease,
+          box-shadow 120ms ease,
+          background 120ms ease;
+      }
+      .node strong {
+        font-family: var(--display);
+        font-size: 0.98rem;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+      }
+      .node small {
+        font-family: var(--mono);
+        font-size: 0.7rem;
+        color: var(--soft);
+      }
+      .node.wide {
+        flex-basis: 100%;
+      }
+      .node:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 3px 3px 0 var(--shadow);
+      }
+      .node:focus-visible {
+        outline: 3px solid var(--inner);
+        outline-offset: 2px;
+      }
+      .node.is-selected {
+        background: var(--lime);
+        color: var(--lime-ink);
+        box-shadow: 4px 4px 0 var(--shadow);
+        transform: translate(-2px, -2px);
+      }
+      .node.is-selected small {
+        color: var(--lime-ink);
+      }
+      .node.is-related {
+        border-style: dashed;
+      }
+      .node.is-dimmed {
+        opacity: 0.38;
+      }
+      .group {
+        flex: 2 1 320px;
+        min-width: 0;
+        border: 2px solid var(--ink);
+        background: var(--paper);
+        padding: 8px;
+        display: grid;
+        gap: 8px;
+        position: relative;
+        z-index: 1;
+      }
+      .group > .node {
+        border-width: 0 0 2px;
+        padding: 4px 6px 8px;
+        background: transparent;
+      }
+      .group > .node:hover {
+        transform: none;
+        box-shadow: none;
+        text-decoration: underline;
+      }
+      .group > .node.is-selected {
+        background: var(--lime);
+      }
+      .children {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .children .node {
+        flex: 1 1 110px;
+        background: var(--sheet);
+        border-width: 1.5px;
+      }
+      .hint {
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        color: var(--soft);
+      }
+      .sheet {
+        position: sticky;
+        top: 16px;
+        border: 2px solid var(--ink);
+        background: var(--sheet);
+        box-shadow: 6px 6px 0 var(--shadow);
+        padding: 20px;
+        display: grid;
+        gap: 16px;
+        max-height: calc(100dvh - 32px);
+        overflow: auto;
+      }
+      .sheet .path {
+        font-family: var(--mono);
+        font-size: 0.8rem;
+        background: var(--paper);
+        border: 1px solid var(--rule);
+        padding: 2px 6px;
+        justify-self: start;
+        overflow-wrap: anywhere;
+      }
+      .sheet section {
+        display: grid;
+        gap: 8px;
+      }
+      .sheet ul {
+        margin: 0;
+        padding-left: 18px;
+        display: grid;
+        gap: 6px;
+      }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .chip {
+        all: unset;
+        cursor: pointer;
+        font-family: var(--mono);
+        font-size: 0.74rem;
+        border: 1px solid var(--ink);
+        padding: 1px 8px;
+        background: var(--paper);
+      }
+      .chip.flagged {
+        border-color: var(--flag);
+        color: var(--flag);
+      }
+      .chip:focus-visible {
+        outline: 2px solid var(--inner);
+        outline-offset: 2px;
+      }
+      .warning {
+        border-left: 4px solid var(--flag);
+        background: var(--flag-wash);
+        padding: 10px 12px;
+      }
+      .rules {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 14px;
+      }
+      .rule {
+        border: 2px solid var(--ink);
+        background: var(--sheet);
+        padding: 14px 16px;
+        display: grid;
+        gap: 6px;
+        align-content: start;
+      }
+      .rule .eyebrow {
+        color: var(--inner);
+      }
+      @media (max-width: 920px) {
+        .workbench {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .sheet {
+          position: static;
+          max-height: none;
+        }
+      }
+      @media (max-width: 520px) {
+        .diagram {
+          padding: 14px;
+        }
+        .node {
+          flex-basis: 120px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .node,
+        .node:hover {
+          transition: none;
+          transform: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="masthead">
+        <span class="eyebrow">Generated from src/ on <span id="generated"></span></span>
+        <h1>nicovegasr architecture</h1>
+        <p class="lead">
+          Every box is a part of the code, every line a real import. Select a box to see what it holds, what it uses and
+          why it is shaped that way; the explanations come from each part's README.
+        </p>
+        <div class="stamp" id="stamp"></div>
+      </header>
+
+      <div class="workbench">
+        <div style="display: grid; gap: 12px; min-width: 0">
+          <div class="legend" aria-hidden="true">
+            <span><i></i>dependency</span>
+            <span><i class="inner"></i>inside one feature</span>
+            <span><i class="flagged"></i>documented exception</span>
+          </div>
+          <div class="diagram" id="diagram">
+            <svg id="edges" aria-hidden="true"></svg>
+          </div>
+          <p class="hint">Without a selection only dependencies inside a feature and exceptions are drawn.</p>
+        </div>
+        <aside class="sheet" id="sheet" aria-live="polite"></aside>
+      </div>
+
+      <section style="display: grid; gap: 16px">
+        <span class="eyebrow">Checked on every commit</span>
+        <h2>Rules the code enforces</h2>
+        <div class="rules">
+          <div class="rule">
+            <span class="eyebrow">ESLint</span>
+            <h3>Boundaries</h3>
+            <p>
+              <code>shared/</code> never imports a feature and features never import each other. Relative imports may
+              not leave their own part.
+            </p>
+          </div>
+          <div class="rule">
+            <span class="eyebrow">ESLint and a CSS check</span>
+            <h3>500 lines</h3>
+            <p>No code file or stylesheet goes over 500 lines, with no exception list.</p>
+          </div>
+          <div class="rule">
+            <span class="eyebrow">TypeScript</span>
+            <h3>One way to translate</h3>
+            <p>
+              Every text goes through <code>defineCopy({ es, en })</code> and a <code>Locale</code>; a missing English
+              text fails the build.
+            </p>
+          </div>
+          <div class="rule">
+            <span class="eyebrow">This page</span>
+            <h3>Every part explains itself</h3>
+            <p>
+              Each feature and shared piece needs a README; this map fails to build without one, or if an import breaks
+              the direction.
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      const data = __ARCHITECTURE_DATA__;
+      const units = Object.fromEntries(data.units.map((unit) => [unit.id, unit]));
+      const escapeHtml = (text) =>
+        String(text).replace(
+          /[&<>"]/g,
+          (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[character],
+        );
+      const inline = (text) => escapeHtml(text).replace(/`([^`]+)`/g, '<code>$1</code>');
+      const childrenOf = (id) => data.units.filter((unit) => unit.parent === id);
+
+      document.getElementById('generated').textContent = data.generatedAt;
+      const counted = data.units.filter((unit) => !data.units.some((child) => child.parent === unit.id));
+      const files = counted.reduce((sum, unit) => sum + unit.count, 0);
+      const exceptions = data.edges.filter((edge) => edge.kind === 'exception').length;
+      document.getElementById('stamp').innerHTML = [
+        `<span class="hot">${data.units.filter((unit) => unit.layer === 'features' && !unit.parent).length} features</span>`,
+        `<span>${data.units.filter((unit) => unit.layer === 'shared').length} shared pieces</span>`,
+        `<span>${files} files</span>`,
+        `<span>${data.edges.length} dependencies</span>`,
+        `<span>${exceptions} documented ${exceptions === 1 ? 'exception' : 'exceptions'}</span>`,
+      ].join('');
+
+      const diagram = document.getElementById('diagram');
+      function button(unit) {
+        const element = document.createElement('button');
+        element.type = 'button';
+        element.className = `node${unit.layer === 'routes' ? ' wide' : ''}`;
+        element.dataset.node = unit.id;
+        const parts = childrenOf(unit.id).length;
+        element.innerHTML = `<strong>${escapeHtml(unit.title)}</strong><small>${parts ? `${parts} parts` : `${unit.count} files`}</small>`;
+        element.setAttribute('aria-label', `${unit.title}: ${unit.job ?? ''}`);
+        element.addEventListener('click', () => select(unit.id));
+        return element;
+      }
+      for (const layer of data.layers) {
+        const section = document.createElement('div');
+        section.className = 'layer';
+        section.innerHTML = `<div class="layer-head"><h3>${escapeHtml(layer.title)}</h3><span>${escapeHtml(layer.caption)}</span></div>`;
+        const row = document.createElement('div');
+        row.className = 'row';
+        for (const unit of data.units.filter((candidate) => candidate.layer === layer.id && !candidate.parent)) {
+          const children = childrenOf(unit.id);
+          if (!children.length) {
+            row.append(button(unit));
+            continue;
+          }
+          const group = document.createElement('div');
+          group.className = 'group';
+          group.append(button(unit));
+          const box = document.createElement('div');
+          box.className = 'children';
+          for (const child of children) box.append(button(child));
+          group.append(box);
+          row.append(group);
+        }
+        section.append(row);
+        diagram.append(section);
+      }
+
+      const svg = document.getElementById('edges');
+      let selected = null;
+      const family = (id, root) => id === root || units[id].parent === root;
+      const touches = (edge, id) => family(edge.from, id) || family(edge.to, id);
+
+      function anchor(id) {
+        const box = diagram.querySelector(`[data-node="${id}"]`).getBoundingClientRect();
+        const frame = diagram.getBoundingClientRect();
+        return { x: box.left - frame.left + box.width / 2, top: box.top - frame.top, bottom: box.bottom - frame.top };
+      }
+
+      function drawEdges() {
+        const visible = data.edges.filter((edge) => (selected ? touches(edge, selected) : edge.kind !== 'normal'));
+        svg.innerHTML = visible
+          .map(({ from, to, kind }) => {
+            const start = anchor(from);
+            const end = anchor(to);
+            const sameRow = Math.abs(start.top - end.top) < 40;
+            const downward = end.top >= start.bottom - 2;
+            const startY = sameRow ? start.bottom : downward ? start.bottom : start.top;
+            const endY = sameRow ? end.bottom : downward ? end.top : end.bottom;
+            const middle = sameRow ? Math.max(startY, endY) + 22 : (startY + endY) / 2;
+            const color = kind === 'inner' ? 'var(--inner)' : kind === 'normal' ? 'var(--edge)' : 'var(--flag)';
+            const dash = kind === 'inner' ? ' stroke-dasharray="2 4"' : '';
+            return `<path d="M ${start.x} ${startY} C ${start.x} ${middle}, ${end.x} ${middle}, ${end.x} ${endY}" fill="none" stroke="${color}" stroke-width="${kind === 'normal' ? 1.6 : 2.5}"${dash} stroke-linecap="round" /><circle cx="${end.x}" cy="${endY}" r="3.5" fill="${color}" />`;
+          })
+          .join('');
+      }
+
+      const chip = (id, kind) =>
+        `<button type="button" class="chip${kind === 'exception' || kind === 'violation' ? ' flagged' : ''}" data-go="${id}">${escapeHtml(units[id].title)}</button>`;
+
+      function renderSheet(id) {
+        const sheet = document.getElementById('sheet');
+        if (!id) {
+          sheet.innerHTML = `<span class="eyebrow">How to read it</span><h2>Everything points down</h2>
+            <p>Routes use features; features use shared pieces and cross-cutting code; shared pieces know no feature; the shell depends on no feature. An orange line is the only kind allowed to point the other way, and each one is documented.</p>
+            <section><span class="eyebrow">Start with</span><div class="chips">${data.units
+              .filter((unit) => unit.layer === 'features' && !unit.parent)
+              .map((unit) => chip(unit.id))
+              .join('')}</div></section>`;
+          return;
+        }
+        const unit = units[id];
+        const uses = data.edges.filter((edge) => edge.from === id);
+        const usedBy = data.edges.filter((edge) => edge.to === id);
+        const children = childrenOf(id);
+        const list = (items) => `<ul>${items.map((item) => `<li>${inline(item)}</li>`).join('')}</ul>`;
+        sheet.innerHTML = `<span class="eyebrow">${escapeHtml(data.layers.find((layer) => layer.id === unit.layer).title)}</span>
+          <h2>${escapeHtml(unit.name ?? unit.title)}</h2>
+          <span class="path">${escapeHtml(unit.path)}</span>
+          <p>${inline(unit.job ?? '')}</p>
+          ${unit.inside?.length ? `<section><span class="eyebrow">Inside</span>${list(unit.inside)}</section>` : ''}
+          ${children.length ? `<section><span class="eyebrow">Parts</span><div class="chips">${children.map((child) => chip(child.id)).join('')}</div></section>` : ''}
+          ${unit.parent ? `<section><span class="eyebrow">Part of</span><div class="chips">${chip(unit.parent)}</div></section>` : ''}
+          ${unit.notes?.length ? `<section><span class="eyebrow">Why it is shaped this way</span>${list(unit.notes)}</section>` : ''}
+          ${uses.length ? `<section><span class="eyebrow">Uses</span><div class="chips">${uses.map((edge) => chip(edge.to, edge.kind)).join('')}</div></section>` : ''}
+          ${usedBy.length ? `<section><span class="eyebrow">Used by</span><div class="chips">${usedBy.map((edge) => chip(edge.from, edge.kind)).join('')}</div></section>` : ''}
+          ${uses.concat(usedBy).some((edge) => edge.kind === 'exception') ? '<p class="warning">An orange dependency breaks the direction on purpose; docs/technical/architecture.md explains why.</p>' : ''}
+          ${unit.readme ? `<a href="${unit.readme}">Read the README on GitHub</a>` : ''}
+          <button type="button" class="chip" data-go="">Clear selection</button>`;
+      }
+
+      function select(id, { fromHash = false } = {}) {
+        selected = id && units[id] ? id : null;
+        const related = new Set();
+        if (selected) for (const edge of data.edges) if (touches(edge, selected)) related.add(edge.from).add(edge.to);
+        for (const element of diagram.querySelectorAll('.node')) {
+          const nodeId = element.dataset.node;
+          const own = selected && family(nodeId, selected);
+          element.classList.toggle('is-selected', nodeId === selected);
+          element.classList.toggle('is-related', Boolean(selected) && related.has(nodeId) && !own);
+          element.classList.toggle('is-dimmed', Boolean(selected) && !own && !related.has(nodeId));
+          element.setAttribute('aria-pressed', String(nodeId === selected));
+        }
+        renderSheet(selected);
+        drawEdges();
+        if (!fromHash)
+          history.replaceState(null, '', selected ? `#${selected.replaceAll('/', '-')}` : location.pathname);
+      }
+
+      document.addEventListener('click', (event) => {
+        const target = event.target.closest('[data-go]');
+        if (target) select(target.dataset.go || null);
+      });
+      const fromHash = () => {
+        const hash = location.hash.slice(1);
+        select(data.units.find((unit) => unit.id.replaceAll('/', '-') === hash)?.id ?? null, { fromHash: true });
+      };
+      window.addEventListener('hashchange', fromHash);
+      window.addEventListener('resize', drawEdges);
+      new ResizeObserver(drawEdges).observe(diagram);
+      document.fonts?.ready.then(drawEdges);
+      fromHash();
+    </script>
+  </body>
+</html>

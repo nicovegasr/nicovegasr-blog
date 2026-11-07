@@ -11,6 +11,7 @@
     "typecheck": "astro check && tsc --noEmit",
     "lint": "prettier --check . && eslint . && node scripts/check-css-file-length.mjs",
     "format": "prettier --write .",
+    "architecture": "node scripts/architecture/generate.mjs",
     "test": "vitest",
     "test:run": "vitest run",
     "test:e2e": "playwright test"

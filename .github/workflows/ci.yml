@@ -21,6 +21,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint
+      - run: npm run architecture
       - run: npm run typecheck
       - run: npm run test:run
       - run: npm run build

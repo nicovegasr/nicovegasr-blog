@@ -70,7 +70,19 @@ const boundaries = {
 };
 
 export default tseslint.config(
-  { ignores: ['dist', '.astro', 'poc', 'studio', 'assets', 'playwright-report', 'test-results', '.claude'] },
+  {
+    ignores: [
+      'dist',
+      '.astro',
+      'poc',
+      'studio',
+      'assets',
+      'playwright-report',
+      'test-results',
+      '.claude',
+      'architecture-site',
+    ],
+  },
   ...tseslint.configs.recommended,
   ...astro.configs.recommended,
   {

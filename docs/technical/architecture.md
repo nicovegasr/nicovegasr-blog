@@ -6,6 +6,10 @@ The blog is an Astro static site. Spanish, the default locale, is served at the 
 
 Application code is grouped by functionality. A feature owns a coherent part of the site; it does not have to correspond to one page or one content collection. For example, posts support article pages, listings, search, and RSS.
 
+## Architecture map
+
+`npm run architecture` builds an interactive map of this structure from the code: every feature and shared piece, its file count, the real imports between them and the explanation in its README. CI runs it on every commit and fails when a feature or shared piece has no `README.md` or an import breaks the dependency direction; on every push to `main` the map is published to [GitHub Pages](https://nicovegasr.github.io/nicovegasr-blog/). Write each README with a first paragraph that says what the part does, and optional `## Inside` and `## Notes` lists: the map shows them as they are.
+
 ## Structure
 
 ```text
