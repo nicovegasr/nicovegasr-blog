@@ -187,6 +187,10 @@ export const PILL_ICONS: Readonly<Record<string, PillIconDrawing>> = {
       'M10 9h20c0 6-3 8-6 11 3 3 6 5 6 11H10c0-6 3-8 6-11-3-3-6-5-6-11Zm6 4c1 3 2 4 4 5 2-1 3-2 4-5Zm4 11-5 6h10Z',
     ],
   },
+  resilience: {
+    // A shield with a cutout: the failure stays outside the app.
+    body: ['M20 3l14 5v11c0 9-6 15-14 18C12 34 6 28 6 19V8Zm0 7-8 3v6c0 5 3 9 8 11 5-2 8-6 8-11v-6Z'],
+  },
   testable: {
     body: [
       'M14 3h12a2 2 0 0 1 0 4h-1v9l11 15c2 3 0 6-3 6H7c-3 0-5-3-3-6l11-15V7h-1a2 2 0 0 1 0-4Zm5 4v11l-5 7h12l-5-7V7Zm-8 23v3h18v-3Z',

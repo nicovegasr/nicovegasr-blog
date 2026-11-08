@@ -3,7 +3,7 @@ kind: 'pill'
 title: 'Diseñar para poder probar'
 subtitle: 'Probar con datos y fechas conocidas'
 icon: 'testable'
-order: 9
+order: 10
 momentStage: 'design-for-testing'
 publicationDate: 2026-10-12
 ---

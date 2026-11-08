@@ -3,7 +3,7 @@ kind: 'pill'
 title: 'Designing for testability'
 subtitle: 'Test the rule without starting the whole application'
 icon: 'testable'
-order: 9
+order: 10
 momentStage: 'design-for-testing'
 publicationDate: 2026-10-12
 ---
