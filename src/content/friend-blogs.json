@@ -67,6 +67,30 @@
     "order": 5
   },
   {
+    "id": "michael-reyes",
+    "author": "Michael Reyes",
+    "url": "https://www.mreysei.dev/es/blog",
+    "feedUrl": "https://www.mreysei.dev/es/blog/feed.xml",
+    "description": {
+      "es": "Web, móvil, arquitectura y el oficio de construir software con otras personas.",
+      "en": "Web, mobile, architecture and the craft of building software with other people."
+    },
+    "image": "/images/friend-blogs/michael.webp",
+    "order": 6
+  },
+  {
+    "id": "ruben-tejera",
+    "author": "Rubén Tejera",
+    "url": "https://rubentejera.com/",
+    "feedUrl": "https://rubentejera.com/rss.xml",
+    "description": {
+      "es": "Programar con IA sin perder código limpio, buenas pruebas ni buena arquitectura.",
+      "en": "Programming with AI without giving up clean code, good tests or good architecture."
+    },
+    "image": "/images/friend-blogs/ruben.webp",
+    "order": 7
+  },
+  {
     "id": "lean-mind",
     "author": "Lean Mind",
     "url": "https://leanmind.es/es/blog",
@@ -75,6 +99,6 @@
       "en": "Code, teams and software development."
     },
     "image": "/images/friend-blogs/lean-mind.webp",
-    "order": 6
+    "order": 8
   }
 ]
