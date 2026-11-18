@@ -299,7 +299,8 @@ const skillStations = findSkillAreas(locale).map((area) => ({
     }
 
     :global(.js) .walkway {
-      --walk-text-indent: max(var(--space-8), var(--walk-line-inset) + var(--space-6));
+      /* The mascot climbs the line half its width either side: the text keeps clear of its hand. */
+      --walk-text-indent: max(var(--space-8), var(--walk-line-inset) + var(--space-8));
       margin-top: calc(var(--space-16) * -1);
     }
   }

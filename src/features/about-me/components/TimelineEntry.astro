@@ -232,6 +232,12 @@ const credit = [entry.organization, entry.role, entry.sector].filter((part): par
       top: 0.95rem;
     }
 
+    /* On a phone a balanced 28px title strands short words such as «en» on their own line. */
+    .body h3 {
+      font-size: var(--font-size-heading-3);
+      text-wrap: pretty;
+    }
+
     .when {
       display: flex;
       align-items: baseline;
