@@ -139,4 +139,16 @@ const pages = Array.from({ length: pageCount }, (_, index) => index + 1);
     color: var(--color-accent-ink);
     box-shadow: 3px 3px 0 0 var(--color-ink);
   }
+
+  /* On a phone the whole bar fits on one row instead of leaving «Siguiente» alone below. */
+  @media (max-width: 480px) {
+    .post-pagination {
+      gap: var(--space-2);
+      font-size: var(--font-size-meta);
+    }
+
+    .step {
+      padding-inline: var(--space-2);
+    }
+  }
 </style>

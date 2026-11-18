@@ -45,6 +45,8 @@ const machineDate = (date: Date): string => date.toISOString().slice(0, 10);
     color: var(--color-text-muted);
   }
 
+  /* The date and the reading time read as one line of small caps; the tags keep their case. */
+  .post-meta > :global(span),
   .post-meta time {
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -52,5 +54,12 @@ const machineDate = (date: Date): string => date.toISOString().slice(0, 10);
 
   .separator {
     color: var(--color-rule);
+  }
+
+  /* On a phone the date and the reading time wrap apart, and a separator would be left hanging. */
+  @media (max-width: 480px) {
+    .separator {
+      display: none;
+    }
   }
 </style>
