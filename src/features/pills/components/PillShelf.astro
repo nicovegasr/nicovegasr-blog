@@ -396,7 +396,36 @@ const bookId = (item: PillSeriesCard) => `serie-${item.slug}`;
     }
   }
 
+  /* On a phone the shelf sits above the book, so a shorter book only moves the footer: no slot to reserve. */
+  @media (max-width: 900px) {
+    .pill-shelf[data-enhanced] .book[hidden] {
+      display: none;
+    }
+  }
+
   @media (max-width: 480px) {
+    /* The books share the width so the whole shelf, mascot included, fits without scrolling. */
+    .spines {
+      flex: 1 1 auto;
+      min-width: 0;
+      gap: 4px;
+    }
+
+    .spines li {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+
+    .spine {
+      width: 100%;
+      max-width: 54px;
+    }
+
+    .shelf-mascot {
+      width: 52px;
+      height: 52px;
+    }
+
     .book {
       padding: var(--space-6) var(--space-4);
     }
