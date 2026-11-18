@@ -6,14 +6,22 @@
   list-style: none;
 }
 
+/*
+ * Squared paper, one square every --notebook-line. Every block below takes a whole number of
+ * rows and its text is set at that line height. The horizontal lines run --notebook-baseline
+ * into each row, just under the baseline of small text, so the writing rests on them as it
+ * would by hand; the text column starts on a vertical line, two squares in, past the margin.
+ */
 .notebooks .notebook {
   --notebook-line: 28px;
-  --notebook-margin: 30px;
+  --notebook-margin: var(--notebook-line);
+  --notebook-baseline: 20px;
+  --notebook-grid: color-mix(in srgb, var(--color-rule) 70%, transparent);
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  padding: var(--space-4) var(--space-4) var(--space-4) calc(var(--notebook-margin) + var(--space-4));
+  padding: var(--notebook-line) var(--notebook-line) var(--notebook-line)
+    calc(var(--notebook-margin) + var(--notebook-line));
   border: 2px solid var(--color-ink);
   background:
     linear-gradient(
@@ -22,14 +30,18 @@
       rgb(229 72 77 / 0.5) var(--notebook-margin) calc(var(--notebook-margin) + 1.5px),
       transparent calc(var(--notebook-margin) + 1.5px)
     ),
-    repeating-linear-gradient(
-      transparent 0 calc(var(--notebook-line) - 1px),
-      var(--color-rule) calc(var(--notebook-line) - 1px) var(--notebook-line)
-    ),
+    linear-gradient(var(--notebook-grid) 1px, transparent 1px) 0 var(--notebook-baseline) / var(--notebook-line)
+      var(--notebook-line),
+    linear-gradient(90deg, var(--notebook-grid) 1px, transparent 1px) 0 0 / var(--notebook-line) var(--notebook-line),
     var(--color-paper);
+  background-origin: padding-box;
   transition:
     transform var(--motion-duration-base) var(--motion-easing),
     box-shadow var(--motion-duration-base) var(--motion-easing);
+}
+
+.notebooks .notebook > * {
+  margin: 0;
 }
 
 @media (hover: hover) {
@@ -47,18 +59,27 @@
 .notebooks .notebook-meta {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-3);
   font-family: var(--font-family-mono);
   font-size: var(--font-size-meta);
   font-weight: 600;
+  line-height: var(--notebook-line);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-text-muted);
 }
 
+.notebooks .notebook-meta > span:last-child {
+  text-align: right;
+}
+
 .notebooks .lab-tag {
-  padding: 0.1em 0.6em;
+  flex: 0 0 auto;
+  /* Centred in the first row even when the label beside it wraps onto a second. */
+  margin-top: 3px;
+  padding: 0 0.6em;
+  line-height: 22px;
   background: var(--color-invert-surface);
   color: var(--color-accent);
   letter-spacing: 0.04em;
@@ -69,9 +90,15 @@
 }
 
 .notebooks .notebook h2 {
+  /* Two rows of squares per line of title, so a wrapped title stays on the grid. Being larger,
+     its baseline sits higher in the line box: --title-drop lowers it onto the same line. */
+  --title-drop: 7px;
+  position: relative;
+  top: var(--title-drop);
   font-size: 2.125rem;
-  line-height: var(--line-height-tight);
+  line-height: calc(var(--notebook-line) * 2);
   letter-spacing: -0.03em;
+  text-wrap: balance;
 }
 
 .notebooks .notebook h2 a {
@@ -81,13 +108,17 @@
 .notebooks .notebook-summary {
   color: var(--color-text-soft);
   font-size: var(--font-size-small);
+  line-height: var(--notebook-line);
 }
 
 .notebooks .photo {
   position: relative;
-  display: block;
-  margin-top: 0;
-  padding: var(--space-2) var(--space-2) calc(var(--space-4) + var(--space-1));
+  display: flex;
+  flex-direction: column;
+  /* Six rows, with half a row of paper above and below for the tape and the tilt. */
+  height: calc(var(--notebook-line) * 6);
+  margin-block: calc(var(--notebook-line) / 2);
+  padding: var(--space-2) var(--space-2) 0;
   border: 2px solid var(--color-ink);
   background: var(--color-paper);
   color: inherit;
@@ -124,8 +155,10 @@
 
 .notebooks .photo .assembly,
 .notebooks .photo .memory-terminal {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
   margin-top: 0;
-  height: 7rem;
 }
 
 .notebooks .photo .memory-terminal {
@@ -170,8 +203,9 @@
 .notebooks .photo .assembly-score {
   top: var(--space-1);
   right: var(--space-2);
-  gap: var(--space-2);
+  gap: var(--space-3);
   font-size: 0.5rem;
+  letter-spacing: 0.02em;
 }
 
 .notebooks .photo .assembly-score b {
@@ -179,11 +213,14 @@
 }
 
 .notebooks .photo-caption {
-  position: absolute;
-  left: var(--space-3);
-  bottom: var(--space-2);
+  flex: 0 0 auto;
+  padding-inline: var(--space-1);
+  overflow: hidden;
   font-family: var(--font-family-mono);
   font-size: var(--font-size-meta);
+  line-height: 1.9;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   color: var(--color-text-soft);
 }
 
@@ -191,13 +228,16 @@
   padding: 0;
   list-style: none;
   font-size: var(--font-size-small);
+  line-height: var(--notebook-line);
 }
 
 .notebooks .levels a {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-3);
-  min-height: 28px;
+  min-height: var(--notebook-line);
+  /* The hover highlight bleeds past the column so the boxes line up with the text above. */
+  margin-inline: calc(var(--space-1) * -1);
   padding-inline: var(--space-1);
   color: inherit;
   text-decoration: none;
@@ -208,6 +248,8 @@
   flex: 0 0 auto;
   width: 14px;
   height: 14px;
+  /* Resting on the first row's line, so a title that wraps keeps its box beside its first line. */
+  margin-top: calc(var(--notebook-baseline) + 1px - 14px);
   border: 1.5px solid var(--color-ink);
   background: var(--color-paper);
 }
@@ -235,21 +277,27 @@
   }
 }
 
+/* One blank row, then the foot centred on the next. */
 .notebooks .notebook-foot {
-  margin-top: auto;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
+  gap: var(--space-3);
+  height: calc(var(--notebook-line) * 2);
+  margin-top: auto;
   font-family: var(--font-family-mono);
   font-size: var(--font-size-small);
   font-weight: 600;
+  line-height: var(--notebook-line);
 }
 
 .notebooks .notebook-start {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-  padding: var(--space-1) var(--space-3);
+  /* Centred on the same row as the count beside it, spilling evenly above and below. */
+  margin-bottom: calc((44px - var(--notebook-line)) / -2);
+  padding: 0 var(--space-3);
   border: 1.5px solid var(--color-ink);
   background: var(--color-accent);
   color: var(--color-accent-ink);
@@ -264,11 +312,17 @@
 
 @media (max-width: 480px) {
   .notebooks .notebook {
-    --notebook-margin: 18px;
-    padding-right: var(--space-4);
+    /* No room for a margin on a phone: it sits under the border and the text starts one square in. */
+    --notebook-margin: 0px;
+  }
+
+  .notebooks .notebook-meta {
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
   }
 
   .notebooks .notebook h2 {
+    --title-drop: 9px;
     font-size: var(--font-size-heading-2);
   }
 }
