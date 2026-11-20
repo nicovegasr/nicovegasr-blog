@@ -240,4 +240,73 @@ export const PILL_ICONS: Readonly<Record<string, PillIconDrawing>> = {
     body: ['M5 3h30v6H15l11 11-11 11h20v6H5v-7l10-10L5 10Z'],
     signal: 'M29 17h6v6h-6Z',
   },
+  ai: {
+    // A four-pointed spark, the common shorthand for generated content.
+    body: ['M18 4c1 10 6 15 16 16-10 1-15 6-16 16-1-10-6-15-16-16 10-1 15-6 16-16Z'],
+    signal: 'M33 2c.5 3 2 4.5 5 5-3 .5-4.5 2-5 5-.5-3-2-4.5-5-5 3-.5 4.5-2 5-5Z',
+  },
+  'natural-language': {
+    body: ['M3 4h34v24H19l-9 8v-8H3ZM8 10v4h24v-4Zm0 7v4h15v-4Z'],
+    signal: 'M26 17h6v4h-6Z',
+  },
+  model: {
+    // Many labelled examples feed one fitted function.
+    body: ['M2 4h10v7H2Zm0 12h10v8H2Zm0 13h10v7H2Z', 'M12 6h5v28h-5Zm5 12h7v4h-7ZM24 9h14v22H24ZM28 13v14h6V13Z'],
+    signal: 'M28 13h6v14h-6Z',
+  },
+  llm: {
+    // A row of tokens and the next one being predicted.
+    body: ['M2 6h10v10H2Zm13 0h11v10H15Zm14 0h9v10h-9ZM2 24h14v10H2Zm17 0h9v10h-9Z'],
+    signal: 'M31 24h7v10h-7Z',
+  },
+  'context-window': {
+    body: ['M2 5h36v30H2ZM6 13v18h28V13Z', 'M9 17h17v4H9Zm0 6h22v4H9Z'],
+    signal: 'M6 8h5v3H6Z',
+  },
+  chat: {
+    body: ['M2 3h23v15H12l-6 5v-5H2ZM6 8v3h15V8Z', 'M15 21h23v13h-4v5l-6-5H15Z'],
+    signal: 'M6 8h15v3H6Z',
+  },
+  agent: {
+    // A terminal: the model now acts through commands.
+    body: ['M2 4h36v32H2ZM6 11v21h28V11Z', 'm9 15 8 5-8 5v-4l2-1-2-1Z'],
+    signal: 'M19 24h10v4H19Z',
+  },
+  'project-structure': {
+    body: ['M2 2h13v9H2ZM5 11h4v23H5Z', 'M9 18h7v3H9Zm0 12h7v3H9ZM16 13h22v12H16Zm0 15h22v10H16Z'],
+    signal: 'M5 4h7v5H5Z',
+  },
+  standards: {
+    body: ['M5 2h30v36H5ZM9 7v5h5V7Zm8 1v3h14V8ZM9 17v5h5v-5Zm8 1v3h14v-3ZM9 27v5h5v-5Zm8 1v3h14v-3Z'],
+    signal: 'M9 7h5v5H9Z',
+  },
+  skill: {
+    // A closed manual with a bookmark: read only when the task needs it.
+    body: ['M6 2h28v36H6ZM10 6v28h20V6Z', 'M13 10h9v3h-9Zm0 6h14v3H13Z'],
+    signal: 'M23 2h6v15l-3-3-3 3Z',
+  },
+  agents: {
+    // One agent delegating to two with their own context.
+    body: ['M13 2h14v10H13ZM18 12h4v6h-4ZM6 18h28v4H6ZM6 22h4v6H6Zm24 0h4v6h-4ZM1 28h14v10H1Zm24 0h14v10H25Z'],
+    signal: 'M17 5h6v4h-6Z',
+  },
+  mcp: {
+    // A plug: one connector shape for many systems.
+    body: ['M12 2h4v8h-4Zm12 0h4v8h-4ZM7 10h26v8c0 7-5 12-11 12h-4C12 30 7 25 7 18ZM18 30h4v8h-4Z'],
+    signal: 'M17 15h6v5h-6Z',
+  },
+  'own-system': {
+    // Nested scopes: personal, team and project.
+    body: ['M2 2h36v36H2ZM6 6v28h28V6Z', 'M10 10h20v20H10ZM14 14v12h12V14Z'],
+    signal: 'M17 17h6v6h-6Z',
+  },
+  'agent-security': {
+    body: ['M10 18v-6a10 10 0 0 1 20 0v6h4v20H6V18Zm5 0h10v-6a5 5 0 0 0-10 0ZM18 24v8h4v-8Z'],
+    signal: 'M18 24h4v8h-4Z',
+  },
+  workspace: {
+    // A setup checklist: three items, the last one highlighted.
+    body: ['M6 2h28v36H6ZM10 6v28h20V6Z', 'M14 11h12v3H14Z', 'M14 18h12v3H14Z'],
+    signal: 'M14 25h12v3H14Z',
+  },
 };
